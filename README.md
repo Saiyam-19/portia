@@ -91,6 +91,17 @@ cd backend
 
 Open [localhost:3001](http://localhost:3001), create/sign in to an app account, and start a conversation. A Supabase dashboard account is separate from an app account.
 
+### UI preview (no backend)
+
+The redesigned chat interface runs fully mocked at `/chat` — no Supabase, OpenRouter key, or backend needed:
+
+```bash
+npm ci
+npm run dev -- --port 3001
+```
+
+Open [localhost:3001/chat](http://localhost:3001/chat). A scripted agent (`src/lib/portia/engine.ts`) simulates thinking, tool calls, a structured input form, streamed answers, estimates, stop, and a failure/retry state. Try the suggestion cards, `/` commands, or `@` port mentions; the theme switch is in the sidebar footer.
+
 ## Model selection
 
 The UI shows only **Model 1** and **Model 2**. The backend maps them in [`backend/models.py`](backend/models.py); both the main agent and port specialists use the chosen model. The browser remembers each conversation's selection locally. No provider model IDs or API keys are sent as selector data.
@@ -120,7 +131,10 @@ A build or offline test pass does not establish working email delivery, model in
 ```text
 src/app/                 Pages, auth callback, dashboard, chat
 src/components/          Chat UI, structured forms, navigation
+src/components/portia/   Redesigned agentic chat UI (mocked at /chat)
+src/components/ui/       Shared buttons, menus, toasts, motion, theme
 src/lib/                 Public model aliases and Supabase clients
+src/lib/portia/          Chat state, mock agent engine, seed data
 src/proxy.ts             Session refresh and protected-route redirects
 backend/agent.py         Main and port-specialist agents, tools, streaming
 backend/main.py          Authenticated FastAPI endpoints and persistence
