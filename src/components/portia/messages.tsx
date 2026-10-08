@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { CircleAlert, CornerDownRight, Pencil, RotateCcw, Square, ThumbsDown, ThumbsUp } from 'lucide-react'
+import { Anchor, CircleAlert, CornerDownRight, Pencil, RotateCcw, Square, ThumbsDown, ThumbsUp } from 'lucide-react'
 import type { AssistantMessage, FormResponse, Segment } from '@/lib/portia/types'
 import { cn } from '@/lib/portia/cn'
+import { tokenize } from '@/lib/portia/mentions'
 import { Button, CopyButton, Tooltip } from '@/components/ui/button'
 import { Collapse, PixelLoader, Shimmer, formatDuration } from '@/components/ui/motion'
 import { useToast } from '@/components/ui/toast'
@@ -257,11 +258,41 @@ export function AssistantTurn({
   )
 }
 
+/* Beautiful UI EntityChip — monogram + name in a soft pill, inline in text */
+function EntityChip({ name }: { name: string }) {
+  return (
+    <span className="mx-0.5 inline-flex translate-y-[-1px] items-center gap-1 rounded-full bg-surface py-px pr-2 pl-[3px] align-middle shadow-hairline">
+      <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-accent text-white">
+        <Anchor className="size-2.5" strokeWidth={2.6} />
+      </span>
+      <span className="text-[13px] font-medium text-ink">{name}</span>
+    </span>
+  )
+}
+
+function RichText({ content }: { content: string }) {
+  return (
+    <>
+      {tokenize(content).map((t, i) =>
+        t.kind === 'mention' ? (
+          <EntityChip key={i} name={t.name} />
+        ) : t.kind === 'command' ? (
+          <span key={i} className="mr-0.5 rounded-[5px] bg-hover-2 px-1 py-px font-mono text-[12.5px] text-ink-2">
+            {t.text}
+          </span>
+        ) : (
+          <span key={i}>{t.text}</span>
+        ),
+      )}
+    </>
+  )
+}
+
 export function UserTurn({ content, onEdit }: { content: string; onEdit: () => void }) {
   return (
     <div className="group/user flex flex-col items-end gap-1" style={{ animation: `fade-up 320ms ${EASE} both` }}>
       <div className="max-w-[85%] rounded-[18px] rounded-br-[6px] bg-field px-4 py-2.5 text-[14.5px] leading-[1.6] whitespace-pre-wrap text-ink shadow-[inset_0_0_0_1px_var(--line)]">
-        {content}
+        <RichText content={content} />
       </div>
       <div className="flex gap-0.5 opacity-0 transition-opacity duration-150 group-hover/user:opacity-100 focus-within:opacity-100">
         <CopyButton text={content} size="icon-xs" />

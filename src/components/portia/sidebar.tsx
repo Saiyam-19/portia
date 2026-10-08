@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from 'react'
 import { Ellipsis, PanelLeft, Pencil, Pin, PinOff, Search, SquarePen, Trash2, X } from 'lucide-react'
 import type { Conversation } from '@/lib/portia/types'
 import { cn } from '@/lib/portia/cn'
+import { AccountMenu } from './account-menu'
 import { Button, Tooltip } from '@/components/ui/button'
 import { GlideMenu, MenuItem, Popover, useDismiss } from '@/components/ui/popover'
-import { ThemeSwitch } from '@/components/ui/theme'
 
 export function Logo({ className }: { className?: string }) {
   return (
@@ -200,9 +200,7 @@ export function Sidebar({
   return (
     <div className="flex h-full w-[268px] flex-col">
       <div className="flex h-13 shrink-0 items-center gap-2.5 px-3.5">
-        <Logo />
         <span className="text-[15px] font-semibold tracking-[-0.02em] text-ink">Plisto</span>
-        <span className="rounded-full bg-hover-2 px-1.5 py-px text-[10.5px] font-medium text-ink-3">Preview</span>
         <Tooltip label="Close sidebar" side="bottom" align="end" className="ml-auto">
           <Button variant="ghost" size="icon-sm" aria-label="Close sidebar" onClick={onCollapse}>
             <PanelLeft strokeWidth={1.8} />
@@ -271,15 +269,8 @@ export function Sidebar({
         ))}
       </div>
 
-      <div className="flex shrink-0 items-center gap-2.5 border-t border-line px-3 py-2.5">
-        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-accent to-[oklch(0.62_0.17_200)] text-[11px] font-semibold text-white">
-          BW
-        </span>
-        <div className="min-w-0 flex-1 leading-tight">
-          <div className="truncate text-[12.5px] font-medium text-ink">Berthwise Ops</div>
-          <div className="truncate text-[11px] text-ink-3">Demo workspace</div>
-        </div>
-        <ThemeSwitch />
+      <div className="flex shrink-0 flex-col gap-1 border-t border-line px-2.5 pt-2 pb-2.5">
+        <AccountMenu />
       </div>
     </div>
   )

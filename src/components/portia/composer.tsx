@@ -5,6 +5,7 @@ import { Anchor, ArrowUp, AtSign, Calculator, ChevronDown, List, Mic, Paperclip,
 import type { ChatModel } from '@/lib/chat-model'
 import { PORTS } from '@/lib/portia/seed'
 import { cn } from '@/lib/portia/cn'
+import { tokenize } from '@/lib/portia/mentions'
 import { Button, IconSwap, Kbd, Tooltip } from '@/components/ui/button'
 import { GlideMenu, MenuItem, Popover, useDismiss } from '@/components/ui/popover'
 import { useToast } from '@/components/ui/toast'
@@ -111,6 +112,7 @@ export const Composer = forwardRef<
   const [sentPulse, setSentPulse] = useState(0)
   const ta = useRef<HTMLTextAreaElement>(null)
   const shell = useRef<HTMLDivElement>(null)
+  const mirror = useRef<HTMLDivElement>(null)
   const toast = useToast()
 
   useImperativeHandle(ref, () => ({
@@ -181,6 +183,7 @@ export const Composer = forwardRef<
   }, [sentPulse])
 
   const hero = size === 'hero'
+  const typeClass = hero ? 'min-h-12 text-[15px] leading-[1.6]' : 'min-h-6 text-[14.5px] leading-[1.6]'
 
   return (
     <div ref={shell} className="relative">
@@ -246,47 +249,81 @@ export const Composer = forwardRef<
           hero ? 'gap-3 p-3 pt-3.5' : 'gap-2 p-2.5 pt-3',
         )}
       >
-        <textarea
-          ref={ta}
-          rows={1}
-          value={value}
-          aria-label="Message"
-          placeholder={placeholder ?? 'Ask about port charges, tariffs or vessels…'}
-          onChange={(e) => update(e.target.value, e.target.selectionStart)}
-          onSelect={(e) => setCaret(e.currentTarget.selectionStart)}
-          onKeyDown={(e) => {
-            if (menu) {
-              if (e.key === 'ArrowDown') {
-                e.preventDefault()
-                setActive((activeIndex + 1) % count)
-                return
+        {/* textarea + mirrored highlight layer: identical metrics, so mentions
+            get a pill without moving a single glyph or the caret */}
+        <div className="relative">
+          <div
+            ref={mirror}
+            aria-hidden
+            className={cn(
+              'pointer-events-none absolute inset-0 overflow-hidden px-1.5 break-words whitespace-pre-wrap text-ink',
+              typeClass,
+            )}
+          >
+            {tokenize(value).map((t, i) =>
+              t.kind === 'mention' ? (
+                <span
+                  key={i}
+                  className="rounded-[5px] bg-accent-tint text-accent-ink shadow-[0_0_0_2px_var(--accent-tint)]"
+                >
+                  {t.text}
+                </span>
+              ) : t.kind === 'command' ? (
+                <span key={i} className="rounded-[5px] bg-hover-2 text-ink shadow-[0_0_0_2px_var(--hover-2)]">
+                  {t.text}
+                </span>
+              ) : (
+                <span key={i}>{t.text}</span>
+              ),
+            )}
+            {/* keeps a trailing newline's height in the mirror */}
+            {'​'}
+          </div>
+          <textarea
+            ref={ta}
+            rows={1}
+            value={value}
+            aria-label="Message"
+            placeholder={placeholder ?? 'Ask about port charges, tariffs or vessels…'}
+            onChange={(e) => update(e.target.value, e.target.selectionStart)}
+            onSelect={(e) => setCaret(e.currentTarget.selectionStart)}
+            onKeyDown={(e) => {
+              if (menu) {
+                if (e.key === 'ArrowDown') {
+                  e.preventDefault()
+                  setActive((activeIndex + 1) % count)
+                  return
+                }
+                if (e.key === 'ArrowUp') {
+                  e.preventDefault()
+                  setActive((activeIndex - 1 + count) % count)
+                  return
+                }
+                if (e.key === 'Enter' || e.key === 'Tab') {
+                  e.preventDefault()
+                  choose(activeIndex)
+                  return
+                }
+                if (e.key === 'Escape') {
+                  e.preventDefault()
+                  setMenuClosed(true)
+                  return
+                }
               }
-              if (e.key === 'ArrowUp') {
+              if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
                 e.preventDefault()
-                setActive((activeIndex - 1 + count) % count)
-                return
+                submit()
               }
-              if (e.key === 'Enter' || e.key === 'Tab') {
-                e.preventDefault()
-                choose(activeIndex)
-                return
-              }
-              if (e.key === 'Escape') {
-                e.preventDefault()
-                setMenuClosed(true)
-                return
-              }
-            }
-            if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
-              e.preventDefault()
-              submit()
-            }
-          }}
-          className={cn(
-            'scroll-quiet w-full resize-none bg-transparent px-1.5 text-ink outline-none placeholder:text-ink-3',
-            hero ? 'min-h-12 text-[15px] leading-[1.6]' : 'min-h-6 text-[14.5px] leading-[1.6]',
-          )}
-        />
+            }}
+            onScroll={(e) => {
+              if (mirror.current) mirror.current.scrollTop = e.currentTarget.scrollTop
+            }}
+            className={cn(
+              'scroll-quiet relative block w-full resize-none bg-transparent px-1.5 text-transparent caret-ink outline-none placeholder:text-ink-3',
+              typeClass,
+            )}
+          />
+        </div>
         <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
           <Tooltip label="Attach files">
             <Button variant="ghost" size="icon-sm" aria-label="Attach files" onClick={() => toast('Attachments arrive with the backend')}>

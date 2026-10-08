@@ -48,7 +48,7 @@ function EmptyState({ onPick, children }: { onPick: (prompt: string) => void; ch
             <span aria-hidden className="absolute inset-0 -z-10 scale-[2.2] rounded-full bg-accent/12 blur-2xl" />
             <Logo className="size-11 rounded-[13px] [&_svg]:size-[22px]" />
           </div>
-          <p className="text-[13px] text-ink-3" suppressHydrationWarning>{hello}, Berthwise</p>
+          <p className="text-[13px] text-ink-3" suppressHydrationWarning>{hello}, Acme</p>
           <h1 className="mt-1 text-[26px] font-semibold tracking-[-0.03em] text-ink">Where are we berthing today?</h1>
         </div>
         <div className="relative z-20" style={{ animation: `fade-up 500ms ${EASE} 80ms both` }}>
