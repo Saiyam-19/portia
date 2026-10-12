@@ -2,12 +2,11 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { migrationAuthClient } from '@/lib/migration/auth-client'
 import { Anchor, Eye, EyeOff } from 'lucide-react'
 
 export default function LoginForm({ basicSignup }: { basicSignup: boolean }) {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const [tab, setTab] = useState<'signin' | 'signup'>(
     basicSignup && searchParams.get('tab') === 'signup' ? 'signup' : 'signin'
@@ -33,12 +32,13 @@ export default function LoginForm({ basicSignup }: { basicSignup: boolean }) {
       if (tab === 'signin') {
         const { error } = await migrationAuthClient.signIn.email({ email, password });
         if (error) setError(error.message ?? 'Sign in failed.');
-        else { router.push('/dashboard'); router.refresh(); }
+        // Reset cached Better Auth/Convex state from the previous signed-out user.
+        else { window.location.assign('/dashboard'); }
       } else {
         if (!basicSignup) { setError('Account creation is not enabled for this preview.'); return; }
         const { error } = await migrationAuthClient.signUp.email({ email, password, name: email.split('@')[0] });
         if (error) setError(error.message ?? 'Account creation failed.');
-        else { router.push('/dashboard'); router.refresh(); }
+        else { window.location.assign('/dashboard'); }
       }
     } catch { setError('Couldn’t connect. Please try again.'); }
     finally { setLoading(false); }
