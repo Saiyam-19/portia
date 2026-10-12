@@ -1,108 +1,71 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import { ArrowUp } from 'lucide-react'
-import ModelSelector from '@/components/chat/model-selector'
+import { useMutation } from 'convex/react'
+import { api } from '../../../convex/_generated/api'
+import { Anchor, ArrowLeftRight, MapPin, Ship } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import Composer from '@/components/chat/composer'
+import WorkspaceHeader from '@/components/dashboard/workspace-header'
 import type { ChatModel } from '@/lib/chat-model'
 
-const SEED_QUESTIONS = [
-  'Charges for my vessel with IMO 12345 at Mumbai',
-  'Which ports are supported?',
-  'Compare Mumbai & Jaigarh pilotage',
-  'Konkan LNG berth charges',
+const PROMPTS = [
+  { label: 'Estimate port charges', text: 'Help me estimate port charges for my vessel at Mumbai.', icon: Ship },
+  { label: 'Compare two ports', text: 'Compare Mumbai & Jaigarh pilotage', icon: ArrowLeftRight },
+  { label: 'Explore supported ports', text: 'Which ports are supported?', icon: MapPin },
 ]
+
 export default function DashboardPage() {
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const [model, setModel] = useState<ChatModel>('model-1')
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const sendingRef = useRef(false)
   const router = useRouter()
-  const supabase = createClient()
+  const createConversation = useMutation(api.migration.createConversation)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async () => {
     const text = message.trim()
-    if (!text || loading) return
-
+    if (!text || sendingRef.current) return
+    sendingRef.current = true
     setLoading(true)
-
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) { router.push('/login'); return }
-
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/conversations`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${session.access_token}`,
-      },
-    })
-
-    if (!res.ok) { setLoading(false); return }
-
-    const conv = await res.json()
-    router.push(`/dashboard/chat/${conv.id}?q=${encodeURIComponent(text)}&model=${model}`)
+    setError('')
+    try {
+      const id = await createConversation()
+      const requestId = crypto.randomUUID()
+      router.push(`/dashboard/chat/${id}?q=${encodeURIComponent(text)}&model=${model}&request=${requestId}`)
+    } catch {
+      setError('Couldn’t start the conversation. Your message is saved here — please try again.')
+      setLoading(false)
+      sendingRef.current = false
+    }
   }
 
   return (
-    <div className="flex flex-col h-full items-center justify-center px-6">
-      <div className="w-full max-w-2xl">
-        <h1 className="text-2xl font-bold text-slate-900 text-center mb-2">
-          Port Intelligence Assistant
-        </h1>
-        <p className="text-slate-500 text-center text-sm mb-10">
-          Ask anything about port charges, regulations, or maritime operations.
-        </p>
-
-        <div className="mb-4">
-          <p className="text-xs font-medium text-slate-400 text-center mb-3">
-            Try asking
-          </p>
-          <div className="flex flex-wrap justify-center gap-2">
-            {SEED_QUESTIONS.map((q) => (
-              <button
-                key={q}
-                type="button"
-                onClick={() => setMessage(q)}
-                disabled={loading}
-                className="text-sm text-slate-600 border border-slate-200 rounded-full px-4 py-2 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {q}
-              </button>
+    <div className="flex h-full flex-col">
+      <WorkspaceHeader title="New conversation" />
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+        <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center px-5 pt-10 pb-16 sm:px-8 sm:pb-24">
+          <div className="mb-9 text-center">
+            <Anchor className="mx-auto mb-5 size-9 text-brand" strokeWidth={1.5} aria-hidden="true" />
+            <h2 className="text-3xl leading-tight font-medium tracking-tight text-balance sm:text-4xl">Your next port call,<br className="sm:hidden" /> simplified.</h2>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">Explore tariffs, compare ports, and work through the details.</p>
+          </div>
+          <Composer value={message} onChange={setMessage} onSend={() => void handleSubmit()} model={model} onModelChange={setModel} loading={loading} textareaRef={textareaRef} />
+          {error && <Alert variant="destructive" className="mt-3"><AlertDescription>{error}</AlertDescription></Alert>}
+          <div className="mt-5 flex flex-wrap justify-center gap-x-2 gap-y-1">
+            {PROMPTS.map(prompt => (
+              <Button key={prompt.label} type="button" variant="ghost" className="min-h-10 gap-2 rounded-full px-3 text-xs font-normal text-muted-foreground" disabled={loading}
+                onClick={() => { setMessage(prompt.text); textareaRef.current?.focus() }}>
+                <prompt.icon className="size-3.5" aria-hidden="true" />{prompt.label}
+              </Button>
             ))}
           </div>
         </div>
-
-        <div className="mb-3">
-          <ModelSelector value={model} onChange={setModel} disabled={loading} />
-        </div>
-        <form onSubmit={handleSubmit} className="relative">
-          <textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault()
-                handleSubmit(e as unknown as React.FormEvent)
-              }
-            }}
-            placeholder="e.g. What are the typical port charges for MV Ocean Pioneer at Mumbai port?"
-            rows={3}
-            disabled={loading}
-            className="w-full resize-none border border-slate-200 rounded-2xl px-5 py-4 pr-14 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm disabled:opacity-60 leading-relaxed"
-          />
-          <button
-            type="submit"
-            disabled={!message.trim() || loading}
-            className="absolute bottom-3 right-3 w-9 h-9 bg-blue-600 text-white rounded-xl flex items-center justify-center hover:bg-blue-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <ArrowUp className="w-4 h-4" />
-          </button>
-        </form>
-
-        <p className="text-xs text-slate-400 text-center mt-3">
-          Enter to send · Shift+Enter for new line
-        </p>
+        <p className="px-6 pt-3 pb-5 text-center text-xs leading-relaxed text-muted-foreground">Estimates should be checked against current port tariffs.</p>
       </div>
     </div>
   )

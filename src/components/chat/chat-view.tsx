@@ -1,460 +1,209 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { flushSync } from 'react-dom'
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { useChat } from '@ai-sdk/react'
+import type { UIMessage } from 'ai'
+import { useMutation, usePaginatedQuery, useQuery } from 'convex/react'
+import { api } from '../../../convex/_generated/api'
+import { migrationTransport } from '@/lib/migration/transport'
+import { initialQuestionDraft, migrationRunState, questionDraftReducer } from '@/lib/migration/client-state'
+import { formDefinitionSchema, type MigrationChatRequest } from '@/lib/migration/contracts'
 import Message from './message'
+import Composer from './composer'
 import ModelSelector from './model-selector'
+import WorkspaceHeader from '@/components/dashboard/workspace-header'
+import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { type ChatModel, isChatModel } from '@/lib/chat-model'
-import { ArrowUp, Square, Loader2 } from 'lucide-react'
+import { ArrowDown, Loader2, Trash2 } from 'lucide-react'
 
-export type FormField = {
-  name: string
-  label: string
-  type: 'text' | 'number' | 'radio' | 'textarea'
-  placeholder?: string
-  options?: string[]
-  unit?: string
-  required?: boolean
-}
+export type FormField = { name: string; label: string; type: 'text' | 'number' | 'radio' | 'textarea'; placeholder?: string; options?: string[]; unit?: string; hint?: string; required?: boolean }
+export type FormCard = { toolCallId: string; title: string; description?: string; fields: FormField[]; response: { content: string; cancelled: boolean } | null }
+export type Segment = { kind: 'text'; content: string } | { kind: 'tool'; id: string; tool: string; label: string; status: 'running' | 'done' | 'error' } | { kind: 'card'; formCard: FormCard }
+type ChatMessage = { id: string; role: 'user' | 'assistant'; segments: Segment[]; streaming?: boolean; interrupted?: boolean }
+type LiveMessage = UIMessage<{ conversationId?: string; runId?: string; revision?: number }>
+const TOOL_LABELS: Record<string, string> = { consult_port_agent: 'Consulting port tariff', calculate_charges: 'Calculating charges', search_vessels: 'Searching vessels', get_vessel: 'Checking vessel details', ask_user_input: 'Preparing details', remember_memory: 'Saving memory', recall_memory: 'Recalling saved memory', forget_memory: 'Forgetting memory', write_scratchpad: 'Saving working notes', read_scratchpad: 'Reading working notes' }
 
-export type FormCard = {
-  toolCallId: string
-  title: string
-  fields: FormField[]
-  response: { content: string; cancelled: boolean } | null
-}
-
-export type Segment =
-  | { kind: 'text'; content: string }
-  | { kind: 'tool'; id: string; tool: string; label: string; status: 'running' | 'done' }
-  | { kind: 'card'; formCard: FormCard }
-
-interface ChatMessage {
-  id?: string
-  role: 'user' | 'assistant'
-  segments: Segment[]
-  streaming?: boolean
-}
-
-interface ApiMessage {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  created_at: string
-  form_card?: {
-    tool_call_id: string
-    title: string
-    fields: FormField[]
-    response: { content: string; cancelled: boolean } | null
-  }
-}
-
-interface Props {
-  conversationId: string
-  initialMessage?: string
-  initialModel?: ChatModel
-}
-
-function toMessage(role: 'user' | 'assistant', content: string, streaming?: boolean): ChatMessage {
-  return { role, segments: [{ kind: 'text', content }], streaming }
-}
-
-function messagesFromHistory(raw: ApiMessage[]): ChatMessage[] {
-  return raw.map(m => {
-    if (m.form_card) {
-      const segs: Segment[] = []
-      if (m.content) segs.push({ kind: 'text', content: m.content })
-      segs.push({
-        kind: 'card',
-        formCard: {
-          toolCallId: m.form_card.tool_call_id,
-          title: m.form_card.title,
-          fields: m.form_card.fields,
-          response: m.form_card.response,
-        },
-      })
-      return { role: 'assistant' as const, segments: segs }
-    }
-    return toMessage(m.role, m.content)
-  })
-}
-
-export default function ChatView({ conversationId, initialMessage, initialModel = 'model-1' }: Props) {
-  const [items, setItems] = useState<ChatMessage[]>([])
-  const [input, setInput] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [ready, setReady] = useState(false)
-  const [model, setModel] = useState<ChatModel>(initialModel)
-
-  const selectModel = (value: ChatModel) => {
-    setModel(value)
-    try { localStorage.setItem(`portia:chat-model:${conversationId}`, value) } catch { /* Storage may be disabled. */ }
-  }
-
-  const bottomRef = useRef<HTMLDivElement>(null)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const abortRef = useRef<AbortController | null>(null)
+export default function ChatView({ conversationId, initialMessage, initialRequestId, initialModel = 'model-1' }: { conversationId: string; initialMessage?: string; initialRequestId?: string; initialModel?: ChatModel }) {
   const router = useRouter()
-  const supabase = createClient()
-
-  const getToken = async (): Promise<string | null> => {
-    const { data: { session } } = await supabase.auth.getSession()
-    return session?.access_token ?? null
-  }
-
-  const scrollToBottom = () => bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-
-  // Detect a pending (unresolved) form card across all messages
-  const pendingForm = (() => {
-    for (const msg of items) {
-      for (const seg of msg.segments) {
-        if (seg.kind === 'card' && seg.formCard.response === null) return seg.formCard
+  const conversation = useQuery(api.migration.getConversation, { conversationId })
+  const history = usePaginatedQuery(api.migration.listConversationMessages, conversation ? { conversationId: conversation.conversation.id } : 'skip', { initialNumItems: 40 })
+  const deleteConversation = useMutation(api.migration.deleteConversation)
+  const [draftState, dispatchDraft] = useReducer(questionDraftReducer, initialQuestionDraft)
+  const input = draftState.input
+  const setInput = (value: string) => dispatchDraft({ type: 'edit', value })
+  const [model, setModel] = useState<ChatModel>(initialModel)
+  const [localError, setLocalError] = useState('')
+  const [deleting, setDeleting] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [showScrollDown, setShowScrollDown] = useState(false)
+  const bottomRef = useRef<HTMLDivElement>(null)
+  const followRef = useRef(true)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const initialSent = useRef(false)
+  const sending = useRef(false)
+  const [requestKind, setRequestKind] = useState<'question' | 'form'>('question')
+  const { messages, sendMessage, status, stop, setMessages, clearError } = useChat<LiveMessage>({
+    id: conversationId,
+    transport: migrationTransport,
+    onError: () => {
+      setLocalError('Couldn’t complete the response. Saved steps remain below; review them before retrying.')
+      dispatchDraft({ type: 'transport-failed' })
+      setMessages([])
+      sending.current = false
+    },
+    onFinish: ({ message, isAbort, isError }) => {
+      dispatchDraft({ type: 'observe', metadata: message.metadata })
+      sending.current = false
+      if (isAbort || isError) {
+        setLocalError('Response interrupted. Partial work is not a completed estimate.')
+        dispatchDraft({ type: 'transport-failed' })
       }
-    }
-    return null
-  })()
-
-  // ── Segment helpers ────────────────────────────────────────────────────────
-
-  const appendChunk = (text: string) => {
-    setItems(prev => {
-      const updated = [...prev]
-      for (let i = updated.length - 1; i >= 0; i--) {
-        if (updated[i].role === 'assistant') {
-          const segs = [...updated[i].segments]
-          const last = segs[segs.length - 1]
-          if (last?.kind === 'text') {
-            segs[segs.length - 1] = { kind: 'text', content: last.content + text }
-          } else {
-            segs.push({ kind: 'text', content: text })
-          }
-          updated[i] = { ...updated[i], segments: segs }
-          break
-        }
-      }
-      return updated
-    })
-    scrollToBottom()
-  }
-
-  const finaliseAssistant = (errorText?: string) => {
-    setItems(prev => {
-      const updated = [...prev]
-      for (let i = updated.length - 1; i >= 0; i--) {
-        if (updated[i].role === 'assistant') {
-          updated[i] = {
-            ...updated[i],
-            streaming: false,
-            ...(errorText ? { segments: [{ kind: 'text', content: errorText }] } : {}),
-          }
-          break
-        }
-      }
-      return updated
-    })
-  }
-
-  const upsertTool = (tool: string, label: string, status: 'running' | 'done') => {
-    setItems(prev => {
-      const updated = [...prev]
-      for (let i = updated.length - 1; i >= 0; i--) {
-        if (updated[i].role === 'assistant') {
-          const segs = [...updated[i].segments]
-          if (status === 'running') {
-            segs.push({ kind: 'tool', id: `${tool}-${Date.now()}`, tool, label, status: 'running' })
-          } else {
-            const runningIdx = [...segs].reverse().findIndex(
-              s => s.kind === 'tool' && (s as Extract<Segment, { kind: 'tool' }>).tool === tool && s.status === 'running'
-            )
-            if (runningIdx === -1) return prev
-            const actualIdx = segs.length - 1 - runningIdx
-            segs[actualIdx] = { ...(segs[actualIdx] as Extract<Segment, { kind: 'tool' }>), status: 'done' }
-          }
-          updated[i] = { ...updated[i], segments: segs }
-          break
-        }
-      }
-      return updated
-    })
-    scrollToBottom()
-  }
-
-  const addCard = (card: { tool_call_id: string; title: string; fields: FormField[] }) => {
-    setItems(prev => {
-      const updated = [...prev]
-      for (let i = updated.length - 1; i >= 0; i--) {
-        if (updated[i].role === 'assistant') {
-          const segs = [...updated[i].segments]
-          segs.push({
-            kind: 'card',
-            formCard: { toolCallId: card.tool_call_id, title: card.title, fields: card.fields, response: null },
-          })
-          updated[i] = { ...updated[i], segments: segs }
-          break
-        }
-      }
-      return updated
-    })
-    scrollToBottom()
-  }
-
-  const resolveCard = (toolCallId: string, response: { content: string; cancelled: boolean }) => {
-    setItems(prev =>
-      prev.map(msg => ({
-        ...msg,
-        segments: msg.segments.map(seg =>
-          seg.kind === 'card' && seg.formCard.toolCallId === toolCallId
-            ? { ...seg, formCard: { ...seg.formCard, response } }
-            : seg
-        ),
-      }))
-    )
-  }
-
-  // ── SSE reader ─────────────────────────────────────────────────────────────
-
-  const readStream = async (res: Response) => {
-    const reader = res.body!.getReader()
-    const decoder = new TextDecoder()
-    try {
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        for (const line of decoder.decode(value, { stream: true }).split('\n')) {
-          if (!line.startsWith('data: ')) continue
-          try {
-            const data = JSON.parse(line.slice(6))
-            if (data.text)       appendChunk(data.text)
-            if (data.error)      finaliseAssistant(`Error: ${data.error}`)
-            if (data.done)       finaliseAssistant()
-            if (data.card)       addCard(data.card)
-            if (data.tool_start) flushSync(() => upsertTool(data.tool_start, data.label, 'running'))
-            if (data.tool_end)   setTimeout(() => upsertTool(data.tool_end, data.label, 'done'), 0)
-          } catch { /* ignore malformed lines */ }
-        }
-      }
-    } catch (e: unknown) {
-      if (e instanceof Error && e.name !== 'AbortError') finaliseAssistant('Stream interrupted.')
-      else finaliseAssistant()
-    } finally {
-      abortRef.current = null
-    }
-  }
-
-  // ── Send user message ──────────────────────────────────────────────────────
-
-  const streamRequest = async (text: string, token: string, selectedModel: ChatModel = model) => {
-    const controller = new AbortController()
-    abortRef.current = controller
-    let res: Response
-    try {
-      res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/conversations/${conversationId}/stream`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ message: text, model: selectedModel }),
-          signal: controller.signal,
-        }
-      )
-    } catch (e: unknown) {
-      if (e instanceof Error && e.name === 'AbortError') { finaliseAssistant(); return }
-      finaliseAssistant('Something went wrong. Please try again.')
-      return
-    }
-    if (!res.ok || !res.body) { finaliseAssistant('Something went wrong. Please try again.'); return }
-    await readStream(res)
-  }
-
-  const sendMessage = async (text: string) => {
-    if (!text.trim() || loading) return
-    setLoading(true)
-    let token: string | null
-    try { token = await getToken() } catch { setLoading(false); return }
-    if (!token) { setLoading(false); router.push('/login'); return }
-    setInput('')
-    setItems(prev => [...prev, toMessage('user', text), toMessage('assistant', '', true)])
-    setTimeout(scrollToBottom, 50)
-    await streamRequest(text, token)
-    setLoading(false)
-    textareaRef.current?.focus()
-  }
-
-  // ── Form response ──────────────────────────────────────────────────────────
-
-  const handleFormResponse = async (
-    toolCallId: string,
-    data: Record<string, string>,
-    note: string,
-    cancelled: boolean,
-  ) => {
-    if (loading) return
-    setLoading(true)
-    const parts = cancelled
-      ? ['Cancelled.', note.trim() ? `Note: ${note.trim()}` : ''].filter(Boolean)
-      : [...Object.entries(data).filter(([, v]) => v.trim()).map(([k, v]) => `${k}: ${v}`),
-         note.trim() ? `Note: ${note.trim()}` : ''].filter(Boolean)
-    const content = parts.join('\n')
-
-    let token: string | null
-    try { token = await getToken() } catch { setLoading(false); return }
-    if (!token) { setLoading(false); router.push('/login'); return }
-    resolveCard(toolCallId, { content, cancelled })
-    setItems(prev => [...prev, toMessage('assistant', '', true)])
-    setTimeout(scrollToBottom, 50)
-
-    const controller = new AbortController()
-    abortRef.current = controller
-    let res: Response
-    try {
-      res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/conversations/${conversationId}/form_response`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ tool_call_id: toolCallId, data, note, cancelled, model }),
-          signal: controller.signal,
-        }
-      )
-    } catch (e: unknown) {
-      if (e instanceof Error && e.name === 'AbortError') { finaliseAssistant(); setLoading(false); return }
-      finaliseAssistant('Something went wrong. Please try again.')
-      setLoading(false)
-      return
-    }
-    if (!res.ok || !res.body) { finaliseAssistant('Something went wrong.'); setLoading(false); return }
-    await readStream(res)
-    setLoading(false)
-    textareaRef.current?.focus()
-  }
-
-  const stopStreaming = () => abortRef.current?.abort()
-
-  // ── Init ───────────────────────────────────────────────────────────────────
-
+    },
+  })
+  const transportBusy = status === 'submitted' || status === 'streaming'
+  const streamedRunId = [...messages].reverse().find(message => message.metadata?.runId)?.metadata?.runId
+  const { running, activeRunId } = migrationRunState(status, streamedRunId, conversation?.conversation)
+  const forms = conversation?.forms ?? []
+  const pendingForm = forms.find(form => form.status === 'pending')
+  const ready = conversation !== undefined && history.status !== 'LoadingFirstPage'
+  const latestMetadata = [...messages].reverse().find(message => message.metadata?.runId)?.metadata
   useEffect(() => {
-    let active = true
-    const init = async () => {
-      let selectedModel = initialModel
-      try {
-        const saved = localStorage.getItem(`portia:chat-model:${conversationId}`)
-        if (!initialMessage && isChatModel(saved)) selectedModel = saved
-      } catch { /* Storage may be disabled. */ }
-      selectModel(selectedModel)
-      const token = await getToken()
-      if (!active) return
-      if (!token) { router.push('/login'); return }
-
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/conversations/${conversationId}/messages`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
-      if (!active) return
-
-      let existing: ChatMessage[] = []
-      if (res.ok) existing = messagesFromHistory(await res.json())
-
-      if (initialMessage) {
-        const text = initialMessage
-        window.history.replaceState({}, '', `/dashboard/chat/${conversationId}`)
-        setItems([...existing, toMessage('user', text), toMessage('assistant', '', true)])
-        setLoading(true)
-        setReady(true)
-        setTimeout(scrollToBottom, 50)
-        await streamRequest(text, token, selectedModel)
-        if (active) { setLoading(false); textareaRef.current?.focus() }
+    dispatchDraft({ type: 'observe', metadata: latestMetadata })
+  }, [latestMetadata])
+  const pendingDraftRunId = draftState.pending?.runId
+  const persistedDraftRunStatus = history.results.find(item => item.runId === pendingDraftRunId)?.runStatus
+  useEffect(() => {
+    if (pendingDraftRunId && persistedDraftRunStatus) dispatchDraft({ type: 'saved', runId: pendingDraftRunId, status: persistedDraftRunStatus, transportBusy })
+  }, [pendingDraftRunId, persistedDraftRunStatus, transportBusy])
+  useEffect(() => {
+    if (!transportBusy && messages.length && conversation && conversation.conversation.state !== 'running' && history.results.some(item => item.runId === streamedRunId)) setMessages([])
+  }, [transportBusy, messages.length, conversation, history.results, streamedRunId, setMessages])
+  useEffect(() => {
+    if (!initialMessage) {
+      // Synchronize the browser-only saved preference after server hydration.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      try { const value = localStorage.getItem(`portia:chat-model:${conversationId}`); if (isChatModel(value)) setModel(value) } catch { /* Storage may be unavailable. */ }
+    }
+  }, [conversationId, initialMessage])
+  const selectModel = (value: ChatModel) => { setModel(value); try { localStorage.setItem(`portia:chat-model:${conversationId}`, value) } catch { /* Optional preference. */ } }
+  const submit = useCallback(async (body: MigrationChatRequest, text: string) => {
+    if (sending.current) return
+    sending.current = true
+    setLocalError(''); clearError(); followRef.current = true
+    setRequestKind(body.kind)
+    try { await sendMessage({ text }, { body }); }
+    catch { dispatchDraft({ type: 'transport-failed' }); setLocalError('Couldn’t send. Your draft is still available.'); }
+    finally { sending.current = false }
+  }, [sendMessage, clearError])
+  const question = useCallback(async (text: string, requestId = crypto.randomUUID()) => {
+    const normalized = text.trim()
+    if (!normalized || !conversation || running || pendingForm || sending.current) return
+    dispatchDraft({ type: 'question', text: normalized, revision: conversation.conversation.revision + 1 })
+    await submit({ kind: 'question', requestId, conversationId, expectedRevision: conversation.conversation.revision, question: normalized, modelAlias: model }, normalized)
+  }, [conversation, conversationId, running, pendingForm, model, submit])
+  useEffect(() => {
+    if (!ready || !conversation || !initialMessage || initialSent.current) return
+    initialSent.current = true
+    const requestId = initialRequestId && /^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(initialRequestId) ? initialRequestId : crypto.randomUUID()
+    // A non-empty saved conversation has already consumed this navigation intent.
+    if (conversation.conversation.revision === 0) void question(initialMessage, requestId)
+    window.history.replaceState(null, '', `/dashboard/chat/${conversationId}`)
+  }, [ready, conversation, initialMessage, initialRequestId, conversationId, question])
+  const handleForm = async (toolCallId: string, values: Record<string, string>, note: string, cancelled: boolean) => {
+    if (!conversation || running || sending.current || pendingForm?.toolCallId !== toolCallId) return
+    dispatchDraft({ type: 'form' })
+    await submit({ kind: 'form', requestId: crypto.randomUUID(), conversationId, expectedRevision: conversation.conversation.revision, modelAlias: model, toolCallId, values, note, cancelled }, cancelled ? 'Cancelled form' : 'Submitted details')
+  }
+  const stopRun = async () => {
+    if (!activeRunId) { stop(); return }
+    try {
+      const response = await fetch('/api/chat/cancel', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ runId: activeRunId }) })
+      if (!response.ok) throw new Error('Stop failed')
+      stop(); setLocalError('Response stopped. Partial work is not a completed estimate.')
+    } catch { setLocalError('Couldn’t stop the response. Please try again.') }
+  }
+  const remove = async () => {
+    if (!conversation || deleting) return
+    setDeleting(true)
+    try { await deleteConversation({ conversationId: conversation.conversation.id }); stop(); router.replace('/dashboard') }
+    catch { setLocalError('Couldn’t delete this conversation. Please try again.'); setDeleting(false) }
+  }
+  const formCard = (toolCallId: string): FormCard | null => {
+    const form = forms.find(value => value.toolCallId === toolCallId)
+    if (!form) return null
+    return { toolCallId, title: form.title, description: form.description ?? undefined, fields: form.fields, response: form.status === 'pending' ? null : { cancelled: form.status === 'cancelled', content: [...Object.entries(form.values ?? {}).filter(([,value]) => value.trim()).map(([key,value]) => `${key}: ${value}`), form.note ? `Note: ${form.note}` : ''].filter(Boolean).join('\n') } }
+  }
+  const items: ChatMessage[] = []
+  const seenTools = new Map<string, Extract<Segment, {kind: 'tool'}>>()
+  const seenForms = new Set<string>()
+  const liveRun = streamedRunId ?? (transportBusy ? conversation?.conversation.activeRunId : undefined)
+  for (const message of [...history.results].sort((a,b) => a.order - b.order || a.stepOrder - b.stepOrder)) {
+    if (messages.length && liveRun && message.runId === liveRun) continue
+    const segments: Segment[] = []
+    for (const part of message.parts) {
+      if (part.type === 'text') segments.push({ kind: 'text', content: part.text })
+      else if (part.toolName === 'ask_user_input') {
+        const card = formCard(part.toolCallId)
+        if (card && !seenForms.has(part.toolCallId)) { segments.push({ kind: 'card', formCard: card }); seenForms.add(part.toolCallId) }
       } else {
-        setItems(existing)
-        setReady(true)
+        const prior = seenTools.get(part.toolCallId)
+        const toolStatus = part.status === 'error' ? 'error' : part.status === 'completed' ? 'done' : message.runStatus === 'active' ? 'running' : 'error'
+        if (prior) prior.status = toolStatus
+        else { const tool: Extract<Segment, {kind:'tool'}> = { kind: 'tool', id: part.toolCallId, tool: part.toolName, label: TOOL_LABELS[part.toolName] ?? 'Working', status: toolStatus }; seenTools.set(part.toolCallId, tool); segments.push(tool) }
       }
     }
-    init()
-    return () => { active = false; abortRef.current?.abort() }
-  }, [conversationId]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  if (!ready) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
-      </div>
-    )
+    if (segments.length) items.push({ id: message.id, role: message.role, segments, interrupted: ['cancelled','expired','error'].includes(message.runStatus ?? '') && message.role === 'assistant' })
   }
-
+  for (const message of messages) {
+    const segments: Segment[] = []
+    // Form continuation is represented inline, not as a duplicate synthetic user bubble.
+    if (message.role === 'user' && requestKind === 'form') continue
+    for (const part of message.parts) {
+      if (part.type === 'text') segments.push({ kind: 'text', content: part.text })
+      else if (part.type.startsWith('tool-') || part.type === 'dynamic-tool') {
+        const tool = part as unknown as { toolCallId: string; toolName?: string; state: string; input?: unknown }
+        const name = tool.toolName ?? part.type.slice(5)
+        if (name === 'ask_user_input') {
+          const existing = formCard(tool.toolCallId)
+          const parsed = formDefinitionSchema.safeParse({ ...(tool.input && typeof tool.input === 'object' ? tool.input : {}), toolCallId: tool.toolCallId })
+          const card = existing ?? (parsed.success ? { ...parsed.data, response: null } : null)
+          if (card && !seenForms.has(tool.toolCallId)) { segments.push({ kind:'card', formCard: card }); seenForms.add(tool.toolCallId) }
+        } else if (TOOL_LABELS[name]) segments.push({ kind:'tool', id: tool.toolCallId, tool:name, label:TOOL_LABELS[name], status: tool.state === 'output-error' ? 'error' : tool.state === 'output-available' ? 'done' : running ? 'running' : 'error' })
+      }
+    }
+    if (message.role === 'user' || message.role === 'assistant') items.push({ id: message.id, role: message.role, segments, streaming: message.role === 'assistant' && transportBusy })
+  }
+  const itemSignature = JSON.stringify(items)
+  useEffect(() => { if (followRef.current) bottomRef.current?.scrollIntoView({ block: 'end' }) }, [itemSignature])
+  const scrollToBottom = () => { followRef.current = true; bottomRef.current?.scrollIntoView({ block: 'end' }); setShowScrollDown(false) }
+  const error = localError || (!running && ['error','stopped'].includes(conversation?.conversation.state ?? '') ? 'This response was interrupted. Saved steps are partial work, not a completed estimate.' : '')
+  const hasPendingCard = Boolean(pendingForm) || items.some(item => item.segments.some(segment => segment.kind === 'card' && segment.formCard.response === null))
   return (
-    <div className="flex flex-col h-full">
-      {/* Messages */}
-      <div className="flex-1 min-h-0 overflow-y-auto">
-        <div className="max-w-3xl mx-auto px-4 py-8 space-y-1">
-          {items.length === 0 && (
-            <p className="text-center text-slate-400 text-sm pt-20">No messages yet.</p>
-          )}
-          {items.map((msg, i) => (
-            <div key={i} className="py-2.5">
-              <Message
-                role={msg.role}
-                segments={msg.segments}
-                streaming={msg.streaming}
-                onFormSubmit={(toolCallId, data, note) => handleFormResponse(toolCallId, data, note, false)}
-                onFormCancel={(toolCallId, note) => handleFormResponse(toolCallId, {}, note, true)}
-              />
-            </div>
-          ))}
-          <div ref={bottomRef} />
+    <div className="relative flex h-full flex-col">
+      <WorkspaceHeader title={conversation?.conversation.title ?? 'Conversation'} conversation />
+      {conversation === null ? <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-sm text-muted-foreground"><p>Conversation not found or unavailable to this account.</p><Button onClick={() => router.replace('/dashboard')}>New conversation</Button></div> : !ready ? <div role="status" className="flex flex-1 items-center justify-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />Loading conversation…</div> : <>
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain" onScroll={event => { const e = event.currentTarget; followRef.current = e.scrollHeight - e.scrollTop - e.clientHeight < 100; setShowScrollDown(!followRef.current) }}>
+          <div className="mx-auto w-full max-w-3xl space-y-8 px-5 pt-5 pb-8 sm:px-8">
+            {history.status === 'CanLoadMore' && <Button variant="ghost" onClick={() => { followRef.current = false; history.loadMore(40) }}>Load earlier messages</Button>}
+            {history.status === 'LoadingMore' && <p role="status" className="text-xs text-muted-foreground">Loading earlier messages…</p>}
+            {items.length === 0 && <p className="py-20 text-center text-sm text-muted-foreground">Start with a port, a vessel, or a question.</p>}
+            {items.map(message => <div key={message.id}><Message role={message.role} segments={message.segments} streaming={message.streaming} formDisabled={running} onFormSubmit={(id,values,note) => void handleForm(id,values,note,false)} onFormCancel={(id,note) => void handleForm(id,{},note,true)} />{message.interrupted && <p className="mt-2 text-xs text-destructive">Interrupted response · partial work</p>}</div>)}
+            {running && !transportBusy && <div role="status" className="text-xs text-muted-foreground">A response is running. Completed steps appear here as they are saved.</div>}
+            {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
+            <div ref={bottomRef} />
+          </div>
         </div>
-      </div>
-
-      {/* Input bar — hidden while a form is pending */}
-      <div className="shrink-0 border-t border-slate-100 bg-white px-4 py-4">
-        <div className="max-w-3xl mx-auto mb-3">
-          <ModelSelector value={model} onChange={selectModel} disabled={loading} />
+        <div className="relative shrink-0 pb-4">
+          {showScrollDown && <Button variant="outline" size="icon-lg" className="absolute -top-12 left-1/2 -translate-x-1/2 rounded-full bg-background" aria-label="Scroll to latest message" onClick={scrollToBottom}><ArrowDown aria-hidden="true" /></Button>}
+          <div className="mx-auto w-full max-w-3xl px-5 sm:px-8">
+            {hasPendingCard ? <div role="status" className="rounded-xl border border-border bg-muted/40 px-4 py-4 text-center text-xs text-muted-foreground">Complete the details above to continue.<div className="mt-2 flex justify-center"><ModelSelector value={model} onChange={selectModel} disabled={running} /></div>{running && <Button variant="ghost" size="sm" className="ml-2" onClick={() => void stopRun()}>Stop response</Button>}</div> : <Composer value={input} onChange={setInput} onSend={() => void question(input)} model={model} onModelChange={selectModel} loading={running} onStop={() => void stopRun()} textareaRef={textareaRef} placeholder="Ask a follow-up question…" />}
+            <div className="mt-3 flex items-center justify-between gap-3"><p className="text-[11px] leading-relaxed text-muted-foreground">Estimates should be checked against current port tariffs.</p><Button variant="ghost" size="icon-sm" aria-label="Delete conversation" onClick={() => setConfirmDelete(true)}><Trash2 className="size-3.5" /></Button></div>
+            {confirmDelete && <div role="alert" className="mt-2 flex flex-wrap items-center gap-2 text-xs"><span>Delete this conversation and its messages?</span><Button variant="destructive" size="sm" disabled={deleting} onClick={() => void remove()}>{deleting ? 'Deleting…' : 'Delete'}</Button><Button variant="ghost" size="sm" disabled={deleting} onClick={() => setConfirmDelete(false)}>Keep conversation</Button></div>}
+          </div>
         </div>
-        {pendingForm ? (
-          <p className="text-center text-sm text-slate-400 max-w-3xl mx-auto py-1">
-            Fill out the form above to continue.
-          </p>
-        ) : (
-          <form
-            onSubmit={e => { e.preventDefault(); sendMessage(input) }}
-            className="relative max-w-3xl mx-auto"
-          >
-            <textarea
-              ref={textareaRef}
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault()
-                  sendMessage(input)
-                }
-              }}
-              placeholder="Ask a follow-up question…"
-              rows={1}
-              disabled={loading}
-              className="w-full resize-none border border-slate-200 rounded-2xl px-5 py-3.5 pr-14 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm disabled:opacity-60 leading-relaxed"
-              style={{ maxHeight: '140px', overflowY: 'auto' }}
-            />
-            {loading ? (
-              <button
-                type="button"
-                onClick={stopStreaming}
-                className="absolute bottom-2.5 right-3 w-9 h-9 bg-slate-800 text-white rounded-xl flex items-center justify-center hover:bg-slate-700 transition-colors"
-              >
-                <Square className="w-3.5 h-3.5 fill-white" />
-              </button>
-            ) : (
-              <button
-                type="submit"
-                disabled={!input.trim()}
-                className="absolute bottom-2.5 right-3 w-9 h-9 bg-blue-600 text-white rounded-xl flex items-center justify-center hover:bg-blue-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <ArrowUp className="w-4 h-4" />
-              </button>
-            )}
-          </form>
-        )}
-      </div>
+      </>}
     </div>
   )
 }

@@ -1,139 +1,26 @@
-# Portia
+# Portia / Plisto
 
-Portia (also branded Plisto in the app) is a maritime assistant for exploring port tariffs, estimating charges, and comparing supported Indian ports and terminals.
+Maritime tariff assistant: Next.js 16, AI SDK 7 and OpenRouter; Convex owns authenticated conversations, runs, forms, and Agent-component message history. Better Auth provides fresh email/password accounts. The normal app is `/dashboard`; `/chat` redirects there.
 
-Built with **Next.js 16 / React 19**, **FastAPI / LangGraph**, **Supabase**, and **OpenRouter**.
+## Local setup
 
-## Features
+Use Node 22, `npm install`, and the variables documented in [.env.example](.env.example). `PORTIA_CONVEX_DEPLOYMENT` must match both configured Convex URLs exactly. Next and Convex must share the frontend `SITE_URL`, auth mode, enable flag, and server bridge secret. Convex additionally needs `BETTER_AUTH_SECRET`.
 
-- Authenticated chat with streamed responses and saved conversation history.
-- Port-specific specialist agents backed by 16 bundled tariff document sets.
-- Structured follow-up forms for missing voyage or vessel details.
-- Bounded Decimal arithmetic for charge calculations.
-- Optional VesselAPI lookup; manual vessel particulars when it is not configured.
-- Two chat options, **Model 1** and **Model 2**, with provider mappings confined to the backend.
-- Per-user conversation access enforced by the API and Supabase row-level security.
+For the example origin, run `npm run dev -- --hostname 127.0.0.1 --port 3002` only after checking existing processes and ports; reuse the existing healthy preview when present. Set `PORTIA_ENABLED=true` only after the matching Convex target and secrets are configured. Configure/push the explicitly selected Convex project separately; a local frontend build does not deploy Convex. Run `npm test`, `npm run typecheck`, and `npm run build` for local checks.
 
-Tariffs are static reference documents, including historical schedules. Results are estimates and require checking against current port-authority rules; this is not a live global tariff database.
+## Authentication
 
-## Quick start
+`PORTIA_AUTH_MODE=basic` enables fresh signup/signin with passwords of 8–128 characters. Email verification is intentionally disabled by the current product decision; accounts retain truthful `emailVerified=false`. Google, magic links and email password recovery are unavailable. `private` mode retains the allowlist and server-secret account provisioning restriction. The established session cookie prefix remains `portia-migration` for compatibility.
 
-### Requirements
+## Chat and safety boundaries
 
-- Node.js 20.9+ and npm.
-- Python 3.12+ and Poetry 2.4.1. Deployment is configured for Python 3.12.
-- A Supabase project with asymmetric JWT signing (ES256 or RS256).
-- An OpenRouter API key with credit available for the selected paid models.
+`/api/chat` and `/api/chat/cancel` are canonical; `/api/migration/chat` and `/api/migration/cancel` remain compatibility aliases. `/api/auth` is canonical, with the old auth URL rewritten to it. Browser users never receive provider model identifiers: only Model 1 / Model 2.
 
-Inspect existing processes and ports before starting servers; reuse compatible instances. The examples use frontend port **3001** and backend port **8080**.
+Conversation creation, reads and deletion require a live owner session. New chats create a saved empty conversation before navigation and first inference. Run claims and form continuations use revisions, idempotency, fencing, expiry, periodic session refresh, and per-user rolling limits. Stop applies across tabs. Deletion revokes the root immediately, fences the active run, then schedules bounded cleanup.
 
-### 1. Install dependencies
+Tariff references live in `data/ports`; they include historical documents, not live tariff feeds. Specialists use the bounded decimal calculator and must finish cleanly before returning tariff output. Saved tool steps and interrupted work are distinguished from completed responses. No uploads or RAG have been added.
 
-```bash
-git clone https://github.com/Saiyam-19/portia.git
-cd portia
-npm ci
+Python sources remain in `backend/` solely as reference/parity fixtures. They are excluded from the frontend deployment; their old Vercel serving configuration is archived in `docs/archive`. Frontend runtime has no Supabase or Python API dependency. No historical account/chat import is required for the empty source database.
 
-python3 -m venv backend/.venv
-backend/.venv/bin/pip install poetry==2.4.1
-cd backend
-.venv/bin/poetry install --no-root
-cd ..
-```
-
-### 2. Configure local environment
-
-For a fresh clone, copy the examples. Preserve existing configured files.
-
-```bash
-cp .env.example .env.local
-cp backend/.env.example backend/.env
-chmod 600 .env.local backend/.env
-```
-
-Fill the following values:
-
-| File | Variable | Purpose |
-| --- | --- | --- |
-| `.env.local` | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
-| `.env.local` | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Public publishable/anon key |
-| `.env.local` | `NEXT_PUBLIC_BACKEND_URL` | Local API URL, `http://localhost:8080` |
-| `backend/.env` | `SUPABASE_URL` | Same Supabase project URL |
-| `backend/.env` | `SUPABASE_SECRET_KEY` | Server secret/service-role key |
-| `backend/.env` | `OPENROUTER_API_KEY` | Server-side model access |
-| `backend/.env` | `LLM_ALLOW_PAID` | Must be `true` for the two chat models |
-| `backend/.env` | `ALLOWED_ORIGINS` | Frontend origin, `http://localhost:3001` |
-
-Optional settings are described in the example files. Keep Google login disabled unless its Supabase provider is configured. Never put server secrets in `NEXT_PUBLIC_*` variables.
-
-### 3. Configure Supabase
-
-For a **new, empty project**, run [`supabase/schema.sql`](supabase/schema.sql) once in the SQL editor. It creates the conversation/message tables, indexes, timestamp trigger, and ownership policies. It is not a repeatable migration: policy creation will fail if applied again unchanged. Do not reapply it to an already configured database.
-
-Enable email/password authentication. Set the local Site URL to `http://localhost:3001` and allow `http://localhost:3001/auth/callback`. Use matching URLs for hosted environments. Configure an email sender for the intended signup audience and enable Google only when its provider and callback configuration are ready.
-
-The backend verifies JWT signatures through the project's JWKS endpoint and checks issuer, audience, expiry, and authenticated role. It does not support legacy HS256 tokens.
-
-### 4. Run
-
-Frontend, from the repository root:
-
-```bash
-npm run dev -- --port 3001
-```
-
-Backend, in a second terminal:
-
-```bash
-cd backend
-.venv/bin/python -m uvicorn main:app --host 127.0.0.1 --port 8080
-```
-
-Open [localhost:3001](http://localhost:3001), create/sign in to an app account, and start a conversation. A Supabase dashboard account is separate from an app account.
-
-## Model selection
-
-The UI shows only **Model 1** and **Model 2**. The backend maps them in [`backend/models.py`](backend/models.py); both the main agent and port specialists use the chosen model. The browser remembers each conversation's selection locally. No provider model IDs or API keys are sent as selector data.
-
-Selections apply to the initial question, follow-ups, and form responses. The selector is disabled during a request. Only the two public aliases are accepted by the API.
-
-The current models require OpenRouter credits. A valid key alone does not establish that inference can run. Requests also require provider support for the configured parameters and zero-data-retention routing. See [deployment and operations](docs/deployment.md) for checks and troubleshooting.
-
-## Checks
-
-From the repository root:
-
-```bash
-npm run lint
-npm run build
-PYTHONPATH=backend backend/.venv/bin/python -m unittest test_runtime test_model_selection -v
-```
-
-The production build fetches Google Fonts and needs network access. The two backend suites run offline with synthetic fixtures and mocks; they cover arithmetic bounds, authentication, model routing, cache separation, concurrent selections, form routing, streaming, and generic configuration errors.
-
-`backend/test_vesselapi.py` is a manual integration script requiring `VESSEL_API_KEY`; do not include it in the offline unittest discovery command.
-
-A build or offline test pass does not establish working email delivery, model inference, persistence, or tariff accuracy. Verify the authenticated browser journey separately after provisioning services.
-
-## Repository layout
-
-```text
-src/app/                 Pages, auth callback, dashboard, chat
-src/components/          Chat UI, structured forms, navigation
-src/lib/                 Public model aliases and Supabase clients
-src/proxy.ts             Session refresh and protected-route redirects
-backend/agent.py         Main and port-specialist agents, tools, streaming
-backend/main.py          Authenticated FastAPI endpoints and persistence
-backend/models.py        Private provider mapping and model settings
-backend/ports/           Static port/terminal reference documents
-backend/test_*.py        Offline tests and manual VesselAPI probe
-supabase/schema.sql      Fresh-project schema and ownership policies
-docs/                    Architecture and deployment notes
-```
-
-## Documentation
-
-- [Architecture and API](docs/architecture.md)
-- [Deployment and operations](docs/deployment.md)
-
-Local environment files, credentials, virtual environments, build output, Vercel project links, assistant settings, and delivery evidence are excluded from Git. No open-source license is declared; do not assume redistribution rights for application code or bundled tariff documents.
+See [architecture](docs/architecture.md), [verified development acceptance](docs/migration-acceptance.md), and [deployment configuration](docs/deployment.md). The local production build and Convex development flow are verified; production cutover has not occurred.
+\n## Chat memory\n\nSee [chat memory integration](docs/memory-integration.md) and [acceptance evidence](docs/memory-integration-acceptance.md) for the local just-bash, SQLite and Convex implementation.\n

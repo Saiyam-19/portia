@@ -1,5 +1,11 @@
 backend/
 .local/
+.env*
+.git
+.claude/
+.codex/
+.impeccable/mocks/
 delivery-checklist.html
 scripts/
 tests/
+prototypes/

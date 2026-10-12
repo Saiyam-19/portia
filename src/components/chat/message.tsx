@@ -1,8 +1,12 @@
 'use client'
 
+import { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { Anchor, UserRound } from 'lucide-react'
+import { Anchor, Check, Copy, Loader2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import ToolNotification from './tool-notification'
 import FormCard from './form-card'
 import type { Segment } from './chat-view'
@@ -11,129 +15,64 @@ interface Props {
   role: 'user' | 'assistant'
   segments: Segment[]
   streaming?: boolean
+  formDisabled?: boolean
   onFormSubmit?: (toolCallId: string, data: Record<string, string>, note: string) => void
   onFormCancel?: (toolCallId: string, note: string) => void
 }
 
-export default function Message({ role, segments, streaming, onFormSubmit, onFormCancel }: Props) {
+export default function Message({ role, segments, streaming, formDisabled, onFormSubmit, onFormCancel }: Props) {
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle')
+  const content = segments.map(segment => segment.kind === 'text' ? segment.content : '').join('\n')
   if (role === 'user') {
-    const content = segments.map(s => s.kind === 'text' ? s.content : '').join('')
     return (
-      <div className="flex gap-3 justify-end">
-        <div className="max-w-xl bg-blue-600 text-white rounded-2xl rounded-tr-sm px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap">
-          {content}
-        </div>
-        <div className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center shrink-0 mt-0.5">
-          <UserRound className="w-4 h-4 text-white" />
-        </div>
-      </div>
+      <article aria-label="Your message" className="flex justify-end">
+        <div className="max-w-[90%] rounded-2xl bg-muted px-4 py-3 text-sm leading-7 break-words whitespace-pre-wrap sm:max-w-[85%]">{content}</div>
+      </article>
     )
   }
-
-  const hasRunningTool = segments.some(s => s.kind === 'tool' && s.status === 'running')
-
+  const hasRunningTool = segments.some(segment => segment.kind === 'tool' && segment.status === 'running')
+  const copy = async () => {
+    try { await navigator.clipboard.writeText(content); setCopyState('copied') }
+    catch { setCopyState('error') }
+  }
   return (
-    <div className="flex gap-3">
-      <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 bg-gradient-to-br from-blue-500 to-indigo-600 shadow-sm">
-        <Anchor className="w-4 h-4 text-white" strokeWidth={2} />
-      </div>
-
-      <div className="flex-1 min-w-0 text-sm text-slate-800 leading-relaxed">
-        {segments.map((seg, i) => {
-          if (seg.kind === 'text') {
-            const isLast = i === segments.length - 1
-            return (
-              <div key={i}>
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  components={{
-                    pre({ children }) {
-                      return (
-                        <pre className="bg-slate-900 text-slate-100 rounded-xl p-4 overflow-x-auto text-xs font-mono my-3">
-                          {children}
-                        </pre>
-                      )
-                    },
-                    code({ className, children, ...props }) {
-                      if (className) return <code className={className} {...props}>{children}</code>
-                      return (
-                        <code className="bg-slate-100 text-slate-800 rounded px-1.5 py-0.5 text-xs font-mono" {...props}>
-                          {children}
-                        </code>
-                      )
-                    },
-                    table({ children }) {
-                      return (
-                        <div className="overflow-x-auto my-3">
-                          <table className="min-w-full text-sm border-collapse">{children}</table>
-                        </div>
-                      )
-                    },
-                    th({ children }) {
-                      return <th className="border border-slate-200 bg-slate-50 px-3 py-2 text-left font-semibold text-slate-700 text-xs uppercase tracking-wide">{children}</th>
-                    },
-                    td({ children }) {
-                      return <td className="border border-slate-200 px-3 py-2 text-slate-700">{children}</td>
-                    },
-                    h1({ children }) { return <h1 className="text-lg font-bold text-slate-900 mt-4 mb-2">{children}</h1> },
-                    h2({ children }) { return <h2 className="text-base font-bold text-slate-900 mt-4 mb-2">{children}</h2> },
-                    h3({ children }) { return <h3 className="text-sm font-semibold text-slate-900 mt-3 mb-1">{children}</h3> },
-                    p({ children }) { return <p className="mb-2 last:mb-0">{children}</p> },
-                    ul({ children }) { return <ul className="list-disc pl-5 mb-2 space-y-0.5">{children}</ul> },
-                    ol({ children }) { return <ol className="list-decimal pl-5 mb-2 space-y-0.5">{children}</ol> },
-                    li({ children }) { return <li className="text-slate-700">{children}</li> },
-                    blockquote({ children }) {
-                      return (
-                        <blockquote className="border-l-4 border-blue-200 pl-4 my-2 text-slate-600 italic">
-                          {children}
-                        </blockquote>
-                      )
-                    },
-                    a({ href, children }) {
-                      return <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{children}</a>
-                    },
-                  }}
-                >
-                  {seg.content}
-                </ReactMarkdown>
-                {streaming && isLast && !hasRunningTool && (
-                  <span className="inline-flex gap-[3px] align-middle ml-1">
-                    {[0, 1, 2].map(i => (
-                      <span
-                        key={i}
-                        className="w-1 h-1 rounded-full bg-slate-400 animate-bounce"
-                        style={{ animationDelay: `${i * 150}ms` }}
-                      />
-                    ))}
-                  </span>
-                )}
-              </div>
-            )
-          }
-
-          if (seg.kind === 'tool') {
-            return (
-              <div key={i} className="my-1.5">
-                <ToolNotification tool={seg.tool} label={seg.label} status={seg.status} />
-              </div>
-            )
-          }
-
-          if (seg.kind === 'card') {
-            return (
-              <div key={i} className="my-3">
-                <FormCard
-                  formCard={seg.formCard}
-                  onSubmit={(data, note) => onFormSubmit?.(seg.formCard.toolCallId, data, note)}
-                  onCancel={note => onFormCancel?.(seg.formCard.toolCallId, note)}
-                />
-              </div>
-            )
-          }
-
+    <article aria-label="Plisto response" className="group/message min-w-0">
+      <div className="mb-3 flex items-center gap-2 text-xs font-medium"><Anchor className="size-4 text-brand" aria-hidden="true" />Plisto</div>
+      <div className="space-y-4 text-sm leading-7">
+        {segments.map((segment, index) => {
+          if (segment.kind === 'text') return (
+            <div key={index} className="chat-markdown prose prose-sm prose-neutral max-w-none text-foreground dark:prose-invert prose-headings:font-semibold prose-headings:tracking-normal prose-p:leading-7 prose-a:text-brand prose-a:no-underline hover:prose-a:underline prose-code:before:content-none prose-code:after:content-none">
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
+                pre: ({ children }) => <pre className="overflow-x-auto rounded-xl bg-muted p-4 text-xs text-foreground">{children}</pre>,
+                table: ({ children }) => <div className="not-prose my-5 overflow-hidden rounded-xl border border-border"><Table aria-label="Response table" className="min-w-md">{children}</Table></div>,
+                thead: ({ children }) => <TableHeader className="bg-muted">{children}</TableHeader>,
+                tbody: ({ children }) => <TableBody>{children}</TableBody>,
+                tr: ({ children }) => <TableRow>{children}</TableRow>,
+                th: ({ children }) => <TableHead className="px-4 text-xs">{children}</TableHead>,
+                td: ({ children }) => <TableCell className="px-4 py-2.5">{children}</TableCell>,
+                a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer">{children}</a>,
+              }}>{segment.content}</ReactMarkdown>
+            </div>
+          )
+          if (segment.kind === 'tool') return <ToolNotification key={segment.id} tool={segment.tool} label={segment.label} status={segment.status} />
+          if (segment.kind === 'card') return <FormCard key={segment.formCard.toolCallId} formCard={segment.formCard} disabled={formDisabled} onSubmit={(data, note) => onFormSubmit?.(segment.formCard.toolCallId, data, note)} onCancel={note => onFormCancel?.(segment.formCard.toolCallId, note)} />
           return null
         })}
+        {streaming && !hasRunningTool && <div role="status" className="flex items-center gap-2 text-xs text-muted-foreground"><Loader2 className="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />{content ? 'Writing response…' : 'Working on it…'}</div>}
       </div>
-    </div>
+      {!streaming && content && (
+        <div className="mt-2 flex h-8 items-center gap-2 text-xs text-muted-foreground">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon-sm" className="text-muted-foreground sm:opacity-0 sm:group-hover/message:opacity-100 sm:focus-visible:opacity-100" onClick={() => void copy()} aria-label={copyState === 'copied' ? 'Response copied' : 'Copy response'}>
+                {copyState === 'copied' ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{copyState === 'copied' ? 'Copied' : 'Copy response'}</TooltipContent>
+          </Tooltip>
+          <span role="status">{copyState === 'error' ? 'Couldn’t copy. Select the text to copy it.' : copyState === 'copied' ? 'Copied' : ''}</span>
+        </div>
+      )}
+    </article>
   )
 }
