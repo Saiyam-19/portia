@@ -22,5 +22,8 @@ Tariff references live in `data/ports`; they include historical documents, not l
 
 Python sources remain in `backend/` solely as reference/parity fixtures. They are excluded from the frontend deployment; their old Vercel serving configuration is archived in `docs/archive`. Frontend runtime has no Supabase or Python API dependency. No historical account/chat import is required for the empty source database.
 
-See [architecture](docs/architecture.md), [verified development acceptance](docs/migration-acceptance.md), and [deployment configuration](docs/deployment.md). The local production build and Convex development flow are verified; production cutover has not occurred.
-\n## Chat memory\n\nSee [chat memory integration](docs/memory-integration.md) and [acceptance evidence](docs/memory-integration-acceptance.md) for the local just-bash, SQLite and Convex implementation.\n
+See [architecture](docs/architecture.md), [verified development acceptance](docs/migration-acceptance.md), and [deployment configuration](docs/deployment.md). Production now runs on Vercel and Convex; see [production acceptance](docs/memory-production-acceptance.md) for the tested release and scope.
+
+## Chat memory
+
+See [chat memory integration](docs/memory-integration.md), [local acceptance](docs/memory-integration-acceptance.md), and [production acceptance](docs/memory-production-acceptance.md) for just-bash, SQLite and Convex persistence.

@@ -16,10 +16,14 @@ import type {MemoryFact} from "../src/lib/memory/contracts";
 const site=process.env.SITE_URL!,url=process.env.NEXT_PUBLIC_CONVEX_URL!,dir=process.env.MEMORY_E2E_DIR!;
 assert(site==="https://portia-berthing.vercel.app"&&url==="https://joyous-kookabura-196.convex.cloud");
 assert(process.env.MEMORY_PRODUCTION_ACCEPTANCE==="authorized", "Explicit production acceptance flag required");
+const deploymentId=process.env.MEMORY_DEPLOYMENT_ID;
+const commit=process.env.MEMORY_RELEASE_COMMIT;
+assert(deploymentId?.startsWith("dpl_") && commit?.match(/^[0-9a-f]{40}$/),"Deployment and release commit required");
 type Result={name:string;passed:boolean;details?:unknown};
-type Case={stamp:string;passwords:string;results:Result[];chatA:string;chatB:string;ownerA:string;ownerB:string;before:{totalCredits:number;totalUsage:number}|null};
+type Case={errors:string[];network:{path:string;status:number}[];consoleErrors:string[];deploymentId:string;commit:string;stamp:string;passwords:string;results:Result[];chatA:string;chatB:string;ownerA:string;ownerB:string;before:{totalCredits:number;totalUsage:number}|null};
 const casePath=path.join(dir,"private-e2e-case.json");
 const saved:Case|null=await readFile(casePath,"utf8").then(JSON.parse).catch(()=>null);
+if(saved)assert(saved.deploymentId===deploymentId && saved.commit===commit,"Evidence belongs to a different release; use a fresh directory");
 const results:Result[]=saved?.results??[];
 const stamp=saved?.stamp??Date.now().toString(36);
 const callsign="Northstar-"+stamp;
@@ -27,9 +31,9 @@ const voyage="Voyage-"+stamp;
 const note="DOCK-NOTE-"+stamp;
 const passwords=saved?.passwords??"ProductionAcceptance-"+randomUUID();
 let chatA=saved?.chatA??"",chatB=saved?.chatB??"",ownerA=saved?.ownerA??"",ownerB=saved?.ownerB??"";
-const errors:string[]=[];
-const network:{path:string;status:number}[]=[];
-const consoleErrors:string[]=[];
+const errors:string[]=saved?.errors??[];
+const network:{path:string;status:number}[]=saved?.network??[];
+const consoleErrors:string[]=saved?.consoleErrors??[];
 const browserCache=path.join(homedir(),"Library/Caches/ms-playwright");
 const cachedBrowsers=existsSync(browserCache)?(await readdir(browserCache)).filter(name=>name.startsWith("chromium_headless_shell-")).sort().reverse().map(name=>path.join(browserCache,name,"chrome-headless-shell-mac-"+(process.arch==="arm64"?"arm64":"x64"),"chrome-headless-shell")):[];
 const browserPath=process.env.MEMORY_CHROMIUM_PATH??[chromium.executablePath(),...cachedBrowsers].find(existsSync);
@@ -101,7 +105,7 @@ async function recoverClient(){
   assert.equal(id,ownerA);
 }
 async function persistCase(){
- await writeFile(casePath,JSON.stringify({stamp,passwords,results,chatA,chatB,ownerA,ownerB,before}),{mode:0o600});
+ await writeFile(casePath,JSON.stringify({errors,network,consoleErrors,deploymentId,commit,stamp,passwords,results,chatA,chatB,ownerA,ownerB,before}),{mode:0o600});
  await writeFile(path.join(dir,"private-alice-state.json"),JSON.stringify(await aliceContext.storageState()),{mode:0o600});
  await writeFile(path.join(dir,"private-bob-state.json"),JSON.stringify(await bobContext.storageState()),{mode:0o600});
 }
@@ -188,7 +192,12 @@ try{
     await expect(a.getByRole("button",{name:"Forget fleet callsign"})).toBeVisible();
     let deletionBody:unknown;
     a.on("request",request=>{if(request.url().includes("/api/memory")&&request.method()==="POST")deletionBody=request.postDataJSON();});
+    const deletionResponse=a.waitForResponse(response=>new URL(response.url()).pathname==="/api/memory"&&response.request().method()==="POST",{timeout:65_000});
+    const deletionStarted=Date.now();
     await a.getByRole("button",{name:"Forget fleet callsign"}).click();
+    const deleted=await deletionResponse;
+    assert.equal(deleted.status(),200,await deleted.text());
+    const deletionMs=Date.now()-deletionStarted;
     await expect(a.getByRole("button",{name:"Forget fleet callsign"})).toHaveCount(0);
     const forgotten=await memory(a,chatA);
     assert(!forgotten.facts.some(f=>f.value===callsign));assert.equal(forgotten.scratchpad,"");
@@ -198,6 +207,7 @@ try{
     assert.equal((await duplicate.json()).epoch,forgotten.epoch);
     const response=await ask(a,"What is my saved fleet callsign? Check saved memory; if absent, say it is not saved. Do not guess or save anything.");
     assert(!response.text.includes(callsign));
+    return {deletionMs};
   });
   await check("deleting the source chat removes its derived memory after fresh sign-in",async()=>{
     await a.goto(site+"/dashboard/chat/"+chatA);
@@ -238,8 +248,11 @@ try{
   // Retain private account IDs for exact administrative cleanup; never publish these files.
   await persistCase();
   const after=await credit();
-  await writeFile(path.join(dir,"chat-memory-acceptance.json"),JSON.stringify({at:new Date().toISOString(),site,scope:"Hosted Vercel production, production Convex, real Better Auth, Model 1 and SQLite tools; synthetic account data",results,errors,usage:{before,after,delta:before&&after?after.totalUsage-before.totalUsage:null}},null,2));
+
   assert.deepEqual(errors,[]);
+  assert.deepEqual(network.filter(event=>!(event.status===404 && ["/terms","/privacy"].includes(event.path))),[],"Unexpected browser HTTP error");
+  assert.deepEqual(consoleErrors.filter(message=>!message.includes("status of 404")),[],"Unexpected browser console error");
+  await writeFile(path.join(dir,"chat-memory-acceptance.json"),JSON.stringify({at:new Date().toISOString(),site,deploymentId,commit,scope:"Hosted Vercel production, production Convex, real Better Auth, Model 1 and SQLite tools; synthetic account data",results,errors,network,consoleErrors,usage:{before,after,delta:before&&after?after.totalUsage-before.totalUsage:null}},null,2));
   console.log("BROWSER_ACCEPTANCE_COMPLETE "+results.length);
 }catch(error){
   await writeFile(path.join(dir,"chat-memory-failure.json"),JSON.stringify({at:new Date().toISOString(),results,errors,network,consoleErrors,url:a.url(),error:String(error)},null,2));

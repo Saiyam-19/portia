@@ -11,3 +11,13 @@ Request limits are atomic rolling windows in an indexed bounded table: defaults 
 No live push, production cutover, or provider changes are performed by an ordinary build. Before any cloud write, verify the account, project, deployment/environment and rollback artifact. Build, deployed functions, browser journeys, real inference and production traffic are separate evidence gates.
 
 Acceptance to verify on the chosen DEV deployment: signup/signin/signout; saved initial question; both aliases; GRT form, note, cancellation, reload; historical tariff calculation and citations; cross-owner access denial; cross-tab Stop; deletion and late-write fencing; rate/replay behavior; unknown legacy URLs; responsive light/dark UI. Local implementation checks do not replace this live acceptance.
+
+## Production target
+
+As of 2026-10-12, the deployed frontend is `portia-berthing` under Vercel team `saiyam-19s-projects`, public origin `https://portia-berthing.vercel.app`. Convex production is `o-one-labs:portia:prod`, slug `joyous-kookabura-196`. Development `brilliant-whale-380` is separate. Node 22 is configured on both the package and Vercel project. See [production memory acceptance](memory-production-acceptance.md).
+
+Configure `PORTIA_MEMORY_ENABLED=true` in Next and Convex. Memory SQLite workers and WASM are included in route tracing. Keep `PORTIA_LOCAL_BACKEND=false` and `MIGRATION_TEST_MODE=false` in hosted production.
+
+The initial release found no legacy Supabase users, conversations or messages and backed up the empty Convex target before deployment. Production is deployed from `main`; the Vercel project currently has no Git integration, so a push alone does not deploy it. Stage with `deploy --prod --skip-domain`, inspect the exact ready artifact, then promote it. Canonical-origin auth/browser acceptance follows promotion; staging smoke checks alone do not prove it.
+
+Rollback must account for data written after cutover. A Vercel rollback changes the frontend only. The retained legacy deployment cannot read newly created Convex accounts or chats; after real users begin writing, use a compatible release or fix forward rather than stranding their data. Never restore the initial empty backup over live user data.
