@@ -62,6 +62,7 @@ const conversationValidator = v.object({
   state: vConversationState,
   updatedAt: v.number(),
   activeRunId: v.union(v.id("migrationRuns"), v.null()),
+  modelAlias: v.optional(vModelAlias),
 });
 
 const formProjectionValidator = v.object({
@@ -465,6 +466,9 @@ export const getConversation = query({
     if (!id) return null;
     const conversation = await ctx.db.get(id);
     if (!conversation || conversation.ownerId !== ownerId) return null;
+    const latestRun = await ctx.db.query("migrationRuns")
+      .withIndex("by_conversation_and_prompt_position", q => q.eq("conversationId", id))
+      .order("desc").first();
     const forms = await ctx.db
       .query("migrationForms")
       .withIndex("by_conversation_and_status", (q) => q.eq("conversationId", conversation._id))
@@ -478,6 +482,7 @@ export const getConversation = query({
         state: conversation.state,
         updatedAt: conversation.updatedAt,
         activeRunId: conversation.activeRunId ?? null,
+        modelAlias: latestRun?.modelAlias ?? "model-1",
       },
       forms: forms.map((form) => ({
         id: form._id,

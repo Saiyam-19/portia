@@ -19,6 +19,18 @@ async function run(t: ReturnType<typeof setup>, ownerId: string, requestId: stri
 beforeEach(() => { vi.stubEnv('MIGRATION_DEV_ENABLED','true'); vi.stubEnv('PORTIA_CONVEX_DEPLOYMENT','brilliant-whale-380'); vi.stubEnv('CONVEX_SITE_URL','https://brilliant-whale-380.convex.site'); vi.stubEnv('PORTIA_AUTH_MODE','basic'); });
 afterEach(() => { vi.unstubAllEnvs(); vi.useRealTimers(); });
 describe('normal conversation lifecycle', () => {
+  it('restores the last used model for saved chats and pending forms without browser storage', async () => {
+    const t = setup(); const a = await account(t, 'a@example.com');
+    const id = await a.client.mutation(api.migration.createConversation, {});
+    const first = await t.mutation(internal.migration.claimQuestion, { ownerId: a.userId, conversationId: id, requestId: 'model-two', payloadHash: 'model-two', question: 'Ask for GRT', modelAlias: 'model-2', expectedRevision: 0 });
+    const form = { toolCallId: 'grt', title: 'GRT', fields: [{ name: 'grt', label: 'GRT', type: 'number' as const, required: true }] };
+    await t.mutation(internal.migration.completeRun, { ownerId: a.userId, runId: first.runId, fence: first.fence, responseMessages: [{ role: 'assistant', content: [{ type: 'tool-call', toolCallId: 'grt', toolName: 'ask_user_input', input: { title: form.title, fields: form.fields } }] }], form });
+    const saved = await a.client.query(api.migration.getConversation, { conversationId: id });
+    expect(saved?.conversation).toMatchObject({ modelAlias: 'model-2', state: 'waiting' });
+    const second = await t.mutation(internal.migration.resolveFormAndClaim, { ownerId: a.userId, conversationId: id, requestId: 'switch-model', payloadHash: 'switch-model', modelAlias: 'model-1', expectedRevision: saved!.conversation.revision, toolCallId: 'grt', values: { grt: '20000' }, note: '', cancelled: false });
+    await t.mutation(internal.migration.completeRun, { ownerId: a.userId, runId: second.runId, fence: second.fence, responseMessages: [{ role: 'assistant', content: 'Complete' }], form: null, finishReason: 'stop' });
+    expect((await a.client.query(api.migration.getConversation, { conversationId: id }))?.conversation).toMatchObject({ modelAlias: 'model-1', state: 'idle' });
+  });
   it('protects create/delete/read by live owner; deletion fences the running response', async () => {
     const t = setup(); const a = await account(t,'a@example.com'); const b = await account(t,'b@example.com');
     await expect(t.mutation(api.migration.createConversation,{})).rejects.toThrow(/Sign in/);

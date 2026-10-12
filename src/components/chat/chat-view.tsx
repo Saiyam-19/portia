@@ -15,7 +15,7 @@ import ModelSelector from './model-selector'
 import WorkspaceHeader from '@/components/dashboard/workspace-header'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { type ChatModel, isChatModel } from '@/lib/chat-model'
+import type { ChatModel } from '@/lib/chat-model'
 import { ArrowDown, Loader2, Trash2 } from 'lucide-react'
 
 export type FormField = { name: string; label: string; type: 'text' | 'number' | 'radio' | 'textarea'; placeholder?: string; options?: string[]; unit?: string; hint?: string; required?: boolean }
@@ -33,7 +33,11 @@ export default function ChatView({ conversationId, initialMessage, initialReques
   const [draftState, dispatchDraft] = useReducer(questionDraftReducer, initialQuestionDraft)
   const input = draftState.input
   const setInput = (value: string) => dispatchDraft({ type: 'edit', value })
-  const [model, setModel] = useState<ChatModel>(initialModel)
+  const [selectedModel, selectModel] = useState<ChatModel>()
+  // Restore the last actual run across reloads/devices, including pending forms.
+  // An explicit selection wins; the navigation intent applies only to a new chat.
+  const model = selectedModel ?? (initialMessage && conversation?.conversation.revision === 0
+    ? initialModel : conversation?.conversation.modelAlias ?? initialModel)
   const [localError, setLocalError] = useState('')
   const [deleting, setDeleting] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -80,14 +84,6 @@ export default function ChatView({ conversationId, initialMessage, initialReques
   useEffect(() => {
     if (!transportBusy && messages.length && conversation && conversation.conversation.state !== 'running' && history.results.some(item => item.runId === streamedRunId)) setMessages([])
   }, [transportBusy, messages.length, conversation, history.results, streamedRunId, setMessages])
-  useEffect(() => {
-    if (!initialMessage) {
-      // Synchronize the browser-only saved preference after server hydration.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      try { const value = localStorage.getItem(`portia:chat-model:${conversationId}`); if (isChatModel(value)) setModel(value) } catch { /* Storage may be unavailable. */ }
-    }
-  }, [conversationId, initialMessage])
-  const selectModel = (value: ChatModel) => { setModel(value); try { localStorage.setItem(`portia:chat-model:${conversationId}`, value) } catch { /* Optional preference. */ } }
   const submit = useCallback(async (body: MigrationChatRequest, text: string) => {
     if (sending.current) return
     sending.current = true
