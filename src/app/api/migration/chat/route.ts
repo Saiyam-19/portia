@@ -309,6 +309,7 @@ export async function POST(request: Request): Promise<Response> {
     const stream = toUIMessageStream({
       stream: publicChatStream(result.stream, {
         abortSignal,
+        result,
         onFailure: error => { responseFailure = error; },
       }),
       sendReasoning: false,

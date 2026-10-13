@@ -3,13 +3,26 @@ import { modelErrorDetails } from "./error-reporting";
 
 export function publicChatStream<TOOLS extends ToolSet>(
   source: ReadableStream<TextStreamPart<TOOLS>>,
-  options: { abortSignal: AbortSignal; onFailure: (error: unknown) => void },
+  options: {
+    abortSignal: AbortSignal;
+    onFailure: (error: unknown) => void;
+    result?: { finishReason: PromiseLike<unknown> };
+  },
 ) {
+  // The SDK may emit an abort without its reason when no model output arrived.
+  // Observe its terminal promise as well: this retains the actual timeout and
+  // prevents the otherwise-unhandled rejection after the HTTP stream closes.
+  const failure = options.result
+    ? Promise.resolve(options.result.finishReason).then(() => undefined, error => {
+        options.onFailure(error);
+        return error;
+      })
+    : Promise.resolve(undefined);
   return source.pipeThrough(new TransformStream<TextStreamPart<TOOLS>, TextStreamPart<TOOLS>>({
-    transform(part, controller) {
+    async transform(part, controller) {
       if (part.type === "error") options.onFailure(part.error);
       if (part.type === "abort") {
-        const error = options.abortSignal.reason ?? part.reason;
+        const error = options.abortSignal.reason ?? await failure ?? part.reason;
         options.onFailure(error);
         if (modelErrorDetails(error).errorType === "timeout") controller.enqueue({ type: "error", error });
         // Raw abort reasons can carry private exception text.
