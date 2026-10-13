@@ -21,11 +21,15 @@ function generated(
 }
 
 describe("full migration domain agent", () => {
-  it("delivers exact batched calculations to the same-alias specialist before its cited handoff", async () => {
-    const main = new MockLanguageModelV4({ doGenerate: [
-      generated([{ type: "tool-call", toolCallId: "consult-batch", toolName: "consult_port_agent", input: JSON.stringify({ port_name: "mumbai", query: "Calculate marine charges" }) }], "tool-calls"),
-      generated([{ type: "text", text: "Final cited estimate" }], "stop"),
-    ] });
+  it("retains specialist and main review, then publishes the calculated report without rewriting it", async () => {
+    let mainCalls = 0;
+    const main = new MockLanguageModelV4({ doGenerate: async ({ tools }) => {
+      if (mainCalls++ === 0) return generated([{ type: "tool-call", toolCallId: "consult-batch", toolName: "consult_port_agent", input: JSON.stringify({ port_name: "mumbai", query: "Calculate marine charges" }) }], "tool-calls");
+      const publication = tools?.find(tool => tool.type === "function" && tool.name === "publish_report");
+      expect(publication?.type).toBe("function");
+      const schema = JSON.parse(JSON.stringify(publication && "inputSchema" in publication ? publication.inputSchema : {}));
+      return generated([{ type: "tool-call", toolCallId: "approved", toolName: "publish_report", input: JSON.stringify({ report_id: schema.properties.report_id.enum[0] }) }], "tool-calls");
+    } });
     const specialist = new MockLanguageModelV4({ doGenerate: [
       generated([{ type: "tool-call", toolCallId: "batch", toolName: "calculate_charge_batch", input: JSON.stringify({ calculations: [
         { id: "dues", expression: "20000 * 10.5366" },
@@ -35,9 +39,12 @@ describe("full migration domain agent", () => {
       generated([{ type: "text", text: "INR 556526.0000, pre-GST. tariffs.md §§2.16 and 2.1(A). Static schedule; validity and scope apply." }], "stop"),
     ] });
     const factory = vi.fn(() => specialist);
-    await createMigrationMainAgent({ alias: "model-2", mainModel: main, specialistModelFactory: factory }).generate({ prompt: "Estimate" });
+    const result = await createMigrationMainAgent({ alias: "model-2", mainModel: main, specialistModelFactory: factory }).generate({ prompt: "Estimate" });
     expect(factory).toHaveBeenCalledWith("model-2");
     expect(specialist.doGenerateCalls).toHaveLength(2);
+    expect(main.doGenerateCalls).toHaveLength(2);
+    expect(result.text).toBe("INR 556526.0000, pre-GST. tariffs.md §§2.16 and 2.1(A). Static schedule; validity and scope apply.");
+    expect(result.finishReason).toBe("stop");
     const calculationResult = JSON.stringify(specialist.doGenerateCalls[1].prompt);
     expect(calculationResult).toContain("556526.0000");
     expect(calculationResult).toContain("210732.0000");
