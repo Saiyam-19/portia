@@ -18,6 +18,17 @@ it("preserves cancellation semantics without logging a rich provider abort", asy
   expect(log).not.toHaveBeenCalled();
 });
 
+it("preserves timeout identity through redaction for the public error classifier", async () => {
+  const log = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+  const model = withSafeModelErrors(new MockLanguageModelV4({
+    doStream: async () => { throw new DOMException("private provider context", "TimeoutError"); },
+  }), { runId: "run-fixture", agent: "main" });
+  const error = await Promise.resolve(model.doStream({ prompt: [] })).catch((caught: unknown) => caught);
+  expect(error).toMatchObject({ name: "TimeoutError", message: "The model response timed out." });
+  expect(log.mock.calls[0]?.[1]).toMatchObject({ errorType: "timeout", phase: "stream-start", runId: "run-fixture" });
+  expect(JSON.stringify(log.mock.calls)).not.toContain("private");
+});
+
 it("redacts rich errors before ToolLoopAgent's default logger receives them", async () => {
   vi.spyOn(console, "warn").mockImplementation(() => undefined);
   const model = withSafeModelErrors(new MockLanguageModelV4({

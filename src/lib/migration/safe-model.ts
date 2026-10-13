@@ -1,7 +1,7 @@
 import { wrapLanguageModel } from "ai";
-import { reportMigrationStreamError } from "./error-reporting";
+import { modelErrorDetails, reportMigrationStreamError, type ModelErrorContext } from "./error-reporting";
 
-function safeError(error: unknown): Error {
+function safeError(error: unknown, context: ModelErrorContext): Error {
   let current = error;
   for (let depth = 0; depth < 5 && current && typeof current === "object"; depth += 1) {
     if ("name" in current && current.name === "AbortError") {
@@ -9,12 +9,15 @@ function safeError(error: unknown): Error {
     }
     current = "cause" in current ? current.cause : null;
   }
-  reportMigrationStreamError({ error });
-  return new Error("The selected model is unavailable.");
+  reportMigrationStreamError({ error, ...context });
+  if (modelErrorDetails(error).errorType === "timeout") {
+    return new DOMException("The model response timed out.", "TimeoutError");
+  }
+  return Object.assign(new Error("The selected model is unavailable."), modelErrorDetails(error));
 }
 
 /** ToolLoopAgent logs errors by default; redact rich provider errors upstream. */
-export function withSafeModelErrors(model: Parameters<typeof wrapLanguageModel>[0]["model"]) {
+export function withSafeModelErrors(model: Parameters<typeof wrapLanguageModel>[0]["model"], context: ModelErrorContext = {}) {
   return wrapLanguageModel({
     model,
     middleware: {
@@ -23,7 +26,7 @@ export function withSafeModelErrors(model: Parameters<typeof wrapLanguageModel>[
         try {
           return await doGenerate();
         } catch (error) {
-          throw safeError(error);
+          throw safeError(error, { ...context, phase: "generate" });
         }
       },
       wrapStream: async ({ doStream }) => {
@@ -44,12 +47,12 @@ export function withSafeModelErrors(model: Parameters<typeof wrapLanguageModel>[
                     return;
                   }
                   controller.enqueue(value.type === "error"
-                    ? { ...value, error: safeError(value.error) }
+                    ? { ...value, error: safeError(value.error, { ...context, phase: "stream-read" }) }
                     : value);
                 } catch (error) {
                   if (!cancelled) {
                     reader.releaseLock();
-                    controller.error(safeError(error));
+                    controller.error(safeError(error, { ...context, phase: "stream-read" }));
                   }
                 }
               },
@@ -58,7 +61,7 @@ export function withSafeModelErrors(model: Parameters<typeof wrapLanguageModel>[
                 try {
                   await reader.cancel(reason);
                 } catch (error) {
-                  throw safeError(error);
+                  throw safeError(error, { ...context, phase: "stream-read" });
                 } finally {
                   reader.releaseLock();
                 }
@@ -66,7 +69,7 @@ export function withSafeModelErrors(model: Parameters<typeof wrapLanguageModel>[
             }),
           };
         } catch (error) {
-          throw safeError(error);
+          throw safeError(error, { ...context, phase: "stream-start" });
         }
       },
     },

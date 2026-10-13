@@ -70,6 +70,7 @@ type RunBudget = { providerCalls: number; specialistConsultations: number };
 
 export type MigrationMainAgentOptions = {
   alias: ModelAlias;
+  runId?: string;
   mainModel?: LanguageModel;
   memory?: AgentMemory;
   specialistModelFactory?: SpecialistModelFactory;
@@ -155,7 +156,8 @@ async function consultPortAgent(
 }
 
 export function createMigrationMainAgent(options: MigrationMainAgentOptions) {
-  const specialistModelFactory = options.specialistModelFactory ?? migrationLanguageModel;
+  const specialistModelFactory = options.specialistModelFactory ?? ((alias: ModelAlias) =>
+    migrationLanguageModel(alias, { runId: options.runId, agent: "specialist" }));
   const budget: RunBudget = { providerCalls: 0, specialistConsultations: 0 };
   const tools = {
     consult_port_agent: tool({
@@ -201,7 +203,7 @@ export function createMigrationMainAgent(options: MigrationMainAgentOptions) {
   };
 
   return new ToolLoopAgent({
-    model: options.mainModel ?? migrationLanguageModel(options.alias),
+    model: options.mainModel ?? migrationLanguageModel(options.alias, { runId: options.runId, agent: "main" }),
     instructions: MAIN_SYSTEM_PROMPT
       .replace("{ports}", SUPPORTED_PORTS.join(", "))
       .replace("{today}", today()),

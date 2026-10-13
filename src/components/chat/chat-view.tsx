@@ -7,6 +7,7 @@ import type { UIMessage } from 'ai'
 import { useMutation, usePaginatedQuery, useQuery } from 'convex/react'
 import { api } from '../../../convex/_generated/api'
 import { migrationTransport } from '@/lib/migration/transport'
+import { clientResponseError } from '@/lib/migration/response-errors'
 import { initialQuestionDraft, migrationRunState, questionDraftReducer } from '@/lib/migration/client-state'
 import { formDefinitionSchema, type MigrationChatRequest } from '@/lib/migration/contracts'
 import Message from './message'
@@ -51,8 +52,8 @@ export default function ChatView({ conversationId, initialMessage, initialReques
   const { messages, sendMessage, status, stop, setMessages, clearError } = useChat<LiveMessage>({
     id: conversationId,
     transport: migrationTransport,
-    onError: () => {
-      setLocalError('Couldn’t complete the response. Saved steps remain below; review them before retrying.')
+    onError: (error) => {
+      setLocalError(clientResponseError(error))
       dispatchDraft({ type: 'transport-failed' })
       setMessages([])
       sending.current = false
@@ -61,7 +62,7 @@ export default function ChatView({ conversationId, initialMessage, initialReques
       dispatchDraft({ type: 'observe', metadata: message.metadata })
       sending.current = false
       if (isAbort || isError) {
-        setLocalError('Response interrupted. Partial work is not a completed estimate.')
+        setLocalError(current => current || 'Response interrupted. Partial work is not a completed estimate.')
         dispatchDraft({ type: 'transport-failed' })
       }
     },

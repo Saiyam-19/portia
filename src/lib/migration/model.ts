@@ -3,13 +3,14 @@ import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import type { ModelAlias } from "./contracts";
 import { migrationTestModelActive } from "./config";
 import { withSafeModelErrors } from "./safe-model";
+import type { ModelErrorContext } from "./error-reporting";
 
 const MODEL_IDS: Record<ModelAlias, string> = {
   "model-1": "openai/gpt-6.1-sol",
   "model-2": "anthropic/claude-opus-5.5",
 };
 
-export function migrationLanguageModel(alias: ModelAlias) {
+export function migrationLanguageModel(alias: ModelAlias, context: ModelErrorContext = {}) {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) throw new Error("OpenRouter is not configured.");
   const testOverride = migrationTestModelActive();
@@ -34,5 +35,5 @@ export function migrationLanguageModel(alias: ModelAlias) {
         ? { max_price: { prompt: 0, completion: 0, request: 0 } }
         : {}),
     },
-  }));
+  }), { ...context, modelAlias: alias });
 }

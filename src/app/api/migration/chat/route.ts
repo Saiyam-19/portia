@@ -22,8 +22,11 @@ import {
 } from "@/lib/migration/run-registry";
 import { migrationPreviewEnabled } from "@/lib/migration/config";
 import { trustedMigrationOrigin } from "@/lib/migration/origin";
-import { stripPrivateProviderData } from "@/lib/migration/public-stream";
+import { publicChatStream } from "@/lib/migration/public-stream";
 import { createMigrationMainAgent } from "@/lib/migration/domain-agent";
+import { MIGRATION_CHAT_TIMEOUT } from "@/lib/migration/agent-policy";
+import { modelErrorDetails } from "@/lib/migration/error-reporting";
+import { responseErrorMessage } from "@/lib/migration/response-errors";
 import {
   createRunFinalizer,
   withStreamFinalizer,
@@ -102,6 +105,7 @@ export async function POST(request: Request): Promise<Response> {
   let pendingStepMessages: ModelMessage[] = [];
   let pendingStepForm: FormDefinition | null = null;
   let checkpointFailure: unknown;
+  let responseFailure: unknown;
   const finalizeRun = createRunFinalizer({
     isPersisted: () => persisted,
     abort: (event) => {
@@ -114,13 +118,21 @@ export async function POST(request: Request): Promise<Response> {
     },
     failRun: async (event: RunFinalization) => {
       if (!claim) return;
-      const errorCode = event.kind === "cancel"
+      const failure = responseFailure ?? checkpointFailure ?? ("error" in event ? event.error : undefined);
+      const details = modelErrorDetails(failure);
+      const errorCode = details.errorType === "timeout" ? "MODEL_TIMEOUT"
+        : details.statusCode !== null ? `MODEL_HTTP_${details.statusCode}`
+        : event.kind === "cancel"
         ? "ABORTED"
         : event.kind === "route-error"
           ? "ROUTE_ERROR"
           : event.kind === "error"
             ? "STREAM_ERROR"
             : "INCOMPLETE";
+      console.warn("portia_run_failed", {
+        runId: claim.runId, errorCode, ...details,
+        phase: checkpointFailure ? "persistence" : "response",
+      });
       await callMigrationBridge(
         manager,
         {
@@ -215,17 +227,18 @@ export async function POST(request: Request): Promise<Response> {
     const agent = createMigrationMainAgent({
       memory,
       alias: context.modelAlias,
+      runId: claim.runId,
       assertCanContinue: () => {
         if (checkpointFailure) throw checkpointFailure;
       },
     });
 
-    const deadline = AbortSignal.timeout(240_000);
+    const deadline = AbortSignal.timeout(MIGRATION_CHAT_TIMEOUT.totalMs);
     const abortSignal = AbortSignal.any([controller.signal, request.signal, deadline]);
     const result = await agent.stream({
       messages: context.messages,
       abortSignal,
-      timeout: { totalMs: 240_000, stepMs: 180_000, firstChunkMs: 60_000, chunkMs: 60_000 },
+      timeout: MIGRATION_CHAT_TIMEOUT,
       onStepEnd: async (step) => {
         try {
           abortSignal.throwIfAborted();
@@ -286,11 +299,10 @@ export async function POST(request: Request): Promise<Response> {
     });
 
     const stream = toUIMessageStream({
-      stream: result.stream.pipeThrough(new TransformStream({
-        transform(part, streamController) {
-          streamController.enqueue(stripPrivateProviderData(part));
-        },
-      })),
+      stream: publicChatStream(result.stream, {
+        abortSignal,
+        onFailure: error => { responseFailure = error; },
+      }),
       sendReasoning: false,
       generateMessageId: () => claim!.runId,
       messageMetadata: ({ part }) =>
@@ -301,7 +313,7 @@ export async function POST(request: Request): Promise<Response> {
               revision: claim!.revision,
             }
           : undefined,
-      onError: () => "The model response failed. Retry explicitly when ready.",
+      onError: responseErrorMessage,
     });
 
     const finalizedStream = withStreamFinalizer(stream, finalizeRun);
