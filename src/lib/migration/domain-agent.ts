@@ -7,6 +7,7 @@ import {
 } from "ai";
 import { z } from "zod";
 import { calculateTariffExpression } from "./calculator";
+import { calculateChargeBatch, chargeCalculationsSchema } from "./calculator-batch";
 import { formInputSchema, type ModelAlias } from "./contracts";
 import { migrationLanguageModel } from "./model";
 import { loadPortTariffBundle, SUPPORTED_PORTS } from "./ports";
@@ -26,10 +27,22 @@ Interpret and answer queries based on this information.
 First always check if the information in the query is sufficient to answer the question.
 If it is not, ask clarifying questions.
 
-Use calculate_charges for all arithmetic — never calculate manually.
+Use the calculator tools for all arithmetic — never calculate manually.
+For several charges, use calculate_charge_batch once for the line items AND their total.
+Give each expression an id; later expressions may reference earlier results as $id.
+Include any required tax, currency conversion, caps and rounding in that same batch when inputs are known.
+Use calculate_charges for a single independent expression or a correction.
 Copy calculator results exactly. A period included in a base charge is not a free period;
 describe it as the included period and never label a charged berth stay as free.
-Return a clear markdown breakdown with a total row. Note that figures are estimates subject to port authority discretion.
+Return terse internal evidence, not a polished user-facing answer:
+- Basis/assumptions: one line.
+- Rate validity and document dates: state once.
+- One table: charge | formula and units | exact calculator result | document filename and section. Include the total.
+- Short bullets for material application rules, rounding, GST/FX, exclusions and uncertainties.
+Aim for 250 words; exceed this when required to preserve complete evidence for a complex query.
+Do not repeat the itinerary, rates, dates or formulas outside their table/line. The main assistant writes the final explanation.
+Never omit an applicable charge, condition or qualification to meet the length target.
+Note that figures are estimates subject to port authority discretion.
 For each charge, cite the supplied document filename and tariff section, rate, units,
 rounding rule and effective dates. If the schedule is expired or its validity is unclear,
 say so prominently; never represent it as the current official rate.
@@ -56,11 +69,14 @@ When calculating charges, pass confirmed vessel details to the specialist.
 
 ask_user_input must be called alone in its model step. Complete any lookup first, then ask in a later step.
 Ask for missing country, port, terminal, anchorage, foreign/coastal status, arrival/departure, hours, operation type and cargo description as applicable.
+For an estimate, collect obviously missing voyage particulars in one form before consulting a specialist.
+Do not perform a tariff lookup just to prepare a generic intake form; consult first only for tariff-specific questions or ambiguity.
 
 For general maritime questions answer directly. For unsupported ports list the available identifiers.
 Always say estimates are subject to port authority discretion.
 Do not assume exchange rates: ask for a dated exchange rate.
 Preserve document filename citations, tariff effective dates and expiry warnings, units, rounding, assumptions, GST treatment and source currency.
+Copy the specialist's calculator results exactly. Do not add new arithmetic, savings, ratios or tax treatment absent from its evidence; request any genuinely needed additional calculation.
 Available documents are static reference schedules; do not claim live or global coverage.
 
 Today's date is {today}.`;
@@ -112,10 +128,22 @@ async function consultPortAgent(
   const contents = await loadPortTariffBundle(slug);
   if (!contents.trim()) return `No tariff data available for ${slug}. The bundled reference is empty; ask for an authoritative tariff before estimating charges.`;
   budget.specialistConsultations += 1;
+  const startedAt = Date.now();
   const specialist = new ToolLoopAgent({
     model: specialistModelFactory(alias),
     instructions: portPrompt(slug, contents),
     tools: {
+      calculate_charge_batch: tool({
+        description: "Calculate related tariff line items and their totals in one call with exact decimal arithmetic. Ordered expressions may reference earlier results using $id, e.g. {id: 'net', expression: '100 * 2.5'}, then {id: 'total', expression: 'round($net * 1.18, 2)'}. Each reference must already exist. All items fail together if any expression is invalid.",
+        inputSchema: z.object({ calculations: chargeCalculationsSchema }).strict(),
+        execute: async ({ calculations }) => {
+          try {
+            return { calculations: calculateChargeBatch(calculations) };
+          } catch (error) {
+            return { error: `Calculation error: ${error instanceof Error ? error.message : "Invalid arithmetic."}` };
+          }
+        },
+      }),
       calculate_charges: tool({
         description: "Evaluate bounded decimal tariff arithmetic. Supports + - * / **, parentheses, ceil, floor, min, max and half-up round.",
         inputSchema: z.object({ expression: z.string().min(1).max(2_000) }).strict(),
@@ -149,8 +177,10 @@ async function consultPortAgent(
   console.info("portia_specialist_completed", {
     modelAlias: alias,
     port: slug,
+    elapsedMs: Date.now() - startedAt,
+    modelCalls: result.steps.length,
     calculatorCalls: result.steps.reduce((count, step) =>
-      count + step.toolResults.filter((item) => item.toolName === "calculate_charges").length, 0),
+      count + step.toolResults.filter((item) => item.toolName === "calculate_charges" || item.toolName === "calculate_charge_batch").length, 0),
   });
   return result.text.trim();
 }

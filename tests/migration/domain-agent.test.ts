@@ -21,6 +21,29 @@ function generated(
 }
 
 describe("full migration domain agent", () => {
+  it("delivers exact batched calculations to the same-alias specialist before its cited handoff", async () => {
+    const main = new MockLanguageModelV4({ doGenerate: [
+      generated([{ type: "tool-call", toolCallId: "consult-batch", toolName: "consult_port_agent", input: JSON.stringify({ port_name: "mumbai", query: "Calculate marine charges" }) }], "tool-calls"),
+      generated([{ type: "text", text: "Final cited estimate" }], "stop"),
+    ] });
+    const specialist = new MockLanguageModelV4({ doGenerate: [
+      generated([{ type: "tool-call", toolCallId: "batch", toolName: "calculate_charge_batch", input: JSON.stringify({ calculations: [
+        { id: "dues", expression: "20000 * 10.5366" },
+        { id: "pilotage", expression: "20000 * 17.2897" },
+        { id: "total", expression: "$dues + $pilotage" },
+      ] }) }], "tool-calls"),
+      generated([{ type: "text", text: "INR 556526.0000, pre-GST. tariffs.md §§2.16 and 2.1(A). Static schedule; validity and scope apply." }], "stop"),
+    ] });
+    const factory = vi.fn(() => specialist);
+    await createMigrationMainAgent({ alias: "model-2", mainModel: main, specialistModelFactory: factory }).generate({ prompt: "Estimate" });
+    expect(factory).toHaveBeenCalledWith("model-2");
+    expect(specialist.doGenerateCalls).toHaveLength(2);
+    const calculationResult = JSON.stringify(specialist.doGenerateCalls[1].prompt);
+    expect(calculationResult).toContain("556526.0000");
+    expect(calculationResult).toContain("210732.0000");
+    expect(JSON.stringify(main.doGenerateCalls[1].prompt)).toContain("tariffs.md §§2.16 and 2.1(A)");
+  });
+
   it("routes through the same-alias specialist and returns cited tariff output", async () => {
     const mainModel = new MockLanguageModelV4({
       doGenerate: [

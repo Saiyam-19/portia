@@ -82,6 +82,7 @@ async function parseBody(request: Request) {
 }
 
 export async function POST(request: Request): Promise<Response> {
+  const requestStartedAt = Date.now();
   if (!migrationPreviewEnabled()) return new Response("Not found", { status: 404 });
   const origin = trustedMigrationOrigin(request);
   if (!origin) {
@@ -268,7 +269,7 @@ export async function POST(request: Request): Promise<Response> {
           controller.abort(error);
         }
       },
-      onEnd: async ({ finishReason }) => {
+      onEnd: async ({ finishReason, steps }) => {
         statusPollingEnabled = false;
         if (statusTimer) {
           clearInterval(statusTimer);
@@ -289,6 +290,13 @@ export async function POST(request: Request): Promise<Response> {
             },
           });
           persisted = true;
+          console.info("portia_run_completed", {
+            runId: claim!.runId,
+            modelAlias: context.modelAlias,
+            elapsedMs: Date.now() - requestStartedAt,
+            modelSteps: steps.length,
+            state: pendingStepForm ? "waiting" : "completed",
+          });
         } catch (error) {
           if (!abortSignal.aborted) {
             checkpointFailure = error;
