@@ -61,3 +61,16 @@ it("keeps an intentional stop as cancellation rather than reporting a timeout", 
   const parts = await drain(publicChatStream(source, { abortSignal: controller.signal, onFailure: () => undefined }));
   expect(parts).toEqual([{ type: "abort" }]);
 });
+
+it("recognizes an SDK step timeout even when the outer request signal is still active", async () => {
+  const source = new ReadableStream<TextStreamPart<ToolSet>>({ start(stream) {
+    // streamText serializes its internal abort reason before yielding this part.
+    stream.enqueue({ type: "abort", reason: "Step timeout of 180000ms exceeded" });
+    stream.close();
+  } });
+  const parts = await drain(toUIMessageStream({
+    stream: publicChatStream(source, { abortSignal: new AbortController().signal, onFailure: () => undefined }),
+    onError: responseErrorMessage,
+  }));
+  expect(parts).toContainEqual({ type: "error", errorText: responseErrorMessage(new DOMException("", "TimeoutError")) });
+});

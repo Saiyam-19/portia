@@ -7,6 +7,11 @@ export type ModelErrorContext = {
 
 /** Inspect bounded causes, never serialize provider messages, bodies or headers. */
 export function modelErrorDetails(error: unknown) {
+  // streamText serializes its internally owned timeout signal into an abort
+  // part; the route's outer AbortSignal is still active for these deadlines.
+  if (typeof error === "string" && /^(?:First chunk|Chunk|Step|Total) timeout of \d+ms exceeded$/.test(error)) {
+    return { statusCode: null, errorType: "timeout" as const };
+  }
   let current = error;
   let statusCode: number | null = null;
   let errorType: "timeout" | "cancelled" | "invalid_response" | "network" | undefined;
