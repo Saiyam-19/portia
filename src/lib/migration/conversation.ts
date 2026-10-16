@@ -287,7 +287,10 @@ function validateOperation(op: Interpretation["operations"][number], input: Conv
     const role = metricNames[op.field];
     if (role && !role.test(raw) && !role.test(fieldMeaning)) throw new Error(`Evidence does not identify ${op.field}.`);
     let numericRaw = expandCardinals(raw);
-    const atoms = [...numericRaw.matchAll(/(?<![\w.])[-−]?\d[\d,]*(?:\.\d+)?(?:[eE][+-]?\d+)?(?![\w.])/g)].filter(m => /^[+−-]?(?:\d+|\d{1,3}(?:,\d{3})+|\d{1,2}(?:,\d{2})+,\d{3})(?:\.\d+)?(?:[eE][+-]?\d+)?$/.test(m[0])).map(m => m[0].replaceAll(",", "").replace("−", "-"));
+    // A full stop terminates a number; a dot followed by a digit continues it.
+    // Keep the left boundary and decimal/word continuation checks so neither
+    // 80.5 nor malformed 80.5.7 can supply an asserted 80.
+    const atoms = [...numericRaw.matchAll(/(?<![\w.])[-−]?\d[\d,]*(?:\.\d+)?(?:[eE][+-]?\d+)?(?!\w|\.\d)/g)].filter(m => /^[+−-]?(?:\d+|\d{1,3}(?:,\d{3})+|\d{1,2}(?:,\d{2})+,\d{3})(?:\.\d+)?(?:[eE][+-]?\d+)?$/.test(m[0])).map(m => m[0].replaceAll(",", "").replace("−", "-"));
     if(op.field==="moneyDecimals"){if(value.gt(8))throw new Error("Money precision exceeds the supported bound.");if(/paise|cents/i.test(raw))atoms.push("2");}
     if (["ladenContainers","emptyContainers"].includes(op.field)) {
       const role=op.field==="ladenContainers"?"(?:laden|loaded)":"empty";
