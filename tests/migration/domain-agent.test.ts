@@ -29,7 +29,11 @@ describe("shared migration domain agent", () => {
     const p = await projectionProposal([{ role: "user", content: question }], "quote"); p.tasks[0].charges = ["berth", "other"];
     const model = new MockLanguageModelV4({ doGenerate: interpret(p) });
     const result = await createMigrationMainAgent({ interpretationFormat: "legacy", alias: "model-2", mainModel: model }).generate({ prompt: question });
-    expect(result.text).toMatch(/requested.*scope|governing source/); expect(result.text).not.toMatch(/INR\s*\d/); expect(model.doGenerateCalls).toHaveLength(1);
+    // The retained reviewed rule is dated. Its first missing applicability input
+    // is the call date; a generic source-gap sentence is no longer the behavior.
+    expect(result.text).toContain('call date');
+    expect(result.text).not.toMatch(/(?:provide|confirm|what).*\b(?:GT|GRT|tonnage|rate)\b/i);
+    expect(result.text).not.toMatch(/(?:USD|INR)\s*\d/); expect(model.doGenerateCalls).toHaveLength(1);
   });
   it("withholds truncated interpretation output and makes no implicit retry", async () => {
     const model = new MockLanguageModelV4({ doGenerate: generated([{ type: "text", text: "UNSAFE PARTIAL FINANCIAL TOTAL 123456" }], "length") });
@@ -40,7 +44,9 @@ describe("shared migration domain agent", () => {
     const question = "Estimate BPCL cargo jetty"; const p = await projectionProposal([{ role: "user", content: question }], "quote");
     const model = new MockLanguageModelV4({ doGenerate: interpret(p) }); const factory = vi.fn(() => { throw new Error("No source"); });
     const result = await createMigrationMainAgent({ interpretationFormat: "legacy", alias: "model-1", mainModel: model, specialistModelFactory: factory }).generate({ prompt: question });
-    expect(factory).not.toHaveBeenCalled(); expect(result.text).toContain("not yet available"); expect(result.text).not.toMatch(/(?:USD|INR)\s*\d/);
+    // Empty asset is a code-owned authority gap, not a request for a user rate.
+    expect(factory).not.toHaveBeenCalled(); expect(result.text).toContain("no verified tariff yet");
+    expect(result.text).not.toMatch(/(?:provide|what).*rate/i);expect(result.text).not.toMatch(/(?:USD|INR)\s*\d/);
   });
   it("suspends on one necessary structured question after interpretation", async () => {
     const question = "Calculate my port call"; const p = await projectionProposal([{ role: "user", content: question }], "quote");
