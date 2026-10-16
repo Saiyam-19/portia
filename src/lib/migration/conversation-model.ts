@@ -1,16 +1,26 @@
 import { wrapLanguageModel } from "ai";
-import type { LanguageModelV4Content, LanguageModelV4GenerateResult, LanguageModelV4StreamPart } from "@ai-sdk/provider";
+import type { LanguageModelV4Content, LanguageModelV4GenerateResult, LanguageModelV4StreamPart, LanguageModelV4Usage } from "@ai-sdk/provider";
 import type { ConversationSession } from "./conversation-session";
 import { interpretationSchema, hasUnboundFinancialClaim } from "./conversation";
-import { MIGRATION_PROVIDER_FIRST_OUTPUT_MS } from "./agent-policy";
+import { MIGRATION_PROVIDER_FIRST_OUTPUT_MS, MIGRATION_INTERPRETATION_REPAIR_ENABLED } from "./agent-policy";
 type Model = Parameters<typeof wrapLanguageModel>[0]["model"];
 const usage = { inputTokens: { total: 0, noCache: 0, cacheRead: 0, cacheWrite: 0 }, outputTokens: { total: 0, text: 0, reasoning: 0 } };
 const text = (value: string): LanguageModelV4Content[] => [{ type: "text", text: value }];
 const incomplete = () => new Error("The response did not finish. Please retry explicitly.");
+export class PortiaInterpretationError extends Error {
+  readonly name = "PortiaInterpretationError";
+  constructor(readonly validationError: string) { super("The request could not be interpreted reliably. Please clarify or retry explicitly; no estimate was published."); }
+}
+const add = (a: number | undefined, b: number | undefined) => a === undefined && b === undefined ? undefined : (a ?? 0) + (b ?? 0);
+function combinedUsage(a: LanguageModelV4Usage | undefined, b: LanguageModelV4Usage): LanguageModelV4Usage {
+  if (!a) return b;
+  return { ...b, inputTokens: { total: add(a.inputTokens.total,b.inputTokens.total), noCache: add(a.inputTokens.noCache,b.inputTokens.noCache), cacheRead: add(a.inputTokens.cacheRead,b.inputTokens.cacheRead), cacheWrite: add(a.inputTokens.cacheWrite,b.inputTokens.cacheWrite) }, outputTokens: { total: add(a.outputTokens.total,b.outputTokens.total), text: add(a.outputTokens.text,b.outputTokens.text), reasoning: add(a.outputTokens.reasoning,b.outputTokens.reasoning) } };
+}
 
 /** All interpretation text and tool arguments are buffered. The model cannot
  * publish financial claims through a general/nonfinancial response. */
-export function createConversationModel(model: Model, session: ConversationSession) {
+export function createConversationModel(model: Model, session: ConversationSession, options: { repairEnabled?: boolean } = {}) {
+  const repairEnabled = options.repairEnabled ?? MIGRATION_INTERPRETATION_REPAIR_ENABLED;
   const synthetic = (): LanguageModelV4GenerateResult | undefined => {
     let content: LanguageModelV4Content[] | undefined;
     if (session.failure || session.published) content = text(session.text()!);
@@ -23,11 +33,16 @@ export function createConversationModel(model: Model, session: ConversationSessi
   const checked = (content: LanguageModelV4Content[]) => {
     const calls = content.filter(p => p.type === "tool-call");
     if (session.pending.length) {
+      let issue = "Exactly one interpret_request tool call is required.";
       if (calls.length === 1 && calls[0].toolName === "interpret_request") {
-        try { if (interpretationSchema.safeParse(JSON.parse(calls[0].input)).success) return calls; } catch { /* Bounded malformed-output recovery, no implicit retry. */ }
+        try {
+          const parsed = interpretationSchema.safeParse(JSON.parse(calls[0].input));
+          if (parsed.success) return calls;
+          issue = parsed.error.issues.map(i => `${i.path.join(".")}: ${i.message}`).join("; ").slice(0,1000);
+        } catch { issue = "Malformed JSON in interpret_request."; }
       }
-      session.failure = "I could not establish a reliable interpretation of this request. Please clarify the intended task or retry explicitly; no estimate was published.";
-      return text(session.failure);
+      // A tool is required here. Plain text would violate the SDK contract.
+      throw new PortiaInterpretationError(issue);
     }
     const prose = content.filter(p => p.type === "text").map(p => p.text).join("");
     if (session.needsAuxiliary) {
@@ -45,18 +60,35 @@ export function createConversationModel(model: Model, session: ConversationSessi
     specificationVersion: "v4",
     wrapGenerate: async ({ doGenerate, params }) => {
       params.abortSignal?.throwIfAborted(); const ready = synthetic(); if (ready) return ready;
-      const result = await doGenerate(); if (!["stop", "tool-calls"].includes(result.finishReason.unified)) throw incomplete();
-      if (JSON.stringify(result.content).length > 1_000_000) throw new Error("Response size limit exceeded.");
-      const content = checked(result.content);
-      return { ...result, content, finishReason: { ...result.finishReason, unified: content.some(p => p.type === "tool-call") ? "tool-calls" as const : "stop" as const } };
+      let totalUsage: LanguageModelV4Usage | undefined;
+      for (let attempt = 0; ; attempt++) {
+        try {
+          params.abortSignal?.throwIfAborted();
+          const result = await doGenerate(); params.abortSignal?.throwIfAborted();
+          totalUsage = combinedUsage(totalUsage,result.usage);
+          if (!["stop", "tool-calls"].includes(result.finishReason.unified)) throw incomplete();
+          if (JSON.stringify(result.content).length > 1_000_000) throw new Error("Response size limit exceeded.");
+          const content = checked(result.content);
+          return { ...result, usage: totalUsage, content, finishReason: { ...result.finishReason, unified: content.some(p => p.type === "tool-call") ? "tool-calls" as const : "stop" as const } };
+        } catch (error) {
+          params.abortSignal?.throwIfAborted();
+          if (!(error instanceof PortiaInterpretationError)) throw error;
+          if (!repairEnabled || attempt >= 1) { session.failure = error.message; throw error; }
+          params.prompt = [...params.prompt, {role:"system",content:`Invalid interpretation: ${error.validationError} Return one valid interpret_request call. Preserve the user's meaning; do not invent or coerce facts.`}];
+        }
+      }
     },
     wrapStream: async ({ doStream, params }) => {
       params.abortSignal?.throwIfAborted(); const ready = synthetic();
       if (ready) return { stream: new ReadableStream({ start(c) { c.enqueue({ type: "stream-start", warnings: [] }); for (const p of parts(ready.content)) c.enqueue(p); c.enqueue({ type: "finish", finishReason: ready.finishReason, usage: ready.usage }); c.close(); } }) };
+      const outerSignal = params.abortSignal;
+      let totalUsage: LanguageModelV4Usage | undefined;
+      let attempts = 0;
+      const openAttempt = async () => {
       // The SDK sees only validated output after this buffer. Measure provider
       // first content here, without publishing partial arguments or fake progress.
       const deadline = new AbortController();
-      const signal = params.abortSignal ? AbortSignal.any([params.abortSignal, deadline.signal]) : deadline.signal;
+      const signal = outerSignal ? AbortSignal.any([outerSignal, deadline.signal]) : deadline.signal;
       params.abortSignal = signal;
       let rejectAbort!: (reason: unknown) => void;
       const aborted = new Promise<never>((_resolve, reject) => { rejectAbort = reject; });
@@ -78,29 +110,45 @@ export function createConversationModel(model: Model, session: ConversationSessi
           if (((part.type === "text-delta" || part.type === "reasoning-delta" || part.type === "tool-input-delta") && part.delta.length > 0) || part.type === "tool-call" || part.type === "file" || part.type === "reasoning-file") clearTimeout(timer);
           if (part.type === "error") { failed = true; buffered.length = 0; controller.enqueue(part); return; }
           if (failed || part.type === "raw") return;
-          if (part.type === "stream-start" || part.type === "response-metadata") { controller.enqueue(part); return; }
+          if (part.type === "stream-start" || part.type === "response-metadata") { if (!attempts) controller.enqueue(part); return; }
           if (finished) throw incomplete();
           bytes += JSON.stringify(part).length; if (bytes > 1_000_000) throw new Error("Response size limit exceeded.");
           if (part.type !== "finish") { buffered.push(part); return; }
           if (!["stop", "tool-calls"].includes(part.finishReason.unified)) throw incomplete();
           const calls = buffered.filter(p => p.type === "tool-call");
           if (buffered.some(p => p.type === "tool-input-start" && !calls.some(c => c.toolCallId === p.id))) throw incomplete();
+          totalUsage = combinedUsage(totalUsage,part.usage);
           const content = checked([...text(buffered.filter(p => p.type === "text-delta").map(p => p.delta).join("")), ...calls]);
           for (const p of parts(content)) controller.enqueue(p);
-          controller.enqueue({ ...part, finishReason: { ...part.finishReason, unified: content.some(p => p.type === "tool-call") ? "tool-calls" : "stop" } }); finished = true;
+          controller.enqueue({ ...part, usage:totalUsage, finishReason: { ...part.finishReason, unified: content.some(p => p.type === "tool-call") ? "tool-calls" : "stop" } }); finished = true;
         }, flush() { if (!failed && !finished) throw incomplete(); },
       }), { signal }).getReader();
-      return { ...result, stream: new ReadableStream<LanguageModelV4StreamPart>({
+      return { result, reader, cleanup, deadline };
+      };
+      let active = await openAttempt();
+      return { ...active.result, stream: new ReadableStream<LanguageModelV4StreamPart>({
         async pull(controller) {
-          try {
-            const { done, value } = await reader.read();
-            if (done) { cleanup(); reader.releaseLock(); controller.close(); }
-            else controller.enqueue(value);
-          } catch (error) { cleanup(); reader.releaseLock(); controller.enqueue({ type: "error", error }); controller.close(); }
+          while (true) {
+            try {
+              const { done, value } = await active.reader.read();
+              if (done) { active.cleanup(); active.reader.releaseLock(); controller.close(); }
+              else controller.enqueue(value);
+              return;
+            } catch (error) {
+              active.cleanup(); active.reader.releaseLock();
+              if (error instanceof PortiaInterpretationError && repairEnabled && attempts === 0 && !outerSignal?.aborted) {
+                attempts++;
+                params.prompt = [...params.prompt,{role:"system",content:`Invalid interpretation: ${error.validationError} Return one valid interpret_request call. Preserve the user's meaning; do not invent or coerce facts.`}];
+                try { active = await openAttempt(); continue; } catch (retryError) { error = retryError; }
+              }
+              if (error instanceof PortiaInterpretationError) session.failure = error.message;
+              controller.enqueue({type:"error",error}); controller.close(); return;
+            }
+          }
         },
         async cancel(reason) {
-          deadline.abort(reason); cleanup();
-          try { await reader.cancel(reason); } finally { reader.releaseLock(); }
+          active.deadline.abort(reason); active.cleanup();
+          try { await active.reader.cancel(reason); } finally { active.reader.releaseLock(); }
         },
       }) };
     },

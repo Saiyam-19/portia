@@ -3,6 +3,8 @@ import { isStepCount } from "ai";
 export const MIGRATION_AGENT_MAX_STEPS = 12;
 export const MIGRATION_AGENT_MAX_OUTPUT_TOKENS = 4_096;
 export const MIGRATION_INTERPRETATION_MAX_OUTPUT_TOKENS = 8_192;
+// A repair is an additional provider call. Keep disabled unless explicitly enabled.
+export const MIGRATION_INTERPRETATION_REPAIR_ENABLED = false;
 
 // Enforced on provider output before conversation publication buffering.
 export const MIGRATION_PROVIDER_FIRST_OUTPUT_MS = 60_000;
