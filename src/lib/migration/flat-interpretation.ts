@@ -1,10 +1,10 @@
 import Decimal from 'decimal.js';
 import { operationAt } from './request-semantics';
 import {resolveCatalogLocation} from './port-identity';
-import { requiresLiteralGrounding, codeOwnedUnit, conversationDigest, expandCardinals, validateOperation, type ConversationInput, type ConversationState, type ConversationField, type Interpretation } from './conversation';
+import { requiresLiteralGrounding, codeOwnedUnit, conversationDigest, expandCardinals, validateOperation, reduceInterpretation, type ConversationInput, type ConversationState, type ConversationField, type Interpretation } from './conversation';
 
 export {flatInterpretationSchema,type FlatInterpretation} from './fact-contract';
-import {readFlatFacts} from './fact-contract';
+import {readFlatFacts,type InternalFlatFact} from './fact-contract';
 export const FLAT_INTERPRETATION_INSTRUCTIONS = `Call interpret_request alone with a flat facts list. Each row is {subject,item,field,value}.
 Use a short human label as subject for each independent quotation, vessel or scenario. item is the charge name, or empty for facts shared by the subject. Unnamed amounts use item_1, item_2. Never merge comparison sides or scenarios.
 Include request rows with item empty and value supplied-quote, official-quote, rule, elapsed, comparison, facts, or other. Include all requested work. For a comparison include quote requests for each side and a separate Comparison subject with the conversion/rounding facts. A correction refers to the saved subject and named item.
@@ -84,7 +84,12 @@ function ground(field:ConversationField,value:string,input:ConversationInput,sco
 export function compileFlatInterpretation(previous:ConversationState,unknown:unknown,inputs:readonly ConversationInput[]):Interpretation {
   const facts=readFlatFacts(unknown,inputs.filter(i=>!previous.consumed.includes(i.id)).map(i=>i.text).join("\n"));
   const pending=inputs.filter(i=>!previous.consumed.includes(i.id));
-  if(pending.length!==1)throw new Error('Flat interpretation requires one pending authored input.');
+  if(pending.length>1)return compilePending(previous,facts,inputs,pending);
+  return compileInput(previous,facts,inputs);
+}
+function compileInput(previous:ConversationState,facts:InternalFlatFact[],inputs:readonly ConversationInput[]):Interpretation {
+  const pending=inputs.filter(i=>!previous.consumed.includes(i.id));
+  if(pending.length!==1)throw new Error('No pending authored input is available.');
   const input=pending[0], evidence={inputId:input.id,quote:input.text};
   for(const row of facts){
     const short=row.subject.replace(/^(?:quote|quotation|scenario)\s+/i,'');
@@ -171,6 +176,83 @@ export function compileFlatInterpretation(previous:ConversationState,unknown:unk
     task.source='supplied';task.comparisonMode='totals';task.comparisonTaskIds=proposal.tasks.filter(t=>t.kind==='quote').map(t=>t.id);
   }
   return proposal;
+}
+
+/** Recover only explicit named flat amounts; never infer an official rate or a
+ * unit-price rule. This uses authored inputs, not a rejected model's output. */
+function savedAmountFacts(input:ConversationInput,subject:string):InternalFlatFact[]{
+  if(!/\b(?:add|sum|quote|quotation)\b/i.test(input.text)||/(?:per|\/)\s*(?:GT|GRT|hour|day|tonne|movement|call)|\b(?:started|commenced)\b/i.test(input.text))return [];
+  const amounts=moneyAtoms(input.text),facts:InternalFlatFact[]=[];
+  for(const [i,atom]of amounts.entries()){
+    const tail=input.text.slice(atom.at+atom.raw.length,amounts[i+1]?.at??input.text.length);
+    const name=/^\s+([\p{L}][\p{L} -]*?)(?:\s+and\s*|,\s*|[.;!?\n]|$)/u.exec(tail)?.[1]?.trim();
+    if(!name||name.length>64||/^(?:per|for|plus|all-in)\b/i.test(name))return [];
+    const token=/^(USD|INR|EUR|GBP|US\$|₹|€|£)/i.exec(atom.raw)?.[1];if(!token)return [];
+    const currency=({'US$':'USD','₹':'INR','€':'EUR','£':'GBP'} as Record<string,string>)[token.toUpperCase()]??token.toUpperCase();
+    for(const [field,value]of Object.entries({charge:name,currency,rate:atom.amount,basis:'amount'}))facts.push({subject,item:name,field:field as ConversationField,value});
+  }
+  if(!facts.length)return [];
+  facts.push({subject,item:'',field:'request',value:'supplied-quote'});
+  if(/\b(?:no|without)\b[^.!?\n]*\btax(?:es)?\b/i.test(input.text))facts.push({subject,item:'',field:'tax',value:'none'});
+  return facts;
+}
+function interveningCorrections(input:ConversationInput,state:ConversationState):InternalFlatFact[]{
+  const facts:InternalFlatFact[]=[];
+  for(const atom of moneyAtoms(input.text)){
+    if(operationAt(input.text,atom.at)!=='replace')continue;
+    const targets=state.facts.filter(f=>f.field==='charge'&&f.status==='established').filter(f=>{
+      try{itemContext(f.value,atom.amount,input.text);return true;}catch{return false;}
+    });
+    if(targets.length!==1)throw new Error('Recovery correction has no unique named line item.');
+    const charge=targets[0],rule=state.scopes.find(s=>s.id===charge.scopeId)!,subject=state.scopes.find(s=>s.id===rule.parentId)!.label;
+    facts.push({subject,item:charge.value,field:'rate',value:atom.amount});
+  }
+  return facts;
+}
+function compilePending(previous:ConversationState,facts:InternalFlatFact[],inputs:readonly ConversationInput[],pending:readonly ConversationInput[]):Interpretation {
+  if(pending.slice(1).some(i=>/\b(?:new|another|different)\s+(?:vessel|ship|call)\b/i.test(i.text)))throw new Error('Recovery cannot merge a different vessel or call into saved details.');
+  const subjects=[...new Set(facts.filter(f=>f.subject!=='Comparison').map(f=>f.subject))];
+  const subject=subjects.length===1?subjects[0]:undefined;
+  const destinations=facts.map(row=>{
+    if(row.field==='request')return pending.length-1;
+    if(requiresLiteralGrounding(row.field)){
+      for(let i=pending.length-1;i>=0;i--){
+        try{
+          if(codeOwnedUnit(row.field)==='timestamp'){if(!pending[i].text.includes(row.value))continue;}
+          else numericValue(row.field,row.value,pending[i].text);
+          if(row.field==='rate'&&row.item)itemContext(row.item,row.value,subjectContext(row.subject,pending[i].text).quotation??pending[i].text);
+          return i;
+        }catch{/* Try earlier authenticated input; never an assistant answer. */}
+      }
+      throw new Error(`Recovery could not ground ${row.field} in pending inputs.`);
+    }
+    if(row.item){const rate=facts.find(f=>f.subject===row.subject&&f.item===row.item&&f.field==='rate');if(rate){for(let i=pending.length-1;i>=0;i--)try{itemContext(row.item,rate.value,pending[i].text);return i;}catch{/* Earlier item. */}}}
+    return 0;
+  });
+  const combined:Interpretation={contract:'facts-v3',version:1,baseHash:previous.hash,inputIds:pending.map(i=>i.id),scopes:[],operations:[],tasks:[],unresolved:[]};
+  let temporary=previous;
+  for(const [index,input]of pending.entries()){
+    const seeds=index===0&&subject?savedAmountFacts(input,subject):index<pending.length-1?interveningCorrections(input,temporary):[];
+    const selected=facts.filter((_f,i)=>destinations[i]===index);
+    const key=(f:InternalFlatFact)=>JSON.stringify([f.subject,f.item,f.field]);
+    const selectedKeys=new Set(selected.map(key));
+    const local=[...seeds.filter(f=>!selectedKeys.has(key(f))),...selected];
+    if(!local.some(f=>f.field==='request')){
+      const label=subject??temporary.scopes.find(s=>s.kind!=='quotation-rule')?.label;
+      if(!label)throw new Error('Recovery cannot identify the pending call scope.');
+      local.push({subject:label,item:'',field:'request',value:temporary.tasks.some(t=>t.source==='supplied')||seeds.length?'supplied-quote':'facts'});
+    }
+    const available=inputs.slice(0,inputs.findIndex(i=>i.id===input.id)+1);
+    const part=compileInput(temporary,structuredClone(local),available);
+    const reduced=reduceInterpretation(temporary,part,available);
+    if(reduced.state.facts.some(f=>f.revision===reduced.state.revision&&f.status==='conflicting'))throw new Error('Recovery contains conflicting facts; nothing was committed.');
+    temporary=reduced.state;
+    for(const scope of part.scopes)if(!combined.scopes.some(s=>s.id===scope.id))combined.scopes.push(scope);
+    combined.operations.push(...part.operations);combined.tasks=part.tasks;combined.unresolved=part.unresolved;
+  }
+  // One atomic, original-dispatch-bound receipt. Temporary reductions never
+  // mutate the session; failure at any stage leaves all pending inputs intact.
+  return combined;
 }
 
 export function savedFactSummary(state:ConversationState) {
