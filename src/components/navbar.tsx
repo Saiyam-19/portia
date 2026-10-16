@@ -1,14 +1,28 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { Anchor, Menu, X } from 'lucide-react'
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const menuId=useId()
+  const navRef=useRef<HTMLElement>(null)
+  const toggleRef=useRef<HTMLButtonElement>(null)
+  useEffect(()=>{
+    if(!mobileOpen)return
+    const escape=(event:KeyboardEvent)=>{
+      if(event.key!=='Escape')return
+      const ownedFocus=navRef.current?.contains(document.activeElement)
+      setMobileOpen(false)
+      if(ownedFocus)toggleRef.current?.focus()
+    }
+    document.addEventListener('keydown',escape)
+    return()=>document.removeEventListener('keydown',escape)
+  },[mobileOpen])
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
+    <nav ref={navRef} className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -27,9 +41,6 @@ export default function Navbar() {
             <Link href="#how-it-works" className="text-sm text-slate-500 hover:text-slate-900 transition-colors">
               How It Works
             </Link>
-            <Link href="#pricing" className="text-sm text-slate-500 hover:text-slate-900 transition-colors">
-              Pricing
-            </Link>
           </div>
 
           {/* CTA */}
@@ -47,9 +58,12 @@ export default function Navbar() {
 
           {/* Mobile toggle */}
           <button
+            ref={toggleRef}
             className="md:hidden p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
+            aria-expanded={mobileOpen}
+            aria-controls={menuId}
           >
             {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -58,15 +72,12 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-slate-100 bg-white px-4 py-4 space-y-1">
+        <div id={menuId} onClick={event=>{if((event.target as Element).closest('a'))setMobileOpen(false)}} className="md:hidden border-t border-slate-100 bg-white px-4 py-4 space-y-1">
           <Link href="#features" className="block text-sm text-slate-600 hover:text-slate-900 py-2.5 px-3 rounded-lg hover:bg-slate-50">
             Features
           </Link>
           <Link href="#how-it-works" className="block text-sm text-slate-600 hover:text-slate-900 py-2.5 px-3 rounded-lg hover:bg-slate-50">
             How It Works
-          </Link>
-          <Link href="#pricing" className="block text-sm text-slate-600 hover:text-slate-900 py-2.5 px-3 rounded-lg hover:bg-slate-50">
-            Pricing
           </Link>
           <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
             <Link href="/login" className="text-sm text-center text-slate-600 hover:text-slate-900 py-2.5">

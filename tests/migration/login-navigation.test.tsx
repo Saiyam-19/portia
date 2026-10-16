@@ -8,6 +8,7 @@ vi.mock('react', async importOriginal => ({
   ...await importOriginal<typeof import('react')>(),
   // Exercise the form's submit handler without a browser or network.
   useState: (initial: unknown) => [typeof initial === 'function' ? initial() : initial, vi.fn()],
+  useRef: (initial: unknown) => ({current:initial}),
 }));
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: fixtures.push, refresh: fixtures.refresh }),
@@ -44,4 +45,12 @@ it('stays on the form after rejected credentials', async () => {
   fixtures.signIn.mockResolvedValue({ error: { message: 'Invalid credentials' } });
   await form(LoginForm({ basicSignup: true }))!.props.onSubmit!({ preventDefault() {} });
   expect(fixtures.assign).not.toHaveBeenCalled();
+});
+it('ignores duplicate submission while authentication is pending',async()=>{
+  let finish!:(value:{error:null})=>void;
+  fixtures.signIn.mockImplementation(()=>new Promise(resolve=>{finish=resolve;}));
+  const submit=form(LoginForm({basicSignup:true}))!.props.onSubmit!;
+  const first=submit({preventDefault(){}}),second=submit({preventDefault(){}});
+  expect(fixtures.signIn).toHaveBeenCalledTimes(1);
+  finish({error:null});await Promise.all([first,second]);expect(fixtures.assign).toHaveBeenCalledTimes(1);
 });

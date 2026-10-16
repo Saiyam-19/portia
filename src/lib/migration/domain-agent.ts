@@ -1,24 +1,28 @@
 import "server-only";
+import { randomUUID } from "node:crypto";
 import type { AgentMemory } from "../memory/session";
 import {
   ToolLoopAgent,
   tool,
   type LanguageModel,
+  type ToolSet,
 } from "ai";
 import { z } from "zod";
-import { calculateTariffExpression } from "./calculator";
-import { calculateChargeBatch, chargeCalculationsSchema } from "./calculator-batch";
-import { createReviewedReportModel } from "./reviewed-report";
+import { interpretationSchema, auxiliaryCompletionSchema, hasUnboundFinancialClaim } from "./conversation";
+import { ConversationSession, INTERPRETATION_INSTRUCTIONS } from "./conversation-session";
+import { createConversationModel } from "./conversation-model";
+import type { QuoteBinding } from "./supplied-quotation";
 import { formInputSchema, type ModelAlias } from "./contracts";
 import { migrationLanguageModel } from "./model";
-import { loadPortTariffBundle, SUPPORTED_PORTS } from "./ports";
+import { SUPPORTED_PORTS } from "./ports";
 import { getVessel, searchVessels } from "./vessels";
 import {
   MIGRATION_AGENT_POLICY,
+  MIGRATION_AGENT_MAX_OUTPUT_TOKENS,
+  MIGRATION_INTERPRETATION_MAX_OUTPUT_TOKENS,
 } from "./agent-policy";
 
 const MAX_PROVIDER_CALLS = 16;
-const MAX_SPECIALIST_CONSULTATIONS = 3;
 
 export const PORT_AGENT_SYSTEM = `You are a specialist agent for {port_name} Port.
 
@@ -62,30 +66,35 @@ Show applicable GST separately and include it in totals when its rate is known.`
 export const MAIN_SYSTEM_PROMPT = `You are Plisto's AI port assistant for maritime operators.
 Refer to model choices only as Model 1 and Model 2. Do not disclose underlying model names, model identifiers, or providers.
 
-Use consult_port_agent for port tariff lookups, calculations and rule clarifications.
+First distinguish independent calculations from tariff lookup requests.
+For user-supplied rates/rules or arithmetic checks, use your calculator tools directly and answer all requested cases. A port, vessel identity, tariff document, or specialist is NOT required when the calculation inputs are already supplied. Label the result as based on the supplied quotation, not an official port tariff. Do not add taxes, minima or charges the user excluded.
+Use calculate_charge_batch for related calculations in one call. Copy its results exactly; never do arithmetic manually.
+For timestamps, use calculate_elapsed_time with the ORIGINAL timestamp strings before tariff lookup or coverage refusal. Report the normalized times and elapsed duration even when the port is unsupported. Keep elapsed occupancy separate from billable/rounded time.
+Ambiguous numeric dates (e.g. both leading numbers can be months) require date-order clarification BEFORE interpreting a date or stating a duration. Never assume date order from the port, country or locale. Do not set dateOrder until the user confirms it. Invalid dates, reversed intervals, conflicting durations and missing time zones require clarification, not silent correction.
+
+Use consult_port_agent for official tariff lookups and calculations that need a port's rates or rules.
 Supported ports (exact identifiers): {ports}
 Pass an identifier verbatim. Do not reformat, translate, invent, or traverse paths.
 
-Use search_vessels and get_vessel to confirm GRT, DWT, LOA and draught when absent.
+Use search_vessels and get_vessel only when the requested charge requires missing vessel particulars. Do not look up a vessel when the user already supplied those particulars. If lookup is unavailable, ask only for missing values; never repeat it.
 When calculating charges, pass confirmed vessel details to the specialist.
 
 ask_user_input must be called alone in its model step. Complete any lookup first, then ask in a later step.
 Ask for missing country, port, terminal, anchorage, foreign/coastal status, arrival/departure, hours, operation type and cargo description as applicable.
-For an estimate, collect obviously missing voyage particulars in one form before consulting a specialist.
+For a tariff-based estimate, collect only particulars needed for the requested charge in one form before consulting a specialist. This intake rule does not apply to supplied-rate arithmetic or elapsed-time checks.
 Do not perform a tariff lookup just to prepare a generic intake form; consult first only for tariff-specific questions or ambiguity.
 
-For general maritime questions answer directly. For unsupported ports list the available identifiers.
+For general maritime questions answer directly. For unsupported ports state the coverage limit briefly and request the relevant tariff only if needed for pricing. Complete independent calculations and input validation first. List supported identifiers only if the user asks for them.
+If a user cancels a form with a note, treat that note as their current correction/question. Preserve unchanged facts, replace corrected values, and answer what can be answered without demanding irrelevant fields. Do not reissue an intake form just because a previous form was cancelled.
 Always say estimates are subject to port authority discretion.
 Do not assume exchange rates: ask for a dated exchange rate.
 Preserve document filename citations, tariff effective dates and expiry warnings, units, rounding, assumptions, GST treatment and source currency.
-Copy the specialist's calculator results exactly. Do not add new arithmetic, savings, ratios or tax treatment absent from its evidence; request any genuinely needed additional calculation.
+Copy the specialist's calculator results exactly. Use your calculator for further arithmetic only when the needed rates, quantities and rules are already supplied or supported by its evidence. Do not invent tax treatment or additional rates.
 Available documents are static reference schedules; do not claim live or global coverage.
 
 Today's date is {today}.`;
 
 type SpecialistModelFactory = (alias: ModelAlias) => LanguageModel;
-type RunBudget = { providerCalls: number; specialistConsultations: number };
-
 export type MigrationMainAgentOptions = {
   alias: ModelAlias;
   runId?: string;
@@ -94,173 +103,98 @@ export type MigrationMainAgentOptions = {
   specialistModelFactory?: SpecialistModelFactory;
   fetchImpl?: typeof fetch;
   assertCanContinue?: () => void;
+  quoteBinding?: QuoteBinding;
+  conversation?: ConversationSession;
 };
 
-function today(): string {
-  return new Intl.DateTimeFormat("en-US", {
-    month: "long",
-    day: "2-digit",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(new Date());
-}
-
-function portPrompt(slug: string, contents: string): string {
-  return PORT_AGENT_SYSTEM
-    .replace("{port_name}", slug.replaceAll("-", " ").replace(/\b\w/g, (letter) => letter.toUpperCase()))
-    .replace("{port_content}", contents)
-    .replace("{today}", today());
-}
-
-async function consultPortAgent(
-  slug: string,
-  query: string,
-  alias: ModelAlias,
-  specialistModelFactory: SpecialistModelFactory,
-  budget: RunBudget,
-  assertCanContinue: (() => void) | undefined,
-  abortSignal?: AbortSignal,
-  offerReport?: (report: string) => string,
-): Promise<string> {
-  if (!SUPPORTED_PORTS.includes(slug)) {
-    return `No data found for '${slug}'. Available ports: ${SUPPORTED_PORTS.join(", ")}.`;
-  }
-  if (budget.specialistConsultations >= MAX_SPECIALIST_CONSULTATIONS) {
-    return `Specialist consultation budget exhausted after ${MAX_SPECIALIST_CONSULTATIONS} calls. Ask the user to narrow the request before retrying.`;
-  }
-  const contents = await loadPortTariffBundle(slug);
-  if (!contents.trim()) return `No tariff data available for ${slug}. The bundled reference is empty; ask for an authoritative tariff before estimating charges.`;
-  budget.specialistConsultations += 1;
-  const startedAt = Date.now();
-  const specialist = new ToolLoopAgent({
-    model: specialistModelFactory(alias),
-    instructions: portPrompt(slug, contents),
-    tools: {
-      calculate_charge_batch: tool({
-        description: "Calculate related tariff line items and their totals in one call with exact decimal arithmetic. Ordered expressions may reference earlier results using $id, e.g. {id: 'net', expression: '100 * 2.5'}, then {id: 'total', expression: 'round($net * 1.18, 2)'}. Each reference must already exist. All items fail together if any expression is invalid.",
-        inputSchema: z.object({ calculations: chargeCalculationsSchema }).strict(),
-        execute: async ({ calculations }) => {
-          try {
-            return { calculations: calculateChargeBatch(calculations) };
-          } catch (error) {
-            return { error: `Calculation error: ${error instanceof Error ? error.message : "Invalid arithmetic."}` };
-          }
-        },
-      }),
-      calculate_charges: tool({
-        description: "Evaluate bounded decimal tariff arithmetic. Supports + - * / **, parentheses, ceil, floor, min, max and half-up round.",
-        inputSchema: z.object({ expression: z.string().min(1).max(2_000) }).strict(),
-        execute: async ({ expression }) => {
-          try {
-            return calculateTariffExpression(expression);
-          } catch (error) {
-            return `Calculation error: ${error instanceof Error ? error.message : "Invalid arithmetic."}`;
-          }
-        },
-      }),
-    },
-    ...MIGRATION_AGENT_POLICY,
-    prepareStep: async () => {
-      assertCanContinue?.();
-      if (budget.providerCalls >= MAX_PROVIDER_CALLS) {
-        throw new Error(`Provider call budget exhausted after ${MAX_PROVIDER_CALLS} calls.`);
-      }
-      budget.providerCalls += 1;
-      return {};
-    },
-  });
-  const result = await specialist.generate({
-    prompt: query,
-    abortSignal,
-    timeout: { totalMs: 120_000, stepMs: 60_000 },
-  });
-  if (result.finishReason !== "stop" || !result.text.trim()) {
-    throw new Error("Port specialist response is incomplete. No tariff result is available; retry explicitly.");
-  }
-  const calculatorResults = result.steps.flatMap(step => step.toolResults)
-    .filter(item => item.toolName === "calculate_charges" || item.toolName === "calculate_charge_batch");
-  const calculatedSuccessfully = calculatorResults.length > 0 && calculatorResults.every(item => {
-    if (item.toolName === "calculate_charges") return typeof item.output === "string" && !item.output.startsWith("Calculation error:");
-    return item.output && typeof item.output === "object" && "calculations" in item.output && Array.isArray(item.output.calculations);
-  });
-  console.info("portia_specialist_completed", {
-    modelAlias: alias,
-    port: slug,
-    elapsedMs: Date.now() - startedAt,
-    modelCalls: result.steps.length,
-    calculatorCalls: result.steps.reduce((count, step) =>
-      count + step.toolResults.filter((item) => item.toolName === "calculate_charges" || item.toolName === "calculate_charge_batch").length, 0),
-  });
-  const report = result.text.trim();
-  return offerReport && calculatedSuccessfully ? offerReport(report) : report;
-}
-
 export function createMigrationMainAgent(options: MigrationMainAgentOptions) {
-  const mainModel = options.mainModel ?? migrationLanguageModel(options.alias, { runId: options.runId, agent: "main" });
-  const handoff = typeof mainModel === "string"
-    ? { model: mainModel, offer: (report: string) => report }
-    : createReviewedReportModel(mainModel);
-  const specialistModelFactory = options.specialistModelFactory ?? ((alias: ModelAlias) =>
-    migrationLanguageModel(alias, { runId: options.runId, agent: "specialist" }));
-  const budget: RunBudget = { providerCalls: 0, specialistConsultations: 0 };
+  const binding = options.quoteBinding ?? { runId: options.runId ?? randomUUID(), fence: 0, revision: 0 };
+  const session = options.conversation ?? new ConversationSession(binding);
+  const model = options.mainModel ?? migrationLanguageModel(options.alias, { runId: options.runId, agent: "main" });
+  if (typeof model === "string") throw new Error("An explicit configured model adapter is required.");
+  let steps = 0;
+  const memoryTools: ToolSet = Object.fromEntries(Object.entries(options.memory?.tools ?? {}).map(([name, definition]) => {
+    const execute = definition.execute;
+    if (!execute) return [name, definition];
+    return [name, { ...definition, execute: async (input, context) => {
+      if (session.state.tasks.some(t=>t.kind==="quote"||t.source==="supplied") && !session.published && ["remember_memory", "write_scratchpad"].includes(name) && input && typeof input === "object") {
+        const value = "value" in input ? input.value : "markdown" in input ? input.markdown : undefined;
+        if (typeof value === "string" && hasUnboundFinancialClaim(value) && !session.inputs.some(i=>i.text.includes(value))) throw new Error("An uncommitted financial result cannot be saved as memory or working notes.");
+      }
+      return execute(input, context);
+    } }];
+  }));
   const tools = {
-    consult_port_agent: tool({
-      description: `Consult a specialist for tariff lookups, charge calculations and rule clarifications. port_name must be one of: ${SUPPORTED_PORTS.join(", ")}.`,
-      inputSchema: z.object({
-        port_name: z.string().min(1).max(100),
-        query: z.string().min(1).max(4_000),
-      }).strict(),
-      execute: async ({ port_name, query }, { abortSignal }) =>
-        await consultPortAgent(
-          port_name.trim(),
-          query,
-          options.alias,
-          specialistModelFactory,
-          budget,
-          options.assertCanContinue,
-          abortSignal,
-          handoff.offer,
-        ),
+    interpret_request: tool({
+      description: "Propose the structured meaning of authenticated pending inputs. No rates, totals or authority may be invented. The server validates operations and plans requirements.",
+      inputSchema: interpretationSchema,
+      execute: async (proposal, { abortSignal }) => {
+        abortSignal?.throwIfAborted(); options.assertCanContinue?.();
+        try { return session.interpret(proposal); }
+        catch (error) {
+          session.failure = "I could not validate part of the request: " + (error instanceof Error ? error.message : "invalid interpretation") + " No estimate was published. Please clarify the affected fact or retry explicitly.";
+          return { status: "interpretation-unresolved" as const };
+        }
+      },
+    }),
+    execute_conversation: tool({
+      description: "Execute the current server-bound request plan. Accepts only its receipt; no model expressions, rates, labels or amounts.",
+      inputSchema: z.object({ answer_id: z.string().length(64) }).strict(),
+      execute: async ({ answer_id }, { abortSignal }) => {
+        abortSignal?.throwIfAborted(); options.assertCanContinue?.();
+        if (!session.answer || session.published || answer_id !== session.answer.id || !await session.verify(session.answer)) throw new Error("Conversation answer receipt is stale or invalid.");
+        session.published = true;
+        return { status: "validated" as const, ledger: session.answer };
+      },
+    }),
+    complete_auxiliary: tool({
+      description: "Finish the current independent nonfinancial tasks, each exactly once. Cite successful current tool-call IDs for actions; never claim a write without its saved:true receipt. Call alone after tools finish. Do not repeat financial figures or applicability claims; the server renders those.",
+      inputSchema: auxiliaryCompletionSchema,
+      execute: async (input,{abortSignal}) => {abortSignal?.throwIfAborted();options.assertCanContinue?.();try{return session.completeAuxiliary(input);}catch{session.failAuxiliary();return {status:"unresolved" as const};}},
     }),
     search_vessels: tool({
-      description: "Search vessels by name, IMO, MMSI, or callsign.",
-      inputSchema: z.object({
-        query: z.string().min(1).max(160),
-        limit: z.number().int().min(1).max(50).default(5),
-      }).strict(),
-      execute: async ({ query, limit }, { abortSignal }) =>
-        await searchVessels(query, limit, { fetchImpl: options.fetchImpl, abortSignal }),
+      description: "Search vessels by name, IMO, MMSI or callsign when missing particulars are needed. Returned lookup data is distinct from current user facts.",
+      inputSchema: z.object({ query: z.string().min(1).max(160), limit: z.number().int().min(1).max(50).default(5) }).strict(),
+      execute: async ({ query, limit }, { abortSignal }) => { options.assertCanContinue?.(); return searchVessels(query, limit, { fetchImpl: options.fetchImpl, abortSignal }); },
     }),
     get_vessel: tool({
-      description: "Get detailed vessel particulars by IMO or MMSI.",
-      inputSchema: z.object({
-        id: z.string().min(1).max(20),
-        id_type: z.enum(["imo", "mmsi"]).default("imo"),
-      }).strict(),
-      execute: async ({ id, id_type }, { abortSignal }) =>
-        await getVessel(id, id_type, { fetchImpl: options.fetchImpl, abortSignal }),
+      description: "Get vessel particulars by IMO or MMSI. Never overwrite an explicit user correction with lookup data.",
+      inputSchema: z.object({ id: z.string().min(1).max(20), id_type: z.enum(["imo", "mmsi"]).default("imo") }).strict(),
+      execute: async ({ id, id_type }, { abortSignal }) => {
+        options.assertCanContinue?.();let details:{name:string;gt?:string;dwt?:string}|undefined;
+        const display=await getVessel(id,id_type,{fetchImpl:options.fetchImpl,abortSignal,onDetails:value=>{details=value;}});
+        const lookupReceipt=details?session.acceptLookup({id,idType:id_type,name:details.name},{...(details.gt?{gt:details.gt}:{}),...(details.dwt?{dwt:details.dwt}:{})}):undefined;
+        return lookupReceipt?{display,lookupReceipt}:display;
+      },
     }),
-    ask_user_input: tool({
-      description: "Present a structured form for missing voyage details. Call alone and wait for the response.",
-      inputSchema: formInputSchema,
-    }),
-    ...options.memory?.tools,
+    ask_user_input: tool({ description: "Ask only necessary missing particulars. Call alone and wait for the answer; a prose reply or cancellation note is also accepted.", inputSchema: formInputSchema }),
+    ...memoryTools,
   };
-
   return new ToolLoopAgent({
-    model: handoff.model,
-    instructions: MAIN_SYSTEM_PROMPT
-      .replace("{ports}", SUPPORTED_PORTS.join(", "))
-      .replace("{today}", today()),
-    tools,
-    ...MIGRATION_AGENT_POLICY,
-    prepareStep: async () => {
+    model: createConversationModel(model, session), tools, ...MIGRATION_AGENT_POLICY,
+    instructions: INTERPRETATION_INSTRUCTIONS,
+    prepareStep: async ({ messages, stepNumber, steps: completedSteps }) => {
       options.assertCanContinue?.();
-      if (budget.providerCalls >= MAX_PROVIDER_CALLS) {
-        throw new Error(`Provider call budget exhausted after ${MAX_PROVIDER_CALLS} calls.`);
-      }
-      budget.providerCalls += 1;
-      return options.memory ? { instructions: MAIN_SYSTEM_PROMPT.replace("{ports}", SUPPORTED_PORTS.join(", ")).replace("{today}", today()) + "\n\n" + await options.memory.instructions() } : {};
+      if (stepNumber === 0) session.initialize(messages);
+      if (++steps > MAX_PROVIDER_CALLS) throw new Error("Run step budget exhausted.");
+      session.observeToolResults(completedSteps.flatMap(s=>s.toolResults));
+      await session.prepare();
+      // Check memory lifecycle before external inference even when the first
+      // model step only interprets user input. Memory never becomes user facts.
+      const memoryContext = (!session.answer || session.needsAuxiliary) && options.memory ? await options.memory.instructions() : "";
+      const ordinaryTools = (Object.keys(tools) as Array<keyof typeof tools>).filter(n=>n!=="interpret_request"&&n!=="execute_conversation"&&n!=="complete_auxiliary");
+      const activeTools: Array<keyof typeof tools> = session.pending.length ? ["interpret_request"] : session.needsAuxiliary ? [...ordinaryTools.filter(n=>n!=="ask_user_input"),"complete_auxiliary"] : session.answer ? [session.clarificationForm() ? "ask_user_input" : "execute_conversation"] : ordinaryTools;
+      return {
+        activeTools,
+        toolChoice: session.pending.length && !session.failure ? { type: "tool" as const, toolName: "interpret_request" } : "auto" as const,
+        maxOutputTokens: session.pending.length && !session.failure ? MIGRATION_INTERPRETATION_MAX_OUTPUT_TOKENS : MIGRATION_AGENT_MAX_OUTPUT_TOKENS,
+        instructions: INTERPRETATION_INSTRUCTIONS + "\nSupported port identifiers: " + SUPPORTED_PORTS.join(", ")
+          + "\nCURRENT_CONVERSATION=" + JSON.stringify(session.state)
+          + "\nAUTHENTICATED_PENDING_INPUTS=" + JSON.stringify(session.pending)
+          + (memoryContext ? "\nHISTORICAL_MEMORY (separate evidence class; never current user facts or official tariff authority):\n" + memoryContext : "")
+          + (session.needsAuxiliary ? "\nComplete the requested kind=other tasks now with the existing memory/lookup tools. Financial results are already server-bound; do not write, store or reinterpret them. Then call complete_auxiliary alone, using the current receipt IDs below. If a service is unavailable, mark that action unresolved and give its truthful manual fallback. Do not repeat unrelated intake.\nCURRENT_AUXILIARY_RECEIPTS="+JSON.stringify(session.auxiliarySummary()) : "")
+          + (!session.pending.length && !session.answer ? "\nAnswer the nonfinancial request naturally. Use memory/lookup tools if needed. No financial claim may bypass the source-bound request path. Refer to models only as Model 1/Model 2; never expose provider identity. Ask only necessary questions." : ""),
+      };
     },
   });
 }

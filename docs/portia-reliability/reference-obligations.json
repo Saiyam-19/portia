@@ -1,0 +1,1279 @@
+{
+  "schemaVersion": 1,
+  "inputIntegrity": {
+    "original19Path": "output/independent-agent-test-20261014/inputs.json",
+    "original19Sha256": "25aa0523922b5b60eed304a52282ee1111e94dbf7568559ac745ef4ec86c0592",
+    "developmentPath": "tests/acceptance/portia/development.json",
+    "developmentSha256": "97cee8ab42e2377e15a703d3d44fc4d17601d01e5471084f0c876094bad5d63d",
+    "evaluationRisksPath": "docs/portia-reliability/independent-evaluation-risks.md",
+    "evaluationRisksSha256": "4214ca61c1eb684b07b61feaf9eb646c3f9ec1b46cd53d291d45d327c9f63224"
+  },
+  "independence": {
+    "authorEvidence": {
+      "inputs_used": [
+        "Orchestrator-provided product requirements and existing user-facing catalog; no application logic, prompts, tests or prior outputs provided.",
+        "Author-created synthetic vessel, voyage and quotation particulars",
+        "Global verification-before-completion skill for artifact validation only"
+      ],
+      "inputs_not_inspected": [
+        "application source code",
+        "existing application tests",
+        "application agent prompts",
+        "prior application responses",
+        "prior application reports",
+        "git diffs",
+        "other chats",
+        "implementation baseline"
+      ],
+      "external_services_used": [],
+      "paid_inference_calls": 0,
+      "tariff_authority_claim": "No actual tariff rates or current applicability have been asserted by this author.",
+      "numeric_reference_method": "Independent Python Decimal arithmetic with explicit ROUND_HALF_UP where specified; elapsed times checked using Python datetime subtraction of ISO-offset timestamps. No application calculator, code, prompts, tests or model outputs used."
+    },
+    "implementationAgentAuthoredInputs": false,
+    "sealedHoldoutCount": 12,
+    "sealedHoldoutReadByImplementer": false,
+    "sealedHoldoutHash": "retained by orchestrator; not supplied to implementer",
+    "authorReportedCombinedNumericalChecks": 46,
+    "combinedNumericalVerification": "reported by orchestrator; holdout report not inspected"
+  },
+  "cases": [
+    {
+      "id": "D01",
+      "title": "Two quoted charges with a day-block minimum",
+      "portIds": [
+        "mumbai"
+      ],
+      "capabilityIds": [
+        "CAP-04",
+        "CAP-06"
+      ],
+      "tags": [
+        "happy_path",
+        "supplied_quote",
+        "multiple_charges",
+        "exact_arithmetic"
+      ],
+      "candidateVerdict": "NOT_RUN",
+      "sourceOracleStatus": "not-required-for-supplied-or-operational-scope",
+      "independentOracleObligation": null,
+      "sourceIds": [
+        "SRC-12"
+      ],
+      "sourceGapRefs": [],
+      "numericalChecksInFrozenDevelopment": 5,
+      "operationalFixture": null,
+      "timingOracle": null,
+      "referenceOwner": "F independent author; operational fixture owner E where applicable"
+    },
+    {
+      "id": "D02",
+      "title": "Elapsed time and started six-hour blocks",
+      "portIds": [
+        "jaigarh"
+      ],
+      "capabilityIds": [
+        "CAP-06",
+        "CAP-07"
+      ],
+      "tags": [
+        "happy_path",
+        "elapsed_time",
+        "supplied_quote",
+        "exact_arithmetic"
+      ],
+      "candidateVerdict": "NOT_RUN",
+      "sourceOracleStatus": "not-required-for-supplied-or-operational-scope",
+      "independentOracleObligation": null,
+      "sourceIds": [
+        "SRC-06"
+      ],
+      "sourceGapRefs": [],
+      "numericalChecksInFrozenDevelopment": 3,
+      "operationalFixture": null,
+      "timingOracle": null,
+      "referenceOwner": "F independent author; operational fixture owner E where applicable"
+    },
+    {
+      "id": "D03",
+      "title": "Complete port-call request for several tariff charges",
+      "portIds": [
+        "jawahar-nehru-port-authority-jnpa"
+      ],
+      "capabilityIds": [
+        "CAP-02"
+      ],
+      "tags": [
+        "happy_path",
+        "authoritative_tariff",
+        "multiple_charges",
+        "source_date"
+      ],
+      "candidateVerdict": "NOT_RUN",
+      "sourceOracleStatus": "UNRESOLVED_EXTERNAL_REFERENCE",
+      "independentOracleObligation": {
+        "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+        "scope": "JNPA-operated shallow-water berth; listed charges for stated foreign-going container vessel on 20 October 2026",
+        "required": [
+          "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+          "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+          "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports.",
+          "Confirm the berth description and service feasibility; do not silently substitute a private terminal tariff.",
+          "Determine whether tug-hire billing is per tug-hour, movement, vessel unit or another rule; the user supplied service usage, not a billing rule."
+        ],
+        "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+      },
+      "sourceIds": [
+        "SRC-07"
+      ],
+      "sourceGapRefs": [
+        "jawahar-nehru-port-authority-jnpa"
+      ],
+      "numericalChecksInFrozenDevelopment": 0,
+      "operationalFixture": null,
+      "timingOracle": null,
+      "referenceOwner": "F independent source adjudicator"
+    },
+    {
+      "id": "D04",
+      "title": "A narrow request must stay narrow",
+      "portIds": [
+        "gateway-terminals-india-pvt-ltd"
+      ],
+      "capabilityIds": [
+        "CAP-02"
+      ],
+      "tags": [
+        "happy_path",
+        "authoritative_tariff",
+        "scope_control",
+        "natural_paraphrase"
+      ],
+      "candidateVerdict": "NOT_RUN",
+      "sourceOracleStatus": "UNRESOLVED_EXTERNAL_REFERENCE",
+      "independentOracleObligation": {
+        "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+        "scope": "Gateway Terminals India berth-hire scope and applicability on 12 November 2026",
+        "required": [
+          "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+          "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+          "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports."
+        ],
+        "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+      },
+      "sourceIds": [
+        "SRC-04"
+      ],
+      "sourceGapRefs": [
+        "gateway-terminals-india-pvt-ltd"
+      ],
+      "numericalChecksInFrozenDevelopment": 0,
+      "operationalFixture": null,
+      "timingOracle": null,
+      "referenceOwner": "F independent source adjudicator"
+    },
+    {
+      "id": "D05",
+      "title": "Explain an old tariff without asserting current applicability",
+      "portIds": [
+        "ictpl"
+      ],
+      "capabilityIds": [
+        "CAP-03",
+        "CAP-04"
+      ],
+      "tags": [
+        "rule_question",
+        "source_date",
+        "uncertainty"
+      ],
+      "candidateVerdict": "NOT_RUN",
+      "sourceOracleStatus": "UNRESOLVED_EXTERNAL_REFERENCE",
+      "independentOracleObligation": {
+        "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+        "scope": "Full ICTPL clause/context and historical-to-2026 amendments; no rate calculation requested",
+        "required": [
+          "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+          "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+          "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports.",
+          "A fragment alone may omit calendar-day definitions, minima, exceptions or a later amendment."
+        ],
+        "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+      },
+      "sourceIds": [
+        "SRC-05"
+      ],
+      "sourceGapRefs": [
+        "ictpl"
+      ],
+      "numericalChecksInFrozenDevelopment": 1,
+      "operationalFixture": null,
+      "timingOracle": null,
+      "referenceOwner": "F independent source adjudicator"
+    },
+    {
+      "id": "D06",
+      "title": "Focused missing duration",
+      "portIds": [
+        "bpcl-cargo-jetty"
+      ],
+      "capabilityIds": [
+        "CAP-02",
+        "CAP-09"
+      ],
+      "tags": [
+        "missing_info",
+        "authoritative_tariff",
+        "prose_clarification"
+      ],
+      "candidateVerdict": "NOT_RUN",
+      "sourceOracleStatus": "UNRESOLVED_EXTERNAL_REFERENCE",
+      "independentOracleObligation": {
+        "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+        "scope": "BPCL Cargo Jetty identity, service suitability and berth-hire rule on 2 November 2026",
+        "required": [
+          "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+          "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+          "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports."
+        ],
+        "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+      },
+      "sourceIds": [
+        "SRC-01"
+      ],
+      "sourceGapRefs": [
+        "bpcl-cargo-jetty"
+      ],
+      "numericalChecksInFrozenDevelopment": 1,
+      "operationalFixture": null,
+      "timingOracle": null,
+      "referenceOwner": "F independent source adjudicator"
+    },
+    {
+      "id": "D07",
+      "title": "A rule question without an unnecessary estimate form",
+      "portIds": [
+        "bpcl-liquid-cargo-jetty"
+      ],
+      "capabilityIds": [
+        "CAP-03"
+      ],
+      "tags": [
+        "rule_question",
+        "minimum_charge",
+        "scope_control"
+      ],
+      "candidateVerdict": "NOT_RUN",
+      "sourceOracleStatus": "UNRESOLVED_EXTERNAL_REFERENCE",
+      "independentOracleObligation": {
+        "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+        "scope": "BPCL Liquid Cargo Jetty minimum and partial-day provisions",
+        "required": [
+          "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+          "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+          "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports.",
+          "Determine whether minimum applies per call, day, time block or something else, and how the minimum composes with time rounding."
+        ],
+        "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+      },
+      "sourceIds": [
+        "SRC-02",
+        "SRC-03"
+      ],
+      "sourceGapRefs": [
+        "bpcl-liquid-cargo-jetty"
+      ],
+      "numericalChecksInFrozenDevelopment": 0,
+      "operationalFixture": null,
+      "timingOracle": null,
+      "referenceOwner": "F independent source adjudicator"
+    },
+    {
+      "id": "D08",
+      "title": "Correct vessel size during a multi-charge estimate",
+      "portIds": [
+        "jsw-jnpt-liquid-terminal"
+      ],
+      "capabilityIds": [
+        "CAP-02",
+        "CAP-08"
+      ],
+      "tags": [
+        "correction",
+        "multiple_charges",
+        "authoritative_tariff",
+        "follow_up"
+      ],
+      "candidateVerdict": "NOT_RUN",
+      "sourceOracleStatus": "UNRESOLVED_EXTERNAL_REFERENCE",
+      "independentOracleObligation": {
+        "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+        "scope": "JSW JNPT Liquid Terminal berth hire plus applicable port-authority dues on 4 November 2026",
+        "required": [
+          "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+          "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+          "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports.",
+          "Calculate a frozen initial and corrected reference; do not assume every charge depends on GT or uses the same publisher."
+        ],
+        "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+      },
+      "sourceIds": [
+        "SRC-08"
+      ],
+      "sourceGapRefs": [
+        "jsw-jnpt-liquid-terminal"
+      ],
+      "numericalChecksInFrozenDevelopment": 0,
+      "operationalFixture": null,
+      "timingOracle": null,
+      "referenceOwner": "F independent source adjudicator"
+    },
+    {
+      "id": "D09",
+      "title": "A concession claim needs the actual rule",
+      "portIds": [
+        "konkan-lng-ltd"
+      ],
+      "capabilityIds": [
+        "CAP-03"
+      ],
+      "tags": [
+        "rule_question",
+        "concession",
+        "source_date"
+      ],
+      "candidateVerdict": "NOT_RUN",
+      "sourceOracleStatus": "UNRESOLVED_EXTERNAL_REFERENCE",
+      "independentOracleObligation": {
+        "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+        "scope": "Konkan LNG delay/concession provisions and applicable amendment history",
+        "required": [
+          "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+          "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+          "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports."
+        ],
+        "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+      },
+      "sourceIds": [
+        "SRC-09"
+      ],
+      "sourceGapRefs": [
+        "konkan-lng-ltd"
+      ],
+      "numericalChecksInFrozenDevelopment": 0,
+      "operationalFixture": null,
+      "timingOracle": null,
+      "referenceOwner": "F independent source adjudicator"
+    },
+    {
+      "id": "D10",
+      "title": "Compare terminal options on the same basis",
+      "portIds": [
+        "nhava-sheva-freeport-terminal",
+        "nhava-sheva-gateway-terminal"
+      ],
+      "capabilityIds": [
+        "CAP-02",
+        "CAP-05"
+      ],
+      "tags": [
+        "comparison",
+        "authoritative_tariff",
+        "multiple_charges"
+      ],
+      "candidateVerdict": "NOT_RUN",
+      "sourceOracleStatus": "UNRESOLVED_EXTERNAL_REFERENCE",
+      "independentOracleObligation": {
+        "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+        "scope": "Both named terminals; berth hire and specified laden import/empty export handling on 14 November 2026",
+        "required": [
+          "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+          "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+          "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports.",
+          "Check whether the supplied movement categories and units suffice; determine treatment of laden imports versus empty exports and any mandatory minima.",
+          "Do not collapse the two terminals into one tariff or assume identical tax or FX rules."
+        ],
+        "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+      },
+      "sourceIds": [
+        "SRC-13",
+        "SRC-14"
+      ],
+      "sourceGapRefs": [
+        "nhava-sheva-freeport-terminal",
+        "nhava-sheva-gateway-terminal"
+      ],
+      "numericalChecksInFrozenDevelopment": 0,
+      "operationalFixture": null,
+      "timingOracle": null,
+      "referenceOwner": "F independent source adjudicator"
+    },
+    {
+      "id": "D11",
+      "title": "Supplied quotation with per-call minimum and cap",
+      "portIds": [
+        "nhava-sheva-international-container-terminal"
+      ],
+      "capabilityIds": [
+        "CAP-06"
+      ],
+      "tags": [
+        "happy_path",
+        "supplied_quote",
+        "min_cap",
+        "exact_arithmetic"
+      ],
+      "candidateVerdict": "NOT_RUN",
+      "sourceOracleStatus": "not-required-for-supplied-or-operational-scope",
+      "independentOracleObligation": null,
+      "sourceIds": [
+        "SRC-15"
+      ],
+      "sourceGapRefs": [],
+      "numericalChecksInFrozenDevelopment": 3,
+      "operationalFixture": null,
+      "timingOracle": null,
+      "referenceOwner": "F independent author; operational fixture owner E where applicable"
+    },
+    {
+      "id": "D12",
+      "title": "Structured clarification and prose must agree",
+      "portIds": [
+        "mumbai-container-terminal"
+      ],
+      "capabilityIds": [
+        "CAP-02",
+        "CAP-08",
+        "CAP-09"
+      ],
+      "tags": [
+        "missing_info",
+        "structured_form",
+        "prose_clarification",
+        "authoritative_tariff"
+      ],
+      "candidateVerdict": "NOT_RUN",
+      "sourceOracleStatus": "UNRESOLVED_EXTERNAL_REFERENCE",
+      "independentOracleObligation": {
+        "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+        "scope": "Mumbai Container Terminal berth-hire rule for stated call",
+        "required": [
+          "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+          "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+          "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports."
+        ],
+        "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+      },
+      "sourceIds": [
+        "SRC-10"
+      ],
+      "sourceGapRefs": [
+        "mumbai-container-terminal"
+      ],
+      "numericalChecksInFrozenDevelopment": 2,
+      "operationalFixture": "Use the product's existing form capability if exposed. A UI form action is not a user chat message; retain the submission separately.",
+      "timingOracle": null,
+      "referenceOwner": "F independent source adjudicator"
+    },
+    {
+      "id": "D13",
+      "title": "Explain cruise versus vessel-based charges",
+      "portIds": [
+        "mumbai-cruise-terminal"
+      ],
+      "capabilityIds": [
+        "CAP-03"
+      ],
+      "tags": [
+        "rule_question",
+        "multiple_charge_scope",
+        "natural_paraphrase"
+      ],
+      "candidateVerdict": "NOT_RUN",
+      "sourceOracleStatus": "UNRESOLVED_EXTERNAL_REFERENCE",
+      "independentOracleObligation": {
+        "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+        "scope": "Mumbai Cruise Terminal applicable vessel-based and passenger-based charge structure",
+        "required": [
+          "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+          "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+          "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports."
+        ],
+        "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+      },
+      "sourceIds": [
+        "SRC-11"
+      ],
+      "sourceGapRefs": [
+        "mumbai-cruise-terminal"
+      ],
+      "numericalChecksInFrozenDevelopment": 0,
+      "operationalFixture": null,
+      "timingOracle": null,
+      "referenceOwner": "F independent source adjudicator"
+    },
+    {
+      "id": "D14",
+      "title": "Natural terminal alias with a targeted clarification",
+      "portIds": [
+        "ranpar-finolex"
+      ],
+      "capabilityIds": [
+        "CAP-01",
+        "CAP-02",
+        "CAP-09"
+      ],
+      "tags": [
+        "natural_paraphrase",
+        "missing_info",
+        "authoritative_tariff"
+      ],
+      "candidateVerdict": "NOT_RUN",
+      "sourceOracleStatus": "UNRESOLVED_EXTERNAL_REFERENCE",
+      "independentOracleObligation": {
+        "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+        "scope": "Ranpar/Finolex facility identity and coastal-tanker berth-hire tariff on 6 December 2026",
+        "required": [
+          "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+          "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+          "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports."
+        ],
+        "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+      },
+      "sourceIds": [
+        "SRC-16"
+      ],
+      "sourceGapRefs": [
+        "ranpar-finolex"
+      ],
+      "numericalChecksInFrozenDevelopment": 0,
+      "operationalFixture": null,
+      "timingOracle": null,
+      "referenceOwner": "F independent source adjudicator"
+    },
+    {
+      "id": "D15",
+      "title": "Current-rate uncertainty at a catalogued port",
+      "portIds": [
+        "redi"
+      ],
+      "capabilityIds": [
+        "CAP-02",
+        "CAP-04"
+      ],
+      "tags": [
+        "source_date",
+        "uncertainty",
+        "authoritative_tariff",
+        "happy_path_when_sourced"
+      ],
+      "candidateVerdict": "NOT_RUN",
+      "sourceOracleStatus": "UNRESOLVED_EXTERNAL_REFERENCE",
+      "independentOracleObligation": {
+        "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+        "scope": "Redi berth-hire rate applicability as of 25 October 2026",
+        "required": [
+          "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+          "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+          "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports.",
+          "Source freshness and amendment history must be checked independently of the application corpus."
+        ],
+        "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+      },
+      "sourceIds": [
+        "SRC-17"
+      ],
+      "sourceGapRefs": [
+        "redi"
+      ],
+      "numericalChecksInFrozenDevelopment": 0,
+      "operationalFixture": null,
+      "timingOracle": null,
+      "referenceOwner": "F independent source adjudicator"
+    },
+    {
+      "id": "D16",
+      "title": "Vessel lookup with a manual fallback",
+      "portIds": [
+        "mumbai"
+      ],
+      "capabilityIds": [
+        "CAP-02",
+        "CAP-11"
+      ],
+      "tags": [
+        "vessel_lookup",
+        "manual_fallback",
+        "authoritative_tariff"
+      ],
+      "candidateVerdict": "NOT_RUN",
+      "sourceOracleStatus": "UNRESOLVED_EXTERNAL_REFERENCE",
+      "independentOracleObligation": {
+        "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+        "scope": "Mumbai berth-hire rule for manually supplied vessel particulars",
+        "required": [
+          "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+          "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+          "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports."
+        ],
+        "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+      },
+      "sourceIds": [
+        "SRC-12"
+      ],
+      "sourceGapRefs": [
+        "mumbai"
+      ],
+      "numericalChecksInFrozenDevelopment": 0,
+      "operationalFixture": "This synthetic case tests no-match/unavailable lookup fallback. A successful live lookup requires a separately authorized, independently checked non-synthetic provider fixture and is not certified by this pack.",
+      "timingOracle": null,
+      "referenceOwner": "F independent source adjudicator"
+    },
+    {
+      "id": "D17",
+      "title": "Explicit durable memory and per-chat notes",
+      "portIds": [],
+      "capabilityIds": [
+        "CAP-20",
+        "CAP-22"
+      ],
+      "tags": [
+        "remember",
+        "recall",
+        "per_chat_notes",
+        "saved_conversations"
+      ],
+      "candidateVerdict": "NOT_RUN",
+      "sourceOracleStatus": "not-required-for-supplied-or-operational-scope",
+      "independentOracleObligation": null,
+      "sourceIds": [],
+      "sourceGapRefs": [],
+      "numericalChecksInFrozenDevelopment": 0,
+      "operationalFixture": "Use a fresh isolated test account with no prior memory and a unique synthetic vessel name. Capture confirmed write/read state through an independently authorized state view where available.",
+      "timingOracle": null,
+      "referenceOwner": "F independent author; operational fixture owner E where applicable"
+    },
+    {
+      "id": "D18",
+      "title": "Forget must be checked without old transcript cues",
+      "portIds": [],
+      "capabilityIds": [
+        "CAP-21"
+      ],
+      "tags": [
+        "forget",
+        "recall",
+        "memory"
+      ],
+      "candidateVerdict": "NOT_RUN",
+      "sourceOracleStatus": "not-required-for-supplied-or-operational-scope",
+      "independentOracleObligation": null,
+      "sourceIds": [],
+      "sourceGapRefs": [],
+      "numericalChecksInFrozenDevelopment": 0,
+      "operationalFixture": "Seed a separate untargeted fact in this isolated account for preservation checking. The evaluation record must show actual deletion confirmation or its explicit failure.",
+      "timingOracle": null,
+      "referenceOwner": "F independent author; operational fixture owner E where applicable"
+    },
+    {
+      "id": "D19",
+      "title": "Saved conversation and both public model choices",
+      "portIds": [],
+      "capabilityIds": [
+        "CAP-06",
+        "CAP-08",
+        "CAP-15",
+        "CAP-17"
+      ],
+      "tags": [
+        "saved_conversations",
+        "model_choices",
+        "happy_path",
+        "exact_arithmetic"
+      ],
+      "candidateVerdict": "NOT_RUN",
+      "sourceOracleStatus": "not-required-for-supplied-or-operational-scope",
+      "independentOracleObligation": null,
+      "sourceIds": [],
+      "sourceGapRefs": [],
+      "numericalChecksInFrozenDevelopment": 2,
+      "operationalFixture": "Run the sequence in both model orders. Provider execution is NOT RUN by this author; downstream authorized live testing must identify the model that actually handled each run.",
+      "timingOracle": null,
+      "referenceOwner": "F independent author; operational fixture owner E where applicable"
+    },
+    {
+      "id": "D20",
+      "title": "Stop a real in-flight response",
+      "portIds": [
+        "mumbai",
+        "jawahar-nehru-port-authority-jnpa"
+      ],
+      "capabilityIds": [
+        "CAP-05",
+        "CAP-18"
+      ],
+      "tags": [
+        "stop",
+        "cancellation",
+        "saved_conversations"
+      ],
+      "candidateVerdict": "NOT_RUN",
+      "sourceOracleStatus": "not-required-for-supplied-or-operational-scope",
+      "independentOracleObligation": null,
+      "sourceIds": [
+        "SRC-07",
+        "SRC-12"
+      ],
+      "sourceGapRefs": [],
+      "numericalChecksInFrozenDevelopment": 0,
+      "operationalFixture": "Requires an authorized real in-flight run and cancellation telemetry. A mock stream verifies UI mechanics only. A run that completes before the click makes the cancellation assertion NOT_EXERCISED, not passed.",
+      "timingOracle": "Before execution, freeze the observable cancellation grace window and terminal-state contract from the product requirement/operational limit, not from this candidate's measured outcome.",
+      "referenceOwner": "F independent author; operational fixture owner E where applicable"
+    },
+    {
+      "id": "D21",
+      "title": "Recover a failed answer, then delete the saved chat",
+      "portIds": [],
+      "capabilityIds": [
+        "CAP-06",
+        "CAP-18",
+        "CAP-19"
+      ],
+      "tags": [
+        "recovery",
+        "deletion",
+        "saved_conversations",
+        "exact_arithmetic"
+      ],
+      "candidateVerdict": "NOT_RUN",
+      "sourceOracleStatus": "not-required-for-supplied-or-operational-scope",
+      "independentOracleObligation": null,
+      "sourceIds": [],
+      "sourceGapRefs": [],
+      "numericalChecksInFrozenDevelopment": 1,
+      "operationalFixture": "Freeze the failure point and whether the original server run committed. Verify durable state independently if available; browser disappearance alone proves only UI removal.",
+      "timingOracle": null,
+      "referenceOwner": "F independent author; operational fixture owner E where applicable"
+    },
+    {
+      "id": "D22",
+      "title": "Invalid particulars need focused repair",
+      "portIds": [
+        "mumbai"
+      ],
+      "capabilityIds": [
+        "CAP-02",
+        "CAP-07",
+        "CAP-08",
+        "CAP-09"
+      ],
+      "tags": [
+        "invalid_input",
+        "correction",
+        "missing_info"
+      ],
+      "candidateVerdict": "NOT_RUN",
+      "sourceOracleStatus": "UNRESOLVED_EXTERNAL_REFERENCE",
+      "independentOracleObligation": {
+        "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+        "scope": "Mumbai berth-hire rate and required fields for the corrected call",
+        "required": [
+          "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+          "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+          "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports."
+        ],
+        "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+      },
+      "sourceIds": [
+        "SRC-12"
+      ],
+      "sourceGapRefs": [
+        "mumbai"
+      ],
+      "numericalChecksInFrozenDevelopment": 1,
+      "operationalFixture": null,
+      "timingOracle": null,
+      "referenceOwner": "F independent source adjudicator"
+    },
+    {
+      "id": "D23",
+      "title": "No assumed upload feature or worldwide coverage",
+      "portIds": [],
+      "capabilityIds": [
+        "CAP-06",
+        "CAP-13"
+      ],
+      "tags": [
+        "capability_scope",
+        "document_input",
+        "outside_catalog"
+      ],
+      "candidateVerdict": "NOT_RUN",
+      "sourceOracleStatus": "not-required-for-supplied-or-operational-scope",
+      "independentOracleObligation": null,
+      "sourceIds": [],
+      "sourceGapRefs": [],
+      "numericalChecksInFrozenDevelopment": 2,
+      "operationalFixture": null,
+      "timingOracle": null,
+      "referenceOwner": "F independent author; operational fixture owner E where applicable"
+    },
+    {
+      "id": "D24",
+      "title": "Currency conversion and per-line rounding",
+      "portIds": [],
+      "capabilityIds": [
+        "CAP-05",
+        "CAP-06"
+      ],
+      "tags": [
+        "happy_path",
+        "supplied_quote",
+        "comparison",
+        "exact_arithmetic",
+        "rounding"
+      ],
+      "candidateVerdict": "NOT_RUN",
+      "sourceOracleStatus": "not-required-for-supplied-or-operational-scope",
+      "independentOracleObligation": null,
+      "sourceIds": [],
+      "sourceGapRefs": [],
+      "numericalChecksInFrozenDevelopment": 4,
+      "operationalFixture": null,
+      "timingOracle": null,
+      "referenceOwner": "F independent author; operational fixture owner E where applicable"
+    }
+  ],
+  "perPortRequiredAdditionalEvidence": [
+    {
+      "portId": "bpcl-cargo-jetty",
+      "caseRefs": [
+        "D06"
+      ],
+      "requiredJourneys": [
+        {
+          "kind": "successful-price",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "source-backed-rule",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "necessary-clarification",
+          "status": "UNRESOLVED_ORACLE"
+        }
+      ],
+      "allRuleBranches": {
+        "status": "pending semantic rule mapping and independent boundary oracles",
+        "sourceIds": [
+          "SRC-01"
+        ]
+      }
+    },
+    {
+      "portId": "bpcl-liquid-cargo-jetty",
+      "caseRefs": [
+        "D07"
+      ],
+      "requiredJourneys": [
+        {
+          "kind": "successful-price",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "source-backed-rule",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "necessary-clarification",
+          "status": "UNRESOLVED_ORACLE"
+        }
+      ],
+      "allRuleBranches": {
+        "status": "pending semantic rule mapping and independent boundary oracles",
+        "sourceIds": [
+          "SRC-02",
+          "SRC-03"
+        ]
+      }
+    },
+    {
+      "portId": "gateway-terminals-india-pvt-ltd",
+      "caseRefs": [
+        "D04"
+      ],
+      "requiredJourneys": [
+        {
+          "kind": "successful-price",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "source-backed-rule",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "necessary-clarification",
+          "status": "UNRESOLVED_ORACLE"
+        }
+      ],
+      "allRuleBranches": {
+        "status": "pending semantic rule mapping and independent boundary oracles",
+        "sourceIds": [
+          "SRC-04"
+        ]
+      }
+    },
+    {
+      "portId": "ictpl",
+      "caseRefs": [
+        "D05"
+      ],
+      "requiredJourneys": [
+        {
+          "kind": "successful-price",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "source-backed-rule",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "necessary-clarification",
+          "status": "UNRESOLVED_ORACLE"
+        }
+      ],
+      "allRuleBranches": {
+        "status": "pending semantic rule mapping and independent boundary oracles",
+        "sourceIds": [
+          "SRC-05"
+        ]
+      }
+    },
+    {
+      "portId": "jaigarh",
+      "caseRefs": [
+        "D02"
+      ],
+      "requiredJourneys": [
+        {
+          "kind": "successful-price",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "source-backed-rule",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "necessary-clarification",
+          "status": "UNRESOLVED_ORACLE"
+        }
+      ],
+      "allRuleBranches": {
+        "status": "pending semantic rule mapping and independent boundary oracles",
+        "sourceIds": [
+          "SRC-06"
+        ]
+      }
+    },
+    {
+      "portId": "jawahar-nehru-port-authority-jnpa",
+      "caseRefs": [
+        "D03",
+        "D20"
+      ],
+      "requiredJourneys": [
+        {
+          "kind": "successful-price",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "source-backed-rule",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "necessary-clarification",
+          "status": "UNRESOLVED_ORACLE"
+        }
+      ],
+      "allRuleBranches": {
+        "status": "pending semantic rule mapping and independent boundary oracles",
+        "sourceIds": [
+          "SRC-07"
+        ]
+      }
+    },
+    {
+      "portId": "jsw-jnpt-liquid-terminal",
+      "caseRefs": [
+        "D08"
+      ],
+      "requiredJourneys": [
+        {
+          "kind": "successful-price",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "source-backed-rule",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "necessary-clarification",
+          "status": "UNRESOLVED_ORACLE"
+        }
+      ],
+      "allRuleBranches": {
+        "status": "pending semantic rule mapping and independent boundary oracles",
+        "sourceIds": [
+          "SRC-08"
+        ]
+      }
+    },
+    {
+      "portId": "konkan-lng-ltd",
+      "caseRefs": [
+        "D09"
+      ],
+      "requiredJourneys": [
+        {
+          "kind": "successful-price",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "source-backed-rule",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "necessary-clarification",
+          "status": "UNRESOLVED_ORACLE"
+        }
+      ],
+      "allRuleBranches": {
+        "status": "pending semantic rule mapping and independent boundary oracles",
+        "sourceIds": [
+          "SRC-09"
+        ]
+      }
+    },
+    {
+      "portId": "mumbai",
+      "caseRefs": [
+        "D01",
+        "D16",
+        "D20",
+        "D22"
+      ],
+      "requiredJourneys": [
+        {
+          "kind": "successful-price",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "source-backed-rule",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "necessary-clarification",
+          "status": "UNRESOLVED_ORACLE"
+        }
+      ],
+      "allRuleBranches": {
+        "status": "pending semantic rule mapping and independent boundary oracles",
+        "sourceIds": [
+          "SRC-12"
+        ]
+      }
+    },
+    {
+      "portId": "mumbai-container-terminal",
+      "caseRefs": [
+        "D12"
+      ],
+      "requiredJourneys": [
+        {
+          "kind": "successful-price",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "source-backed-rule",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "necessary-clarification",
+          "status": "UNRESOLVED_ORACLE"
+        }
+      ],
+      "allRuleBranches": {
+        "status": "pending semantic rule mapping and independent boundary oracles",
+        "sourceIds": [
+          "SRC-10"
+        ]
+      }
+    },
+    {
+      "portId": "mumbai-cruise-terminal",
+      "caseRefs": [
+        "D13"
+      ],
+      "requiredJourneys": [
+        {
+          "kind": "successful-price",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "source-backed-rule",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "necessary-clarification",
+          "status": "UNRESOLVED_ORACLE"
+        }
+      ],
+      "allRuleBranches": {
+        "status": "pending semantic rule mapping and independent boundary oracles",
+        "sourceIds": [
+          "SRC-11"
+        ]
+      }
+    },
+    {
+      "portId": "nhava-sheva-freeport-terminal",
+      "caseRefs": [
+        "D10"
+      ],
+      "requiredJourneys": [
+        {
+          "kind": "successful-price",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "source-backed-rule",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "necessary-clarification",
+          "status": "UNRESOLVED_ORACLE"
+        }
+      ],
+      "allRuleBranches": {
+        "status": "pending semantic rule mapping and independent boundary oracles",
+        "sourceIds": [
+          "SRC-13"
+        ]
+      }
+    },
+    {
+      "portId": "nhava-sheva-gateway-terminal",
+      "caseRefs": [
+        "D10"
+      ],
+      "requiredJourneys": [
+        {
+          "kind": "successful-price",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "source-backed-rule",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "necessary-clarification",
+          "status": "UNRESOLVED_ORACLE"
+        }
+      ],
+      "allRuleBranches": {
+        "status": "pending semantic rule mapping and independent boundary oracles",
+        "sourceIds": [
+          "SRC-14"
+        ]
+      }
+    },
+    {
+      "portId": "nhava-sheva-international-container-terminal",
+      "caseRefs": [
+        "D11"
+      ],
+      "requiredJourneys": [
+        {
+          "kind": "successful-price",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "source-backed-rule",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "necessary-clarification",
+          "status": "UNRESOLVED_ORACLE"
+        }
+      ],
+      "allRuleBranches": {
+        "status": "pending semantic rule mapping and independent boundary oracles",
+        "sourceIds": [
+          "SRC-15"
+        ]
+      }
+    },
+    {
+      "portId": "ranpar-finolex",
+      "caseRefs": [
+        "D14"
+      ],
+      "requiredJourneys": [
+        {
+          "kind": "successful-price",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "source-backed-rule",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "necessary-clarification",
+          "status": "UNRESOLVED_ORACLE"
+        }
+      ],
+      "allRuleBranches": {
+        "status": "pending semantic rule mapping and independent boundary oracles",
+        "sourceIds": [
+          "SRC-16"
+        ]
+      }
+    },
+    {
+      "portId": "redi",
+      "caseRefs": [
+        "D15"
+      ],
+      "requiredJourneys": [
+        {
+          "kind": "successful-price",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "source-backed-rule",
+          "status": "UNRESOLVED_ORACLE"
+        },
+        {
+          "kind": "necessary-clarification",
+          "status": "UNRESOLVED_ORACLE"
+        }
+      ],
+      "allRuleBranches": {
+        "status": "pending semantic rule mapping and independent boundary oracles",
+        "sourceIds": [
+          "SRC-17"
+        ]
+      }
+    }
+  ],
+  "releaseBlockers": [
+    "Independent current/historical tariff oracles remain unresolved; no amount copied from candidate logic or output.",
+    "All 16 catalog entries are represented by finite cases; the pack does not establish exhaustive charge-rule or per-port journey coverage.",
+    "D20 cancellation grace window and D21 failure/commit point must be frozen before execution.",
+    "Both public aliases tested separately; reversed switch order for D19; no pooling model outcomes.",
+    "Positive live vessel lookup requires a separate authorized real-provider fixture; D16 covers fallback only.",
+    "Auth/isolation, accessibility, clear-memory, source deletion and new metadata lifecycle need additional operational cases.",
+    "Paid real-model acceptance remains unapproved at $0 cap."
+  ]
+}

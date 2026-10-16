@@ -3,6 +3,7 @@ import { MigrationTokenManager } from "@/lib/migration/bridge";
 import { trustedMigrationOrigin } from "@/lib/migration/origin";
 import { MemorySession,memoryFeatureEnabled } from "@/lib/memory/session";
 import { migrationPreviewEnabled, migrationServerConfig } from "@/lib/migration/config";
+import { readBoundedJsonBody } from "@/lib/bounded-json-body";
 export const runtime="nodejs";
 export const maxDuration=60;
 const requestSchema=z.object({kind:z.enum(["forget","clear"]),key:z.string().regex(/^[a-z][a-z0-9_]{0,79}$/).optional(),epoch:z.number().int().nonnegative(),requestId:z.string().uuid()}).strict();
@@ -18,9 +19,9 @@ async function handle(request:Request,write:boolean) {
     if(conversationId&&conversationId.length>100)throw new Error("INVALID_REQUEST");
     const session=new MemorySession(manager,conversationId);
     if(write) {
-      const raw=await request.text();
-      if(Buffer.byteLength(raw)>4096)return Response.json({error:"Request too large."},{status:413});
-      const parsed=requestSchema.safeParse(JSON.parse(raw));
+      const body=await readBoundedJsonBody(request,4096);
+      if(!body.ok)return Response.json({error:body.reason==='too_large'?"Request too large.":"Invalid request."},{status:body.reason==='too_large'?413:400});
+      const parsed=requestSchema.safeParse(body.value);
       if(!parsed.success||parsed.data.kind==="forget"&&!parsed.data.key)return Response.json({error:"Invalid request."},{status:400});
       const data=parsed.data;
       await session.mutate("user:"+data.requestId,data.kind==="clear"?{kind:"clear"}:{kind:"forget",key:data.key!},data.epoch);

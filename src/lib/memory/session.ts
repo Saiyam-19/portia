@@ -17,17 +17,24 @@ export class MemorySession {
   private tail: Promise<unknown> = Promise.resolve();
   constructor(private manager: MigrationTokenManager, private conversationId?: string, private run?: {runId:string;runFence:number}) {}
   private actor() { return this.run ?? {}; }
-  private async bridge<T>(op: string, args: unknown): Promise<T> {
+  private async bridge<T>(op: string, args: unknown, deadline?:number): Promise<T> {
+    this.manager.abortController.signal.throwIfAborted();
+    const remaining=deadline===undefined?15_000:Math.min(15_000,deadline-Date.now());
+    if(remaining<=0)throw new Error("MEMORY_BUSY");
     const config=migrationServerConfig();
     const body=JSON.stringify({op,args});
     if(Buffer.byteLength(body)>760_000)throw new Error("MEMORY_TOO_LARGE");
+    const timeout=new AbortController();
+    const timer=setTimeout(()=>timeout.abort(new DOMException("Memory request timed out.","TimeoutError")),remaining);
+    try {
     const response=await fetch(config.convexSiteUrl+"/memory/bridge",{
-      method:"POST",cache:"no-store",signal:AbortSignal.any([this.manager.abortController.signal,AbortSignal.timeout(15_000)]),
+      method:"POST",cache:"no-store",signal:AbortSignal.any([this.manager.abortController.signal,timeout.signal]),
       headers:{authorization:"Bearer "+this.manager.getToken(),"x-portia-server-secret":config.serverSecret,"content-type":"application/json"},body,
     });
     const payload=await response.json();
     if(!response.ok)throw new Error(payload.code??"MEMORY_UNAVAILABLE");
     return payload as T;
+    }finally{clearTimeout(timer);}
   }
   private serialized<T>(fn:()=>Promise<T>):Promise<T> {
     const next=this.tail.then(fn);
@@ -36,23 +43,39 @@ export class MemorySession {
   }
   async drain() {
     const deadline=Date.now()+45_000;
+    let delay=100;
+    const pause=async()=>{
+      const remaining=deadline-Date.now();
+      if(remaining<=0)throw new Error("MEMORY_BUSY");
+      await this.wait(Math.min(delay,remaining));
+      delay=Math.min(delay*2,2_000);
+    };
     while(Date.now()<deadline) {
       this.manager.abortController.signal.throwIfAborted();
-      const claim=await this.bridge<MemoryClaim|null>("claim",{});
+      const claim=await this.bridge<MemoryClaim|null>("claim",{},deadline);
       if(!claim) {
-        const state=await this.bridge<MemoryState>("open",{...this.actor(),...(this.conversationId?{conversationId:this.conversationId}:{})});
+        const state=await this.bridge<MemoryState>("open",{...this.actor(),...(this.conversationId?{conversationId:this.conversationId}:{})},deadline);
         if(!state.pending&&!state.blocked)return state;
-        await new Promise(resolve=>setTimeout(resolve,75));
+        await pause();
         continue;
       }
       const runtime=await ChatMemoryRuntime.restore(claim.image);
       await runtime.apply(claim.operations);
       const image=await runtime.snapshot();
       await ChatMemoryRuntime.restore(image); // Verify exported SQLite and its manifest before replacing the prior snapshot.
-      try { await this.bridge("publish",{token:claim.token,fence:claim.fence,epoch:claim.epoch,baseRevision:claim.baseRevision,through:claim.through,image}); }
-      catch(error) { if(!String(error).includes("STALE_WRITER"))throw error; }
+      try { await this.bridge("publish",{token:claim.token,fence:claim.fence,epoch:claim.epoch,baseRevision:claim.baseRevision,through:claim.through,image},deadline);delay=100; }
+      catch(error) { if(!String(error).includes("STALE_WRITER"))throw error;await pause(); }
     }
     throw new Error("MEMORY_BUSY");
+  }
+  private wait(ms:number):Promise<void>{
+    const signal=this.manager.abortController.signal;
+    signal.throwIfAborted();
+    return new Promise((resolve,reject)=>{
+      const abort=()=>{clearTimeout(timer);signal.removeEventListener("abort",abort);reject(signal.reason);};
+      const timer=setTimeout(()=>{signal.removeEventListener("abort",abort);resolve();},ms);
+      signal.addEventListener("abort",abort,{once:true});
+    });
   }
   private async state() {
     // Checking the run before draining stops revoked/stale actors from initiating new work.

@@ -12,8 +12,8 @@ export function responseErrorMessage(error: unknown): string {
   const { statusCode, errorType } = modelErrorDetails(error);
   if (errorType === "timeout" || statusCode === 408 || statusCode === 504) return messages.timeout;
   if (statusCode === 402) return messages.billing;
-  if (statusCode === 429 || (statusCode !== null && statusCode >= 500) || errorType === "network") return messages.busy;
   if (statusCode === 401 || statusCode === 403) return messages.configuration;
+  if (statusCode === 429 || (statusCode !== null && statusCode >= 500) || errorType === "network") return messages.busy;
   return messages.failed;
 }
 

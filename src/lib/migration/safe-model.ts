@@ -2,18 +2,13 @@ import { wrapLanguageModel } from "ai";
 import { modelErrorDetails, reportMigrationStreamError, type ModelErrorContext } from "./error-reporting";
 
 function safeError(error: unknown, context: ModelErrorContext): Error {
-  let current = error;
-  for (let depth = 0; depth < 5 && current && typeof current === "object"; depth += 1) {
-    if ("name" in current && current.name === "AbortError") {
-      return new DOMException("The request was cancelled.", "AbortError");
-    }
-    current = "cause" in current ? current.cause : null;
-  }
+  const details=modelErrorDetails(error);
+  if(details.errorType==="cancelled")return Object.assign(new DOMException("The request was cancelled.","AbortError"),details);
   reportMigrationStreamError({ error, ...context });
-  if (modelErrorDetails(error).errorType === "timeout") {
-    return new DOMException("The model response timed out.", "TimeoutError");
+  if (details.errorType === "timeout") {
+    return Object.assign(new DOMException("The model response timed out.", "TimeoutError"),details);
   }
-  return Object.assign(new Error("The selected model is unavailable."), modelErrorDetails(error));
+  return Object.assign(new Error("The selected model is unavailable."), details);
 }
 
 /** ToolLoopAgent logs errors by default; redact rich provider errors upstream. */

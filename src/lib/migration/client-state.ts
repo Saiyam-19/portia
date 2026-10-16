@@ -1,3 +1,16 @@
+import { migrationChatRequestSchema, type ModelAlias } from "./contracts";
+
+/** A correction resolves the pending form atomically through the existing contract. */
+export function makeQuestionRequest(input: {
+  requestId: string; conversationId: string; expectedRevision: number;
+  modelAlias: ModelAlias; text: string; pendingToolCallId?: string;
+}) {
+  const { text, pendingToolCallId, ...base } = input;
+  return migrationChatRequestSchema.parse(pendingToolCallId
+    ? { ...base, kind: "form", toolCallId: pendingToolCallId, values: {}, cancelled: true, note: text }
+    : { ...base, kind: "question", question: text });
+}
+
 export function migrationRunState(
   transportStatus: string,
   streamedRunId: string | undefined,

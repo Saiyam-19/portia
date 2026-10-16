@@ -1,0 +1,875 @@
+{
+  "version": 1,
+  "purpose": "Fallback metadata only; never executable tariff authority or a replacement for approved component/rule handlers.",
+  "reviewBasis": {
+    "map": "bounded-source-coverage/capability-map.md",
+    "mapSha256": "a8e28389b4917f8d97d0d397f3d7d7e5e5e66447b5a5ddfe3470a438de38e3ec",
+    "reviews": {
+      "jnpa": {
+        "path": "portia-oracle-second-review/second-review.json",
+        "sha256": "5087ca55267171920a43857e58331bde228bcec078814844770e63b3503262bd"
+      },
+      "bpcl": {
+        "path": "portia-oracle-bpcl-ictpl-second-review/second-review.json",
+        "sha256": "f978edb79d36742b07162cd2cfc81e678e36bd630666209a8001e3327046a928"
+      },
+      "jsw": {
+        "path": "portia-oracle-jsw-kll-second-review/second-review.json",
+        "sha256": "5a3694cf3c12b20903e1235547e35d7d49e27e7bed58eaf4f9308c36bf52d3a6"
+      },
+      "containers": {
+        "path": "portia-oracle-terminals-cruise-second-review/second-review.json",
+        "sha256": "e526b0a6bbde98a4aaac2df8216b980e3cf1b07770003caf63df313d123e8d71"
+      },
+      "western": {
+        "path": "portia-oracle-finolex-redi-mumbai-second-review/second-review.json",
+        "sha256": "5dd1f386feb30b880c3d8a286ff076e86e52b8cdcfa3a9c644e251ab19d911a4"
+      },
+      "jaigarh-nsict": {
+        "path": "portia-jaigarh-nsict-second-review/second-review.json",
+        "sha256": "bb0db5f1223d2c9e294784ea7233b2387d0e92b0b44f31dbfbf9d94cefb141bf"
+      },
+      "coastal-mumbai": {
+        "path": "portia-independent-tariff-demo-second-review/approval-v1.json",
+        "sha256": "69a800deb66b0bb7edf8dc7bfb2e5d870be4ab930930a8e036bbd6b60720affc"
+      }
+    }
+  },
+  "contract": {
+    "precedence": "Run approved component/rule handlers first. Their calculated/explained/needs-facts outcomes take precedence; this data never overrides them.",
+    "approvedButUnrouted": "Reviewed authority exists for this component, but its execution is not yet integrated for this request. No source-validated amount has been established.",
+    "inputVsAuthority": "requiredInputs documents approved component requirements, not source gaps. Ask only missing inputs needed by the selected rule; rule explanations need no quote intake.",
+    "selection": "Select matching charge gaps; use wildcard gaps only when their stated condition applies and remains unresolved. Never append every gap to every request.",
+    "preservation": "Keep every task/scenario disposition and independent elapsed/supplied arithmetic result. Retained source/version or code gaps are not successful price completion."
+  },
+  "invoiceGaps": {
+    "gst": {
+      "cause": "invoice-rule",
+      "message": "Applicable tax classification, supplier/place-of-supply and exemption treatment for this service remain unverified unless an approved handler establishes them; do not assume the approved Mumbai coastal treatment applies elsewhere."
+    },
+    "fx": {
+      "cause": "invoice-rule",
+      "message": "If currency conversion is requested, the applicable source rate, valuation date and conversion rule must be established; keep native-currency components separate meanwhile."
+    },
+    "rounding": {
+      "cause": "invoice-rule",
+      "message": "The applicable final-invoice rounding rule and stage must be established separately; component display rounding is not invoice authority."
+    }
+  },
+  "ports": {
+    "bpcl-cargo-jetty": {
+      "reviewRefs": [
+        "bpcl"
+      ],
+      "sourceReferences": [
+        "JNPA liquid-terminal listing: LB01/LB02; D06 adjudication and v1.1 identity addendum"
+      ],
+      "approvedComponents": [],
+      "gaps": [
+        {
+          "id": "facility",
+          "charges": [
+            "*"
+          ],
+          "cause": "identity",
+          "message": "The BPCL Cargo Jetty label does not yet identify the exact port, operator and berth or establish general-cargo acceptance. The JNPA BPCL liquid-berth listing cannot resolve this distinct label."
+        },
+        {
+          "id": "dated-berth-rule",
+          "charges": [
+            "berth"
+          ],
+          "cause": "authority-version",
+          "message": "After the facility is identified, its dated berth schedule must establish the charge unit, minimum and billable-time basis. The retained BPCL Cargo asset is empty; it is not evidence that no tariff exists."
+        }
+      ]
+    },
+    "bpcl-liquid-cargo-jetty": {
+      "reviewRefs": [
+        "bpcl"
+      ],
+      "sourceReferences": [
+        "JNPA 2026 p6 §2.3, pp8–9; BPCL 2021 pp16,23,28; BPCL 2026 pp1–2"
+      ],
+      "approvedComponents": [
+        {
+          "id": "bpcl-hourly-rule",
+          "charges": [
+            "berth"
+          ],
+          "scope": "Reviewed ordinary JNPA hourly-or-part rule explanation, 1 May 2026–30 April 2027.",
+          "requiredInputs": [],
+          "limits": "Explanation only: historical licensor linkage does not approve all current contractual conditions or minimum composition."
+        }
+      ],
+      "gaps": [
+        {
+          "id": "minimum-composition",
+          "charges": [
+            "berth"
+          ],
+          "cause": "rule-interpretation",
+          "message": "The applicable minimum clause, version and category remain unidentified, including whether its basis is per call, day, block or tonnage and how it combines with started-hour billing. The located ordinary table does not prove there is no minimum elsewhere."
+        },
+        {
+          "id": "licensor-continuation",
+          "charges": [
+            "port-dues",
+            "pilotage",
+            "towage",
+            "other",
+            "*"
+          ],
+          "cause": "authority-version",
+          "message": "The historical BPCL licensor collection linkage needs current contractual/supersession confirmation for this requested service. BPCL 2026 CRC and overstay rows cannot substitute for ordinary vessel charges."
+        }
+      ]
+    },
+    "gateway-terminals-india-pvt-ltd": {
+      "reviewRefs": [
+        "jnpa"
+      ],
+      "sourceReferences": [
+        "GTI 2026 p11 note5 and p6 item7; JNPA 2026 p6 §2.3, pp6–9 notes"
+      ],
+      "approvedComponents": [
+        {
+          "id": "gti-ordinary-berth",
+          "charges": [
+            "berth"
+          ],
+          "scope": "Reviewed ordinary foreign berth component under JNPA ownership.",
+          "requiredInputs": [
+            "gt",
+            "service",
+            "berthStart",
+            "berthEnd"
+          ],
+          "limits": "Actual readiness, idling, priority and penal events govern billable time; a component does not establish a full invoice."
+        },
+        {
+          "id": "gti-ordinary-movement",
+          "charges": [
+            "pilotage",
+            "towage"
+          ],
+          "scope": "Reviewed ordinary JNPA movement family within its approved eligibility.",
+          "requiredInputs": [
+            "gt",
+            "service",
+            "movements"
+          ],
+          "limits": "Routine tugs included; do not add a second ordinary tug charge."
+        }
+      ],
+      "gaps": [
+        {
+          "id": "special-occupancy",
+          "charges": [
+            "berth"
+          ],
+          "cause": "rule-interpretation",
+          "message": "Ordinary berth authority exists. A different category or readiness, idling, priority, user-fault overstay or penal event needs its matching time/adjustment rule; do not price every event as ordinary occupancy."
+        },
+        {
+          "id": "handling-inventory",
+          "charges": [
+            "cargo",
+            "other",
+            "*"
+          ],
+          "cause": "rule-interpretation",
+          "message": "The complete GTI handling and ancillary service inventory is not approved as a whole. The requested service, governing table and ownership must be reconciled; the approved berth component does not establish these charges."
+        }
+      ]
+    },
+    "ictpl": {
+      "reviewRefs": [
+        "bpcl"
+      ],
+      "sourceReferences": [
+        "ICTPL 2018 approved order pp31,35; ICTPL 2020 extension p3 §7"
+      ],
+      "approvedComponents": [
+        {
+          "id": "ictpl-historical-day-hour",
+          "charges": [
+            "berth"
+          ],
+          "scope": "Reviewed historical calendar-day versus explicit hourly berth rule explanation.",
+          "requiredInputs": [],
+          "limits": "Historical only. The berth multiplier is not an all-charge multiplier; no current ICTPL quotation approved."
+        }
+      ],
+      "gaps": [
+        {
+          "id": "current-extension",
+          "charges": [
+            "berth",
+            "port-dues",
+            "pilotage",
+            "towage",
+            "cargo",
+            "other",
+            "*"
+          ],
+          "cause": "authority-version",
+          "message": "Retained ICTPL orders establish historical rules and an extension only through 31 March 2021 or earlier stated triggers. The operative extension/amendment chain and applicable current MBPA basis are not established."
+        },
+        {
+          "id": "quoted-sheet",
+          "charges": [
+            "berth"
+          ],
+          "cause": "document-identity",
+          "message": "For interpretation of a particular quoted sheet, its exact charge line, title and effective date are needed; a calendar-day definition alone cannot replace the explicit hourly berth unit."
+        }
+      ]
+    },
+    "jaigarh": {
+      "reviewRefs": [
+        "jaigarh-nsict"
+      ],
+      "sourceReferences": [
+        "JSW Jaigarh 2026 p1 J-1; pp6–8 identity, exclusions and FX"
+      ],
+      "approvedComponents": [
+        {
+          "id": "jaigarh-jsw-j1",
+          "charges": [
+            "port-dues"
+          ],
+          "scope": "Reviewed JSW Jaigarh mechanized-bulk J-1 dues component from 1 May 2026.",
+          "requiredInputs": [
+            "operator",
+            "gt",
+            "callDate",
+            "callDays"
+          ],
+          "limits": "Maximum 30-day paid-dues validity is not tariff expiry; no renewal formula or full invoice approved."
+        }
+      ],
+      "gaps": [
+        {
+          "id": "operator",
+          "charges": [
+            "*"
+          ],
+          "cause": "identity",
+          "message": "Generic Jaigarh can denote another operator. The reviewed J-1 component belongs specifically to JSW Jaigarh mechanized-bulk operations."
+        },
+        {
+          "id": "j1-renewal",
+          "charges": [
+            "port-dues"
+          ],
+          "cause": "rule-interpretation",
+          "message": "The reviewed J-1 dues component exists; paid-dues reuse or renewal beyond its maximum validity needs the governing rule. Do not interpret paid validity as tariff expiry."
+        },
+        {
+          "id": "j6-berth",
+          "charges": [
+            "berth"
+          ],
+          "cause": "rule-interpretation",
+          "message": "J-6 requires cargo/class applicability and reconciliation of its mixed-currency minimum and governing FX; approval of J-1 dues does not approve J-6 berth hire."
+        },
+        {
+          "id": "pilotage-and-ancillaries",
+          "charges": [
+            "pilotage",
+            "towage",
+            "cargo",
+            "other"
+          ],
+          "cause": "rule-interpretation",
+          "message": "Pilotage slab interpretation and applicable age, tug and ancillary fees remain outside the narrowly approved J-1 dues component."
+        }
+      ]
+    },
+    "jawahar-nehru-port-authority-jnpa": {
+      "reviewRefs": [
+        "jnpa"
+      ],
+      "sourceReferences": [
+        "JNPA 2026 pp2–4 §§2.1–2.2; p6 §2.3; p9 note12; approved 2020 p14"
+      ],
+      "approvedComponents": [
+        {
+          "id": "jnpa-ordinary-movement",
+          "charges": [
+            "pilotage",
+            "towage"
+          ],
+          "scope": "Reviewed ordinary foreign pilotage-cum-towage component through 30,000 GT, both movements.",
+          "requiredInputs": [
+            "gt",
+            "service",
+            "movements"
+          ],
+          "limits": "Routine tugs included; preserve each movement scope."
+        },
+        {
+          "id": "jnpa-rule-explanations",
+          "charges": [
+            "berth",
+            "pilotage"
+          ],
+          "scope": "Reviewed bounded berth and pilotage rule explanations.",
+          "requiredInputs": [],
+          "limits": "An explanation is not acceptance of every berth identity or dues selector."
+        }
+      ],
+      "gaps": [
+        {
+          "id": "berth-and-discount",
+          "charges": [
+            "berth"
+          ],
+          "cause": "rule-interpretation",
+          "message": "Exact shallow-water/NSDT facility eligibility remains unresolved: published 183m versus a claimed 185m acceptance, NSDT identity, and the historical minimum 20% discount versus its omission from the 2026 text."
+        },
+        {
+          "id": "dues-selector",
+          "charges": [
+            "port-dues"
+          ],
+          "cause": "rule-interpretation",
+          "message": "JNPA dues predicates overlap and additional MBPA applicability is not exhaustively resolved. Conditional alternatives do not authorize an unconditional dues selector."
+        },
+        {
+          "id": "outside-movement-scope",
+          "charges": [
+            "pilotage",
+            "towage",
+            "cargo",
+            "other",
+            "*"
+          ],
+          "cause": "rule-interpretation",
+          "message": "Reviewed ordinary movement components exist. The requested nonordinary movement, category, handling or ancillary scope still needs its matching authoritative rule and included-service boundary."
+        }
+      ]
+    },
+    "jsw-jnpt-liquid-terminal": {
+      "reviewRefs": [
+        "jsw"
+      ],
+      "sourceReferences": [
+        "JSW 2024 p3 general conditions and pp3–4 expired sections; JNPA 2026 pp2,6–9,12"
+      ],
+      "approvedComponents": [
+        {
+          "id": "jsw-ordinary-berth",
+          "charges": [
+            "berth"
+          ],
+          "scope": "Reviewed ordinary foreign JNPA-owned berth component.",
+          "requiredInputs": [
+            "gt",
+            "service",
+            "berthStart",
+            "berthEnd"
+          ],
+          "limits": "Actual chargeable occupancy and exceptional events remain predicates."
+        },
+        {
+          "id": "jsw-tanker-dues",
+          "charges": [
+            "port-dues"
+          ],
+          "scope": "Reviewed ordinary tanker-with-cargo JNPA dues component.",
+          "requiredInputs": [
+            "gt",
+            "service",
+            "vesselCategory",
+            "cargoOperation"
+          ],
+          "limits": "Additional MBPA dues applicability remains separate."
+        },
+        {
+          "id": "jsw-ordinary-movement",
+          "charges": [
+            "pilotage",
+            "towage"
+          ],
+          "scope": "Reviewed ordinary JNPA movement family.",
+          "requiredInputs": [
+            "gt",
+            "service",
+            "movements"
+          ],
+          "limits": "Routine tugs included; no second routine tug line."
+        }
+      ],
+      "gaps": [
+        {
+          "id": "occupancy",
+          "charges": [
+            "berth"
+          ],
+          "cause": "rule-interpretation",
+          "message": "The ordinary JNPA berth rule is reviewed; exceptional occupancy, readiness, idling or penal conditions require their actual billable-time treatment."
+        },
+        {
+          "id": "additional-dues",
+          "charges": [
+            "port-dues"
+          ],
+          "cause": "rule-interpretation",
+          "message": "The ordinary tanker-with-cargo JNPA component exists, but any additional MBPA dues predicate must be established separately."
+        },
+        {
+          "id": "terminal-cargo-version",
+          "charges": [
+            "cargo",
+            "other",
+            "*"
+          ],
+          "cause": "authority-version",
+          "message": "The latest terminal/June 2025 source binary remains a gap for other terminal services. Expired cargo and infrastructure sections cannot price the requested current service."
+        }
+      ]
+    },
+    "konkan-lng-ltd": {
+      "reviewRefs": [
+        "jsw"
+      ],
+      "sourceReferences": [
+        "KLL 2025 port-charges notice p1 starred note; KLL 2026 revision p1"
+      ],
+      "approvedComponents": [
+        {
+          "id": "kll-dated-explanation",
+          "charges": [
+            "berth",
+            "pilotage"
+          ],
+          "scope": "Reviewed dated explanation of the 2025 base period/delay attribution and 1 November 2026 combined berth-plus-pilotage revision.",
+          "requiredInputs": [],
+          "limits": "Post-revision duration-footnote continuity and mixed-delay allocation are unresolved; no base-fee waiver or mandatory claims procedure inferred."
+        }
+      ],
+      "gaps": [
+        {
+          "id": "period-and-delay",
+          "charges": [
+            "berth",
+            "pilotage"
+          ],
+          "cause": "rule-interpretation",
+          "message": "For a complete KLL quotation, the applicable dated base period and post-1 November 2026 duration-footnote continuity need reconciliation, including allocation of vessel-attributed versus other delay."
+        },
+        {
+          "id": "invoice-interactions",
+          "charges": [
+            "other",
+            "*"
+          ],
+          "cause": "rule-interpretation",
+          "message": "The retained KLL notices do not settle every tax, cap and rounding interaction or additional service. No quantified relief, base-fee waiver or mandatory claims procedure is established."
+        }
+      ]
+    },
+    "mumbai": {
+      "reviewRefs": [
+        "western",
+        "coastal-mumbai"
+      ],
+      "sourceReferences": [
+        "Mumbai SOR pp21–23 §2.17; 9 May 2026 amendment p2 onward; SOR GST p38; CBIC heading9967/FAQ85"
+      ],
+      "approvedComponents": [
+        {
+          "id": "mumbai-coastal-indira",
+          "charges": [
+            "berth",
+            "gst",
+            "rounding"
+          ],
+          "scope": "Reviewed ordinary coastal Indira Dock berth component, with conditional domestic GST and standalone rounding.",
+          "requiredInputs": [
+            "terminal",
+            "gt",
+            "service",
+            "coastalLicence",
+            "berthStart",
+            "berthEnd",
+            "readinessTime",
+            "cargoOperation"
+          ],
+          "limits": "Coastal licence, ordinary operation and domestic tax predicates are mandatory; no blanket port-call invoice coverage."
+        },
+        {
+          "id": "mumbai-foreign-berths",
+          "charges": [
+            "berth"
+          ],
+          "scope": "Reviewed ordinary foreign Indira/Ballard versus Princes/Victoria named-berth alternatives.",
+          "requiredInputs": [
+            "terminal",
+            "gt",
+            "service",
+            "berthStart",
+            "berthEnd"
+          ],
+          "limits": "Exact berth and actual billable occupancy required; foreign tax, FX and final invoice rounding remain outside component approval."
+        }
+      ],
+      "gaps": [
+        {
+          "id": "berth-selection-events",
+          "charges": [
+            "berth"
+          ],
+          "cause": "rule-interpretation",
+          "message": "Reviewed coastal and foreign berth components exist. A different berth, category or chargeable-time event requires its matching applicability rule; do not select a named-berth alternative without confirmed identity."
+        },
+        {
+          "id": "other-services",
+          "charges": [
+            "port-dues",
+            "pilotage",
+            "towage",
+            "cargo",
+            "other",
+            "*"
+          ],
+          "cause": "rule-interpretation",
+          "message": "The requested additional Mumbai service needs its own approved clause and applicability; berth-hire approval does not establish all port-call charges."
+        }
+      ]
+    },
+    "mumbai-container-terminal": {
+      "reviewRefs": [
+        "containers"
+      ],
+      "sourceReferences": [
+        "BMCT candidate pp1,3–4; JNPA container-terminal listing; D12 adjudication and predicate addendum"
+      ],
+      "approvedComponents": [],
+      "gaps": [
+        {
+          "id": "operator-identity",
+          "charges": [
+            "*"
+          ],
+          "cause": "identity",
+          "message": "The Mumbai Container Terminal label does not uniquely identify the operator and berth. A city label cannot select PSA BMCT at JNPA."
+        },
+        {
+          "id": "candidate-version",
+          "charges": [
+            "berth",
+            "cargo",
+            "pilotage",
+            "port-dues",
+            "other"
+          ],
+          "cause": "authority-version",
+          "message": "A BMCT candidate source exists, but its /03/ versus /04/ identifiers and 1 April versus 6 April labels need reconciliation before monetary mapping; service ownership and invoice rules follow the confirmed identity."
+        }
+      ]
+    },
+    "mumbai-cruise-terminal": {
+      "reviewRefs": [
+        "containers"
+      ],
+      "sourceReferences": [
+        "Cruise rationalisation 2026 pp1–2; Mumbai SOR p58 §§7.2(D),7.3(A); pp5–6 §1.2"
+      ],
+      "approvedComponents": [
+        {
+          "id": "mumbai-cruise-structure",
+          "charges": [
+            "berth",
+            "other"
+          ],
+          "scope": "Reviewed explanation of the special 1 April 2026–31 March 2027 cruise structure and annual-call rebate bands.",
+          "requiredInputs": [],
+          "limits": "Explanation needs no vessel/passenger counts; complete rebate and invoice application is not approved."
+        }
+      ],
+      "gaps": [
+        {
+          "id": "rebate-basis",
+          "charges": [
+            "berth",
+            "other",
+            "*"
+          ],
+          "cause": "rule-interpretation",
+          "message": "The cruise rebate base, counting entity/year and stacking need governing interpretation before a complete quote; the general coastal reduction cannot automatically replace the special cruise regime."
+        },
+        {
+          "id": "passenger-and-private",
+          "charges": [
+            "cargo",
+            "port-dues",
+            "pilotage",
+            "towage"
+          ],
+          "cause": "rule-interpretation",
+          "message": "Ancillary embarking/disembarking fees versus passenger head tax and private additions need distinct service ownership; the reviewed cruise structure does not settle these extra charges."
+        }
+      ]
+    },
+    "nhava-sheva-freeport-terminal": {
+      "reviewRefs": [
+        "containers"
+      ],
+      "sourceReferences": [
+        "NSFT 2026 pp2–4; p11 note f; D10 adjudication and predicate addendum"
+      ],
+      "approvedComponents": [
+        {
+          "id": "nsft-container-handling",
+          "charges": [
+            "cargo"
+          ],
+          "scope": "Reviewed normal 20ft foreign/EXIM road or rail handling bundles from 1 May 2026, including the corresponding landside leg.",
+          "requiredInputs": [
+            "containerSize",
+            "cargoTraffic",
+            "handlingMode",
+            "ladenContainers",
+            "emptyContainers"
+          ],
+          "limits": "Preserve native currency; do not add the already bundled landside leg or choose a comparison winner across unlike services."
+        }
+      ],
+      "gaps": [
+        {
+          "id": "berth-ownership",
+          "charges": [
+            "berth"
+          ],
+          "cause": "rule-interpretation",
+          "message": "Complete NSFT berth billing basis and JNPA/private charge ownership remain unresolved; container handling bundles do not authorize a berth estimate."
+        },
+        {
+          "id": "handling-category",
+          "charges": [
+            "cargo"
+          ],
+          "cause": "rule-interpretation",
+          "message": "Reviewed normal 20ft foreign/EXIM bundles exist. Another container category or service scope needs its own approved table; road/rail and laden/empty must remain distinct."
+        },
+        {
+          "id": "additional-services",
+          "charges": [
+            "pilotage",
+            "towage",
+            "port-dues",
+            "other",
+            "*"
+          ],
+          "cause": "rule-interpretation",
+          "message": "The requested additional service needs its applicable JNPA/private ownership and approved rule; do not extend handling-bundle approval to every terminal charge."
+        }
+      ]
+    },
+    "nhava-sheva-gateway-terminal": {
+      "reviewRefs": [
+        "containers"
+      ],
+      "sourceReferences": [
+        "NSIGT 2026 pp3–5 Ch2/§3.1(A); p10 period; D10 calculation references and predicate addendum"
+      ],
+      "approvedComponents": [
+        {
+          "id": "nsigt-container-handling",
+          "charges": [
+            "cargo"
+          ],
+          "scope": "Reviewed normal 20ft foreign/EXIM ship-yard handling and matching road or applicable ICD rail components, ceiling period 1 April 2026–31 March 2027.",
+          "requiredInputs": [
+            "containerSize",
+            "cargoTraffic",
+            "handlingMode",
+            "ladenContainers",
+            "emptyContainers",
+            "icdRail"
+          ],
+          "limits": "Rail alone does not establish ICD applicability; preserve native currency and aligned service scope."
+        },
+        {
+          "id": "nsigt-operator-berth",
+          "charges": [
+            "berth"
+          ],
+          "scope": "Reviewed operator berth rate component under its source predicates.",
+          "requiredInputs": [
+            "gt",
+            "berthStart",
+            "berthEnd"
+          ],
+          "limits": "Private/JNPA additivity, discounts and events remain unresolved for a complete berth bill."
+        }
+      ],
+      "gaps": [
+        {
+          "id": "berth-additivity",
+          "charges": [
+            "berth"
+          ],
+          "cause": "rule-interpretation",
+          "message": "The operator berth component is reviewed, but its additivity with JNPA berth charges and applicable discounts/events need reconciliation before a complete berth bill."
+        },
+        {
+          "id": "icd-scope",
+          "charges": [
+            "cargo"
+          ],
+          "cause": "rule-interpretation",
+          "message": "Reviewed normal 20ft handling components exist. An ICD rail leg requires actual ICD applicability; rail transport alone cannot select it. Other sizes/categories require their approved table."
+        },
+        {
+          "id": "additional-services",
+          "charges": [
+            "pilotage",
+            "towage",
+            "port-dues",
+            "other",
+            "*"
+          ],
+          "cause": "rule-interpretation",
+          "message": "Requested additional services need matching JNPA/private ownership, included-service boundaries and approved rules beyond the reviewed container components."
+        }
+      ]
+    },
+    "nhava-sheva-international-container-terminal": {
+      "reviewRefs": [
+        "jaigarh-nsict",
+        "containers"
+      ],
+      "sourceReferences": [
+        "NSICT 2026 p1 effective date; p2 §§2.2,2.7,2.10; p3 §1(A); p10 §12 MUC"
+      ],
+      "approvedComponents": [
+        {
+          "id": "nsict-port-crane-handling",
+          "charges": [
+            "cargo"
+          ],
+          "scope": "Reviewed §1(A) normal foreign/EXIM 20ft handling using the port crane, effective 1 May 2026.",
+          "requiredInputs": [
+            "containerSize",
+            "cargoTraffic",
+            "portCrane",
+            "ladenContainers",
+            "emptyContainers"
+          ],
+          "limits": "Only the port-crane component is approved; final-bill rupee rounding must not be applied to component lines."
+        }
+      ],
+      "gaps": [
+        {
+          "id": "handling-predicate",
+          "charges": [
+            "cargo"
+          ],
+          "cause": "rule-interpretation",
+          "message": "The normal foreign/EXIM 20ft port-crane component is reviewed. Another crane/size/category or additional service leg needs its matching rule; MUC, storage and special services remain separate."
+        },
+        {
+          "id": "other-terminal-services",
+          "charges": [
+            "berth",
+            "pilotage",
+            "towage",
+            "port-dues",
+            "other",
+            "*"
+          ],
+          "cause": "rule-interpretation",
+          "message": "The requested berth, vessel or ancillary service needs its own approved rule and ownership. NSICT port-crane handling approval does not establish a complete terminal invoice."
+        }
+      ]
+    },
+    "ranpar-finolex": {
+      "reviewRefs": [
+        "western"
+      ],
+      "sourceReferences": [
+        "Finolex terminal information p1; D14 adjudication; reception tariff p1 exclusion"
+      ],
+      "approvedComponents": [
+        {
+          "id": "finolex-facility",
+          "charges": [
+            "other"
+          ],
+          "scope": "Reviewed Ranpar/Pawas, Ratnagiri identity and chemical/EDC versus coal-jetty distinction.",
+          "requiredInputs": [],
+          "limits": "Published capacity is displacement tonnes, not GT; reception/waste charges are not berth hire."
+        }
+      ],
+      "gaps": [
+        {
+          "id": "booked-jetty",
+          "charges": [
+            "*"
+          ],
+          "cause": "identity",
+          "message": "The booked chemical/EDC or coal jetty and cargo service must be identified; Ranpar/Pawas aliases alone do not choose the applicable facility schedule."
+        },
+        {
+          "id": "dated-coastal-berth",
+          "charges": [
+            "berth"
+          ],
+          "cause": "authority-version",
+          "message": "The dated coastal berth schedule for the requested call, including units and minima, is not established by retained evidence. Terminal information and reception/waste tariffs cannot provide the berth price."
+        },
+        {
+          "id": "service-tariff",
+          "charges": [
+            "cargo",
+            "pilotage",
+            "towage",
+            "port-dues",
+            "other"
+          ],
+          "cause": "authority-version",
+          "message": "The requested facility service needs its dated governing tariff; the retained facility description and waste schedule do not establish all marine/cargo charges."
+        }
+      ]
+    },
+    "redi": {
+      "reviewRefs": [
+        "western"
+      ],
+      "sourceReferences": [
+        "D15 adjudication; source-access notes; Redi descriptive pages and MMB historical data"
+      ],
+      "approvedComponents": [],
+      "gaps": [
+        {
+          "id": "requested-service",
+          "charges": [
+            "berth",
+            "other",
+            "*"
+          ],
+          "cause": "identity",
+          "message": "The requested service must distinguish berth occupancy from anchorage or lighterage; operator background alone cannot select the charge basis."
+        },
+        {
+          "id": "dated-schedule",
+          "charges": [
+            "berth",
+            "cargo",
+            "pilotage",
+            "towage",
+            "port-dues",
+            "other",
+            "*"
+          ],
+          "cause": "authority-version",
+          "message": "The operative Redi schedule or authoritative quotation for the requested call date, service/category, unit and effective amendments is not established by retained evidence. Descriptive pages and historical data are not current rate authority."
+        }
+      ]
+    }
+  }
+}

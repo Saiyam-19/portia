@@ -1,0 +1,1551 @@
+{
+  "schema_version": "1.0",
+  "product": "Portia conversational maritime tariff assistant",
+  "created_utc": "2026-10-14 17:53:41 UTC",
+  "authoring_status": "FROZEN_INITIAL_INDEPENDENT_PACK",
+  "candidate_execution_status": "NOT_RUN",
+  "provenance": {
+    "inputs_used": [
+      "Orchestrator-provided product requirements and existing user-facing catalog; no application logic, prompts, tests or prior outputs provided.",
+      "Author-created synthetic vessel, voyage and quotation particulars",
+      "Global verification-before-completion skill for artifact validation only"
+    ],
+    "inputs_not_inspected": [
+      "application source code",
+      "existing application tests",
+      "application agent prompts",
+      "prior application responses",
+      "prior application reports",
+      "git diffs",
+      "other chats",
+      "implementation baseline"
+    ],
+    "external_services_used": [],
+    "paid_inference_calls": 0,
+    "tariff_authority_claim": "No actual tariff rates or current applicability have been asserted by this author.",
+    "numeric_reference_method": "Independent Python Decimal arithmetic with explicit ROUND_HALF_UP where specified; elapsed times checked using Python datetime subtraction of ISO-offset timestamps. No application calculator, code, prompts, tests or model outputs used."
+  },
+  "global_run_protocol": {
+    "isolation": "Use synthetic accounts, vessels and commercial particulars. Do not mutate real customer conversations or memory.",
+    "model_matrix": "Run the development set and later frozen holdout against each of the two public model choices, recording actual UI labels and execution identities. Scenarios explicitly involving a model switch require both switch orders. Do not silently pool model-specific outcomes.",
+    "message_boundary": "Only steps with kind=user_message are sent as user chat messages. UI actions and controlled environment actions are performed and logged separately.",
+    "adaptive_turns": "Deliver later user turns in sequence. Do not add facts, hints, tool instructions or target answers. If a candidate asks for an additional genuinely required field, freeze that field from the independent operational/source fixture before completing the case. Score needless questions as over-clarification.",
+    "oracles": "Resolve authoritative-source references independently before candidate output is inspected. Freeze source snapshots and derived amounts. If unresolved, mark monetary correctness UNRESOLVED_ORACLE; do not turn missing truth into a pass.",
+    "scoring": {
+      "execution": "Did the requested action/run complete at the relevant boundary? Transport success, UI feedback, durable state and provider completion are separate evidence.",
+      "task_completion": "Did the user get the requested answer or state change? A safe clarification may be correct for an incomplete turn while the full task remains incomplete.",
+      "truth": "Check every requested line item, units, arithmetic, time basis, applicability, citation and effective date against the independent oracle; no single plausible total is sufficient.",
+      "clarification": "A necessary question is successful clarification, not completed estimation. A request containing complete supplied-rate inputs should be calculated; source uncertainty is not an excuse to refuse that arithmetic.",
+      "states": [
+        "PASS",
+        "FAIL",
+        "SAFE_INCOMPLETE",
+        "UNRESOLVED_ORACLE",
+        "BLOCKED_ENVIRONMENT",
+        "NOT_EXERCISED",
+        "NOT_RUN"
+      ],
+      "aggregation": "Report counts and denominators by task type, catalog entry, model and evidence boundary. Never merge unresolved or unexercised cases into passes."
+    },
+    "evidence_boundaries": [
+      "deterministic quotation arithmetic",
+      "source applicability independently verified",
+      "mocked transport/UI mechanics",
+      "local application integration",
+      "authenticated real provider execution",
+      "production deployment"
+    ],
+    "runtime_faults": "Fault-injection scenarios require isolated fixtures and authorization. Do not infer real-provider reliability from mocks. Do not incur paid inference during authoring.",
+    "cancellation": "Freeze an operationally justified observation window before execution. If the response finishes before Stop/delete, cancellation is NOT_EXERCISED. UI cancellation does not alone prove external provider work or billing stopped.",
+    "seal": "Only development.json may be shared with implementers before candidate freeze. Holdout is a workflow seal backed by a SHA-256 content hash, not a cryptographic access-control system. Open only after candidate revision, prompts, configuration, provider settings and development-run results are frozen. If revealed early, retire affected holdout cases.",
+    "coverage_limit": "This is an initial finite workflow pack. A later complete charge/rule/exception inventory may add source and reference obligations. This pack cannot establish universal tariff correctness, exhaustive coverage, successful live vessel-provider lookup, or production readiness."
+  },
+  "catalog": [
+    "BPCL Cargo Jetty",
+    "BPCL Liquid Cargo Jetty",
+    "Gateway Terminals India",
+    "ICTPL",
+    "Jaigarh",
+    "Jawaharlal Nehru Port Authority",
+    "JSW JNPT Liquid Terminal",
+    "Konkan LNG",
+    "Mumbai",
+    "Mumbai Container Terminal",
+    "Mumbai Cruise Terminal",
+    "Nhava Sheva Freeport Terminal",
+    "Nhava Sheva Gateway Terminal",
+    "Nhava Sheva International Container Terminal",
+    "Ranpar/Finolex",
+    "Redi"
+  ],
+  "split": "development",
+  "cases": [
+    {
+      "id": "D01",
+      "title": "Two quoted charges with a day-block minimum",
+      "catalog_entries": [
+        "Mumbai"
+      ],
+      "tags": [
+        "happy_path",
+        "supplied_quote",
+        "multiple_charges",
+        "exact_arithmetic"
+      ],
+      "synthetic_particulars": true,
+      "steps": [
+        {
+          "kind": "user_message",
+          "text": "Please check this Mumbai quote for my fictional vessel MV Copper Finch: 12,500 GT, 30 hours alongside. Berth hire is USD 0.075 per GT for each started 24 hours, minimum USD 900 for each billed 24-hour block. Pilotage is USD 1,200 for each movement and we have two movements. No tax or other charges. What is the breakdown and total?"
+        }
+      ],
+      "expected": {
+        "evaluation_dimensions": [
+          "request_execution",
+          "user_task_completion",
+          "numerical_correctness",
+          "rule_and_source_correctness",
+          "clarification_quality",
+          "state_and_recovery",
+          "unsupported_claims"
+        ],
+        "evidence_required": [
+          "Retain exact user messages, UI actions, responses, cited source content, candidate revision/configuration, public model label, timestamps and observed final UI state."
+        ],
+        "safe_incomplete": "None expected: the user supplied every quantity and rule needed for the requested quotation arithmetic.",
+        "must_not": [
+          "Invent a tariff, citation, source authority, present-day applicability or unprovided vessel particulars.",
+          "Treat catalog membership as evidence that a usable tariff exists.",
+          "Call a transport/tool success a completed user task.",
+          "Represent the supplied quotation as an official Mumbai tariff.",
+          "Request LOA, vessel lookup, cargo or a tariff document before doing this arithmetic."
+        ],
+        "successful_completion": "Complete the quotation arithmetic without requiring a live Mumbai tariff or extra vessel particulars.",
+        "numerical_checks": [
+          {
+            "label": "billed 24-hour blocks",
+            "expected": "2",
+            "currency": "count",
+            "derivation": "ceil(30/24) = 2",
+            "basis": "synthetic user-supplied quotation; not an actual port tariff",
+            "tolerance": "exact to stated rounding rule"
+          },
+          {
+            "label": "berth charge per billed block",
+            "expected": "937.50",
+            "currency": "USD",
+            "derivation": "max(12500 \u00d7 0.075, 900)",
+            "basis": "synthetic user-supplied quotation; not an actual port tariff",
+            "tolerance": "exact to stated rounding rule"
+          },
+          {
+            "label": "berth subtotal",
+            "expected": "1875.00",
+            "currency": "USD",
+            "derivation": "937.50 \u00d7 2",
+            "basis": "synthetic user-supplied quotation; not an actual port tariff",
+            "tolerance": "exact to stated rounding rule"
+          },
+          {
+            "label": "pilotage subtotal",
+            "expected": "2400.00",
+            "currency": "USD",
+            "derivation": "1200 \u00d7 2",
+            "basis": "synthetic user-supplied quotation; not an actual port tariff",
+            "tolerance": "exact to stated rounding rule"
+          },
+          {
+            "label": "total",
+            "expected": "4275.00",
+            "currency": "USD",
+            "derivation": "1875 + 2400",
+            "basis": "synthetic user-supplied quotation; not an actual port tariff",
+            "tolerance": "exact to stated rounding rule"
+          }
+        ]
+      }
+    },
+    {
+      "id": "D02",
+      "title": "Elapsed time and started six-hour blocks",
+      "catalog_entries": [
+        "Jaigarh"
+      ],
+      "tags": [
+        "happy_path",
+        "elapsed_time",
+        "supplied_quote",
+        "exact_arithmetic"
+      ],
+      "synthetic_particulars": true,
+      "steps": [
+        {
+          "kind": "user_message",
+          "text": "At Jaigarh, MV Cedar Kite was alongside from 18 October 2026 at 22:45 to 20 October 2026 at 05:15, both India time. Our agreed berth charge is INR 4,000 for each started six-hour block. No tax. How long is that and what do we owe?"
+        }
+      ],
+      "expected": {
+        "evaluation_dimensions": [
+          "request_execution",
+          "user_task_completion",
+          "numerical_correctness",
+          "rule_and_source_correctness",
+          "clarification_quality",
+          "state_and_recovery",
+          "unsupported_claims"
+        ],
+        "evidence_required": [
+          "Retain exact user messages, UI actions, responses, cited source content, candidate revision/configuration, public model label, timestamps and observed final UI state."
+        ],
+        "safe_incomplete": "None expected: date, timezone, billing unit and rate are explicit.",
+        "must_not": [
+          "Invent a tariff, citation, source authority, present-day applicability or unprovided vessel particulars.",
+          "Treat catalog membership as evidence that a usable tariff exists.",
+          "Call a transport/tool success a completed user task."
+        ],
+        "successful_completion": "Show elapsed time, billable blocks and the supplied-quote total.",
+        "numerical_checks": [
+          {
+            "label": "elapsed",
+            "expected_minutes": 1830,
+            "expected_display": "30 hours 30 minutes",
+            "derivation": "24 h + 6 h 30 min; independent calendar subtraction"
+          },
+          {
+            "label": "started blocks",
+            "expected": 6,
+            "derivation": "ceil(1830 / 360) = 6"
+          },
+          {
+            "label": "total",
+            "expected": "24000.00",
+            "currency": "INR",
+            "derivation": "6 \u00d7 4000",
+            "basis": "synthetic user-supplied quotation; not an actual port tariff",
+            "tolerance": "exact to stated rounding rule"
+          }
+        ]
+      }
+    },
+    {
+      "id": "D03",
+      "title": "Complete port-call request for several tariff charges",
+      "catalog_entries": [
+        "Jawaharlal Nehru Port Authority"
+      ],
+      "tags": [
+        "happy_path",
+        "authoritative_tariff",
+        "multiple_charges",
+        "source_date"
+      ],
+      "synthetic_particulars": true,
+      "steps": [
+        {
+          "kind": "user_message",
+          "text": "Estimate port dues, berth hire, inward and outward pilotage, and tug hire at Jawaharlal Nehru Port Authority for a foreign-going container ship calling on 20 October 2026. MV Larch Beacon is fictional: 22,400 GT, 12,100 NT, 185 m LOA and 8.2 m draft. She is at the JNPA-operated shallow-water berth from 06:00 on the 20th to 18:00 on the 21st, India time. Two tugs for one hour inward and two for one hour outward; no shifting, anchorage or special services. Please itemise the charges and show the source dates."
+        }
+      ],
+      "expected": {
+        "evaluation_dimensions": [
+          "request_execution",
+          "user_task_completion",
+          "numerical_correctness",
+          "rule_and_source_correctness",
+          "clarification_quality",
+          "state_and_recovery",
+          "unsupported_claims"
+        ],
+        "evidence_required": [
+          "Retain exact user messages, UI actions, responses, cited source content, candidate revision/configuration, public model label, timestamps and observed final UI state."
+        ],
+        "safe_incomplete": "If a genuinely necessary input or authoritative reference is unavailable, identify the precise gap and the next useful step. Record safe clarification/partial completion separately; do not count it as successful task completion.",
+        "must_not": [
+          "Invent a tariff, citation, source authority, present-day applicability or unprovided vessel particulars.",
+          "Treat catalog membership as evidence that a usable tariff exists.",
+          "Call a transport/tool success a completed user task."
+        ],
+        "successful_completion": "Resolve the named berth and tariff scope, calculate each applicable requested charge with citations and a consistent total; explain any requested charge that is inapplicable. Ask only for an additional field demonstrably required by a cited rule.",
+        "independent_oracle": {
+          "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+          "scope": "JNPA-operated shallow-water berth; listed charges for stated foreign-going container vessel on 20 October 2026",
+          "required": [
+            "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+            "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+            "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports.",
+            "Confirm the berth description and service feasibility; do not silently substitute a private terminal tariff.",
+            "Determine whether tug-hire billing is per tug-hour, movement, vessel unit or another rule; the user supplied service usage, not a billing rule."
+          ],
+          "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+        }
+      }
+    },
+    {
+      "id": "D04",
+      "title": "A narrow request must stay narrow",
+      "catalog_entries": [
+        "Gateway Terminals India"
+      ],
+      "tags": [
+        "happy_path",
+        "authoritative_tariff",
+        "scope_control",
+        "natural_paraphrase"
+      ],
+      "synthetic_particulars": true,
+      "steps": [
+        {
+          "kind": "user_message",
+          "text": "What would the berth bill alone be at Gateway Terminals India for fictional MV Silver Tern, a foreign-going boxship of 28,600 GT and 210 m LOA, alongside for 14 hours starting 12 November 2026 at 08:00 India time? I don't need container-handling or marine-service charges."
+        }
+      ],
+      "expected": {
+        "evaluation_dimensions": [
+          "request_execution",
+          "user_task_completion",
+          "numerical_correctness",
+          "rule_and_source_correctness",
+          "clarification_quality",
+          "state_and_recovery",
+          "unsupported_claims"
+        ],
+        "evidence_required": [
+          "Retain exact user messages, UI actions, responses, cited source content, candidate revision/configuration, public model label, timestamps and observed final UI state."
+        ],
+        "safe_incomplete": "If a genuinely necessary input or authoritative reference is unavailable, identify the precise gap and the next useful step. Record safe clarification/partial completion separately; do not count it as successful task completion.",
+        "must_not": [
+          "Invent a tariff, citation, source authority, present-day applicability or unprovided vessel particulars.",
+          "Treat catalog membership as evidence that a usable tariff exists.",
+          "Call a transport/tool success a completed user task.",
+          "Add handling, port dues, pilotage or tug hire to the requested total.",
+          "Ask for container counts unless the actual berth-hire rule requires them."
+        ],
+        "successful_completion": "Answer berth hire only using an applicable independently verified source, or explain precisely which additional billing field or source is necessary.",
+        "independent_oracle": {
+          "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+          "scope": "Gateway Terminals India berth-hire scope and applicability on 12 November 2026",
+          "required": [
+            "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+            "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+            "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports."
+          ],
+          "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+        }
+      }
+    },
+    {
+      "id": "D05",
+      "title": "Explain an old tariff without asserting current applicability",
+      "catalog_entries": [
+        "ICTPL"
+      ],
+      "tags": [
+        "rule_question",
+        "source_date",
+        "uncertainty"
+      ],
+      "synthetic_particulars": true,
+      "steps": [
+        {
+          "kind": "user_message",
+          "text": "I have an ICTPL tariff sheet dated 2021. Does 'per day or part thereof' mean a 25-hour stay is charged as two days? Also, can I use that 2021 sheet for a call in October 2026?"
+        }
+      ],
+      "expected": {
+        "evaluation_dimensions": [
+          "request_execution",
+          "user_task_completion",
+          "numerical_correctness",
+          "rule_and_source_correctness",
+          "clarification_quality",
+          "state_and_recovery",
+          "unsupported_claims"
+        ],
+        "evidence_required": [
+          "Retain exact user messages, UI actions, responses, cited source content, candidate revision/configuration, public model label, timestamps and observed final UI state."
+        ],
+        "safe_incomplete": "If a genuinely necessary input or authoritative reference is unavailable, identify the precise gap and the next useful step. Record safe clarification/partial completion separately; do not count it as successful task completion.",
+        "must_not": [
+          "Invent a tariff, citation, source authority, present-day applicability or unprovided vessel particulars.",
+          "Treat catalog membership as evidence that a usable tariff exists.",
+          "Call a transport/tool success a completed user task."
+        ],
+        "successful_completion": "Explain the ordinary started-day interpretation conditionally, distinguish quotation interpretation from ICTPL's verified rule, and check or clearly flag the effective-date gap before applying 2021 rates to 2026.",
+        "independent_oracle": {
+          "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+          "scope": "Full ICTPL clause/context and historical-to-2026 amendments; no rate calculation requested",
+          "required": [
+            "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+            "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+            "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports.",
+            "A fragment alone may omit calendar-day definitions, minima, exceptions or a later amendment."
+          ],
+          "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+        },
+        "numerical_checks": [
+          {
+            "label": "conditional 24-hour interpretation",
+            "expected_blocks": 2,
+            "derivation": "If and only if 'day' is a consecutive 24-hour block, ceil(25/24) = 2."
+          }
+        ],
+        "monetary_expectations": "not requested"
+      }
+    },
+    {
+      "id": "D06",
+      "title": "Focused missing duration",
+      "catalog_entries": [
+        "BPCL Cargo Jetty"
+      ],
+      "tags": [
+        "missing_info",
+        "authoritative_tariff",
+        "prose_clarification"
+      ],
+      "synthetic_particulars": true,
+      "steps": [
+        {
+          "kind": "user_message",
+          "text": "Can you work out berth hire at BPCL Cargo Jetty for fictional MV Sand Heron? Foreign-going, 8,700 GT, 112 m LOA, carrying general cargo, arriving 2 November 2026 at 08:00 India time."
+        },
+        {
+          "kind": "user_message",
+          "text": "She sails at 20:00 on 3 November, also India time."
+        }
+      ],
+      "expected": {
+        "evaluation_dimensions": [
+          "request_execution",
+          "user_task_completion",
+          "numerical_correctness",
+          "rule_and_source_correctness",
+          "clarification_quality",
+          "state_and_recovery",
+          "unsupported_claims"
+        ],
+        "evidence_required": [
+          "Retain exact user messages, UI actions, responses, cited source content, candidate revision/configuration, public model label, timestamps and observed final UI state."
+        ],
+        "safe_incomplete": "If a genuinely necessary input or authoritative reference is unavailable, identify the precise gap and the next useful step. Record safe clarification/partial completion separately; do not count it as successful task completion.",
+        "must_not": [
+          "Invent a tariff, citation, source authority, present-day applicability or unprovided vessel particulars.",
+          "Treat catalog membership as evidence that a usable tariff exists.",
+          "Call a transport/tool success a completed user task."
+        ],
+        "successful_completion": "Recognise that duration/departure is initially missing. Ask a concise necessary question, retain supplied particulars, then use the 36-hour stay and applicable tariff. Any other question must be justified by the independent rule.",
+        "independent_oracle": {
+          "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+          "scope": "BPCL Cargo Jetty identity, service suitability and berth-hire rule on 2 November 2026",
+          "required": [
+            "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+            "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+            "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports."
+          ],
+          "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+        },
+        "numerical_checks": [
+          {
+            "label": "elapsed after clarification",
+            "expected_hours": 36,
+            "derivation": "2 Nov 08:00 to 3 Nov 20:00 = 24 + 12 h"
+          }
+        ],
+        "step_delivery": "Send second message only after the assistant asks for the missing time or a form exposes the corresponding field. If it asks for other necessary fields too, answer from a frozen reference fixture rather than inventing operational facts."
+      }
+    },
+    {
+      "id": "D07",
+      "title": "A rule question without an unnecessary estimate form",
+      "catalog_entries": [
+        "BPCL Liquid Cargo Jetty"
+      ],
+      "tags": [
+        "rule_question",
+        "minimum_charge",
+        "scope_control"
+      ],
+      "synthetic_particulars": true,
+      "steps": [
+        {
+          "kind": "user_message",
+          "text": "For BPCL Liquid Cargo Jetty, how does the minimum berth-hire charge interact with part of a day? I only want the rule and a link to the relevant clause, not a quotation for a vessel."
+        }
+      ],
+      "expected": {
+        "evaluation_dimensions": [
+          "request_execution",
+          "user_task_completion",
+          "numerical_correctness",
+          "rule_and_source_correctness",
+          "clarification_quality",
+          "state_and_recovery",
+          "unsupported_claims"
+        ],
+        "evidence_required": [
+          "Retain exact user messages, UI actions, responses, cited source content, candidate revision/configuration, public model label, timestamps and observed final UI state."
+        ],
+        "safe_incomplete": "If a genuinely necessary input or authoritative reference is unavailable, identify the precise gap and the next useful step. Record safe clarification/partial completion separately; do not count it as successful task completion.",
+        "must_not": [
+          "Invent a tariff, citation, source authority, present-day applicability or unprovided vessel particulars.",
+          "Treat catalog membership as evidence that a usable tariff exists.",
+          "Call a transport/tool success a completed user task.",
+          "Demand GT, IMO, arrival, departure and cargo merely to explain a general sourced rule."
+        ],
+        "successful_completion": "Identify and explain the applicable minimum and partial-day rule with source date and exact clause, or state the specific source gap. No vessel estimate form is required for a general rule explanation.",
+        "independent_oracle": {
+          "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+          "scope": "BPCL Liquid Cargo Jetty minimum and partial-day provisions",
+          "required": [
+            "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+            "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+            "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports.",
+            "Determine whether minimum applies per call, day, time block or something else, and how the minimum composes with time rounding."
+          ],
+          "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+        },
+        "monetary_expectations": "not requested"
+      }
+    },
+    {
+      "id": "D08",
+      "title": "Correct vessel size during a multi-charge estimate",
+      "catalog_entries": [
+        "JSW JNPT Liquid Terminal"
+      ],
+      "tags": [
+        "correction",
+        "multiple_charges",
+        "authoritative_tariff",
+        "follow_up"
+      ],
+      "synthetic_particulars": true,
+      "steps": [
+        {
+          "kind": "user_message",
+          "text": "Please estimate berth hire and port dues for fictional MV Amber Shoal at JSW JNPT Liquid Terminal, arriving 4 November 2026 at 10:00 and leaving at 16:00 on the 5th, India time. Foreign-going chemical tanker, 18,000 GT, 10,200 NT, 166 m LOA, 7.8 m draft, discharging 9,500 tonnes. No shifting or anchorage."
+        },
+        {
+          "kind": "user_message",
+          "text": "I gave you the wrong GT. It is 16,800, not 18,000. Everything else stays the same. Please revise both charges."
+        }
+      ],
+      "expected": {
+        "evaluation_dimensions": [
+          "request_execution",
+          "user_task_completion",
+          "numerical_correctness",
+          "rule_and_source_correctness",
+          "clarification_quality",
+          "state_and_recovery",
+          "unsupported_claims"
+        ],
+        "evidence_required": [
+          "Retain exact user messages, UI actions, responses, cited source content, candidate revision/configuration, public model label, timestamps and observed final UI state."
+        ],
+        "safe_incomplete": "If a genuinely necessary input or authoritative reference is unavailable, identify the precise gap and the next useful step. Record safe clarification/partial completion separately; do not count it as successful task completion.",
+        "must_not": [
+          "Invent a tariff, citation, source authority, present-day applicability or unprovided vessel particulars.",
+          "Treat catalog membership as evidence that a usable tariff exists.",
+          "Call a transport/tool success a completed user task.",
+          "Keep a stale old-GT line item or silently change NT, cargo quantity, date or duration."
+        ],
+        "successful_completion": "Resolve which authority owns each requested charge, calculate them using the initial particulars, then recalculate only affected values with 16,800 GT while preserving all other inputs and stating what changed.",
+        "independent_oracle": {
+          "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+          "scope": "JSW JNPT Liquid Terminal berth hire plus applicable port-authority dues on 4 November 2026",
+          "required": [
+            "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+            "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+            "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports.",
+            "Calculate a frozen initial and corrected reference; do not assume every charge depends on GT or uses the same publisher."
+          ],
+          "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+        }
+      }
+    },
+    {
+      "id": "D09",
+      "title": "A concession claim needs the actual rule",
+      "catalog_entries": [
+        "Konkan LNG"
+      ],
+      "tags": [
+        "rule_question",
+        "concession",
+        "source_date"
+      ],
+      "synthetic_particulars": true,
+      "steps": [
+        {
+          "kind": "user_message",
+          "text": "Someone told me an LNG carrier gets a berth-hire concession at Konkan LNG when operations are delayed by the terminal. Is that actually in the tariff? Please explain the conditions and the evidence I would need to claim it."
+        }
+      ],
+      "expected": {
+        "evaluation_dimensions": [
+          "request_execution",
+          "user_task_completion",
+          "numerical_correctness",
+          "rule_and_source_correctness",
+          "clarification_quality",
+          "state_and_recovery",
+          "unsupported_claims"
+        ],
+        "evidence_required": [
+          "Retain exact user messages, UI actions, responses, cited source content, candidate revision/configuration, public model label, timestamps and observed final UI state."
+        ],
+        "safe_incomplete": "If a genuinely necessary input or authoritative reference is unavailable, identify the precise gap and the next useful step. Record safe clarification/partial completion separately; do not count it as successful task completion.",
+        "must_not": [
+          "Invent a tariff, citation, source authority, present-day applicability or unprovided vessel particulars.",
+          "Treat catalog membership as evidence that a usable tariff exists.",
+          "Call a transport/tool success a completed user task.",
+          "Invent a concession because the terminal name contains LNG.",
+          "Treat an absent retrieved excerpt as proof that no concession exists anywhere."
+        ],
+        "successful_completion": "Confirm or reject the claimed concession only from a verified applicable clause; explain exact trigger, eligible delays, documentation and limits if present. If unsupported, explain that the claim remains unverified.",
+        "independent_oracle": {
+          "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+          "scope": "Konkan LNG delay/concession provisions and applicable amendment history",
+          "required": [
+            "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+            "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+            "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports."
+          ],
+          "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+        },
+        "monetary_expectations": "not requested"
+      }
+    },
+    {
+      "id": "D10",
+      "title": "Compare terminal options on the same basis",
+      "catalog_entries": [
+        "Nhava Sheva Freeport Terminal",
+        "Nhava Sheva Gateway Terminal"
+      ],
+      "tags": [
+        "comparison",
+        "authoritative_tariff",
+        "multiple_charges"
+      ],
+      "synthetic_particulars": true,
+      "steps": [
+        {
+          "kind": "user_message",
+          "text": "Compare berth hire and terminal handling for a call at Nhava Sheva Freeport Terminal versus Nhava Sheva Gateway Terminal on 14 November 2026. Fictional foreign-going MV Maple Arc: 31,200 GT, 221 m LOA, 18 hours alongside, discharging 120 laden 20-foot dry containers and loading 80 empty 20-foot dry containers. No reefers, hazardous boxes or special handling. Use the same assumptions and tell me which is cheaper for those two charges."
+        }
+      ],
+      "expected": {
+        "evaluation_dimensions": [
+          "request_execution",
+          "user_task_completion",
+          "numerical_correctness",
+          "rule_and_source_correctness",
+          "clarification_quality",
+          "state_and_recovery",
+          "unsupported_claims"
+        ],
+        "evidence_required": [
+          "Retain exact user messages, UI actions, responses, cited source content, candidate revision/configuration, public model label, timestamps and observed final UI state."
+        ],
+        "safe_incomplete": "If a genuinely necessary input or authoritative reference is unavailable, identify the precise gap and the next useful step. Record safe clarification/partial completion separately; do not count it as successful task completion.",
+        "must_not": [
+          "Invent a tariff, citation, source authority, present-day applicability or unprovided vessel particulars.",
+          "Treat catalog membership as evidence that a usable tariff exists.",
+          "Call a transport/tool success a completed user task.",
+          "Declare a cheaper total when one terminal's requested charge or current applicability remains unresolved."
+        ],
+        "successful_completion": "Resolve independently verified tariffs for both terminals and compare equal charge scopes, time basis and currency/tax basis. Show per-terminal components and difference; ask only for genuinely necessary unstated dimensions.",
+        "independent_oracle": {
+          "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+          "scope": "Both named terminals; berth hire and specified laden import/empty export handling on 14 November 2026",
+          "required": [
+            "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+            "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+            "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports.",
+            "Check whether the supplied movement categories and units suffice; determine treatment of laden imports versus empty exports and any mandatory minima.",
+            "Do not collapse the two terminals into one tariff or assume identical tax or FX rules."
+          ],
+          "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+        }
+      }
+    },
+    {
+      "id": "D11",
+      "title": "Supplied quotation with per-call minimum and cap",
+      "catalog_entries": [
+        "Nhava Sheva International Container Terminal"
+      ],
+      "tags": [
+        "happy_path",
+        "supplied_quote",
+        "min_cap",
+        "exact_arithmetic"
+      ],
+      "synthetic_particulars": true,
+      "steps": [
+        {
+          "kind": "user_message",
+          "text": "Check a quote labelled Nhava Sheva International Container Terminal for fictional MV Glass Petrel. It says berth hire is USD 0.04 per GT for each started 12-hour block, with a USD 1,100 minimum per call and a USD 1,800 cap per call. We are 9,000 GT and alongside for 25 hours. No other charges or tax. What is payable?"
+        }
+      ],
+      "expected": {
+        "evaluation_dimensions": [
+          "request_execution",
+          "user_task_completion",
+          "numerical_correctness",
+          "rule_and_source_correctness",
+          "clarification_quality",
+          "state_and_recovery",
+          "unsupported_claims"
+        ],
+        "evidence_required": [
+          "Retain exact user messages, UI actions, responses, cited source content, candidate revision/configuration, public model label, timestamps and observed final UI state."
+        ],
+        "safe_incomplete": "None expected: quotation rules and inputs are complete.",
+        "must_not": [
+          "Invent a tariff, citation, source authority, present-day applicability or unprovided vessel particulars.",
+          "Treat catalog membership as evidence that a usable tariff exists.",
+          "Call a transport/tool success a completed user task."
+        ],
+        "successful_completion": "Apply the explicitly supplied rule in its stated order: calculate raw charge, then per-call minimum and cap. Do not substitute an actual terminal tariff.",
+        "numerical_checks": [
+          {
+            "label": "billed blocks",
+            "expected": 3,
+            "derivation": "ceil(25/12) = 3"
+          },
+          {
+            "label": "raw charge",
+            "expected": "1080.00",
+            "currency": "USD",
+            "derivation": "9000 \u00d7 0.04 \u00d7 3",
+            "basis": "synthetic user-supplied quotation; not an actual port tariff",
+            "tolerance": "exact to stated rounding rule"
+          },
+          {
+            "label": "payable",
+            "expected": "1100.00",
+            "currency": "USD",
+            "derivation": "min(max(1080,1100),1800)",
+            "basis": "synthetic user-supplied quotation; not an actual port tariff",
+            "tolerance": "exact to stated rounding rule"
+          }
+        ]
+      }
+    },
+    {
+      "id": "D12",
+      "title": "Structured clarification and prose must agree",
+      "catalog_entries": [
+        "Mumbai Container Terminal"
+      ],
+      "tags": [
+        "missing_info",
+        "structured_form",
+        "prose_clarification",
+        "authoritative_tariff"
+      ],
+      "synthetic_particulars": true,
+      "steps": [
+        {
+          "kind": "user_message",
+          "text": "I need berth hire at Mumbai Container Terminal for fictional MV Pine Comet, a foreign-going container vessel of 19,200 GT and 178 m LOA."
+        },
+        {
+          "kind": "ui_action",
+          "action": "answer_clarification",
+          "detail": "If a supported form is offered, enter arrival 8 November 2026 07:30 and departure 9 November 2026 19:30, both Asia/Kolkata, using actual field labels. If prose is requested instead, send the equivalent prose message. Run an independent paired session using prose for the same values."
+        },
+        {
+          "kind": "user_message",
+          "text": "No, use 10 November at 01:30 for departure. The arrival stays as it was."
+        }
+      ],
+      "expected": {
+        "evaluation_dimensions": [
+          "request_execution",
+          "user_task_completion",
+          "numerical_correctness",
+          "rule_and_source_correctness",
+          "clarification_quality",
+          "state_and_recovery",
+          "unsupported_claims"
+        ],
+        "evidence_required": [
+          "Retain exact user messages, UI actions, responses, cited source content, candidate revision/configuration, public model label, timestamps and observed final UI state."
+        ],
+        "safe_incomplete": "If a genuinely necessary input or authoritative reference is unavailable, identify the precise gap and the next useful step. Record safe clarification/partial completion separately; do not count it as successful task completion.",
+        "must_not": [
+          "Invent a tariff, citation, source authority, present-day applicability or unprovided vessel particulars.",
+          "Treat catalog membership as evidence that a usable tariff exists.",
+          "Call a transport/tool success a completed user task.",
+          "Treat a successfully submitted form alone as a completed estimate.",
+          "Reuse the original 36-hour duration after the correction."
+        ],
+        "successful_completion": "Collect missing call timing without discarding supplied vessel details. Form and prose variants produce equivalent semantic inputs; then revise duration from 36 to 42 hours and recompute any affected charge.",
+        "independent_oracle": {
+          "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+          "scope": "Mumbai Container Terminal berth-hire rule for stated call",
+          "required": [
+            "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+            "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+            "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports."
+          ],
+          "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+        },
+        "numerical_checks": [
+          {
+            "label": "original duration",
+            "expected_hours": 36,
+            "derivation": "8 Nov 07:30 to 9 Nov 19:30"
+          },
+          {
+            "label": "corrected duration",
+            "expected_hours": 42,
+            "derivation": "8 Nov 07:30 to 10 Nov 01:30"
+          }
+        ],
+        "fixture": "Use the product's existing form capability if exposed. A UI form action is not a user chat message; retain the submission separately."
+      }
+    },
+    {
+      "id": "D13",
+      "title": "Explain cruise versus vessel-based charges",
+      "catalog_entries": [
+        "Mumbai Cruise Terminal"
+      ],
+      "tags": [
+        "rule_question",
+        "multiple_charge_scope",
+        "natural_paraphrase"
+      ],
+      "synthetic_particulars": true,
+      "steps": [
+        {
+          "kind": "user_message",
+          "text": "At Mumbai Cruise Terminal, which charges are based on the ship and which are based on passengers? I am planning a fictional call but don't have passenger numbers yet. Please explain the tariff structure rather than guessing a total."
+        }
+      ],
+      "expected": {
+        "evaluation_dimensions": [
+          "request_execution",
+          "user_task_completion",
+          "numerical_correctness",
+          "rule_and_source_correctness",
+          "clarification_quality",
+          "state_and_recovery",
+          "unsupported_claims"
+        ],
+        "evidence_required": [
+          "Retain exact user messages, UI actions, responses, cited source content, candidate revision/configuration, public model label, timestamps and observed final UI state."
+        ],
+        "safe_incomplete": "If a genuinely necessary input or authoritative reference is unavailable, identify the precise gap and the next useful step. Record safe clarification/partial completion separately; do not count it as successful task completion.",
+        "must_not": [
+          "Invent a tariff, citation, source authority, present-day applicability or unprovided vessel particulars.",
+          "Treat catalog membership as evidence that a usable tariff exists.",
+          "Call a transport/tool success a completed user task.",
+          "Invent passenger counts or a complete call total.",
+          "Refuse to explain the known tariff structure solely because passenger numbers are missing."
+        ],
+        "successful_completion": "Explain the verified charge structure and source dates, keeping ship-based and passenger-based bases distinct. Missing passenger counts do not prevent a general rule answer.",
+        "independent_oracle": {
+          "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+          "scope": "Mumbai Cruise Terminal applicable vessel-based and passenger-based charge structure",
+          "required": [
+            "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+            "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+            "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports."
+          ],
+          "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+        },
+        "monetary_expectations": "not requested"
+      }
+    },
+    {
+      "id": "D14",
+      "title": "Natural terminal alias with a targeted clarification",
+      "catalog_entries": [
+        "Ranpar/Finolex"
+      ],
+      "tags": [
+        "natural_paraphrase",
+        "missing_info",
+        "authoritative_tariff"
+      ],
+      "synthetic_particulars": true,
+      "steps": [
+        {
+          "kind": "user_message",
+          "text": "How much berth hire for my fictional 7,200-GT coastal tanker at the Finolex jetty in Ranpar? We will be there for 19 hours from 6 December 2026 at 09:00 India time."
+        }
+      ],
+      "expected": {
+        "evaluation_dimensions": [
+          "request_execution",
+          "user_task_completion",
+          "numerical_correctness",
+          "rule_and_source_correctness",
+          "clarification_quality",
+          "state_and_recovery",
+          "unsupported_claims"
+        ],
+        "evidence_required": [
+          "Retain exact user messages, UI actions, responses, cited source content, candidate revision/configuration, public model label, timestamps and observed final UI state."
+        ],
+        "safe_incomplete": "If a genuinely necessary input or authoritative reference is unavailable, identify the precise gap and the next useful step. Record safe clarification/partial completion separately; do not count it as successful task completion.",
+        "must_not": [
+          "Invent a tariff, citation, source authority, present-day applicability or unprovided vessel particulars.",
+          "Treat catalog membership as evidence that a usable tariff exists.",
+          "Call a transport/tool success a completed user task."
+        ],
+        "successful_completion": "Resolve the user's alias to the correct facility without silently changing port or terminal; calculate if source and required details suffice, otherwise ask a small targeted question supported by the actual rule.",
+        "independent_oracle": {
+          "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+          "scope": "Ranpar/Finolex facility identity and coastal-tanker berth-hire tariff on 6 December 2026",
+          "required": [
+            "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+            "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+            "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports."
+          ],
+          "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+        }
+      }
+    },
+    {
+      "id": "D15",
+      "title": "Current-rate uncertainty at a catalogued port",
+      "catalog_entries": [
+        "Redi"
+      ],
+      "tags": [
+        "source_date",
+        "uncertainty",
+        "authoritative_tariff",
+        "happy_path_when_sourced"
+      ],
+      "synthetic_particulars": true,
+      "steps": [
+        {
+          "kind": "user_message",
+          "text": "What berth-hire rate actually applies at Redi on 25 October 2026 for a foreign-going bulk carrier? Please give the effective date and the source. I don't want a rate from an old schedule presented as current."
+        }
+      ],
+      "expected": {
+        "evaluation_dimensions": [
+          "request_execution",
+          "user_task_completion",
+          "numerical_correctness",
+          "rule_and_source_correctness",
+          "clarification_quality",
+          "state_and_recovery",
+          "unsupported_claims"
+        ],
+        "evidence_required": [
+          "Retain exact user messages, UI actions, responses, cited source content, candidate revision/configuration, public model label, timestamps and observed final UI state."
+        ],
+        "safe_incomplete": "An explicitly unresolved effective-date/source result can pass honesty and source-calibration checks while failing to complete the requested current-rate lookup.",
+        "must_not": [
+          "Invent a tariff, citation, source authority, present-day applicability or unprovided vessel particulars.",
+          "Treat catalog membership as evidence that a usable tariff exists.",
+          "Call a transport/tool success a completed user task."
+        ],
+        "successful_completion": "Provide the independently verified applicable rate and date if available; otherwise explain precisely what can and cannot be established, and request or identify the authoritative schedule needed. Being in the catalog does not establish rate availability.",
+        "independent_oracle": {
+          "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+          "scope": "Redi berth-hire rate applicability as of 25 October 2026",
+          "required": [
+            "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+            "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+            "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports.",
+            "Source freshness and amendment history must be checked independently of the application corpus."
+          ],
+          "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+        }
+      }
+    },
+    {
+      "id": "D16",
+      "title": "Vessel lookup with a manual fallback",
+      "catalog_entries": [
+        "Mumbai"
+      ],
+      "tags": [
+        "vessel_lookup",
+        "manual_fallback",
+        "authoritative_tariff"
+      ],
+      "synthetic_particulars": true,
+      "steps": [
+        {
+          "kind": "user_message",
+          "text": "Can you find the particulars for MV Cobalt Wren and estimate berth hire in Mumbai for a 20-hour foreign-going dry-cargo call starting 3 November 2026? This is a fictional planning vessel, so I may need to enter the particulars myself."
+        },
+        {
+          "kind": "user_message",
+          "text": "Use these manual particulars: 14,600 GT, 8,050 NT, 152 m LOA and 7.1 m draft. Use 09:00 India time as arrival."
+        }
+      ],
+      "expected": {
+        "evaluation_dimensions": [
+          "request_execution",
+          "user_task_completion",
+          "numerical_correctness",
+          "rule_and_source_correctness",
+          "clarification_quality",
+          "state_and_recovery",
+          "unsupported_claims"
+        ],
+        "evidence_required": [
+          "Retain exact user messages, UI actions, responses, cited source content, candidate revision/configuration, public model label, timestamps and observed final UI state."
+        ],
+        "safe_incomplete": "If a genuinely necessary input or authoritative reference is unavailable, identify the precise gap and the next useful step. Record safe clarification/partial completion separately; do not count it as successful task completion.",
+        "must_not": [
+          "Invent a tariff, citation, source authority, present-day applicability or unprovided vessel particulars.",
+          "Treat catalog membership as evidence that a usable tariff exists.",
+          "Call a transport/tool success a completed user task.",
+          "Claim that the manually supplied particulars were verified by a vessel provider.",
+          "Replace synthetic particulars with a similarly named real vessel without confirmation."
+        ],
+        "successful_completion": "Do not invent a live identity for a fictional vessel. Offer manual entry if lookup is unavailable or has no reliable match, retain the manually supplied source label and continue the estimate using verified tariff rules.",
+        "independent_oracle": {
+          "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+          "scope": "Mumbai berth-hire rule for manually supplied vessel particulars",
+          "required": [
+            "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+            "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+            "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports."
+          ],
+          "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+        },
+        "fixture": "This synthetic case tests no-match/unavailable lookup fallback. A successful live lookup requires a separately authorized, independently checked non-synthetic provider fixture and is not certified by this pack."
+      }
+    },
+    {
+      "id": "D17",
+      "title": "Explicit durable memory and per-chat notes",
+      "catalog_entries": [],
+      "tags": [
+        "remember",
+        "recall",
+        "per_chat_notes",
+        "saved_conversations"
+      ],
+      "synthetic_particulars": true,
+      "steps": [
+        {
+          "kind": "user_message",
+          "text": "Remember that my fictional planning vessel MV Brass Gull is 10,800 GT and 141 m LOA. Also put a note in this chat: the berth dates are provisional."
+        },
+        {
+          "kind": "ui_action",
+          "action": "new_chat",
+          "detail": "Create another chat under the same synthetic test account."
+        },
+        {
+          "kind": "user_message",
+          "text": "What particulars did I ask you to remember for MV Brass Gull?"
+        },
+        {
+          "kind": "ui_action",
+          "action": "reopen_original_chat",
+          "detail": "Return to the original chat using the saved-conversation UI."
+        },
+        {
+          "kind": "user_message",
+          "text": "Show me this chat's note about the berth dates."
+        }
+      ],
+      "expected": {
+        "evaluation_dimensions": [
+          "request_execution",
+          "user_task_completion",
+          "numerical_correctness",
+          "rule_and_source_correctness",
+          "clarification_quality",
+          "state_and_recovery",
+          "unsupported_claims"
+        ],
+        "evidence_required": [
+          "Retain exact user messages, UI actions, responses, cited source content, candidate revision/configuration, public model label, timestamps and observed final UI state."
+        ],
+        "safe_incomplete": "If storage fails, accurately report that the write was not confirmed and expose a usable recovery path. This is safe execution handling, not successful persistence.",
+        "must_not": [
+          "Invent a tariff, citation, source authority, present-day applicability or unprovided vessel particulars.",
+          "Treat catalog membership as evidence that a usable tariff exists.",
+          "Call a transport/tool success a completed user task.",
+          "Claim successful memory/note persistence without write confirmation.",
+          "Present a per-chat note as a globally remembered fact unless the user separately requested that."
+        ],
+        "successful_completion": "Persist the explicitly requested vessel memory, recall the exact facts in a separate chat of the same account, and retain the note with its originating chat.",
+        "fixture": "Use a fresh isolated test account with no prior memory and a unique synthetic vessel name. Capture confirmed write/read state through an independently authorized state view where available."
+      }
+    },
+    {
+      "id": "D18",
+      "title": "Forget must be checked without old transcript cues",
+      "catalog_entries": [],
+      "tags": [
+        "forget",
+        "recall",
+        "memory"
+      ],
+      "synthetic_particulars": true,
+      "steps": [
+        {
+          "kind": "user_message",
+          "text": "Remember that my fictional ship MV Opal Darter is 6,400 GT."
+        },
+        {
+          "kind": "ui_action",
+          "action": "new_chat",
+          "detail": "Create a second chat in the same isolated account."
+        },
+        {
+          "kind": "user_message",
+          "text": "Please forget the GT I asked you to remember for MV Opal Darter."
+        },
+        {
+          "kind": "ui_action",
+          "action": "new_chat",
+          "detail": "Create a third chat so the original value is not present in the visible transcript."
+        },
+        {
+          "kind": "user_message",
+          "text": "Do you have any saved GT for MV Opal Darter?"
+        }
+      ],
+      "expected": {
+        "evaluation_dimensions": [
+          "request_execution",
+          "user_task_completion",
+          "numerical_correctness",
+          "rule_and_source_correctness",
+          "clarification_quality",
+          "state_and_recovery",
+          "unsupported_claims"
+        ],
+        "evidence_required": [
+          "Retain exact user messages, UI actions, responses, cited source content, candidate revision/configuration, public model label, timestamps and observed final UI state."
+        ],
+        "safe_incomplete": "If deletion cannot be completed, report that it remains unconfirmed and offer the actual recovery action. Do not score this as successful forgetting.",
+        "must_not": [
+          "Invent a tariff, citation, source authority, present-day applicability or unprovided vessel particulars.",
+          "Treat catalog membership as evidence that a usable tariff exists.",
+          "Call a transport/tool success a completed user task.",
+          "Promise to erase information already sent to an external model provider or remove every historical mention.",
+          "Use inability to erase old transcript text as a reason to leave the durable memory undeleted."
+        ],
+        "successful_completion": "A confirmed forget removes the targeted durable fact; a fresh chat reports no saved GT. Keep untargeted memories intact and state failures truthfully.",
+        "fixture": "Seed a separate untargeted fact in this isolated account for preservation checking. The evaluation record must show actual deletion confirmation or its explicit failure."
+      }
+    },
+    {
+      "id": "D19",
+      "title": "Saved conversation and both public model choices",
+      "catalog_entries": [],
+      "tags": [
+        "saved_conversations",
+        "model_choices",
+        "happy_path",
+        "exact_arithmetic"
+      ],
+      "synthetic_particulars": true,
+      "steps": [
+        {
+          "kind": "ui_action",
+          "action": "select_model",
+          "detail": "Inspect the two public model labels in the actual UI; choose the first. Record its visible label without assuming an internal provider/model ID."
+        },
+        {
+          "kind": "user_message",
+          "text": "For a fictional vessel quote, add USD 825 berth hire, USD 390 pilotage and USD 65 water supply. No tax. Please keep the line items."
+        },
+        {
+          "kind": "ui_action",
+          "action": "new_chat",
+          "detail": "Create another chat, then reopen this conversation from saved history."
+        },
+        {
+          "kind": "ui_action",
+          "action": "select_model",
+          "detail": "Choose the second public model using its visible UI label."
+        },
+        {
+          "kind": "user_message",
+          "text": "The water supply is now USD 80. Please update the total and keep the other two charges."
+        }
+      ],
+      "expected": {
+        "evaluation_dimensions": [
+          "request_execution",
+          "user_task_completion",
+          "numerical_correctness",
+          "rule_and_source_correctness",
+          "clarification_quality",
+          "state_and_recovery",
+          "unsupported_claims"
+        ],
+        "evidence_required": [
+          "Retain exact user messages, UI actions, responses, cited source content, candidate revision/configuration, public model label, timestamps and observed final UI state."
+        ],
+        "safe_incomplete": "A model-specific provider failure must be surfaced accurately; a UI selection change alone does not demonstrate execution by that model.",
+        "must_not": [
+          "Invent a tariff, citation, source authority, present-day applicability or unprovided vessel particulars.",
+          "Treat catalog membership as evidence that a usable tariff exists.",
+          "Call a transport/tool success a completed user task."
+        ],
+        "successful_completion": "Both public choices are usable; saved conversation retains line items and context across navigation, and the follow-up under the other model updates only water supply.",
+        "numerical_checks": [
+          {
+            "label": "initial total",
+            "expected": "1280.00",
+            "currency": "USD",
+            "derivation": "825 + 390 + 65",
+            "basis": "synthetic user-supplied quotation; not an actual port tariff",
+            "tolerance": "exact to stated rounding rule"
+          },
+          {
+            "label": "corrected total",
+            "expected": "1295.00",
+            "currency": "USD",
+            "derivation": "825 + 390 + 80",
+            "basis": "synthetic user-supplied quotation; not an actual port tariff",
+            "tolerance": "exact to stated rounding rule"
+          }
+        ],
+        "fixture": "Run the sequence in both model orders. Provider execution is NOT RUN by this author; downstream authorized live testing must identify the model that actually handled each run."
+      }
+    },
+    {
+      "id": "D20",
+      "title": "Stop a real in-flight response",
+      "catalog_entries": [
+        "Mumbai",
+        "Jawaharlal Nehru Port Authority"
+      ],
+      "tags": [
+        "stop",
+        "cancellation",
+        "saved_conversations"
+      ],
+      "synthetic_particulars": true,
+      "steps": [
+        {
+          "kind": "user_message",
+          "text": "Compare the tariff structure for berth hire, port dues, pilotage and tug hire in Mumbai and at Jawaharlal Nehru Port Authority for a fictional foreign-going cargo vessel. Explain the source dates and what details would be needed before making a quotation."
+        },
+        {
+          "kind": "ui_action",
+          "action": "stop",
+          "detail": "As soon as a genuine run is visibly active, press the existing Stop control. Do not send the word 'Stop' as a chat message. Record the click and request/run identifiers."
+        },
+        {
+          "kind": "ui_action",
+          "action": "reopen_chat",
+          "detail": "Navigate away and reopen the same saved chat after the run reaches its final state."
+        }
+      ],
+      "expected": {
+        "evaluation_dimensions": [
+          "request_execution",
+          "user_task_completion",
+          "numerical_correctness",
+          "rule_and_source_correctness",
+          "clarification_quality",
+          "state_and_recovery",
+          "unsupported_claims"
+        ],
+        "evidence_required": [
+          "Retain exact user messages, UI actions, responses, cited source content, candidate revision/configuration, public model label, timestamps and observed final UI state."
+        ],
+        "safe_incomplete": "User-cancelled partial work is the expected terminal outcome here; score cancellation behaviour separately from completing the original comparison.",
+        "must_not": [
+          "Invent a tariff, citation, source authority, present-day applicability or unprovided vessel particulars.",
+          "Treat catalog membership as evidence that a usable tariff exists.",
+          "Call a transport/tool success a completed user task.",
+          "Claim provider billing or processing has certainly stopped merely because the browser stopped receiving output.",
+          "Automatically start a replacement paid run without a new user action."
+        ],
+        "successful_completion": "Stop transitions the run out of active generation, preserves a coherent partial/cancelled state, and reopening does not revive the cancelled response or display a fabricated complete estimate.",
+        "fixture": "Requires an authorized real in-flight run and cancellation telemetry. A mock stream verifies UI mechanics only. A run that completes before the click makes the cancellation assertion NOT_EXERCISED, not passed.",
+        "timing_oracle": "Before execution, freeze the observable cancellation grace window and terminal-state contract from the product requirement/operational limit, not from this candidate's measured outcome."
+      }
+    },
+    {
+      "id": "D21",
+      "title": "Recover a failed answer, then delete the saved chat",
+      "catalog_entries": [],
+      "tags": [
+        "recovery",
+        "deletion",
+        "saved_conversations",
+        "exact_arithmetic"
+      ],
+      "synthetic_particulars": true,
+      "steps": [
+        {
+          "kind": "user_message",
+          "text": "Please total these fictional quote items: INR 1,250, INR 2,400 and INR 350. There is no tax."
+        },
+        {
+          "kind": "environment_action",
+          "action": "transient_failure",
+          "detail": "In an isolated non-production fixture, interrupt the active response transport once without altering the prompt or expected arithmetic. Record whether the server completed the run."
+        },
+        {
+          "kind": "ui_action",
+          "action": "recover",
+          "detail": "Use the actual visible recovery/retry action after restoring connectivity; do not synthesize a chat message for a UI action."
+        },
+        {
+          "kind": "ui_action",
+          "action": "delete_chat",
+          "detail": "After recovery finishes, delete this conversation through the UI and complete any actual confirmation dialog."
+        },
+        {
+          "kind": "ui_action",
+          "action": "reload_history",
+          "detail": "Reload the app and inspect saved history."
+        }
+      ],
+      "expected": {
+        "evaluation_dimensions": [
+          "request_execution",
+          "user_task_completion",
+          "numerical_correctness",
+          "rule_and_source_correctness",
+          "clarification_quality",
+          "state_and_recovery",
+          "unsupported_claims"
+        ],
+        "evidence_required": [
+          "Retain exact user messages, UI actions, responses, cited source content, candidate revision/configuration, public model label, timestamps and observed final UI state."
+        ],
+        "safe_incomplete": "If retry or delete fails, accurate surfaced failure is an execution-handling result, not completed recovery/deletion.",
+        "must_not": [
+          "Invent a tariff, citation, source authority, present-day applicability or unprovided vessel particulars.",
+          "Treat catalog membership as evidence that a usable tariff exists.",
+          "Call a transport/tool success a completed user task.",
+          "Pretend the answer completed during a transport error without reconciling the saved state.",
+          "Delete another conversation or account memory as an unintended side effect."
+        ],
+        "successful_completion": "Show an honest recoverable state and recover the user's calculation without duplicate visible messages or contradictory answers. A confirmed deletion removes the conversation from subsequent history; a failed delete remains visible with an actionable failure.",
+        "numerical_checks": [
+          {
+            "label": "recovered total",
+            "expected": "4000.00",
+            "currency": "INR",
+            "derivation": "1250 + 2400 + 350",
+            "basis": "synthetic user-supplied quotation; not an actual port tariff",
+            "tolerance": "exact to stated rounding rule"
+          }
+        ],
+        "fixture": "Freeze the failure point and whether the original server run committed. Verify durable state independently if available; browser disappearance alone proves only UI removal."
+      }
+    },
+    {
+      "id": "D22",
+      "title": "Invalid particulars need focused repair",
+      "catalog_entries": [
+        "Mumbai"
+      ],
+      "tags": [
+        "invalid_input",
+        "correction",
+        "missing_info"
+      ],
+      "synthetic_particulars": true,
+      "steps": [
+        {
+          "kind": "user_message",
+          "text": "Work out Mumbai berth hire for my fictional vessel: minus 2,400 GT, arriving 12 November 2026 at 18:00 and leaving at 06:00 the same day, both India time."
+        },
+        {
+          "kind": "user_message",
+          "text": "Sorry: 2,400 GT, and departure is at 06:00 on 13 November. Foreign-going general cargo."
+        }
+      ],
+      "expected": {
+        "evaluation_dimensions": [
+          "request_execution",
+          "user_task_completion",
+          "numerical_correctness",
+          "rule_and_source_correctness",
+          "clarification_quality",
+          "state_and_recovery",
+          "unsupported_claims"
+        ],
+        "evidence_required": [
+          "Retain exact user messages, UI actions, responses, cited source content, candidate revision/configuration, public model label, timestamps and observed final UI state."
+        ],
+        "safe_incomplete": "If a genuinely necessary input or authoritative reference is unavailable, identify the precise gap and the next useful step. Record safe clarification/partial completion separately; do not count it as successful task completion.",
+        "must_not": [
+          "Invent a tariff, citation, source authority, present-day applicability or unprovided vessel particulars.",
+          "Treat catalog membership as evidence that a usable tariff exists.",
+          "Call a transport/tool success a completed user task.",
+          "Produce a negative fee or silently 'repair' the original GT/time.",
+          "Continue applying invalid initial inputs after correction."
+        ],
+        "successful_completion": "Identify nonpositive GT and a departure earlier than arrival without silently taking absolute values or changing dates. After correction, retain 2,400 GT and a 12-hour stay, then calculate or request only actual remaining tariff inputs.",
+        "independent_oracle": {
+          "status": "UNRESOLVED_EXTERNAL_REFERENCE",
+          "scope": "Mumbai berth-hire rate and required fields for the corrected call",
+          "required": [
+            "Independently obtain the authoritative tariff and every applicable amendment; record publisher, URL or controlled document identity, version, effective dates, supersession status, page and exact clause.",
+            "Resolve port and terminal identity, applicability to the stated vessel/service/date, billing quantities, charge units, slabs, minima/maxima, time rounding, taxes, currency conversion and relevant exceptions.",
+            "Have an independent reviewer derive expected line items and total without reading candidate outputs, application source, prompts, tests or generated reports."
+          ],
+          "monetary_expected_values": "unresolved until independent authoritative reference is frozen"
+        },
+        "numerical_checks": [
+          {
+            "label": "corrected elapsed",
+            "expected_hours": 12,
+            "derivation": "12 Nov 18:00 to 13 Nov 06:00 = 12 h"
+          }
+        ]
+      }
+    },
+    {
+      "id": "D23",
+      "title": "No assumed upload feature or worldwide coverage",
+      "catalog_entries": [],
+      "tags": [
+        "capability_scope",
+        "document_input",
+        "outside_catalog"
+      ],
+      "synthetic_particulars": true,
+      "steps": [
+        {
+          "kind": "user_message",
+          "text": "I need a quote for a fictional call at Port Louis, Mauritius. Can I upload the terminal's PDF here? I can't see an attachment button."
+        },
+        {
+          "kind": "user_message",
+          "text": "I can paste the relevant bits instead. The quotation says one flat berth charge of USD 650 plus USD 90 per tug-hour. We need two tugs for three hours each. Nothing else or tax. Can you total that?"
+        }
+      ],
+      "expected": {
+        "evaluation_dimensions": [
+          "request_execution",
+          "user_task_completion",
+          "numerical_correctness",
+          "rule_and_source_correctness",
+          "clarification_quality",
+          "state_and_recovery",
+          "unsupported_claims"
+        ],
+        "evidence_required": [
+          "Retain exact user messages, UI actions, responses, cited source content, candidate revision/configuration, public model label, timestamps and observed final UI state."
+        ],
+        "safe_incomplete": "The initial official Port Louis quote may remain unavailable, but the later complete supplied quotation requires no authoritative local tariff and should be completed.",
+        "must_not": [
+          "Invent a tariff, citation, source authority, present-day applicability or unprovided vessel particulars.",
+          "Treat catalog membership as evidence that a usable tariff exists.",
+          "Call a transport/tool success a completed user task.",
+          "Claim a PDF was uploaded, parsed or indexed when no such action occurred.",
+          "Refuse all supplied arithmetic merely because the port is outside the catalog.",
+          "Describe user-pasted terms as an independently verified official tariff."
+        ],
+        "successful_completion": "Describe the product's actual input capabilities without promising automatic upload or global tariff coverage; offer a practical supported path such as pasted excerpts. Complete the later fully specified supplied-quote arithmetic even though the port is outside the existing catalog.",
+        "numerical_checks": [
+          {
+            "label": "tug hire",
+            "expected": "540.00",
+            "currency": "USD",
+            "derivation": "2 \u00d7 3 \u00d7 90",
+            "basis": "synthetic user-supplied quotation; not an actual port tariff",
+            "tolerance": "exact to stated rounding rule"
+          },
+          {
+            "label": "quoted total",
+            "expected": "1190.00",
+            "currency": "USD",
+            "derivation": "650 + 540",
+            "basis": "synthetic user-supplied quotation; not an actual port tariff",
+            "tolerance": "exact to stated rounding rule"
+          }
+        ]
+      }
+    },
+    {
+      "id": "D24",
+      "title": "Currency conversion and per-line rounding",
+      "catalog_entries": [],
+      "tags": [
+        "happy_path",
+        "supplied_quote",
+        "comparison",
+        "exact_arithmetic",
+        "rounding"
+      ],
+      "synthetic_particulars": true,
+      "steps": [
+        {
+          "kind": "user_message",
+          "text": "Two fictional berth quotes: A is USD 1,275.35 plus USD 84.65. B is INR 114,500 all-in. Compare them in INR at my fixed USD/INR rate of 83.25. No tax or other extras; round to paise only after adding each quotation."
+        }
+      ],
+      "expected": {
+        "evaluation_dimensions": [
+          "request_execution",
+          "user_task_completion",
+          "numerical_correctness",
+          "rule_and_source_correctness",
+          "clarification_quality",
+          "state_and_recovery",
+          "unsupported_claims"
+        ],
+        "evidence_required": [
+          "Retain exact user messages, UI actions, responses, cited source content, candidate revision/configuration, public model label, timestamps and observed final UI state."
+        ],
+        "safe_incomplete": "None expected: the requested conversion rate and rounding policy are supplied.",
+        "must_not": [
+          "Invent a tariff, citation, source authority, present-day applicability or unprovided vessel particulars.",
+          "Treat catalog membership as evidence that a usable tariff exists.",
+          "Call a transport/tool success a completed user task.",
+          "Fetch or substitute a live exchange rate.",
+          "Add USD and INR amounts without conversion."
+        ],
+        "successful_completion": "Use the user-supplied exchange rate, keep original currencies labelled, calculate both totals and identify the cheaper quotation with an exact difference.",
+        "numerical_checks": [
+          {
+            "label": "quote A USD total",
+            "expected": "1360.00",
+            "currency": "USD",
+            "derivation": "1275.35 + 84.65",
+            "basis": "synthetic user-supplied quotation; not an actual port tariff",
+            "tolerance": "exact to stated rounding rule"
+          },
+          {
+            "label": "quote A INR total",
+            "expected": "113220.00",
+            "currency": "INR",
+            "derivation": "1360 \u00d7 83.25",
+            "basis": "synthetic user-supplied quotation; not an actual port tariff",
+            "tolerance": "exact to stated rounding rule"
+          },
+          {
+            "label": "quote B INR total",
+            "expected": "114500.00",
+            "currency": "INR",
+            "derivation": "given",
+            "basis": "synthetic user-supplied quotation; not an actual port tariff",
+            "tolerance": "exact to stated rounding rule"
+          },
+          {
+            "label": "A cheaper by",
+            "expected": "1280.00",
+            "currency": "INR",
+            "derivation": "114500 - 113220",
+            "basis": "synthetic user-supplied quotation; not an actual port tariff",
+            "tolerance": "exact to stated rounding rule"
+          }
+        ]
+      }
+    }
+  ]
+}

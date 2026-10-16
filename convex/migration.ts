@@ -1,4 +1,4 @@
-import { ensureMemory, memoryEnabled, assertRunMemory, runMemoryCurrent, deleteConversationMemory } from "./lib/memoryLifecycle";
+import { ensureMemory, memoryEnabled, assertRunMemory, runMemoryCurrent, deleteConversationMemory, hashMemory } from "./lib/memoryLifecycle";
 import {
   createThread,
   extractText,
@@ -44,6 +44,7 @@ const MAX_FORM_FIELDS = 8;
 const MAX_VALUE_CHARS = 2_000;
 const RUN_LEASE_MS = 270_000;
 const MAX_ACTIVE_RUNS_PER_USER = 2;
+const initialIntentValidator=v.object({requestId:v.string(),question:v.string(),modelAlias:vModelAlias});
 
 const claimResultValidator = v.object({
   conversationId: v.id("migrationConversations"),
@@ -63,6 +64,7 @@ const conversationValidator = v.object({
   updatedAt: v.number(),
   activeRunId: v.union(v.id("migrationRuns"), v.null()),
   modelAlias: v.optional(vModelAlias),
+  initialIntent:v.optional(initialIntentValidator),
 });
 
 const formProjectionValidator = v.object({
@@ -122,7 +124,8 @@ function safeMessageParts(content: unknown): SafeMessagePart[] {
       (part.type === "tool-call" || part.type === "tool-result") &&
       typeof part.toolCallId === "string" &&
       typeof part.toolName === "string" &&
-      ALLOWED_MAIN_TOOLS.has(part.toolName)
+      ALLOWED_MAIN_TOOLS.has(part.toolName) &&
+      !PRIVATE_CONVERSATION_TOOLS.has(part.toolName)
     ) {
       const outputType = part.output && typeof part.output === "object"
         ? (part.output as { type?: unknown }).type
@@ -207,8 +210,14 @@ function canonicalJson(value: unknown): string {
   return JSON.stringify(value);
 }
 
+const PRIVATE_CONVERSATION_TOOLS = new Set(["interpret_request", "execute_conversation", "complete_auxiliary"]);
 const ALLOWED_MAIN_TOOLS = new Set([
+  ...PRIVATE_CONVERSATION_TOOLS,
   "consult_port_agent",
+  "calculate_charges",
+  "calculate_charge_batch",
+  "calculate_supplied_quote",
+  "calculate_elapsed_time",
   "search_vessels",
   "get_vessel",
   "ask_user_input",
@@ -374,13 +383,25 @@ async function consumeBudget(ctx: MutationCtx, ownerId: string, kind: "run" | "c
 }
 
 export const createConversation = mutation({
-  args: {}, returns: v.id("migrationConversations"),
-  handler: async ctx => {
+  args: {initialIntent:v.optional(initialIntentValidator)}, returns: v.id("migrationConversations"),
+  handler: async (ctx,args) => {
     const ownerId = await publicOwner(ctx);
     if (!ownerId) fail("UNAUTHENTICATED", "Sign in required.");
+    const initialIntent=args.initialIntent?{...args.initialIntent,question:requireBoundedText(args.initialIntent.question,"question",MAX_QUESTION_CHARS)}:undefined;
+    let creationPayloadHash:string|undefined;
+    if(initialIntent){
+      if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(initialIntent.requestId))fail("INVALID_INPUT","Invalid initial request ID.");
+      creationPayloadHash=await hashMemory({question:initialIntent.question,modelAlias:initialIntent.modelAlias});
+      const prior=await ctx.db.query("migrationConversations").withIndex("by_owner_and_creation_request",q=>q.eq("ownerId",ownerId).eq("creationRequestId",initialIntent.requestId)).unique();
+      if(prior){
+        if(prior.creationPayloadHash!==creationPayloadHash)fail("IDEMPOTENCY_CONFLICT","Request ID was already used for different input.");
+        return prior._id;
+      }
+    }
     await consumeBudget(ctx, ownerId, "create");
     const threadId = await createThread(ctx, components.agent, { userId: ownerId, title: "New conversation" });
-    return await ctx.db.insert("migrationConversations", { ownerId, title: "New conversation", agentThreadId: threadId, revision: 0, nextFence: 1, state: "idle", updatedAt: Date.now() });
+    return await ctx.db.insert("migrationConversations", { ownerId, title: "New conversation", agentThreadId: threadId, revision: 0, nextFence: 1, state: "idle", updatedAt: Date.now(),
+      ...(initialIntent?{initialIntent,creationRequestId:initialIntent.requestId,creationPayloadHash}:{}) });
   },
 });
 
@@ -483,6 +504,7 @@ export const getConversation = query({
         updatedAt: conversation.updatedAt,
         activeRunId: conversation.activeRunId ?? null,
         modelAlias: latestRun?.modelAlias ?? "model-1",
+        ...(conversation.revision===0&&conversation.initialIntent?{initialIntent:conversation.initialIntent}:{}),
       },
       forms: forms.map((form) => ({
         id: form._id,
@@ -590,6 +612,10 @@ export const claimQuestion = internalMutation({
       if (args.expectedRevision !== conversation.revision) {
         fail("REVISION_CONFLICT", "Conversation changed in another tab.");
       }
+      const intent=conversation.initialIntent;
+      if(intent&&(intent.requestId!==requestId||intent.question!==question||intent.modelAlias!==args.modelAlias)){
+        fail("INITIAL_INTENT_CONFLICT","Retry the saved question with its original request ID and model.");
+      }
       if (conversation.pendingFormId || conversation.state === "waiting") {
         fail("PENDING_FORM", "Resolve or cancel the pending form first.");
       }
@@ -654,6 +680,7 @@ export const claimQuestion = internalMutation({
       nextFence: fence + 1,
       state: "running",
       activeRunId: runId,
+      initialIntent: undefined,
       lastError: undefined,
       updatedAt: now,
     });

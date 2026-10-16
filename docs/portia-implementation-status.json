@@ -1,0 +1,374 @@
+{
+  "plan": "docs/superpowers/plans/2026-10-15-portia-shared-architecture.md",
+  "scope": "All 16 existing port/terminal entries and every existing feature",
+  "owner": "01a13ee6-d589-7a30-a69d-b53def3e9c2b",
+  "paidApiBudgetUsd": 0,
+  "implementation": "Approved bounded code implementation complete using current architecture; all16ports/features retained.",
+  "verification": "Partial live acceptance demonstrates major failures. Full suite and holdout incomplete. See output/full-acceptance-20261016/report.html.",
+  "deployment": "Not run; no production changes.",
+  "stages": [
+    {
+      "id": "0",
+      "deliverable": "Baseline and scope lock",
+      "status": "Local baseline accepted; production parity remains a later gate",
+      "owner": "Implementation chat; submitted to orchestrator",
+      "evidence": [
+        "output/reliability-gate-20261014/baseline-summary.json",
+        "output/reliability-gate-20261014/checks.json",
+        "output/reliability-gate-20261014/vercel-baseline.json",
+        "docs/portia-reliability/invariants-and-capabilities.md"
+      ],
+      "blocker": "Current Convex module/config parity and fresh production-build journey deferred to later gates."
+    },
+    {
+      "id": "1",
+      "deliverable": "All-port sources and independent reference cases",
+      "status": "Inventory accepted; source/oracle adjudication incomplete",
+      "owner": "Implementation chat; submitted to orchestrator",
+      "evidence": [
+        "docs/portia-source-registry.json",
+        "docs/portia-coverage.md",
+        "docs/portia-reliability/official-source-review.md",
+        "docs/portia-reliability/reference-obligations.json",
+        "tests/acceptance/portia/development.json"
+      ],
+      "blocker": "Source validity/identity/unit adjudication and 14 development tariff oracles unresolved; no scope removal."
+    },
+    {
+      "id": "2",
+      "deliverable": "Contracts and adversarial design review",
+      "status": "Design checkpoint accepted for bounded implementation",
+      "owner": "Implementation chat; submitted to orchestrator",
+      "evidence": [
+        "docs/portia-reliability/contracts.md",
+        "output/reliability-gate-20261014/design-counterexamples.json",
+        "docs/portia-reliability/stages-0-2-orchestrator-review.md"
+      ],
+      "blocker": null
+    },
+    {
+      "id": "3",
+      "deliverable": "Implementation with regression tests",
+      "status": "Shared path, five integrity fixes, auxiliary execution and reviewed explanations integrated",
+      "owner": "Implementation chat01a13ee6-d589-7a30-a69d-b53def3e9c2b; released for root review",
+      "evidence": [
+        "docs/portia-reliability/shared-integration-r6-20261016.md"
+      ],
+      "blocker": "Broader B variants, tariff/category/wording coverage and general C/D bindings remain."
+    },
+    {
+      "id": "4",
+      "deliverable": "Offline and local integration acceptance",
+      "status": "Offline pass+targeted repairs and synthetic local UI/persistence verified; not full acceptance",
+      "owner": "Implementation chat01a13ee6-d589-7a30-a69d-b53def3e9c2b; released for root review",
+      "evidence": [
+        "docs/portia-reliability/shared-integration-r6-20261016.md"
+      ],
+      "blocker": "Full product and all-port local acceptance remains open."
+    },
+    {
+      "id": "5",
+      "deliverable": "Bounded real-model acceptance",
+      "status": "Current live attempts unsuccessful; preparedR5undispatched because same key expired",
+      "owner": "Implementation chat01a13ee6-d589-7a30-a69d-b53def3e9c2b; released for root review",
+      "evidence": [
+        "docs/portia-reliability/shared-integration-r6-20261016.md"
+      ],
+      "blocker": "Broader bounded acceptance and original source/oracle gates remain."
+    },
+    {
+      "id": "6",
+      "deliverable": "Compatible deployment and production verification",
+      "status": "Not started",
+      "owner": "Implementation chat after review",
+      "evidence": [],
+      "blocker": "Acceptance gates, current target/config/module parity and rollback verification"
+    }
+  ],
+  "writeOwnership": {
+    "status": "released",
+    "owner": "01a13ee6-d589-7a30-a69d-b53def3e9c2b",
+    "reason": "Bounded code implementation complete; final build passed; owned runtimes stopped"
+  },
+  "updatedAt": "2026-10-16T10:13:38.225672+00:00",
+  "nextAction": "No autonomous action. Handoff docs/CLAUDE_HANDOFF_2026-10-16.txt for human-directed continuation.",
+  "schemaVersion": 2,
+  "implementationChat": "01a13ee6-d589-7a30-a69d-b53def3e9c2b",
+  "actualPaidApiSpendUsd": 0,
+  "providerRequestCount": 6,
+  "reviewPacket": "output/shared-architecture-integration-r6-20261016/implementation-completion.json",
+  "independentEvidence": {
+    "developmentCases": 24,
+    "developmentSha256": "97cee8ab42e2377e15a703d3d44fc4d17601d01e5471084f0c876094bad5d63d",
+    "developmentNumericalChecks": 25,
+    "tariffOracleCasesUnresolved": 14,
+    "holdoutCases": 12,
+    "holdoutRead": false,
+    "candidateExecution": "NOT_RUN"
+  },
+  "sourceInventory": {
+    "ports": 16,
+    "files": 17,
+    "sections": 367,
+    "candidateFragments": 2068,
+    "approvedRules": 1,
+    "independentTariffOraclesFrozen": 1,
+    "approvedScope": "New ordinary coastal Mumbai Indira Dock demo only; original tariff-case oracle gaps unchanged"
+  },
+  "processes": "Owned repair backend/app/browser/check groups stopped; existing app/dev listeners preserved and all 15 pre-live endpoints remain. Entry snapshot rapportd port drift recorded; no existing service stopped/reused.",
+  "orchestratorReview": "docs/portia-reliability/actual-tariff-orchestrator-review-20261015.md",
+  "batch3A": {
+    "providerRequests": 0,
+    "paidInferenceUsd": 0,
+    "testsPassed": 352,
+    "testFiles": 51,
+    "build": "passed webpack",
+    "privateHelperLintCleanup": ".local/reliability-gate-20261014/design-probes.mts",
+    "scope": "Source-independent B foundation only",
+    "ownership": "released"
+  },
+  "batch3AR1": {
+    "testsPassed": 394,
+    "testFiles": 52,
+    "newTests": 42,
+    "providerRequests": 0,
+    "paidInferenceUsd": 0,
+    "ordinaryFullLint": "pass, 6 existing warnings",
+    "build": "pass webpack",
+    "packaging": "authorized byte-identical probe.cjs to probe.cjs.txt; reproduction note updated",
+    "ownership": "released"
+  },
+  "batch3AR2": {
+    "testsPassed": 437,
+    "testFiles": 53,
+    "newTests": 43,
+    "providerRequests": 0,
+    "paidInferenceUsd": 0,
+    "ordinaryLint": "pass; 6 existing warnings",
+    "build": "pass webpack",
+    "knownHistoricalGt": "exact probe and generate/stream recovery pass; not general B acceptance",
+    "ownership": "released"
+  },
+  "batch3AR3": {
+    "testsPassed": 556,
+    "newTests": 119,
+    "providerRequests": 0,
+    "paidInferenceUsd": 0,
+    "ownership": "released",
+    "completeUserFlow": "not demonstrated",
+    "orchestratorDecision": "Accepted for the three bounded repairs; parent20probe outputs identical; no complete-flow claim"
+  },
+  "nextAcceptance": {
+    "status": "Authorized unchanged Mumbai repair rerun completed; no further inference in this slice",
+    "input": "MUMBAI-DEMO-001 unchanged",
+    "additionalDispatches": 2,
+    "tariffBatchDispatches": 4,
+    "maxTariffBatchDispatches": 8,
+    "paidAllowanceUsd": 0,
+    "details": "output/actual-tariff-repair-r1-20261015/verification.json"
+  },
+  "quotationFlow": {
+    "status": "passed locally",
+    "scope": "Supported self-contained supplied quotations only",
+    "providerRequests": 1,
+    "paidInferenceUsd": 0,
+    "model": "nvidia/nemotron-3-super-120b-a12b:free",
+    "testsPassed": 52,
+    "testFiles": 7,
+    "inputChanged": false,
+    "tariffAssetsChanged": false,
+    "holdoutRead": false,
+    "packet": "docs/portia-reliability/quotation-flow-20261015.md",
+    "ownership": "released"
+  },
+  "quotationRepairR1": {
+    "status": "accepted for the three bounded repairs",
+    "findings": 3,
+    "productionFilesChanged": 1,
+    "providerRequests": 1,
+    "paidInferenceUsd": 0,
+    "focusedTests": 43,
+    "testFiles": 5,
+    "newRuleTests": 19,
+    "genuineD01": "passed; exact input, clean stream, displayed, persisted and identical reload",
+    "packet": "docs/portia-reliability/quotation-repair-r1-20261015.md",
+    "ownership": "released"
+  },
+  "actualTariffDemo": {
+    "status": "Original and repaired genuine local journey passed; input repair review pending",
+    "plan": "docs/superpowers/plans/2026-10-15-actual-tariff-demo.md",
+    "sourcePacketApproved": true,
+    "providerRequests": 4,
+    "maxFreeDispatches": 8,
+    "paidAllowanceUsd": 0,
+    "deployment": false,
+    "preparationEvidence": "output/actual-tariff-20261015/preparation.json",
+    "budgetGuard": "Validated offline: durable eight-dispatch cap, zero-price/model/fallback checks, stop on transport/HTTP failure",
+    "inputFile": "output/actual-tariff-20261015/independent/input-v1.json",
+    "scope": "Complete ordinary coastal Mumbai Indira Dock berth hire including GST, minima and bill rounding; other port-call services excluded",
+    "packet": "docs/portia-reliability/actual-tariff-flow-20261015.md",
+    "evidence": "output/actual-tariff-20261015/verification.json",
+    "ownership": "released",
+    "sourceVerifiedThrough": "2026-10-15",
+    "latestEvidence": "output/actual-tariff-repair-r1-20261015/verification.json"
+  },
+  "actualTariffRepairR1": {
+    "status": "implemented; bounded review pending",
+    "findings": 2,
+    "productionFilesChanged": 1,
+    "newProviderRequests": 2,
+    "tariffBatchProviderRequests": 4,
+    "tariffBatchAllowance": 8,
+    "paidInferenceUsd": 0,
+    "packet": "docs/portia-reliability/actual-tariff-repair-r1-20261015.md",
+    "evidence": "output/actual-tariff-repair-r1-20261015/verification.json",
+    "ownership": "released"
+  },
+  "previousImplementationChat": "01a13b84-a118-7460-b72c-e997865ec806",
+  "sharedArchitecture": {
+    "status": "implementation_complete",
+    "milestones": {
+      "M1": "Code implementation complete; live language acceptance pending",
+      "M2": "Code implementation complete; source/math/publication focused checks passed",
+      "M3": "Approved component/explanation and precise gap handling integrated across existing16entries; external source limits explicit",
+      "M4": "Full acceptance deferred/not run; live credential expired",
+      "M5": "Not deployed"
+    },
+    "paidInferenceAllowanceUsd": 0,
+    "featureScopeChange": false,
+    "entryBaseline": ".local/shared-architecture-entry-20261015T093231Z",
+    "providerDispatches": 4,
+    "paidInferenceUsd": 0,
+    "liveBlocker": "Same dedicated key expired2026-10-15T21:42UTC; checked21:51UTC. R5not dispatched,0reservations. No replacement/paid fallback.",
+    "goalRows": [
+      {
+        "goal": "Ordinary request understanding",
+        "status": "Implemented; live acceptance pending",
+        "outcome": "Shared structured interpretation, scoped context and evidence validation; forced interpretation with8192-token bound.",
+        "next": "Test unchanged ordinary conversations with a valid free credential."
+      },
+      {
+        "goal": "Necessary clarification",
+        "status": "Implemented; focused checks passed",
+        "outcome": "Rule-driven questions, form/prose continuation and preservation of independently answerable tasks.",
+        "next": "Full scenario acceptance remains deferred."
+      },
+      {
+        "goal": "Tariff coverage",
+        "status": "Bounded integration complete",
+        "outcome": "Existing Mumbai/JNPA/GTI/JSW paths, Mumbai foreign, NSFT/NSIGT/NSICT handling, Jaigarh dues, and dated rule explanations integrated. All16catalog entries retained.",
+        "next": "Unresolved operator/current-source/invoice authority stays explicit; not all-port quotation certification."
+      },
+      {
+        "goal": "Accurate sourced answers",
+        "status": "Implemented; focused checks and build passed",
+        "outcome": "Source-bound Decimal calculations, minima, units, currencies, rounding and validated publication. Five reproduced integrity defects repaired.",
+        "next": "Real-model answer correctness not yet accepted."
+      },
+      {
+        "goal": "Corrections, follow-ups and comparisons",
+        "status": "Implemented",
+        "outcome": "Scoped updates, matched lookup replay without replacing user facts, supplied FX, per-line/quote rounding and compatible-service comparisons.",
+        "next": "Run full natural-language and product scenarios after code completion."
+      },
+      {
+        "goal": "Truthful limits",
+        "status": "Implemented for all16 entries",
+        "outcome": "Precise authority/identity gaps; missing source and missing facts remain distinct; partial components are not whole invoices.",
+        "next": "Resolve genuinely unavailable authority separately; no invented rates."
+      },
+      {
+        "goal": "Existing product features",
+        "status": "Retained; full acceptance pending",
+        "outcome": "Memory, lookup/manual fallback, forms, cancellation, saved state and ownership protections retained. Earlier mixed quote+memory synthetic UI/save/reload passed.",
+        "next": "Full regression and exact configuration acceptance still required."
+      },
+      {
+        "goal": "Deployment",
+        "status": "Not started",
+        "outcome": "Local code/build only. No production changes.",
+        "next": "Acceptance, target/configuration and rollback gates remain."
+      }
+    ],
+    "firstSuite": {
+      "passed": 571,
+      "failed": 72,
+      "total": 643,
+      "boundary": "initial shared candidate; obsolete after repairs"
+    },
+    "secondSuite": {
+      "passed": 629,
+      "failed": 16,
+      "total": 645,
+      "boundary": "before remaining domain/independent-calculation protocol migration"
+    },
+    "localUi": {
+      "status": "synthetic verified",
+      "journey": "unchanged supplied quotation USD4275 displayed/saved/reloaded after backend tool allowlist repair",
+      "provider": "mocked, zero upstream dispatches",
+      "artifact": "output/shared-architecture-20261015/quotation-ui-r1/synthetic-journey.json",
+      "notLiveModelEvidence": true
+    },
+    "liveBatch": "output/shared-architecture-live-r2-20261015/batch.json",
+    "liveBatchResult": "output/shared-architecture-live-r2-20261015/result.json",
+    "resumedFlowDispatches": 3,
+    "latestLivePacket": "output/shared-architecture-nvidia-r4-20261015/result.json",
+    "latestCheckpoint": "docs/portia-reliability/shared-integration-r6-20261016.md",
+    "implementationReceipt": "output/shared-architecture-integration-r6-20261016/implementation-completion.json"
+  },
+  "status": "STOPPED_BY_USER",
+  "summary": "Human canceled Codex work and requested Claude handoff. Live acceptance failed; product not ready. Main code preserved; rejected R1 and partial R2 isolated, not integrated. Historical implementation-complete fields do not certify readiness.",
+  "nextStep": "Stopped; awaiting new human direction outside this run.",
+  "implementationComplete": true,
+  "implementationCompletedAtUtc": "2026-10-15T23:11:08.420823+00:00",
+  "stagesHistorical": true,
+  "acceptanceRun20261016": {
+    "status": "LIVE_BATCH_CLOSED_PENDING_FREE_EXTENSION_APPROVAL",
+    "report": "output/full-acceptance-20261016/report.html",
+    "codeChanged": false,
+    "buildId": "WdPnqOzFwXbwAGvgAvsep",
+    "originalCasesExecuted": 19,
+    "originalCasesPassed": 0,
+    "originalCasesFailed": 19,
+    "fullSuiteComplete": false,
+    "holdoutOpened": false,
+    "paidAllowanceUsd": 0,
+    "portiaDispatches": 49,
+    "independentAuthorCalls": 1,
+    "independentAuthorCostUsd": 0,
+    "replacementKey": "same account, $0 limit; private file; expires 2026-10-17T07:46Z",
+    "remainingWork": "Remaining unchanged development scenarios and sealed holdout; exact full live/deployed acceptance not achieved",
+    "actualPaidSpendUsd": 0,
+    "providerFreeRequestsRemaining": 18,
+    "developmentFullyExecuted": [
+      "D01",
+      "D02",
+      "D03",
+      "D04",
+      "D05",
+      "D06",
+      "D07",
+      "D08",
+      "D09",
+      "D10",
+      "D11",
+      "D19"
+    ],
+    "developmentPartial": {
+      "D13": "Budget blocked continuation",
+      "D20": "Functional cancellation observed, timing oracle unresolved"
+    }
+  },
+  "isolatedRepair": {
+    "threadId": "01a13ee6-d589-7a30-a69d-b53def3e9c2b",
+    "workspace": "/private/tmp/portia-shared-repair-20261016",
+    "status": "DISPATCHED_OFFLINE_ONLY",
+    "packet": "output/full-acceptance-20261016/repair-evidence/packet.json",
+    "mainCheckoutMayEdit": false,
+    "mayOverwriteBaselineBuild": false,
+    "liveInferenceAllowed": false,
+    "teamOfEngineersSkillAllowed": false,
+    "lastCursor": "f36c223a-f99f-492c-8192-9e5b71ce2cb8:74"
+  },
+  "stopReceipt": "output/full-acceptance-20261016/stop-receipt.json"
+}

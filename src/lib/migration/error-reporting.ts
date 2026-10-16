@@ -14,19 +14,25 @@ export function modelErrorDetails(error: unknown) {
   }
   let current = error;
   let statusCode: number | null = null;
-  let errorType: "timeout" | "cancelled" | "invalid_response" | "network" | undefined;
+  const types=new Set<string>();
+  const recognized=["timeout","cancelled","invalid_response","network"] as const;
+  const seen=new Set<object>();
   for (let depth = 0; depth < 6 && current && typeof current === "object"; depth += 1) {
+    if(seen.has(current))break;
+    seen.add(current);
     const item = current as Record<string, unknown>;
+    if(recognized.some(type=>type===item.errorType))types.add(String(item.errorType));
     for (const value of [item.statusCode, item.code]) {
       const code = typeof value === "string" && /^\d{3}$/.test(value) ? Number(value) : value;
       if (statusCode === null && typeof code === "number" && Number.isInteger(code) && code >= 400 && code <= 599) statusCode = code;
     }
-    if (item.name === "TimeoutError" || ["ETIMEDOUT", "UND_ERR_CONNECT_TIMEOUT", "UND_ERR_HEADERS_TIMEOUT", "UND_ERR_BODY_TIMEOUT"].includes(String(item.code))) errorType = "timeout";
-    else if (item.name === "AbortError" && !errorType) errorType = "cancelled";
-    else if (["AI_TypeValidationError", "AI_JSONParseError", "AI_InvalidResponseDataError"].includes(String(item.name))) errorType = "invalid_response";
-    else if (["ECONNRESET", "ECONNREFUSED", "EAI_AGAIN", "ENOTFOUND", "UND_ERR_SOCKET"].includes(String(item.code))) errorType = "network";
+    if (item.name === "TimeoutError" || ["ETIMEDOUT", "UND_ERR_CONNECT_TIMEOUT", "UND_ERR_HEADERS_TIMEOUT", "UND_ERR_BODY_TIMEOUT"].includes(String(item.code))) types.add("timeout");
+    if (item.name === "AbortError") types.add("cancelled");
+    if (["AI_TypeValidationError", "AI_JSONParseError", "AI_InvalidResponseDataError"].includes(String(item.name))) types.add("invalid_response");
+    if (["ECONNRESET", "ECONNREFUSED", "EAI_AGAIN", "ENOTFOUND", "UND_ERR_SOCKET"].includes(String(item.code))) types.add("network");
     current = item.cause;
   }
+  const errorType=recognized.find(type=>types.has(type));
   return { statusCode, ...(errorType ? { errorType } : {}) };
 }
 

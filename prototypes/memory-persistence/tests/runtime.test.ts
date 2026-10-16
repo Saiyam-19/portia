@@ -39,3 +39,9 @@ test("invalid snapshots and identifiers fail closed", async () => {
   const runtime = await MemoryRuntime.restore();
   await assert.rejects(runtime.apply([{ kind: "scratchpad", key: "../escape", value: "bad" }]));
 });
+
+test("prototype runtime exposes no printf or network command",async()=>{
+  const runtime=await MemoryRuntime.restore();
+  const shell=(runtime as unknown as {bash:{exec:(command:string)=>Promise<{exitCode:number}>}}).bash;
+  for(const command of ['printf %.1000f 1','/usr/bin/printf x','command printf x','builtin printf x','awk BEGIN{}','curl https://example.com','wget https://example.com','python3 -c 1','js-exec 1'])assert.notEqual((await shell.exec(command)).exitCode,0,command);
+});

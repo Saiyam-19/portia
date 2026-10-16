@@ -6,6 +6,7 @@ import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { httpAction } from "./_generated/server";
 import { authComponent, createAuth } from "./auth";
+import { readBoundedJsonBody } from "../src/lib/bounded-json-body";
 import {
   isAllowedEmail,
   isMigrationDevEnabled,
@@ -129,19 +130,9 @@ const bridge = httpAction(async (ctx, request) => {
     if (!isAllowedEmail(user.email)) {
       return json({ error: "Forbidden" }, 403);
     }
-    const contentLength = Number(request.headers.get("content-length") ?? "0");
-    if (contentLength > 128_000) return json({ error: "Request too large" }, 413);
-    const rawBody = await request.text();
-    if (new TextEncoder().encode(rawBody).byteLength > 128_000) {
-      return json({ error: "Request too large" }, 413);
-    }
-    let body: unknown;
-    try {
-      body = JSON.parse(rawBody);
-    } catch {
-      return json({ error: "Invalid bridge request" }, 400);
-    }
-    const parsed = bridgeRequestSchema.safeParse(body);
+    const body=await readBoundedJsonBody(request,128_000);
+    if(!body.ok)return json({error:body.reason==='too_large'?"Request too large":"Invalid bridge request"},body.reason==='too_large'?413:400);
+    const parsed = bridgeRequestSchema.safeParse(body.value);
     if (!parsed.success) return json({ error: "Invalid bridge request" }, 400);
     const { op, args } = parsed.data;
     if (op === "claim") {

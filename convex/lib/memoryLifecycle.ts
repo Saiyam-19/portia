@@ -38,6 +38,15 @@ export async function hashMemory(value: unknown) {
   return Array.from(new Uint8Array(bytes)).map(b => b.toString(16).padStart(2,"0")).join("");
 }
 export async function enqueueMemory(ctx: MutationCtx, ownerId: string, requestId: string, expectedEpoch: number, operation: Infer<typeof memoryOperation>, initiatingRun?: Doc<"migrationRuns">) {
+  if(operation.kind==="delete_source")return memoryError("INVALID_OPERATION");
+  return enqueueOperation(ctx,ownerId,requestId,expectedEpoch,operation,initiatingRun);
+}
+
+// At backlog96 no ordinary writes enter. At most512 applied source references
+// and32 pending remembers can admit additional source deletions before draining.
+export const MAX_PENDING_MEMORY_OPERATIONS=96+64*8+32;
+
+async function enqueueOperation(ctx: MutationCtx, ownerId: string, requestId: string, expectedEpoch: number, operation: Infer<typeof memoryOperation>, initiatingRun?: Doc<"migrationRuns">) {
   const ns = await ensureMemory(ctx, ownerId);
   if (requestId.length < 1 || requestId.length > 240) return memoryError("INVALID_REQUEST");
   const hash = await hashMemory(operation);
@@ -49,7 +58,8 @@ export async function enqueueMemory(ctx: MutationCtx, ownerId: string, requestId
   if (ns.epoch !== expectedEpoch) return memoryError("MEMORY_CHANGED");
   // Deletion barriers must remain admissible even if ordinary writes filled their queue.
   const barrier = operation.kind !== "remember";
-  if (ns.nextSequence - ns.appliedSequence >= (barrier ? 96 : 32)) return memoryError("MEMORY_BUSY");
+  const limit=operation.kind==="delete_source"?MAX_PENDING_MEMORY_OPERATIONS:barrier?96:32;
+  if (ns.nextSequence - ns.appliedSequence >= limit) return memoryError("MEMORY_BUSY");
   let factIndex = [...ns.factIndex];
   if (operation.kind === "remember") {
     if (!/^[a-z][a-z0-9_]{0,79}$/.test(operation.key) || !operation.value.trim() || new TextEncoder().encode(operation.value).length > 1024 || operation.value.includes("\0")) return memoryError("INVALID_MEMORY");
@@ -84,5 +94,12 @@ export async function deleteConversationMemory(ctx: MutationCtx, ownerId: string
   const receipts=await ctx.db.query("memoryNoteReceipts").withIndex("by_conversation",q=>q.eq("conversationId",conversationId)).take(128);
   for(const row of receipts)await ctx.db.delete(row._id);
   const ns = await findMemory(ctx, ownerId);
-  if (ns) await enqueueMemory(ctx, ownerId, "delete-source:"+conversationId, ns.epoch, {kind:"delete_source",source:conversationId});
+  if(!ns)return;
+  if(ns.nextSequence-ns.appliedSequence>MAX_PENDING_MEMORY_OPERATIONS)return memoryError("INVALID_MEMORY_STATE");
+  const indexed=[...ns.appliedIndex,...ns.factIndex].some(fact=>fact.sources.includes(conversationId));
+  const pending=indexed?[]:await ctx.db.query("memoryOperations")
+    .withIndex("by_namespace_and_status_and_sequence",q=>q.eq("namespaceId",ns._id).eq("status","pending"))
+    .take(MAX_PENDING_MEMORY_OPERATIONS);
+  const queued=pending.some(row=>row.operation?.kind==="remember"&&row.operation.source===conversationId);
+  if(indexed||queued)await enqueueOperation(ctx,ownerId,"delete-source:"+conversationId,ns.epoch,{kind:"delete_source",source:conversationId});
 }

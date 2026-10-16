@@ -8,8 +8,8 @@ import { useMutation, usePaginatedQuery, useQuery } from 'convex/react'
 import { api } from '../../../convex/_generated/api'
 import { migrationTransport } from '@/lib/migration/transport'
 import { clientResponseError } from '@/lib/migration/response-errors'
-import { initialQuestionDraft, migrationRunState, questionDraftReducer } from '@/lib/migration/client-state'
-import { formDefinitionSchema, type MigrationChatRequest } from '@/lib/migration/contracts'
+import { initialQuestionDraft, makeQuestionRequest, migrationRunState, questionDraftReducer } from '@/lib/migration/client-state'
+import { formDefinitionSchema, chatRequestByteLength, MAX_CHAT_REQUEST_BYTES, INTERNAL_CONVERSATION_TOOLS, type MigrationChatRequest } from '@/lib/migration/contracts'
 import Message from './message'
 import Composer from './composer'
 import ModelSelector from './model-selector'
@@ -24,7 +24,7 @@ export type FormCard = { toolCallId: string; title: string; description?: string
 export type Segment = { kind: 'text'; content: string } | { kind: 'tool'; id: string; tool: string; label: string; status: 'running' | 'done' | 'error' } | { kind: 'card'; formCard: FormCard }
 type ChatMessage = { id: string; role: 'user' | 'assistant'; segments: Segment[]; streaming?: boolean; interrupted?: boolean }
 type LiveMessage = UIMessage<{ conversationId?: string; runId?: string; revision?: number }>
-const TOOL_LABELS: Record<string, string> = { consult_port_agent: 'Consulting port tariff', calculate_charges: 'Calculating charges', search_vessels: 'Searching vessels', get_vessel: 'Checking vessel details', ask_user_input: 'Preparing details', remember_memory: 'Saving memory', recall_memory: 'Recalling saved memory', forget_memory: 'Forgetting memory', write_scratchpad: 'Saving working notes', read_scratchpad: 'Reading working notes' }
+const TOOL_LABELS: Record<string, string> = { consult_port_agent: 'Consulting port tariff', calculate_charges: 'Calculating charges', calculate_charge_batch: 'Calculating charges', calculate_supplied_quote: 'Checking supplied quotation', calculate_elapsed_time: 'Checking dates and elapsed time', search_vessels: 'Searching vessels', get_vessel: 'Checking vessel details', ask_user_input: 'Preparing details', remember_memory: 'Saving memory', recall_memory: 'Recalling saved memory', forget_memory: 'Forgetting memory', write_scratchpad: 'Saving working notes', read_scratchpad: 'Reading working notes' }
 
 export default function ChatView({ conversationId, initialMessage, initialRequestId, initialModel = 'model-1' }: { conversationId: string; initialMessage?: string; initialRequestId?: string; initialModel?: ChatModel }) {
   const router = useRouter()
@@ -35,9 +35,10 @@ export default function ChatView({ conversationId, initialMessage, initialReques
   const input = draftState.input
   const setInput = (value: string) => dispatchDraft({ type: 'edit', value })
   const [selectedModel, selectModel] = useState<ChatModel>()
+  const initialIntent=conversation?.conversation.initialIntent
   // Restore the last actual run across reloads/devices, including pending forms.
   // An explicit selection wins; the navigation intent applies only to a new chat.
-  const model = selectedModel ?? (initialMessage && conversation?.conversation.revision === 0
+  const model = initialIntent?.modelAlias ?? selectedModel ?? (initialMessage && conversation?.conversation.revision === 0
     ? initialModel : conversation?.conversation.modelAlias ?? initialModel)
   const [localError, setLocalError] = useState('')
   const [deleting, setDeleting] = useState(false)
@@ -85,33 +86,47 @@ export default function ChatView({ conversationId, initialMessage, initialReques
   useEffect(() => {
     if (!transportBusy && messages.length && conversation && conversation.conversation.state !== 'running' && history.results.some(item => item.runId === streamedRunId)) setMessages([])
   }, [transportBusy, messages.length, conversation, history.results, streamedRunId, setMessages])
-  const submit = useCallback(async (body: MigrationChatRequest, text: string) => {
+  const submit = useCallback(async (request: MigrationChatRequest | (() => MigrationChatRequest), text: string) => {
     if (sending.current) return
     sending.current = true
     setLocalError(''); clearError(); followRef.current = true
-    setRequestKind(body.kind)
-    try { await sendMessage({ text }, { body }); }
-    catch { dispatchDraft({ type: 'transport-failed' }); setLocalError('Couldn’t send. Your draft is still available.'); }
+    try {
+      const body = typeof request === 'function' ? request() : request
+      setRequestKind(body.kind)
+      await sendMessage({ text }, { body })
+    }
+    catch (error) {
+      dispatchDraft({ type: 'transport-failed' })
+      setLocalError(error instanceof Error && error.name === 'ZodError'
+        ? 'Use up to 4,000 characters per message, or 2,000 for corrections to an open form. Your draft is preserved.'
+        : 'Couldn’t send. Your draft is still available.')
+    }
     finally { sending.current = false }
   }, [sendMessage, clearError])
   const question = useCallback(async (text: string, requestId = crypto.randomUUID()) => {
     const normalized = text.trim()
-    if (!normalized || !conversation || running || pendingForm || sending.current) return
+    if (!normalized || !conversation || running || sending.current) return
     dispatchDraft({ type: 'question', text: normalized, revision: conversation.conversation.revision + 1 })
-    await submit({ kind: 'question', requestId, conversationId, expectedRevision: conversation.conversation.revision, question: normalized, modelAlias: model }, normalized)
+    await submit(() => makeQuestionRequest({ requestId, conversationId, expectedRevision: conversation.conversation.revision, text: normalized, modelAlias: model, pendingToolCallId: pendingForm?.toolCallId }), normalized)
   }, [conversation, conversationId, running, pendingForm, model, submit])
   useEffect(() => {
-    if (!ready || !conversation || !initialMessage || initialSent.current) return
+    const firstQuestion=initialIntent?.question??initialMessage
+    if (!ready || !conversation || !firstQuestion || initialSent.current) return
     initialSent.current = true
-    const requestId = initialRequestId && /^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(initialRequestId) ? initialRequestId : crypto.randomUUID()
+    const requestId = initialIntent?.requestId ?? (initialRequestId && /^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(initialRequestId) ? initialRequestId : crypto.randomUUID())
     // A non-empty saved conversation has already consumed this navigation intent.
-    if (conversation.conversation.revision === 0) void question(initialMessage, requestId)
+    if (conversation.conversation.revision === 0) void question(firstQuestion, requestId)
     window.history.replaceState(null, '', `/dashboard/chat/${conversationId}`)
-  }, [ready, conversation, initialMessage, initialRequestId, conversationId, question])
+  }, [ready, conversation, initialIntent, initialMessage, initialRequestId, conversationId, question])
   const handleForm = async (toolCallId: string, values: Record<string, string>, note: string, cancelled: boolean) => {
     if (!conversation || running || sending.current || pendingForm?.toolCallId !== toolCallId) return
+    const body:MigrationChatRequest={ kind: 'form', requestId: crypto.randomUUID(), conversationId, expectedRevision: conversation.conversation.revision, modelAlias: model, toolCallId, values, note, cancelled }
+    if(chatRequestByteLength(body)>MAX_CHAT_REQUEST_BYTES){
+      setLocalError('These details are too long to send together. Shorten the text fields or additional context and try again. Your entries are still here.')
+      return
+    }
     dispatchDraft({ type: 'form' })
-    await submit({ kind: 'form', requestId: crypto.randomUUID(), conversationId, expectedRevision: conversation.conversation.revision, modelAlias: model, toolCallId, values, note, cancelled }, cancelled ? 'Cancelled form' : 'Submitted details')
+    await submit(body, cancelled ? 'Cancelled form' : 'Submitted details')
   }
   const stopRun = async () => {
     if (!activeRunId) { stop(); return }
@@ -140,6 +155,7 @@ export default function ChatView({ conversationId, initialMessage, initialReques
     if (messages.length && liveRun && message.runId === liveRun) continue
     const segments: Segment[] = []
     for (const part of message.parts) {
+      if (part.type !== 'text' && INTERNAL_CONVERSATION_TOOLS.has(part.toolName)) continue
       if (part.type === 'text') segments.push({ kind: 'text', content: part.text })
       else if (part.toolName === 'ask_user_input') {
         const card = formCard(part.toolCallId)
@@ -195,7 +211,12 @@ export default function ChatView({ conversationId, initialMessage, initialReques
         <div className="relative shrink-0 pb-4">
           {showScrollDown && <Button variant="outline" size="icon-lg" className="absolute -top-12 left-1/2 -translate-x-1/2 rounded-full bg-background" aria-label="Scroll to latest message" onClick={scrollToBottom}><ArrowDown aria-hidden="true" /></Button>}
           <div className="mx-auto w-full max-w-3xl px-5 sm:px-8">
-            {hasPendingCard ? <div role="status" className="rounded-xl border border-border bg-muted/40 px-4 py-4 text-center text-xs text-muted-foreground">Complete the details above to continue.<div className="mt-2 flex justify-center"><ModelSelector value={model} onChange={selectModel} disabled={running} /></div>{running && <Button variant="ghost" size="sm" className="ml-2" onClick={() => void stopRun()}>Stop response</Button>}</div> : <Composer value={input} onChange={setInput} onSend={() => void question(input)} model={model} onModelChange={selectModel} loading={running} onStop={() => void stopRun()} textareaRef={textareaRef} placeholder="Ask a follow-up question…" />}
+            {hasPendingCard && <p role="status" className="mb-2 text-center text-xs text-muted-foreground">Complete the form above, or send a correction below to replace it.</p>}
+            {initialIntent ? <div className="rounded-xl border border-border bg-muted/40 p-4 text-sm">
+              <p className="font-medium">Your first question is saved</p><p className="mt-2 max-h-32 overflow-y-auto whitespace-pre-wrap break-words text-muted-foreground">{initialIntent.question}</p>
+              <div className="mt-3 flex flex-wrap items-center gap-3"><ModelSelector value={model} onChange={selectModel} disabled /><Button disabled={running} onClick={()=>void question(initialIntent.question,initialIntent.requestId)}>Retry saved question</Button>{running&&<Button variant="ghost" onClick={()=>void stopRun()}>Stop response</Button>}</div>
+              <p className="mt-2 text-xs text-muted-foreground">To ask something different, start a new conversation or delete this one.</p>
+            </div> : <Composer value={input} onChange={setInput} onSend={() => void question(input)} model={model} onModelChange={selectModel} loading={running} onStop={() => void stopRun()} textareaRef={textareaRef} placeholder={hasPendingCard ? 'Send a correction or change your request…' : 'Ask a follow-up question…'} />}
             <div className="mt-3 flex items-center justify-between gap-3"><p className="text-[11px] leading-relaxed text-muted-foreground">Estimates should be checked against current port tariffs.</p><Button variant="ghost" size="icon-sm" aria-label="Delete conversation" onClick={() => setConfirmDelete(true)}><Trash2 className="size-3.5" /></Button></div>
             {confirmDelete && <div role="alert" className="mt-2 flex flex-wrap items-center gap-2 text-xs"><span>Delete this conversation and its messages?</span><Button variant="destructive" size="sm" disabled={deleting} onClick={() => void remove()}>{deleting ? 'Deleting…' : 'Delete'}</Button><Button variant="ghost" size="sm" disabled={deleting} onClick={() => setConfirmDelete(false)}>Keep conversation</Button></div>}
           </div>

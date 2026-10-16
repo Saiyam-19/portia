@@ -18,6 +18,7 @@ function validText(value: string, max = 4096) {
 /** One disposable, server-owned workspace. Never receives host credentials or disk mounts. */
 export class MemoryRuntime {
   private bash = new Bash({
+    commands: ["sqlite3"],
     cwd: "/memory",
     executionLimitProfile: "hardened",
     executionLimits: {

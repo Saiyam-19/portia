@@ -24,6 +24,8 @@ export default function DashboardPage() {
   const [model, setModel] = useState<ChatModel>('model-1')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const sendingRef = useRef(false)
+  const creationRef = useRef<{requestId:string;question:string;modelAlias:ChatModel}|null>(null)
+  const [savedId,setSavedId]=useState<string|null>(null)
   const router = useRouter()
   const createConversation = useMutation(api.migration.createConversation)
 
@@ -34,9 +36,12 @@ export default function DashboardPage() {
     setLoading(true)
     setError('')
     try {
-      const id = await createConversation()
-      const requestId = crypto.randomUUID()
-      router.push(`/dashboard/chat/${id}?q=${encodeURIComponent(text)}&model=${model}&request=${requestId}`)
+      const prior=creationRef.current
+      const initialIntent=prior?.question===text&&prior.modelAlias===model?prior:{requestId:crypto.randomUUID(),question:text,modelAlias:model}
+      creationRef.current=initialIntent
+      const id = await createConversation({initialIntent})
+      setSavedId(id)
+      router.push(`/dashboard/chat/${id}`)
     } catch {
       setError('Couldn’t start the conversation. Your message is saved here — please try again.')
       setLoading(false)
@@ -56,6 +61,7 @@ export default function DashboardPage() {
           </div>
           <Composer value={message} onChange={setMessage} onSend={() => void handleSubmit()} model={model} onModelChange={setModel} loading={loading} textareaRef={textareaRef} />
           {error && <Alert variant="destructive" className="mt-3"><AlertDescription>{error}</AlertDescription></Alert>}
+          {savedId&&<p role="status" className="mt-3 text-center text-sm text-muted-foreground">Question saved. <a className="underline" href={`/dashboard/chat/${savedId}`}>Open conversation</a></p>}
           <div className="mt-5 flex flex-wrap justify-center gap-x-2 gap-y-1">
             {PROMPTS.map(prompt => (
               <Button key={prompt.label} type="button" variant="ghost" className="min-h-10 gap-2 rounded-full px-3 text-xs font-normal text-muted-foreground" disabled={loading}

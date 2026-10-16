@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+export const MAX_CHAT_REQUEST_BYTES = 32_000;
+export const FORM_VALUE_MAX_CHARS = 2_000;
+export const INTERNAL_CONVERSATION_TOOLS = new Set(["interpret_request", "execute_conversation", "complete_auxiliary"]);
+export const chatRequestByteLength = (value:unknown) => new TextEncoder().encode(JSON.stringify(value)).byteLength;
+
 export const modelAliasSchema = z.enum(["model-1", "model-2"]);
 export type ModelAlias = z.infer<typeof modelAliasSchema>;
 
@@ -63,9 +68,9 @@ export const migrationChatRequestSchema = z.discriminatedUnion("kind", [
     conversationId: z.string().min(1).max(200),
     expectedRevision: z.number().int().nonnegative(),
     toolCallId: z.string().min(1).max(200),
-    values: z.record(z.string(), z.string().max(2_000)),
+    values: z.record(z.string(), z.string().max(FORM_VALUE_MAX_CHARS)),
     cancelled: z.boolean(),
-    note: z.string().max(2_000).optional(),
+    note: z.string().max(FORM_VALUE_MAX_CHARS).optional(),
   }).strict(),
 ]);
 

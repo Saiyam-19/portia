@@ -1,0 +1,613 @@
+PORTIA — CLAUDE HANDOFF — 16 OCTOBER 2026
+=======================================
+
+STOP STATE / READ THIS FIRST
+
+The human explicitly canceled all Codex work and requested this handoff for Claude.
+No implementation, tests, inference, research or deployment should continue under the
+old automation. Codex's recurring check is PAUSED. Its implementation worker is idle.
+The local acceptance app/backend were stopped. Their database and evidence remain.
+
+Portia has NOT met the requested product goal. Earlier "implementation complete"
+claims meant code/build/offline checks, not demonstrated live product readiness.
+That was an inadequate completion standard, not a shortcoming in the user's brief.
+The user reports approximately two days / 20+ hours spent and is extremely frustrated.
+Avoid another rewrite, expanding plan, cosmetic test-count update or unsupported ETA.
+
+Current main code, the rejected isolated repair and the unfinished revision are
+THREE DISTINCT STATES. Never apply the repair.patch below as an approved fix.
+There has been NO new deployment or successful deployed acceptance in this effort.
+
+Workspace: /Users/saiyamchaplot/Documents/portia-main
+HEAD: b64420fcfe0eea206918bfb34cf9cf38112b8302
+Latest tested main build: WdPnqOzFwXbwAGvgAvsep
+Main checkout contains substantial uncommitted and untracked work. Preserve it.
+Do not reset, discard, broadly stage, stash or replace it from HEAD.
+
+SELF-CONTAINED TECHNICAL CONTEXT — NO REPOSITORY ACCESS REQUIRED
+
+This section describes what is ACTUALLY WRITTEN in the current main checkout,
+checked against package/package-lock and targeted source reads on16October.
+It is not a claim that every coded capability works in real conversations.
+Portia is the project name; the product/UI and main prompt also use "Plisto".
+The app is not implemented with the Portia AI Python framework. Legacy Python and
+Supabase files are historical/parity assets, not the current serving stack.
+
+TECH STACK (locked versions unless otherwise indicated)
+
+  Runtime: Node.js22.x; TypeScript5.9.3; npm/package-lock.json.
+  Web: Next.js16.3.8 App Router, React19.2.4, Node server route handlers.
+  Styling/UI: TailwindCSS4.3.1, Radix UI, shadcn tooling, Lucide icons,
+             next-themes, react-markdown and remark-gfm.
+  Agent: Vercel AI SDK7.0.134 ToolLoopAgent; @ai-sdk/react4.0.137;
+         @openrouter/ai-sdk-provider3.1.0; Zod4.1.13 schemas.
+  Backend: Convex1.46.0; @convex-dev/agent0.7.7 for agent threads/messages;
+           @convex-dev/better-auth0.12.5 with Better Auth1.6.33.
+  Arithmetic: decimal.js10.6.0 and bounded code-owned expression/batch helpers.
+  Memory: just-bash3.6.0 with a sandboxed SQLite fact database, durable snapshots
+          and operation coordination in Convex; per-conversation scratchpad notes.
+  Tests: Vitest4.1.11, convex-test0.0.54, Playwright1.58.2, TypeScript, ESLint9.
+  Hosting context: Next.js on Vercel, hosted Convex backend. Existing deployed URL
+                   https://portia-berthing.vercel.app — not verified as current code.
+  Acceptance environment: isolated Next.js3022 + local Convex3220/3221, now stopped.
+
+Tariffs are bundled files and reviewed rule data under data/ports and
+data/reviewed-tariffs. This is not an established general web-search/RAG engine
+that can autonomously discover any worldwide tariff. New PDF upload, universal
+port coverage and automatic learning were NOT added. Do not promise those features.
+Next.js output tracing includes tariff assets and just-bash for chat/memory routes.
+
+ACTUAL REQUEST FLOW
+
+  Browser chat / form / model alias
+    -> /api/chat (re-exports /api/migration/chat), Node route, maxDuration300s
+    -> authenticated Convex bridge claims conversation run, request identity,
+       revision/fence and lifecycle state; history becomes model messages
+    -> createMigrationMainAgent creates a per-run ConversationSession
+    -> replay authenticated inputs plus saved interpretation/lookup receipts
+    -> model proposes interpret_request with exact input evidence and current hash
+    -> Zod + code reducer validate proposal, facts, corrections and scope
+    -> code plans requirements / calculations / source-bound explanations
+    -> optional vessel or explicit memory tools finish auxiliary tasks
+    -> execute_conversation validates an answer receipt; code renders result
+    -> route persists completion through owner/fence/lease/revision/epoch checks
+    -> validated answer reaches browser and saved history.
+
+That is the coded flow. In live tests, the interpretation/validation/planning link
+frequently fails before it reaches a useful answer. The problems are not limited
+to styling or one missing prompt sentence.
+
+ACTUAL STRUCTURES, NOT THE OLDER PROPOSED CONTRACT NAMES
+
+The strict interpretation schema currently requires:
+  version=1; baseHash(64characters);
+  scopes[]: id, label, kind(call|scenario|quotation-rule), parentId, evidence;
+  operations[]: scopeId, field, operation, string value, unit, evidence;
+  tasks[]: id, scopeId, kind, source, charges[], ruleScopeIds[], evidence;
+  unresolved[]: scopeId, question, evidence, taskIds[];
+  inputIds[] identifying authenticated inputs.
+Evidence is {inputId, quote}; referenced quote must occur in an allowed input.
+Operations: assert, correct, reject, preserve, reference, uncertain, inherit.
+Task kinds: quote, rule, elapsed, arithmetic, facts, comparison, other.
+Source categories at this interface: official, supplied, none.
+There are separate optional comparison IDs/mode and auxiliary-action fields.
+
+ConversationState stores version/hash/revision/scopes/facts/tasks/unresolved/consumed.
+Facts retain evidence, unit, operation, revision, supersession and status:
+established, conflicting, superseded, reference or rejected. Facts can include a
+distinct lookup source class. Scenario inheritance checks parent scope and vessel
+identity. Current explicit user facts take precedence over later lookup facts.
+Hashing uses SHA256 of JSON serialization in this implementation; do not assume
+the more elaborate canonical-hash contract from old design prose is implemented.
+
+The actual ConversationAnswer contains a run binding, context hash, per-task
+items, questions and a complete flag plus digest. Items retain dependencies,
+pending conditions, source class, body, calculation and optional scoped totals.
+Session verification recomputes the planned answer and compares digests. This is
+not evidence that a universal independent semantic validator exists.
+
+The old contracts.md explicitly labels proposed interfaces such as CallContextV1,
+TariffRuleV1 and AnswerV1. Do NOT mistake every proposed interface/table/operation
+there for an implemented class or database table. Current types above are the
+concrete serving implementation, which still uses regex/heuristic validation in
+several places. "Shared architecture" does not mean all regex or legacy code is gone.
+
+WHAT IS ALREADY WRITTEN / WHAT IT DOES / CURRENT EVIDENCE LIMIT
+
+A. Conversation and corrections:
+   conversation.ts implements structured input schema, evidence checks, scoped
+   facts, corrections/invalidation, lookup binding and receipt replay.
+   Present in main; offline neighbors pass. Live normal follow-ups still fail on
+   stale baseHash or already-consumed evidence. Broad language coverage unproven.
+
+B. Orchestration and tools:
+   domain-agent.ts registers interpret_request, execute_conversation,
+   complete_auxiliary, search_vessels, get_vessel, ask_user_input and memory tools.
+   Pending interpretation forces interpret_request; later phases restrict tools
+   based on session state. It does not ask the model to freely invent final totals.
+   conversation-session.ts checks actual tool receipts, including saved:true for
+   writes; mixed auxiliary work cannot be silently claimed as complete.
+   Live manual fallback works partly; configured external vessel lookup untested.
+
+C. Calculations already coded:
+   conversation-rules.ts supports supplied gt-period, movement, cargo-tonne, flat
+   and amount branches; exact/commenced periods; per-block/per-call minima/maxima;
+   tax and monetary rounding under supported explicit conditions; bounded
+   arithmetic; elapsed event intervals; and comparisons with explicit FX direction.
+   Currency/charge/scope mismatches should remain unresolved, not be silently mixed.
+   Code builds expressions from validated facts; official amounts are not accepted
+   just because the model emitted a plausible formula. Unsupported units remain
+   gaps. Main does not have a universal formula interpreter for any quoted basis.
+   One live supplied sum1280 worked; its correction and broader arithmetic did not.
+
+D. Tariff branches already coded:
+   officialTask first tries reviewedComponents, then a specifically reviewed
+   Mumbai Indira Dock coastal general-cargo berth rule for berth/GST/rounding.
+   That Mumbai path requires the correct service/flag/licence, berth/readiness/
+   operation facts and exclusions; extra tax conditions only when tax is requested.
+   It checks rule effective/verified dates and distinguishes narrow berth component
+   from complete bill rounding. Foreign-going Mumbai is not the same branch.
+   reviewed-components.ts contains selected source-bound component handling and
+   dated explanations. Prior integration evidence covers GTI/JSW component families
+   and BPCL Liquid/KLL/historical ICTPL/Mumbai Cruise explanations, not full invoices
+   for all those ports. More Mumbai foreign/conditional terminal/Jaigarh integration
+   was explicitly outstanding in the saved integration checkpoint.
+   Missing evidence yields source gaps. No complete actual-tariff live quote proven.
+
+E. Publication and provider behavior:
+   conversation-model.ts wraps both generate and stream. It buffers model text/tool
+   arguments; validates interpretation; can emit deterministic local tool/text
+   results from a ready code-owned answer without another provider call. The helper
+   named synthetic() here means that local adapter result, not necessarily a mocked
+   acceptance test. Unbound financial prose is blocked by heuristics.
+   That guard currently blocks some legitimate non-price/rule/upload questions.
+   Malformed interpretation becomes text while the SDK expects a required tool,
+   causing the confirmed ToolChoiceViolation integration failure.
+   First semantic output limit60s, step180s, total240s; max12agent steps;
+   max4096output tokens ordinarily,8192for interpretation; maxRetries0.
+   Stream byte limits/cancellation remain. Test batch budgets are additional limits,
+   not a promise that all production inference has a dollar-accounting implementation.
+
+F. Persistence and concurrency:
+   Convex schema includes migrationConversations, migrationRuns, migrationForms,
+   requestBudgets plus memoryNamespaces, memorySnapshots, memoryOperations,
+   memoryNoteReceipts and memoryScratchpads. Conversation/run/form rows contain
+   owner IDs, revisions, request IDs/payload hashes, fences, run statuses, lease
+   expiry, checkpoints and form state. Agent component stores thread/message history.
+   Runtime state is reconstructed from receipts; do not assume separate proposed
+   universal ledger/context tables exist. Complete/checkpoint/form actions use
+   authenticated bridge operations. Preserve all cancellation/deletion/epoch guards.
+   Live save/reload and functional Stop were demonstrated in limited scenarios;
+   all owner/deletion/concurrency regressions were not rerun in this live suite.
+
+G. Memory already exists:
+   Explicit remember/recall/forget/clear and chat scratchpad tools/panel are part of
+   the product. Sandboxed /memory/long_term.sqlite facts are snapshotted, not a shared
+   unrestricted host SQLite file. Runtime validates SQLite header/version/integrity
+   and bounds facts/bytes. Convex coordinates epochs, revisions, operation sequence
+   and leases/fences to prevent stale writes/deleted-source resurrection.
+   Memory is not official tariff authority and cannot silently override user facts.
+   Current full live cross-chat memory/deletion acceptance is unfinished.
+
+H. UI/auth already exists:
+   Dashboard/sidebar conversations, saved history/pagination, loaded-title search,
+   draft composer, forms with cancel/prose follow-up, copy, model aliases, memory
+   panel, Stop/recovery, theme and responsive controls. Better Auth/Convex protects
+   owner-specific data. Model IDs/keys stay server-side. No new upload UI was built.
+   D19 proves only a subset of these UI behaviors; entire feature parity not verified.
+
+EXACT PRESERVED CATALOG (16 identifiers; these are not16 proven working estimators)
+
+  bpcl-cargo-jetty
+  bpcl-liquid-cargo-jetty
+  gateway-terminals-india-pvt-ltd
+  ictpl
+  jaigarh
+  jawahar-nehru-port-authority-jnpa
+  jsw-jnpt-liquid-terminal
+  konkan-lng-ltd
+  mumbai-container-terminal
+  mumbai-cruise-terminal
+  mumbai
+  nhava-sheva-freeport-terminal
+  nhava-sheva-gateway-terminal
+  nhava-sheva-international-container-terminal
+  ranpar-finolex
+  redi
+
+ports.ts derives these from a17-file SHA256 manifest and verifies bytes before
+loading bundles. BPCL cargo's historical tariff file is EMPTY. BPCL cargo cannot
+be silently equated to BPCL liquid. Source identity/version problems also remain
+for some terminal names, old/expired clauses, Finolex and Redi current tariffs.
+The three "Nhava Sheva" terminals and general JNPA authority are distinct.
+Preserving catalog names/assets is established; all-port valid answers are not.
+
+CONFIGURATION / BUILD DETAILS FOR A FUTURE REPOSITORY-ENABLED MODEL
+
+Relevant environment-variable NAMES (no values): OPENROUTER_API_KEY,
+NEXT_PUBLIC_CONVEX_URL, NEXT_PUBLIC_CONVEX_SITE_URL, SITE_URL, BETTER_AUTH_SECRET,
+PORTIA_SERVER_SECRET, VESSEL_API_KEY, PORTIA_MEMORY_ENABLED, MIGRATION_MODEL_OVERRIDE,
+LLM_ALLOW_PAID, PORTIA_FREE_TEST_ALLOW_RETENTION. Some are isolated test controls;
+do not copy local bypass/retention/model overrides into production configuration.
+
+Existing npm scripts: dev=next dev; build=next build; start=next start;
+typecheck=tsc --noEmit; test=vitest run; lint=eslint; memory:lab runs the isolated
+TypeScript lab with the prototype tsx loader. These are documentation, not a request
+to execute after cancellation. Inspect processes before any future authorized start.
+postinstall runs scripts/patch-provider-cancellation.mjs; prebuild/pretest check it.
+Using npm ci --ignore-scripts alone does not install that cancellation patch.
+just-bash is server-externalized; deployment tracing must retain tariff/runtime files.
+
+KNOWN / UNKNOWN IN ONE SENTENCE
+
+Substantial shared agent, deterministic calculation, evidence, persistence and UI
+code exists; real conversations expose major integration and coverage failures.
+Neither "nothing implemented" nor "agent works, just needs deployment" is accurate.
+Claude can reason about this state from this handoff alone, but cannot responsibly
+claim a code fix or fresh test result without source access and execution evidence.
+
+PRIMARY HANDOFF FILES (paths relative to workspace unless absolute)
+
+1. output/full-acceptance-20261016/report.html
+   Expand rows for unchanged user inputs and literal displayed responses.
+   Final banner: STOPPED BY USER / PARTIAL RESULTS. Not readiness approval.
+2. output/full-acceptance-20261016/stop-receipt.json
+   Latest shutdown, budget and ownership receipt.
+3. output/full-acceptance-20261016/reviewed-verdicts.json
+   Reviewed pass/fail/blocked distinctions and observed working subchecks.
+4. output/full-acceptance-20261016/claude-handoff/
+   Durable repair archives, per-file hashes and pre-stop status/report copies.
+5. docs/portia-implementation-status.json
+   Latest top-level status is STOPPED_BY_USER. Many nested historical milestones
+   remain for provenance and must not override the current live failures.
+
+PRODUCT GOAL — KEEP THIS FIXED
+
+Portia helps a person plan a port call and obtain trustworthy answers about its
+charges and tariff rules through ordinary conversation. The user supplies what
+they know. Portia should understand vessel, voyage, port/terminal and requested
+charges; ask only for necessary missing facts; find the correct tariff/version;
+calculate accurately; explain with sources; handle corrections, follow-ups and
+comparisons; and clearly state facts or sources it cannot verify.
+
+The customer should not need to supply official tariff rates, read the tariff on
+Portia's behalf, or supervise its arithmetic. Do not equate a generic refusal with
+a useful answer, or a truthful limitation with a completed answerable quotation.
+For genuinely unsupported/current-authority gaps, truthful precise limits are
+required; inventing a full total is not the alternative.
+
+Preserve ALL 16 existing catalog entries and ALL existing features. This includes
+ordinary chat, forms, saved history, model selection, memory and its privacy/lifecycle
+protections, cancellation, corrections, comparisons, and supported vessel/manual
+particular flows. Preserve historical source versions. Catalog membership alone
+does not prove current tariff coverage or complete port-call pricing.
+
+USER CONSTRAINTS / APPROVED APPROACH
+
+- Use the current shared architecture. No rewrite, scope expansion, prompt-specific
+  patches, removal of ports/features, weakened assertions or invented rates.
+- Capability contracts drive shared fixes; known cases protect against regressions.
+  Do not design only for a finite list of test phrases.
+- Test inputs must remain unchanged and independently authored. Keep first failures.
+- Free Portia inference only; paid allowance USD0. No automatic inference retries,
+  paid fallback, purchases, key/account cycling or production privacy changes.
+- Synthetic isolated-local provider retention was explicitly allowed. That consent
+  does not cover real customer data or production privacy changes.
+- Do NOT use the team-of-engineers skill. User explicitly prohibited it.
+- Communicate concisely with concrete working evidence; separate code implemented,
+  offline verification, real local conversations and deployed acceptance.
+- One repository writer at a time. Preserve private configuration and unrelated
+  processes. Graph-first source discovery is required by AGENTS.md; exact source
+  fallback was necessary because the graph index predates new conversation modules.
+- Read relevant installed Next.js docs before changing Next.js behavior.
+
+ARCHITECTURE / BASELINES / EXISTING PLANS
+
+Authoritative bounded execution plan:
+  docs/superpowers/plans/2026-10-15-portia-shared-architecture.md
+Original full scope:
+  docs/superpowers/plans/2026-10-14-portia-full-scope-reliability.md
+Contracts and feature/source boundaries:
+  docs/portia-reliability/contracts.md
+  docs/portia-reliability/invariants-and-capabilities.md
+  docs/portia-source-registry.json
+  docs/portia-coverage.md
+  docs/portia-reliability/official-source-review.md
+  docs/portia-reliability/reference-obligations.json
+  docs/portia-implementation-checklist.html
+
+The current architecture connects structured model interpretation, conversation
+state/evidence, tariff-driven requirements, validated calculations, reviewed source
+components and publication. These modules are central:
+  src/lib/migration/conversation.ts
+  src/lib/migration/conversation-model.ts
+  src/lib/migration/conversation-session.ts
+  src/lib/migration/conversation-rules.ts
+  src/lib/migration/domain-agent.ts
+  src/lib/migration/elapsed-time.ts
+  src/lib/migration/reviewed-components.ts
+
+Historical completion evidence:
+  output/shared-architecture-integration-r6-20261016/implementation-completion.json
+It records build and 169 source/data/package hashes. Those matched the main
+acceptance candidate at prior checks. Main application code was not changed during
+this successor's live acceptance run. Only harness/report/status artifacts changed.
+Do not infer full correctness from those hashes or the successful build.
+
+Archived pre-shared-architecture dirty baseline:
+  .local/shared-architecture-entry-20261015T093231Z/worktree.tar.gz
+  SHA256 0c2110d1655aea67e3ae6abf081fbf895e466faf924b616c7a64f1c2768f085b
+
+LIVE ACCEPTANCE — WHAT ACTUALLY HAPPENED
+
+All results refer to an isolated LOCAL build/backend, not current Vercel production.
+No current-architecture complete actual-port-tariff estimate was demonstrated.
+Some subfeatures worked; they do not establish the complete agent goal.
+
+Original 19: all executed; all failed their reviewed checks. Case 5 has two turns.
+Failures include asking customers for official rates, ignoring invalid dates/GT,
+misrouting rule questions, rejecting normal follow-ups, generic errors and timeouts.
+This does NOT mean 19 wrong numerical totals: many produced no total to evaluate.
+Some deliberately unsupported/future cases require honest limitations, not prices.
+
+Development status:
+  D01-D11: executed, overall FAIL. Historical fixture creation blocks were retained
+  separately; subsequent attempted cases must not be confused with those blocks.
+  D12: NOT RUN.
+  D13: BLOCKED_ENVIRONMENT. One interpretation completed; another required call was
+  prevented before network dispatch by the recorded original 50-call budget ceiling.
+  Its full answer was not evaluated; don't call that a completed reasoning failure.
+  D14: FAIL. Recognized Ranpar/Finolex but asked customer for official berth rate.
+  D15: FAIL. Repeated Redi current-rate/date/source question back to the customer.
+  D16: FAIL overall. Manual particulars fallback avoided inventing vessel identity,
+  but after details were supplied it asked the user for berth charges. This isolated
+  fixture has no VESSEL_API_KEY; live vessel lookup was not configured or tested.
+  D17-D18: NOT RUN.
+  D19: FAIL overall. Initial supplied-line sum USD825+390+65 = USD1280 was correct
+  and persisted after reopening. Model1/Model2 selection persisted (both aliases
+  pointed at the same free model). Correction of water to USD80 should yield1295;
+  instead: "Interpretation cites absent or already-consumed user evidence."
+  D20: functional Stop/persistence subchecks worked: active run canceled, provider
+  read aborted, saved chat did not revive active generation. Full gate remains
+  UNRESOLVED_ORACLE because no cancellation grace window was frozen in advance.
+  Different accurate stopped/partial-work wording after reload is not itself a bug.
+  No proof that remote provider processing/billing certainly stopped.
+  D21: NOT RUN.
+  D22: FAIL. Negative GT/reversed dates not surfaced; both initial and corrected
+  turn asked customer for Mumbai tariff rate. Both literal responses captured.
+  D23: STOPPED_BY_USER / partial. First turn about Port Louis and PDF upload returned
+  "That financial claim has no validated calculation record. Please identify the
+  requested charge or rule so it can be checked against its governing evidence."
+  Second unchanged supplied-quote turn was submitted. Provider body was recorded,
+  but final displayed response was not captured/evaluated before human cancellation.
+  Do not count intentional shutdown as an agent failure or blindly resubmit it.
+  D24: FAIL. Supplied FX comparison timed out. Expected A=INR113220, B=INR114500,
+  A cheaper byINR1280. No numerical output was available to assess.
+
+Fresh journeys MJ1/MJ2: three turns each; neither completed successfully.
+Strict stateless-author BLIND-01: three turns, all timed out.
+Actual-tariff control MUMBAI-DEMO-001: timed out.
+Sealed 12 holdout cases: UNOPENED and UNRUN.
+
+Literal responses / traces / UI evidence:
+  output/full-acceptance-20261016/original-results.json
+  output/full-acceptance-20261016/development-results-nvidia.json
+  output/full-acceptance-20261016/development-results.json
+  output/full-acceptance-20261016/simple-results.json
+  output/full-acceptance-20261016/fresh-results.json
+  output/full-acceptance-20261016/blind-results.json
+  output/full-acceptance-20261016/calls/*.request.json
+  output/full-acceptance-20261016/calls/*.response.txt
+  output/full-acceptance-20261016/trace.jsonl
+  output/full-acceptance-20261016/provider-events.jsonl
+  output/full-acceptance-20261016/d19-first-1280.jpg
+  output/full-acceptance-20261016/d19-first-ui.txt
+  output/full-acceptance-20261016/d19-reopened-ui.txt
+  output/full-acceptance-20261016/d19-second-ui.txt
+  output/full-acceptance-20261016/d20-stop-observation.json
+  output/full-acceptance-20261016/d20-reopened-ui.txt
+  output/full-acceptance-20261016/extension-cursor.json
+  output/full-acceptance-20261016/extension-stop-state.json
+
+Raw results overlap and contain retained blocked attempts; do not sum JSON array
+lengths as unique cases. reviewed-verdicts.json plus literal records are the useful
+view. Raw UI snapshots can include the entire conversation, not just the latest turn.
+
+INDEPENDENCE / FROZEN INPUTS
+
+Original19:
+  output/independent-agent-test-20261014/inputs.json
+  SHA256 25aa0523922b5b60eed304a52282ee1111e94dbf7568559ac745ef4ec86c0592
+Development24:
+  tests/acceptance/portia/development.json
+  SHA256 97cee8ab42e2377e15a703d3d44fc4d17601d01e5471084f0c876094bad5d63d
+Sealed12 directory (do not open before candidate freeze):
+  /Users/saiyamchaplot/.codex/visualizations/2026/10/14/01a13a18-5f04-7f10-9488-4f17d4ac620a/portia-independent-acceptance
+  SHA256 eb48e078fab8b1e2e0eda41c011f00a83baf5dc48eef6f08cbb24487a2eaec70
+Freeze candidate/prompts/model/config/development results before opening holdout.
+Do not expose holdout to implementer. Real UI-action cases require their actual
+form/memory/model-selection/Stop/delete/reload actions, not text-only substitutes.
+
+MJ1/MJ2 inputs were authored without reading repository/code/prior cases, but the
+author received automatic project memory. Therefore NOT strictly zero-exposure
+blind. Durable package: parent visualization directory/fresh-user-journeys-20261016-v2.
+Input SHA256 a7fb724c693d396001c12083e122b7b80bc465c6e2352f0f0f6150ced736bb7f.
+
+BLIND-01 used one stateless free API authoring request containing only the product
+goal and public official Mumbai tariff text; no project memory, source code, earlier
+tests or candidate responses. Auditable files:
+  output/full-acceptance-20261016/blind-author/request.json
+  SHA256 d293f8494946f725abfec146c5b3ca24314b74a0a986a14a9d3c1fdb8b15cc95
+  output/full-acceptance-20261016/blind-author/frozen-inputs.json
+  SHA256 aaa562be6495c30a8ff45cf236188c457541bb1716e20098d8fe2496e2e4b8f8
+The generated oracle had wrong column/leg/duration assumptions. It was rejected
+and corrected by source-only review before execution; user inputs stayed unchanged.
+See blind-author/source-review.json. Missing all-fast/readiness facts mean a definite
+full-call total was not mandatory. Research/source review alone is not app acceptance.
+input-integrity-audit.json covers the first41 requests; later ones were not included
+in that audit. Do not describe it as a complete final-suite input audit.
+
+CONFIRMED DIAGNOSTIC EVIDENCE — NOT A BLANKET MODEL EXCUSE
+
+1. Actual provider outputs violated the exact sent interpretation JSON schema:
+   invalid scope kinds, empty required fields and malformed scope identity.
+   captured-tool-schema-diagnostics.json compares captured output to sent schema.
+2. conversation-model.ts converted rejected interpretation into plain text while
+   the SDK required interpret_request, producing AI_ToolChoiceViolationError and
+   generic UI errors. This is an app/provider-contract integration problem.
+3. Provider echoed earlier baseHash and consumed evidence references on follow-ups.
+   Validation rejected these. Do not remove stale-state/evidence safety to make
+   tests green; repair the shared handling without allowing unsupported mutations.
+4. Evidence validation rejected clauses containing multiple measurements/timestamps
+   even when valid facts were present. Loosening this without correct polarity and
+   ambiguity handling introduced unsafe R1 behavior below.
+5. Model unresolved questions about official rates were shown to users, despite
+   instructions saying not to ask customers for official rates.
+6. Several HTTP200 streams produced only PROCESSING keepalives until the semantic
+   first-output60s limit fired. A timeout is not proof of quota exhaustion or wrong
+   arithmetic. A separate Gemma attempt returned upstream shared-pool429.
+
+ISOLATED REPAIR — REJECTED R1 AND PARTIAL R2
+
+Temporary working directory: /private/tmp/portia-shared-repair-20261016
+Durable archive:
+  output/full-acceptance-20261016/claude-handoff/isolated-repair-at-stop.tar.gz
+  SHA256 f89b4a0a44216388f40062002e5f4289b38bf3fd90f7e9b8ab97d765a9c36ebc
+Independent R1 review archive:
+  output/full-acceptance-20261016/claude-handoff/independent-r1-review.tar.gz
+  SHA256 717ad0da50a9be9ba194a1938d0e1a4ac847a8142c4546bc0099effe2317ae0c
+Full archive file manifest/hashes:
+  output/full-acceptance-20261016/claude-handoff/repair-preservation-manifest.json
+
+Archives preserve source/data/tests and evidence. Dependency symlinks, candidate
+output duplicates, private environment/key files were excluded. Do not treat either
+archive as a deployable application. Extract to a separate directory if needed;
+never unpack over the dirty main checkout. Temporary dependency links were to this
+repository's node_modules and Convex files and do not transfer as an environment.
+
+R1 repair.patch SHA256:
+  b706b8544905b5f4098797e3f92f4aced75b6a85e867df498d5c98bb80dea7a9
+R1 changed-files.json SHA256:
+  53d7986fa398cf891a59e2dd4eec557742826b42dd68776231482a3cdfbf5179
+R1 touched seven source modules including new interpretation-adapter.ts and two
+tests plus captured fixture. Its focused250/250 and typecheck passed. It was still
+REJECTED by independent adversarial review for three P1 correctness regressions:
+
+  A. Unit coercion missed metre/NT/TEU. A quote of USD2/metre/hour, LOA100m,10hours
+     could be normalized from erroneous gt-period to period and published complete
+     as USD20 instead of USD2000 or an unsupported-basis block.
+  B. "GT 20000, not DWT 30000." could establish the negated DWT30000.
+  C. "Berthed either18October2026 at22:45 or19October2026 at22:45." could establish
+     the first date despite explicit ambiguity.
+
+Review evidence:
+  output/full-acceptance-20261016/isolated-repair-review-r1.json
+  /private/tmp/portia-review-spec-20261016/probe.test.ts
+  /private/tmp/portia-review-spec-20261016/results.jsonl
+  /private/tmp/portia-review-spec-20261016/period.json
+  (also in durable independent-r1-review archive)
+
+R2 was underway to address those invariant regressions when the user stopped work.
+Current candidate/ contains PARTIAL R2 edits. R2 is NOT integrated, packaged,
+root-reviewed or live-tested. Latest saved focused run:269passed/270total,1failed.
+Failure: "retains the source period for BPCL Liquid Cargo Jetty on 1 May 2027"
+at candidate/tests/migration/reviewed-explanations.test.ts:85:83.
+Latest typecheck receipt exit0. Evidence in validation/tests.json, tests.log,
+typecheck-process.json, typecheck.log. Do not rerun merely for this handoff.
+
+CRITICAL: top-level repair.patch, changed-files.json and HANDOFF.md still describe
+the REJECTED R1, NOT current partial R2. R1 is also preserved in revision-1/.
+No repair patch has been applied to main. A complete standards-review approval
+was not obtained. Existing passing counts do not override the known regression.
+
+PROVIDER / COST / CREDENTIAL STATE — DO NOT PRINT SECRETS
+
+Pinned test model: nvidia/nemotron-3-super-120b-a12b:free
+Both visible Model1/Model2 aliases used this same model in the isolated fixture.
+Free-model results do not certify differently configured production model aliases.
+Key: /private/tmp/portia-test-credential-20261016/openrouter.key (0600; parent0700)
+Fingerprint: bb337b444370. Expires2026-10-17T07:46:00.001Z.
+Same-account replacement, human authorized; name portia-local-acceptance-2026-10-16.
+Configured USD0 key limit and request price guards; no paid fallback/retries.
+Last verified provider spend USD0 at09:28UTC; later calls remained free-only.
+That metadata timestamp is historical. No further provider calls on shutdown.
+Older expired key was not probed. Another older repo/account key was not inspected
+or used. Do not include secrets in chat, reports, commits or this handoff.
+
+Recorded atomic budgets (including nested calls, max4/user turn):
+  .local/full-acceptance-20261016/budget :5 slots
+  .local/full-acceptance-20261016/nvidia-continuation-budget :45 slots
+  .local/full-acceptance-20261016/extension-budget :18 slots human approved
+At stop:60 global reservations;59 app provider dispatches recorded plus1 separate
+independent author request. Extension used10/18. Remaining8 MUST NOT be dispatched
+after the stop instruction. A trace reservation can precede budget rejection and
+is not necessarily an upstream request; retain failed reservations and first tries.
+No account/key cycling, quota probes, purchases or production privacy changes.
+
+RUNTIME / SHUTDOWN / DATA
+
+App127.0.0.1:3022 and backend3220/3221 are stopped. Final process/port read found
+none of named PIDs55699,55705,75877,86950 and no listeners on those three ports.
+Successor app manager received stop and exited0. Verified parent lab runner75877
+received SIGTERM; its own cleanup stopped backend86950. No broad kill commands.
+Implementation worker confirmed no owned runners. Review subagent completed.
+Unrelated browsers, applications and other project services were preserved.
+
+Preserved runtime registry/database:
+  .local/memory-chat-lab.json
+  .local/run-0ng59H/processes.json
+  .local/run-0ng59H/db.sqlite3
+  .local/run-0ng59H/ (storage/logs)
+  output/full-acceptance-20261016/successor-processes.json
+  output/full-acceptance-20261016/runtime-stop-receipt.json
+  .local/full-acceptance-20261016/successor-app.py
+  .local/full-acceptance-20261016/launch.py
+Private local fixture env/user files (paths only; do not publish contents):
+  /private/tmp/portia-test-credential-20261016/local-app-env.json
+  /private/tmp/portia-test-credential-20261016/local-user.json
+All these PIDs, ports and credentials require fresh identity/health checks before
+any future user-authorized reuse. Browser/CUA handles and exec sessions do not
+transfer between agents. Browser tabs were preserved; no user session was closed.
+
+Local fixture creation limit was raised30->120 using supported PORTIA_CREATES_PER_HOUR
+after recording blocked attempts. This changed only the isolated test fixture, not
+production/provider limits. See local-fixture-throttle.json and preserved blocked
+attempt files. Do not confuse this with inference quota or a product regression.
+
+CONTEXT HISTORY / OWNERSHIP
+
+Parent orchestrator:01a13a18-5f04-7f10-9488-4f17d4ac620a (stopped).
+Successor orchestrator:01a143f6-5e70-7a90-8ef1-d10defd6a681 (stopped now).
+Current implementation chat:01a13ee6-d589-7a30-a69d-b53def3e9c2b (idle/stopped).
+Old implementation chat:01a13b84-a118-7460-b72c-e997865ec806 (must remain stopped).
+Automation orchestrate-portia-implementation:PAUSED, explicit human cancellation.
+
+Older detailed history, now superseded by this stop-state handoff:
+  /Users/saiyamchaplot/.codex/visualizations/2026/10/14/01a13a18-5f04-7f10-9488-4f17d4ac620a/portia-successor-handoff-20261016.json
+  /Users/saiyamchaplot/.codex/visualizations/2026/10/14/01a13a18-5f04-7f10-9488-4f17d4ac620a/portia-orchestration-state.json
+  output/full-acceptance-20261016/final-handoff-snapshot.json
+These preserve source-oracle reviews, earlier milestones, artifact locations and
+authorization history. Read actual evidence when a historical summary conflicts.
+
+BOUNDED REMAINING WORK — ONLY IF HUMAN RESUMES WITH CLAUDE
+
+The previous request was one complete unchanged acceptance pass, then targeted
+repair/retest of failures, not endless implementation/test loops. Remaining work is
+to repair the demonstrated shared failures safely using current code, finish
+unrun/UI-dependent acceptance, and establish real useful sourced conversations.
+
+First assess the isolated partial repair against its before/ baseline and the three
+rejected invariants. Resolve or reject it rather than applying stale R1. Keep source
+period/applicability and evidence safety intact. A repair needs real local proof
+through the app: user facts -> necessary clarification -> actual tariff -> correct
+sourced answer -> correction/follow-up. Supplied arithmetic1280 alone is insufficient.
+
+Use unchanged cases for regression evidence, not hardcoded answers. Pin model and
+configuration for each future authorized batch; preserve literal responses and
+separate provider, app, oracle, source-gap and environment failures. Finish remaining
+original/development UI actions before candidate freeze and sealed holdout evaluation.
+Do not claim all-port readiness from one successful port or a build/test count.
+
+Deployment was conditional on acceptance and exact target/configuration/rollback
+gates. None of those deployment gates is satisfied here. Production remains outside
+the verified state. No Codex task is authorized to restart under this handoff.

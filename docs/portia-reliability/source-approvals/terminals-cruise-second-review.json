@@ -1,0 +1,257 @@
+{
+  "reviewed_utc": "2026-10-14T20:36:53.330861+00:00",
+  "review_type": "Independent source/test-oracle review only; no application acceptance",
+  "overall": "All eight numeric references correct. One P2 applicability qualifier required for NSIGT rail. Approve bounded arithmetic/rule explanations; complete D10 comparison and D12 price remain blocked.",
+  "integrity": {
+    "manifest_entries_checked": 50,
+    "breakdown": {
+      "deliverables": 10,
+      "source_snapshots": 11,
+      "page_images": 29
+    },
+    "all_match": true,
+    "original_development_sha256": "97cee8ab42e2377e15a703d3d44fc4d17601d01e5471084f0c876094bad5d63d",
+    "original_D10_D12_D13_inputs_verified": true,
+    "originals_unchanged": true,
+    "cruise_primary_redownload": {
+      "http_status": 200,
+      "url": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1779878454.pdf",
+      "bytes": 424626,
+      "sha256": "d84918447738dbf47ca4ecd934f8d9234c0574dfbef586498cd2a9f0728a1df6",
+      "matches_retained_source": true,
+      "normal_TLS_validation": true
+    },
+    "detail_file": "hash-review.json"
+  },
+  "independence": {
+    "candidate_outputs_inspected": false,
+    "application_source_corpus_encoded_rules_prompts_tests_inspected": false,
+    "implementation_reports_other_chats_inspected": false,
+    "sealed_holdout_inspected": false,
+    "repo_original_source_writes": 0,
+    "inference_paid_calls": 0,
+    "original_development_access": "Only D10/D12/D13 semantically inspected; complete file bytes hashed as authorized.",
+    "reference_script": "calculate-references.py hashed only, not executed or semantically inspected."
+  },
+  "visual_review": {
+    "original_PDF_pages_independently_rendered_and_inspected": 23,
+    "pages": {
+      "nsft-2026.pdf": [
+        1,
+        2,
+        3,
+        4,
+        11
+      ],
+      "nsigt-2026-candidate.pdf": [
+        1,
+        3,
+        4,
+        5,
+        10
+      ],
+      "bmct-2026.pdf": [
+        1,
+        3,
+        4,
+        11
+      ],
+      "mumbai-cruise-rationalisation-2026.pdf": [
+        1,
+        2
+      ],
+      "mumbai-sor-updated-may2026.pdf": [
+        1,
+        5,
+        6,
+        58
+      ],
+      "mumbai-sor-amendment-may2026.pdf": [
+        1,
+        2,
+        3
+      ]
+    }
+  },
+  "arithmetic": {
+    "assertions": 8,
+    "independent_method": "Decimal multiplication/addition from transcribed primary-table values; offset-aware datetime using integer seconds.",
+    "results": {
+      "NSFT_road_usd": "17967.20",
+      "NSFT_rail_usd": "21757.60",
+      "NSIGT_ship_yard_inr": "913318.80",
+      "NSIGT_road_inr": "1065536.80",
+      "NSIGT_rail_inr": "1408026.80",
+      "NSIGT_berth_inr": "1149932.1600",
+      "D12_original_hours": "36",
+      "D12_corrected_hours": "42"
+    },
+    "corrections": [],
+    "notes": "Six monetary components and two elapsed durations. Corrected duration increases by six hours. Monetary results are unrounded component references, not invoice grand totals."
+  },
+  "findings": [
+    {
+      "severity": "P2 applicability qualifier",
+      "case": "D10",
+      "files": [
+        "d10-adjudication-v1.json NSIGT rail component and focused_questions",
+        "calculation-references.json D10 assumptions and NSIGT rail_formula",
+        "adjudication.md all-rail handling row"
+      ],
+      "finding": "NSIGT section 3.1(A) row 2 restricts the railway-flat charge to ICD Container Rail only. The all-rail label and normal foreign-container assumption omit that predicate. Preserve the amount but qualify it as applicable ICD rail movements; verify ICD applicability when selecting a rail tariff. Road/rail mode alone does not establish that row.",
+      "evidence": "nsigt-2026-candidate.pdf p4 \u00a73.1(A), row 2; reaffirmed in analogous tables p5",
+      "numeric_correction": null
+    },
+    {
+      "severity": "P1 retained unresolved boundary",
+      "case": "D10",
+      "finding": "NSFT complete berth basis and port/private charge responsibility remain unresolved. NSIGT has an explicit operator berth table; generic JNPA VRC cannot silently replace it or be added. Different handling currencies and service bundles prevent an approved complete winner.",
+      "evidence": [
+        "nsft-2026.pdf p3 general(v)-(vi), \u00a7\u00a73(A)-(B)",
+        "nsigt-2026-candidate.pdf pp3-5",
+        "original development.json D10 successful_completion/must_not"
+      ]
+    },
+    {
+      "severity": "P1 retained identity boundary",
+      "case": "D12",
+      "finding": "The generic user label does not uniquely establish PSA/BMCT at JNPA. The candidate tariff is identifiable, but selecting it for the original case would substitute an unconfirmed operator.",
+      "evidence": [
+        "original development.json D12",
+        "bmct-2026.pdf p1",
+        "PSA operator page legal name/address"
+      ]
+    },
+    {
+      "severity": "P2 retained interaction boundary",
+      "case": "D13",
+      "finding": "Separate passenger items and general cruise percentage terms are present, but their combination with the special rationalised structure is not established. Do not stack them, treat visitors as passengers, or invent hourly rounding.",
+      "evidence": [
+        "mumbai-cruise-rationalisation-2026.pdf pp1-2",
+        "mumbai-sor-updated-may2026.pdf p6 \u00a71.2(xiii), p58 \u00a7\u00a77.2(D),7.3(A)"
+      ]
+    }
+  ],
+  "component_decisions": [
+    {
+      "case": "D10",
+      "component": "Terminal identities",
+      "decision": "APPROVE",
+      "scope": "NSFT versus Nhava Sheva (India) Gateway Terminal / NSIGT. State full identity; do not substitute GTI or NSICT.",
+      "evidence": "Source titles and JNPA container-terminal listing"
+    },
+    {
+      "case": "D10",
+      "component": "Equivalent handling boundary",
+      "decision": "APPROVE",
+      "rule": "NSFT road/rail bundles include the landside leg. Comparable NSIGT scope adds ship-yard and the applicable yard-truck or ICD yard-rail row; ship-yard subtotal alone is not comparable.",
+      "evidence": "nsft-2026.pdf pp3-4; nsigt-2026-candidate.pdf pp4-5"
+    },
+    {
+      "case": "D10",
+      "component": "NSFT handling references",
+      "decision": "CONDITIONAL",
+      "road_usd": "17967.20",
+      "rail_usd": "21757.60",
+      "basis": "120 loaded and 80 empty normal 20-foot foreign/EXIM containers; same-mode illustrations, no silent user-mode selection.",
+      "evidence": "nsft-2026.pdf pp2-4"
+    },
+    {
+      "case": "D10",
+      "component": "NSIGT handling references",
+      "decision": "CONDITIONAL",
+      "ship_yard_inr": "913318.80",
+      "road_inr": "1065536.80",
+      "ICD_rail_inr": "1408026.80",
+      "basis": "Same box counts/categories; published ceiling components. Rail explicitly requires ICD row applicability; road assumes direct delivery/export intake leg.",
+      "evidence": "nsigt-2026-candidate.pdf p3 ceilings; p4 \u00a73.1(A) rows 1-3"
+    },
+    {
+      "case": "D10",
+      "component": "NSIGT ordinary operator berth reference",
+      "decision": "CONDITIONAL",
+      "inr": "1149932.16",
+      "formula": "31200 * 18 * 2.0476",
+      "basis": "18 ordinary billable hours, foreign-vessel column, ceiling rate. Readiness/idling/penal conditions separate. Not a JNPA generic-rate substitute or final INR bill.",
+      "evidence": "nsigt-2026-candidate.pdf pp3-4 Chapter 2 and berth notes"
+    },
+    {
+      "case": "D10",
+      "component": "NSFT berth price, complete terminal totals and winner",
+      "decision": "BLOCK",
+      "amount": null,
+      "reason": "Complete berth ownership/additivity, transport allocation/category, actual FX dates/rates, tax/levies, reductions and invoice rounding not resolved. Retain USD/INR separately; no winner or inferred exchange rate."
+    },
+    {
+      "case": "D12",
+      "component": "Original/corrected duration and semantic fixture",
+      "decision": "APPROVE",
+      "original_hours": 36,
+      "corrected_hours": 42,
+      "increase_hours": 6,
+      "scope": "Preserve 19,200 GT, 178 m LOA, foreign-going container status and arrival 8 November 2026 07:30 India time. Change only departure from 9 November 19:30 to 10 November 01:30. Form/prose semantic equality is an expected requirement, not an executed result."
+    },
+    {
+      "case": "D12",
+      "component": "BMCT identification and pricing for original request",
+      "decision": "BLOCK",
+      "amount": null,
+      "reason": "Ask exact operator/berth. Do not choose BMCT from city wording. If confirmed, reconcile version and port/operator charge responsibility, then billable time/events and invoice rules."
+    },
+    {
+      "case": "D13",
+      "component": "Cruise circular identity and extension",
+      "decision": "APPROVE",
+      "rule": "Mumbai Port circular TM/B-11/10 stamped 27 May 2026 extends structure 1 April 2026 through 31 March 2027; signature on p2 is 26 May 2026. Prior paragraph calls October-March one year, an internal inconsistency not to silently repair. New extension dates explicit.",
+      "evidence": "mumbai-cruise-rationalisation-2026.pdf pp1-2"
+    },
+    {
+      "case": "D13",
+      "component": "Ship versus passenger structure",
+      "decision": "APPROVE",
+      "rule": "First 12-hour regime: fixed USD 0.085/GRT ship element plus USD 6/passenger head tax. Beyond 12 hours: USD 0.0175/GRT/hour ship-time element. No passenger counts needed to explain bases; no total or repeated head-tax/time-block inference.",
+      "evidence": "Cruise circular p1 items(i)-(ii)"
+    },
+    {
+      "case": "D13",
+      "component": "Annual-call rebate bands",
+      "decision": "APPROVE",
+      "bands": "Up to 10: none; 11-35: 10%; 36-70: 15%; above 70: 20%.",
+      "scope": "Bands only. Applicable base, eligible counting entity/year, retrospective/prospective application and stacking remain conditional.",
+      "evidence": "Cruise circular p1 item(iii)"
+    },
+    {
+      "case": "D13",
+      "component": "Ancillary passenger and concession interaction",
+      "decision": "CONDITIONAL",
+      "rule": "SOR lists INR 346/embarking passenger and INR 303/disembarking passenger for cruise vessels; INR 115/head is a bona fide visitor fee. General cruise vessel charges are 60% of relevant ordinary charges, not a 60% discount. Do not automatically combine these with the special circular.",
+      "evidence": "mumbai-sor-updated-may2026.pdf p58 \u00a7\u00a77.2(D),7.3(A), p6 \u00a71.2(xiii)"
+    },
+    {
+      "case": "D13",
+      "component": "General invoice dependencies",
+      "decision": "CONDITIONAL",
+      "rule": "USD collected in INR at port-selected buying rate on entry; minimum INR 100 bill except interest bills; upward rounding of each bill grand total; charges exclude taxes. Check special cruise overrides/transaction facts if quoting.",
+      "evidence": "mumbai-sor-updated-may2026.pdf pp5-6 \u00a71.2(iii),(viii),(ix),(xv)"
+    },
+    {
+      "case": "D13",
+      "component": "Exhaustive private-terminal tariff or complete vessel total",
+      "decision": "BLOCK",
+      "amount": null,
+      "reason": "Not requested, and operator/berth-specific fees plus unresolved interactions prevent asserting exhaustiveness. Provide the verified public structure now; do not demand a passenger/vessel questionnaire."
+    }
+  ],
+  "version_checks": [
+    "NSFT cover explicitly effective 1 May 2026; no closed end date inferred. NSIGT cover explicitly indexed 0.39% effective 1 April 2026; p10 annual cap period 1 April to 31 March following year supports November 2026 scheduled basis, subject to amendments.",
+    "PSA current page independently exposes 6 April and 1 April 2026 labels. Clicking 6 April returns /wp-content/uploads/2026/04/SoR-BMCT-w.e.f-01-Apr-2026.pdf; clicking 1 April returns /wp-content/uploads/2026/03/SoR-BMCT-w.e.f-01-Apr-2026.pdf. Distinct URL paths despite same basename; no equivalence or precedence inferred. Retained candidate is /04/.",
+    "Mumbai SOR cover: indexation effective 1 May 2026, updated 9 May 2026. 15 May amendment addresses \u00a72.17, includes revised date-specific tables and validity language through 25 November 2028; it does not replace the separate cruise extension interval or justify adding ordinary berth charges to it.",
+    "27 May cruise circular independently downloaded with normal system TLS; byte hash identical. SOR and special-circular rules reviewed as separate instruments, not all accepted merely because filename/year is recent."
+  ],
+  "limitations": [
+    "Bounded primary-source review; no exhaustive amendment or private-contract chain, berth acceptance, source-signature validation or current transactional FX/tax determination.",
+    "No app, UI/form, provider or production execution. Form/prose equivalence and correction behavior are only reference requirements here.",
+    "Original case inputs and criteria remain unchanged. Arithmetic or safe clarification does not earn complete D10 comparison or D12 monetary completion. D13 bounded explanation does not establish every private-terminal fee."
+  ],
+  "process_note": "No persistent server, worker or kernel started/reused/stopped. Foreground hashing, rendering, arithmetic and one primary curl retrieval completed. Existing listeners preserved."
+}

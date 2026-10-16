@@ -5,6 +5,7 @@ const DB = "/memory/long_term.sqlite";
 const quote = (s: string) => "'" + s.replaceAll("'", "''") + "'";
 export class ChatMemoryRuntime {
   private shell = new Bash({
+    commands: ["sqlite3"],
     cwd: "/memory", executionLimitProfile: "hardened",
     executionLimits: { maxExecutionTimeMs: 10_000, maxSqliteTimeoutMs: 5000,
       maxDatabaseBytes: 256 * 1024, maxDatabaseResultBytes: 256 * 1024,

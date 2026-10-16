@@ -60,6 +60,23 @@ describe("migration Convex state machine", () => {
   });
   afterEach(() => vi.unstubAllEnvs());
 
+  it.each(["calculate_charges", "calculate_charge_batch", "calculate_elapsed_time"])("persists and restores the main-agent %s tool history", async toolName => {
+    const t = setup();
+    const first = await claim(t);
+    await t.mutation(internal.migration.checkpointRun, {
+      ownerId: ownerA, runId: first.runId, fence: first.fence,
+      stepNumber: 0, payloadHash: "calculation-step", finishReason: "tool-calls",
+      responseMessages: [
+        { role: "assistant", content: [{ type: "tool-call", toolCallId: "calc-1", toolName, input: { expression: "1+1" } }] },
+        { role: "tool", content: [{ type: "tool-result", toolCallId: "calc-1", toolName, output: { type: "json", value: { result: "2" } } }] },
+      ],
+    });
+    await t.mutation(internal.migration.completeRun, { ownerId: ownerA, runId: first.runId, fence: first.fence, responseMessages: [{ role: "assistant", content: "Calculation complete." }], form: null, finishReason: "stop" });
+    const next = await claim(t, { conversationId: first.conversationId, requestId: "follow-up", payloadHash: "follow-up", question: "Explain that calculation.", expectedRevision: first.revision + 1 });
+    const context = await t.query(internal.migration.getRunContext, { ownerId: ownerA, runId: next.runId, fence: next.fence });
+    expect(JSON.stringify(context.messages)).toContain(toolName);
+  });
+
   it("does not complete a reasoning-only response as a blank successful answer", async () => {
     const t = setup();
     const run = await claim(t);

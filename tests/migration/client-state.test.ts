@@ -1,5 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { migrationRunState } from "../../src/lib/migration/client-state";
+import { migrationRunState, makeQuestionRequest } from "../../src/lib/migration/client-state";
+
+describe("free-text corrections while a form is pending", () => {
+  const base = { requestId: "a122fbae-303b-45a5-90f3-7f112025dc50", conversationId: "chat", expectedRevision: 2, modelAlias: "model-1" as const, text: "Correction: GT is 14860; stay is 42 hours." };
+  it("resolves the existing form and preserves the correction verbatim in one request", () => {
+    expect(makeQuestionRequest({ ...base, pendingToolCallId: "details" })).toEqual({ kind: "form", requestId: base.requestId, conversationId: "chat", expectedRevision: 2, modelAlias: "model-1", toolCallId: "details", values: {}, cancelled: true, note: base.text });
+  });
+  it("uses the ordinary question path without a pending form", () => {
+    expect(makeQuestionRequest(base)).toMatchObject({ kind: "question", question: base.text });
+  });
+  it("rejects an oversized correction rather than truncating it or sending an invalid body", () => {
+    expect(() => makeQuestionRequest({ ...base, pendingToolCallId: "details", text: "x".repeat(2001) })).toThrow();
+    expect(makeQuestionRequest({ ...base, text: "x".repeat(2001) }).kind).toBe("question");
+  });
+});
 
 describe("shared migration run state", () => {
   it("shows a persisted run as running after reload and targets its run ID", () => {

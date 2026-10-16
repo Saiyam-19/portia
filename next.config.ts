@@ -5,8 +5,8 @@ const nextConfig: NextConfig = {
   devIndicators: { position: 'bottom-right' },
   outputFileTracingIncludes: {
     '/api/memory': ['./node_modules/just-bash/dist/**/*'],
-    '/api/chat': ['./data/ports/**/*', './node_modules/just-bash/dist/**/*'],
-    '/api/migration/chat': ['./data/ports/**/*', './node_modules/just-bash/dist/**/*'],
+    '/api/chat': ['./data/ports/**/*', './data/reviewed-tariffs/**/*', './node_modules/just-bash/dist/**/*'],
+    '/api/migration/chat': ['./data/ports/**/*', './data/reviewed-tariffs/**/*', './node_modules/just-bash/dist/**/*'],
   },
 };
 

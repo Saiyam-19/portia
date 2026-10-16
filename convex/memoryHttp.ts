@@ -4,6 +4,7 @@ import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { authComponent } from "./auth";
 import { requireMigrationDevEnabled,isAllowedEmail } from "./lib/migrationGate";
+import { readBoundedJsonBody } from "../src/lib/bounded-json-body";
 const id=z.string().min(1).max(100);
 const actor={runId:id.optional(),runFence:z.number().int().positive().optional()};
 const operation=z.discriminatedUnion("kind",[
@@ -28,10 +29,9 @@ export const memoryBridge=httpAction(async(ctx,request)=>{
     if(mismatch)return json({code:"UNAUTHENTICATED"},401);
     const user=await authComponent.getAuthUser(ctx);
     if(!isAllowedEmail(user.email))return json({code:"UNAUTHENTICATED"},401);
-    if(Number(request.headers.get("content-length")??0)>760000)return json({code:"REQUEST_TOO_LARGE"},413);
-    const raw=await request.text();
-    if(new TextEncoder().encode(raw).length>760000)return json({code:"REQUEST_TOO_LARGE"},413);
-    const parsed=schema.safeParse(JSON.parse(raw));
+    const input=await readBoundedJsonBody(request,760000);
+    if(!input.ok)return json({code:input.reason==='too_large'?"REQUEST_TOO_LARGE":"INVALID_REQUEST"},input.reason==='too_large'?413:400);
+    const parsed=schema.safeParse(input.value);
     if(!parsed.success)return json({code:"INVALID_REQUEST"},400);
     const body=parsed.data;
     if(body.op==="open")return json(await ctx.runMutation(internal.memory.open,{ownerId:user._id,...body.args,runId:body.args.runId as Id<"migrationRuns">|undefined,conversationId:body.args.conversationId as Id<"migrationConversations">|undefined}));

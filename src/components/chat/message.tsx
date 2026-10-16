@@ -44,12 +44,12 @@ export default function Message({ role, segments, streaming, formDisabled, onFor
             <div key={index} className="chat-markdown prose prose-sm prose-neutral max-w-none text-foreground dark:prose-invert prose-headings:font-semibold prose-headings:tracking-normal prose-p:leading-7 prose-a:text-brand prose-a:no-underline hover:prose-a:underline prose-code:before:content-none prose-code:after:content-none">
               <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
                 pre: ({ children }) => <pre className="overflow-x-auto rounded-xl bg-muted p-4 text-xs text-foreground">{children}</pre>,
-                table: ({ children }) => <div className="not-prose my-5 overflow-hidden rounded-xl border border-border"><Table aria-label="Response table" className="min-w-md">{children}</Table></div>,
+                table: ({ children }) => <div className="not-prose my-5 overflow-hidden rounded-xl border border-border"><Table aria-label="Response table">{children}</Table></div>,
                 thead: ({ children }) => <TableHeader className="bg-muted">{children}</TableHeader>,
                 tbody: ({ children }) => <TableBody>{children}</TableBody>,
                 tr: ({ children }) => <TableRow>{children}</TableRow>,
-                th: ({ children }) => <TableHead className="px-4 text-xs">{children}</TableHead>,
-                td: ({ children }) => <TableCell className="px-4 py-2.5">{children}</TableCell>,
+                th: ({ children }) => <TableHead className="px-4 text-xs" style={{ whiteSpace: 'normal', overflowWrap: 'anywhere' }}>{children}</TableHead>,
+                td: ({ children }) => <TableCell className="px-4 py-2.5" style={{ whiteSpace: 'normal', overflowWrap: 'anywhere' }}>{children}</TableCell>,
                 a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer">{children}</a>,
               }}>{segment.content}</ReactMarkdown>
             </div>

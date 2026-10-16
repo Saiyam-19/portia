@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { migrationAuthClient } from '@/lib/migration/auth-client'
@@ -16,15 +16,19 @@ export default function LoginForm({ basicSignup }: { basicSignup: boolean }) {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const submitting=useRef(false)
 
 
   const switchTab = (next: 'signin' | 'signup') => {
+    if(submitting.current)return
     setTab(next)
     setError(null)
   }
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault()
+    if(submitting.current)return
+    submitting.current=true
     setLoading(true)
     setError(null)
 
@@ -41,7 +45,7 @@ export default function LoginForm({ basicSignup }: { basicSignup: boolean }) {
         else { window.location.assign('/dashboard'); }
       }
     } catch { setError('Couldn’t connect. Please try again.'); }
-    finally { setLoading(false); }
+    finally { submitting.current=false;setLoading(false); }
   }
 
   return (
@@ -60,6 +64,7 @@ export default function LoginForm({ basicSignup }: { basicSignup: boolean }) {
           <div className="flex bg-slate-100 rounded-xl p-1 mb-8">
             <button
               onClick={() => switchTab('signin')}
+              disabled={loading}
               className={`flex-1 text-sm font-medium py-2 rounded-lg transition-all ${
                 tab === 'signin'
                   ? 'bg-white text-slate-900 shadow-sm'
@@ -70,7 +75,7 @@ export default function LoginForm({ basicSignup }: { basicSignup: boolean }) {
             </button>
             <button
               onClick={() => switchTab('signup')}
-              disabled={!basicSignup}
+              disabled={!basicSignup||loading}
               className={`flex-1 text-sm font-medium py-2 rounded-lg transition-all ${
                 tab === 'signup'
                   ? 'bg-white text-slate-900 shadow-sm'
@@ -90,6 +95,8 @@ export default function LoginForm({ basicSignup }: { basicSignup: boolean }) {
               <input
                 id="email"
                 type="email"
+                autoComplete="email"
+                aria-describedby={error?'auth-error':undefined}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@company.com"
@@ -109,6 +116,7 @@ export default function LoginForm({ basicSignup }: { basicSignup: boolean }) {
                 <input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
+                  aria-describedby={error?'auth-error':undefined}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
@@ -130,7 +138,7 @@ export default function LoginForm({ basicSignup }: { basicSignup: boolean }) {
             </div>
 
             {error && (
-              <div className="bg-red-50 text-red-600 text-sm rounded-xl px-4 py-3 border border-red-100">
+              <div id="auth-error" role="alert" className="bg-red-50 text-red-600 text-sm rounded-xl px-4 py-3 border border-red-100">
                 {error}
               </div>
             )}
@@ -151,17 +159,6 @@ export default function LoginForm({ basicSignup }: { basicSignup: boolean }) {
           <p className="mt-4 text-xs text-slate-500">Password recovery by email is not available yet.</p>
         </div>
 
-        <p className="text-center text-sm text-slate-500 mt-6">
-          By continuing, you agree to our{' '}
-          <Link href="/terms" className="text-blue-600 hover:underline">
-            Terms
-          </Link>{' '}
-          and{' '}
-          <Link href="/privacy" className="text-blue-600 hover:underline">
-            Privacy Policy
-          </Link>
-          .
-        </p>
       </div>
     </div>
   )

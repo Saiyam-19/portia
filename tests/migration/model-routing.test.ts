@@ -10,6 +10,7 @@ beforeEach(() => {
   vi.stubEnv("MIGRATION_TEST_MODE", "true");
   vi.stubEnv("MIGRATION_MODEL_OVERRIDE", "apodex/apodex-1.1-mini:free");
   vi.stubEnv("LLM_ALLOW_PAID", "false");
+  vi.stubEnv("PORTIA_FREE_TEST_ALLOW_RETENTION", "false");
   vi.stubGlobal("fetch", vi.fn(async (_url: string, init?: RequestInit) => {
     const body = JSON.parse(String(init?.body));
     bodies.push(body);
@@ -24,6 +25,28 @@ beforeEach(() => {
 afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); });
 
 describe("temporary free migration routing", () => {
+  it("allows the consented local-only privacy exception without enabling paid routing", async () => {
+    vi.stubEnv("PORTIA_FREE_TEST_ALLOW_RETENTION", "true");
+    vi.stubEnv("PORTIA_LOCAL_BACKEND", "true");
+    vi.stubEnv("PORTIA_CONVEX_DEPLOYMENT", "local-memory-integration");
+    vi.stubEnv("NEXT_PUBLIC_CONVEX_URL", "http://127.0.0.1:3220");
+    vi.stubEnv("NEXT_PUBLIC_CONVEX_SITE_URL", "http://127.0.0.1:3221");
+    vi.stubEnv("SITE_URL", "http://127.0.0.1:3022");
+    await generateText({ model: migrationLanguageModel("model-1"), prompt: "Synthetic routing test", maxRetries: 0 });
+    expect(bodies[0].provider).toMatchObject({ data_collection: "allow", zdr: false, allow_fallbacks: false, max_price: { prompt: 0, completion: 0, request: 0 } });
+  });
+
+  it("cannot apply the local privacy exception to cloud deployments", async () => {
+    vi.stubEnv("PORTIA_FREE_TEST_ALLOW_RETENTION", "true");
+    vi.stubEnv("PORTIA_LOCAL_BACKEND", "true");
+    vi.stubEnv("PORTIA_CONVEX_DEPLOYMENT", "joyous-kookabura-196");
+    vi.stubEnv("NEXT_PUBLIC_CONVEX_URL", "https://joyous-kookabura-196.convex.cloud");
+    vi.stubEnv("NEXT_PUBLIC_CONVEX_SITE_URL", "https://joyous-kookabura-196.convex.site");
+    vi.stubEnv("SITE_URL", "https://portia-berthing.vercel.app");
+    await generateText({ model: migrationLanguageModel("model-1"), prompt: "Synthetic routing test", maxRetries: 0 });
+    expect(bodies[0].provider).toMatchObject({ data_collection: "deny", zdr: true, max_price: { prompt: 0, completion: 0, request: 0 } });
+  });
+
   it("routes both aliases free with zero-price and privacy restrictions", async () => {
     for (const alias of ["model-1", "model-2"] as const) {
       await generateText({ model: migrationLanguageModel(alias), prompt: "Synthetic routing test", maxRetries: 0 });

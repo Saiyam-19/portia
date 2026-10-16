@@ -6,7 +6,7 @@ const MAX_UPSTREAM_BYTES = 256_000;
 const MAX_FIELD_CHARS = 200;
 const MAX_TOOL_OUTPUT_CHARS = 12_000;
 
-type VesselOptions = { fetchImpl?: typeof fetch; abortSignal?: AbortSignal };
+type VesselOptions = { fetchImpl?: typeof fetch; abortSignal?: AbortSignal; onDetails?: (details:{name:string;gt?:string;dwt?:string})=>void };
 
 function display(value: unknown, fallback = "Unknown"): string {
   if (value === null || value === undefined || value === "") return fallback;
@@ -111,6 +111,8 @@ export async function getVessel(
     const vessel = payload.vessel && typeof payload.vessel === "object"
       ? payload.vessel as Record<string, unknown>
       : {};
+    const quantity=(v:unknown)=>typeof v==="number"&&Number.isFinite(v)&&v>0&&v<=1e18?String(v):undefined;
+    if(String(vessel[idType]??"").trim()===normalized)options.onDetails?.({name:display(vessel.name,""),gt:quantity(vessel.gross_tonnage),dwt:quantity(vessel.deadweight_tonnage)});
     return [
       `**${display(vessel.name, "Unknown vessel")}**`,
       `- IMO: ${display(vessel.imo)} | MMSI: ${display(vessel.mmsi)} | Callsign: ${display(vessel.call_sign)}`,

@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "id": "mbpa-indira-ordinary-coastal-2026-05-09",
+  "status": "approved",
+  "evidenceClass": "official-tariff",
+  "port": "mumbai",
+  "berth": "Indira Dock",
+  "effectiveFrom": "2026-05-09",
+  "verifiedThrough": "2026-10-15",
+  "rateValidityNote": "May 2026 indexed rate, effective 9 May 2026. Subsequent annual indexation/amendments require a newly reviewed version; the underlying SOR end date does not freeze this rate.",
+  "currency": "INR",
+  "ratePerGrtStartedHour": "0.2165",
+  "minimumGrt": "1000",
+  "minimumBill": "100",
+  "readinessAllowanceHours": "4",
+  "cgstPercent": "9",
+  "sgstPercent": "9",
+  "sac": "996752",
+  "finalRounding": "ceil-whole-INR",
+  "sources": [
+    {
+      "id": "MBPA-SOR-2026",
+      "file": "mumbai-sor-updated-may2026.pdf",
+      "url": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1778833452.pdf",
+      "authority": "Mumbai Port Authority",
+      "identity": "Scale of Rates; indexation effective 1 May 2026; updated 9 May 2026",
+      "support": [
+        {
+          "page": 4,
+          "clause": "1.2(i), 1.2(ii)(I)(B)(iii)",
+          "fact": "Certified status determines VRC; dedicated Indian coastal licence supports coastal classification."
+        },
+        {
+          "page": 6,
+          "clause": "1.2(viii)(a), (ix), (xii)(f), (xv)",
+          "fact": "INR100 minimum bill, upward grand-total rupee rounding, coastal charges INR, tariff excludes taxes."
+        },
+        {
+          "page": 22,
+          "clause": "2.17 table row1; notes1(i),2(i)-(v),3",
+          "fact": "Onward9May2026 ordinary Indira/Ballard/BPX coastal INR0.2165 per GRT/hour or part; GT floor1000; occupancy/readiness rules; no holiday supplement."
+        },
+        {
+          "page": 23,
+          "clause": "2.17 notes7,8",
+          "fact": "Port-caused idling relief and priority additions addressed by explicit zero-trigger facts."
+        }
+      ],
+      "sha256": "bcef570f3e41b1eb94772c38052f3701a981bd3b4d22059134ddcc1fe44bc244"
+    },
+    {
+      "id": "MBPA-MAY-AMENDMENT",
+      "file": "mumbai-berth-amendment-may2026.pdf",
+      "url": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1778833405.pdf",
+      "authority": "Mumbai Port Authority",
+      "identity": "May2026 circular implementing9May2026 berth-hire amendment and annual indexation",
+      "support": [
+        {
+          "page": 2,
+          "clause": "paragraphs3,2-3 and onward9May2026 table row1",
+          "fact": "Reconfirms ordinary coastal0.2165; underlying amended SOR period to25Nov2028, subject to annual indexation, not a frozen rate through2028."
+        }
+      ],
+      "sha256": "c64752669611dc4581ff6fc591a9073c17a7986c1a9e18c1fd606aec8a43354c"
+    },
+    {
+      "id": "MBPA-GST-SCHEDULE",
+      "file": "mumbai-gst-classification.pdf",
+      "url": "https://mumbaiport.gov.in/WriteReadData/RTF1984/1688467921.pdf",
+      "authority": "Mumbai Port Authority",
+      "identity": "Schedule of Rates under Goods and Services Tax; no visible issue/effective date established from used page",
+      "support": [
+        {
+          "page": 38,
+          "clause": "Berth Hire charges on vessels, boats and barges at Indira Dock, P&V Docks and Harbour Wall berths row",
+          "fact": "Explicit service classification SAC996752, GST18%, CGST9%, SGST9%, IGST18%. Visually inspected complete table."
+        }
+      ],
+      "sha256": "cb23c84545b7f29d115d49280b23f5ea30fba4b7c353fd365d3f09dce5eaea5f"
+    },
+    {
+      "id": "CBIC-RATES",
+      "file": "cbic-gst-rates.html",
+      "url": "https://cbic-gst.gov.in/hindi/gst-goods-services-rates.html",
+      "authority": "Central Board of Indirect Taxes and Customs",
+      "identity": "Published Goods and Services Rates table",
+      "support": [
+        {
+          "section": "Services serial11, Heading9967",
+          "fact": "Supporting services in transport: CGST9%, SGST9%, IGST18%; excludes GTA goods transport under9965."
+        }
+      ],
+      "sha256": "cdb4fa6061e7a7c07041fa2b3d1e7a46ecb189dd61d77cc038d62bfae087409d"
+    },
+    {
+      "id": "CBIC-INTRASTATE",
+      "file": "cbic-gst-faq.html",
+      "url": "https://cbic-gst.gov.in/faq.html",
+      "authority": "Central Board of Indirect Taxes and Customs",
+      "identity": "Frequently Asked Questions",
+      "support": [
+        {
+          "section": "Question85",
+          "fact": "Same-state supplier location and place of supply means intra-state supply with CGST/SGST."
+        }
+      ],
+      "sha256": "0ef09ca60f446df5ebb3c3c6ca5c948dab018c7d2906c6049fe3076e9c87c23c"
+    }
+  ]
+}

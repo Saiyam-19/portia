@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "verifiedOn": "2026-10-15",
+  "scope": "Reviewed conditional components only; no full invoice approval. No fixture totals.",
+  "sources": [
+    {
+      "file": "nsft-2026.pdf",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/NSFTPL_Terminal_Tariff_01_05_2026.pdf",
+      "sha256": "337c9ec529dd4959f3186565d0b147f98b5f68e1cef4d4aa5367f3d57c50a95e"
+    },
+    {
+      "file": "nsigt-2026-candidate.pdf",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/Scale_of_Rates_1st_April_2026.pdf",
+      "sha256": "e1e7b142ca42f384b8f7a0e2cf5fdd1946faa1bbea2d31a86ef2967f865420c6"
+    },
+    {
+      "file": "nsict-tariff-2026.pdf",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/NSICT_Tariff_2026.pdf",
+      "sha256": "572e163b2995cb6ed9f1649771f08fd3830afa04adfa3d7cb565ee82a5e048e7"
+    },
+    {
+      "file": "jsw-jaigarh-tariff-2026.pdf",
+      "url": "https://www.jswinfrastructure.in/sites/default/files/assets/industry/infrastructure/jaigarh/JSW-Jaigarh-Port-Tariff-wef-01.05.2026.pdf",
+      "sha256": "98ae0d5f90ffa0c3dc725f3aee555ae3d20caee1a65b569fe37f7a12c6d60f0f"
+    }
+  ],
+  "containers": {
+    "nhava-sheva-freeport-terminal": {
+      "source": 0,
+      "effectiveFrom": "2026-05-01",
+      "currency": "USD",
+      "road": [
+        "94.78",
+        "82.42"
+      ],
+      "rail": [
+        "111.26",
+        "105.08"
+      ],
+      "scope": "20ft normal EXIM; corresponding landside leg included",
+      "reference": "pp2-4 normal20ft foreign/EXIM bundles; p11 note f"
+    },
+    "nhava-sheva-gateway-terminal": {
+      "source": 1,
+      "effectiveFrom": "2026-04-01",
+      "effectiveThrough": "2027-03-31",
+      "currency": "INR",
+      "shipYard": [
+        "4947.13",
+        "3995.79"
+      ],
+      "roadAdd": "761.09",
+      "railAdd": "2473.54",
+      "berthRate": "2.0476",
+      "scope": "20ft normal EXIM; rail addition requires explicit ICD rail",
+      "reference": "pp3-5 Ch2/3.1(A), p10 annual cap period"
+    },
+    "nhava-sheva-international-container-terminal": {
+      "source": 2,
+      "effectiveFrom": "2026-05-01",
+      "currency": "INR",
+      "shipYard": [
+        "6666.25",
+        "5666.10"
+      ],
+      "scope": "20ft normal EXIM ship-yard/yard-ship USING PORT CRANE",
+      "reference": "p3 section1(A); p2 sections2.2,2.7,2.10; p10 MUC"
+    }
+  },
+  "jaigarh": {
+    "source": 3,
+    "effectiveFrom": "2026-05-01",
+    "operator": "JSW",
+    "cargoCategory": "mechanized-bulk",
+    "currency": "USD",
+    "rate": "0.33",
+    "minimum": "2000",
+    "maximumValidityDays": "30",
+    "reference": "p1 J-1 mechanized-bulk column/minimum; pp6-8 scope/FX/identity"
+  },
+  "mumbaiForeign": {
+    "effectiveFrom": "2026-05-09",
+    "currency": "USD",
+    "minimumGt": "1000",
+    "rates": {
+      "Indira Dock": "0.0137",
+      "Ballard Pier": "0.0137",
+      "Princes Dock": "0.0109",
+      "Victoria Dock": "0.0109"
+    },
+    "reference": "MbPA May2026 SOR pp21-23 section2.17 and May amendmentp2"
+  },
+  "finolexIdentity": {
+    "file": "finolex-terminal-information.pdf",
+    "sha256": "be8060ccacb9e7b634251a45ca67910a99d29fa1bf2044885dd88659f092e6ee",
+    "url": "https://www.finolexpipes.com/site/assets/files/1776/finolex_terminal_information.pdf",
+    "scope": "Reviewed facility/measurement explanation only; no dated berth rate or operational acceptance"
+  }
+}

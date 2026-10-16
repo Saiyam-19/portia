@@ -1,3 +1,4 @@
+import { nonfinancialProposal } from "../migration/conversation-fixtures";
 import { MockLanguageModelV4 } from "ai/test";
 import type { LanguageModelV4GenerateResult } from "@ai-sdk/provider";
 import { expect, it, vi } from "vitest";
@@ -10,10 +11,10 @@ const result: LanguageModelV4GenerateResult = {
   warnings: [],
 };
 it("loads fresh memory context before the model sees a new chat", async () => {
-  const model = new MockLanguageModelV4({ doGenerate: result });
+  const model = new MockLanguageModelV4({ doGenerate: [{...result,content:[{type:"tool-call",toolName:"interpret_request",toolCallId:"interpret",input:JSON.stringify(nonfinancialProposal("What did I save?"))}],finishReason:{unified:"tool-calls",raw:undefined}},result] });
   const memory = { tools: {}, instructions: vi.fn(async () => "MEMORY_CONTEXT_FIXTURE_9187") };
   await createMigrationMainAgent({ alias: "model-1", mainModel: model, memory } as Parameters<typeof createMigrationMainAgent>[0]).generate({ prompt: "What did I save?" });
-  expect(memory.instructions).toHaveBeenCalledTimes(1);
+  expect(memory.instructions).toHaveBeenCalledTimes(2);
   expect(JSON.stringify(model.doGenerateCalls[0].prompt)).toContain("MEMORY_CONTEXT_FIXTURE_9187");
 });
 it("does not make a provider call after the memory epoch was invalidated", async () => {

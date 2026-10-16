@@ -3,6 +3,7 @@ import { callMigrationBridge, MigrationTokenManager } from "@/lib/migration/brid
 import { abortMigrationRun } from "@/lib/migration/run-registry";
 import { migrationPreviewEnabled } from "@/lib/migration/config";
 import { trustedMigrationOrigin } from "@/lib/migration/origin";
+import { readBoundedJsonBody } from "@/lib/bounded-json-body";
 
 export const runtime = "nodejs";
 
@@ -12,17 +13,11 @@ export async function POST(request: Request): Promise<Response> {
   if (!origin) {
     return Response.json({ error: "Cross-origin request denied." }, { status: 403 });
   }
-  const raw = await request.text();
-  if (Buffer.byteLength(raw, "utf8") > 4_000) {
+  const body=await readBoundedJsonBody(request,4_000);
+  if (!body.ok) {
     return Response.json({ error: "Invalid cancel request." }, { status: 400 });
   }
-  let body: unknown;
-  try {
-    body = JSON.parse(raw);
-  } catch {
-    return Response.json({ error: "Invalid cancel request." }, { status: 400 });
-  }
-  const parsed = cancelRequestSchema.safeParse(body);
+  const parsed = cancelRequestSchema.safeParse(body.value);
   if (!parsed.success) return Response.json({ error: "Invalid cancel request." }, { status: 400 });
 
   const controller = new AbortController();

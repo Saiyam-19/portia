@@ -2,11 +2,14 @@ import { isStepCount } from "ai";
 
 export const MIGRATION_AGENT_MAX_STEPS = 12;
 export const MIGRATION_AGENT_MAX_OUTPUT_TOKENS = 4_096;
+export const MIGRATION_INTERPRETATION_MAX_OUTPUT_TOKENS = 8_192;
+
+// Enforced on provider output before conversation publication buffering.
+export const MIGRATION_PROVIDER_FIRST_OUTPUT_MS = 60_000;
 
 export const MIGRATION_CHAT_TIMEOUT = {
   totalMs: 240_000,
   stepMs: 180_000,
-  firstChunkMs: 60_000,
   // The SDK's chunk timer also runs while nested tools execute. A healthy
   // specialist can use up to 120s; bound the whole step instead of its silence.
 } as const;

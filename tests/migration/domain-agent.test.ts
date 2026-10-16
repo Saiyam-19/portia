@@ -1,211 +1,80 @@
 import { MockLanguageModelV4 } from "ai/test";
-import type { LanguageModelV4GenerateResult } from "@ai-sdk/provider";
+import type { LanguageModelV4GenerateResult, LanguageModelV4StreamPart } from "@ai-sdk/provider";
 import { describe, expect, it, vi } from "vitest";
-import { createMigrationMainAgent, MAIN_SYSTEM_PROMPT, PORT_AGENT_SYSTEM } from "../../src/lib/migration/domain-agent";
-
-const usage = {
-  inputTokens: { total: 10, noCache: 10, cacheRead: undefined, cacheWrite: undefined },
-  outputTokens: { total: 5, text: 5, reasoning: undefined },
-};
-
-function generated(
-  content: LanguageModelV4GenerateResult["content"],
-  finish: "stop" | "tool-calls" | "length",
-): LanguageModelV4GenerateResult {
-  return {
-    content,
-    finishReason: { unified: finish, raw: undefined },
-    usage,
-    warnings: [],
-  };
+import { tool } from "ai";
+import { z } from "zod";
+import { createMigrationMainAgent } from "../../src/lib/migration/domain-agent";
+import { nonfinancialProposal, projectionProposal, mumbaiProposal, mumbaiQuestion } from "./conversation-fixtures";
+import { ConversationSession } from "../../src/lib/migration/conversation-session";
+const usage = { inputTokens: { total: 10, noCache: 10, cacheRead: undefined, cacheWrite: undefined }, outputTokens: { total: 5, text: 5, reasoning: undefined } };
+const generated = (content: LanguageModelV4GenerateResult["content"], finish: "stop" | "tool-calls" | "length" = "tool-calls"): LanguageModelV4GenerateResult => ({ content, finishReason: { unified: finish, raw: undefined }, usage, warnings: [] });
+const interpret = (p: unknown) => generated([{ type: "tool-call", toolCallId: "interpret", toolName: "interpret_request", input: JSON.stringify(p) }]);
+function streamed(result: LanguageModelV4GenerateResult) {
+  return { stream: new ReadableStream<LanguageModelV4StreamPart>({ start(c) {
+    c.enqueue({ type: "stream-start", warnings: [] });
+    for (const part of result.content) if (part.type === "tool-call") c.enqueue(part); else if (part.type === "text") { c.enqueue({ type: "text-start", id: "t" }); c.enqueue({ type: "text-delta", id: "t", delta: part.text }); c.enqueue({ type: "text-end", id: "t" }); }
+    c.enqueue({ type: "finish", finishReason: result.finishReason, usage }); c.close();
+  } }) };
 }
-
-describe("full migration domain agent", () => {
-  it("retains specialist and main review, then publishes the calculated report without rewriting it", async () => {
-    let mainCalls = 0;
-    const main = new MockLanguageModelV4({ doGenerate: async ({ tools }) => {
-      if (mainCalls++ === 0) return generated([{ type: "tool-call", toolCallId: "consult-batch", toolName: "consult_port_agent", input: JSON.stringify({ port_name: "mumbai", query: "Calculate marine charges" }) }], "tool-calls");
-      const publication = tools?.find(tool => tool.type === "function" && tool.name === "publish_report");
-      expect(publication?.type).toBe("function");
-      const schema = JSON.parse(JSON.stringify(publication && "inputSchema" in publication ? publication.inputSchema : {}));
-      return generated([{ type: "tool-call", toolCallId: "approved", toolName: "publish_report", input: JSON.stringify({ report_id: schema.properties.report_id.enum[0] }) }], "tool-calls");
-    } });
-    const specialist = new MockLanguageModelV4({ doGenerate: [
-      generated([{ type: "tool-call", toolCallId: "batch", toolName: "calculate_charge_batch", input: JSON.stringify({ calculations: [
-        { id: "dues", expression: "20000 * 10.5366" },
-        { id: "pilotage", expression: "20000 * 17.2897" },
-        { id: "total", expression: "$dues + $pilotage" },
-      ] }) }], "tool-calls"),
-      generated([{ type: "text", text: "INR 556526.0000, pre-GST. tariffs.md §§2.16 and 2.1(A). Static schedule; validity and scope apply." }], "stop"),
-    ] });
-    const factory = vi.fn(() => specialist);
-    const result = await createMigrationMainAgent({ alias: "model-2", mainModel: main, specialistModelFactory: factory }).generate({ prompt: "Estimate" });
-    expect(factory).toHaveBeenCalledWith("model-2");
-    expect(specialist.doGenerateCalls).toHaveLength(2);
-    expect(main.doGenerateCalls).toHaveLength(2);
-    expect(result.text).toBe("INR 556526.0000, pre-GST. tariffs.md §§2.16 and 2.1(A). Static schedule; validity and scope apply.");
-    expect(result.finishReason).toBe("stop");
-    const calculationResult = JSON.stringify(specialist.doGenerateCalls[1].prompt);
-    expect(calculationResult).toContain("556526.0000");
-    expect(calculationResult).toContain("210732.0000");
-    expect(JSON.stringify(main.doGenerateCalls[1].prompt)).toContain("tariffs.md §§2.16 and 2.1(A)");
+describe("shared migration domain agent", () => {
+  // The former test accepted a model-only INR556526 report for this incomplete
+  // input. The approved architecture explicitly removes that publication path.
+  it("rejects an unbound specialist financial report for the original incomplete request", async () => {
+    const model = new MockLanguageModelV4({ doGenerate: generated([{ type: "tool-call", toolCallId: "consult", toolName: "consult_port_agent", input: JSON.stringify({ port_name: "mumbai", query: "Calculate marine charges" }) }]) });
+    const factory = vi.fn(() => { throw new Error("Unbound specialist must not run"); });
+    await expect(createMigrationMainAgent({ alias: "model-2", mainModel: model, specialistModelFactory: factory }).generate({ prompt: "Estimate Mumbai charges" })).rejects.toThrow(/required tool 'interpret_request'/); expect(factory).not.toHaveBeenCalled(); expect(model.doGenerateCalls).toHaveLength(1);
   });
-
-  it("routes through the same-alias specialist and returns cited tariff output", async () => {
-    const mainModel = new MockLanguageModelV4({
-      doGenerate: [
-        generated([{ type: "tool-call", toolCallId: "consult-1", toolName: "consult_port_agent", input: JSON.stringify({ port_name: "mumbai", query: "Calculate dues for 50000 GRT and cite the tariff." }) }], "tool-calls"),
-        generated([{ type: "text", text: "Estimated dues. Source: tariffs.md, cited section. Validity must be confirmed." }], "stop"),
-      ],
-    });
-    const specialistModel = new MockLanguageModelV4({
-      doGenerate: generated([{ type: "text", text: "Charge breakdown from tariffs.md section 2; schedule validity unclear; GST and FX not assumed." }], "stop"),
-    });
-    const specialistFactory = vi.fn(() => specialistModel);
-    const agent = createMigrationMainAgent({
-      alias: "model-2",
-      mainModel,
-      specialistModelFactory: specialistFactory,
-    });
-    const result = await agent.generate({ prompt: "What are Mumbai charges for 50000 GRT?" });
-    expect(result.text).toContain("tariffs.md");
-    expect(specialistFactory).toHaveBeenCalledWith("model-2");
-    expect(specialistModel.doGenerateCalls).toHaveLength(1);
-    expect(mainModel.doGenerateCalls).toHaveLength(2);
+  it("keeps the selected alias path while declining to invent missing source applicability", async () => {
+    const question = "What are Mumbai charges for 50000 GRT?";
+    const p = await projectionProposal([{ role: "user", content: question }], "quote"); p.tasks[0].charges = ["berth", "other"];
+    const model = new MockLanguageModelV4({ doGenerate: interpret(p) });
+    const result = await createMigrationMainAgent({ alias: "model-2", mainModel: model }).generate({ prompt: question });
+    expect(result.text).toMatch(/requested.*scope|governing source/); expect(result.text).not.toMatch(/INR\s*\d/); expect(model.doGenerateCalls).toHaveLength(1);
   });
-
-  it("withholds truncated specialist financial output from the main agent", async () => {
-    const mainModel = new MockLanguageModelV4({ doGenerate: [
-      generated([{ type: "tool-call", toolCallId: "truncated", toolName: "consult_port_agent", input: JSON.stringify({ port_name: "mumbai", query: "Calculate tariff" }) }], "tool-calls"),
-      generated([{ type: "text", text: "The specialist did not finish. Please retry." }], "stop"),
-    ] });
-    const specialistModel = new MockLanguageModelV4({ doGenerate: generated([{ type: "text", text: "UNSAFE PARTIAL FINANCIAL TOTAL 123456" }], "length") });
-    const agent = createMigrationMainAgent({ alias: "model-1", mainModel, specialistModelFactory: () => specialistModel });
-    await agent.generate({ prompt: "Estimate charges" });
-    const continuation = JSON.stringify(mainModel.doGenerateCalls[1]?.prompt);
-    expect(continuation).not.toContain("UNSAFE PARTIAL FINANCIAL TOTAL");
-    expect(continuation).toContain("specialist response is incomplete");
-  });
-
-  it("does not invoke a specialist for an empty tariff asset", async () => {
-    const mainModel = new MockLanguageModelV4({ doGenerate: [
-      generated([{ type: "tool-call", toolCallId: "empty-port", toolName: "consult_port_agent", input: JSON.stringify({ port_name: "bpcl-cargo-jetty", query: "Estimate charges" }) }], "tool-calls"),
-      generated([{ type: "text", text: "No tariff data available. Please supply an authoritative schedule." }], "stop"),
-    ] });
-    const specialistFactory = vi.fn(() => { throw new Error("must not incur a specialist call"); });
-    await createMigrationMainAgent({ alias: "model-1", mainModel, specialistModelFactory: specialistFactory }).generate({ prompt: "Estimate BPCL cargo jetty" });
-    expect(specialistFactory).not.toHaveBeenCalled();
-    expect(JSON.stringify(mainModel.doGenerateCalls[1]?.prompt)).toContain("No tariff data available");
-  });
-
-  it("suspends on a single structured ask_user_input call", async () => {
-    const mainModel = new MockLanguageModelV4({
-      doGenerate: generated([{
-        type: "tool-call",
-        toolCallId: "ask-1",
-        toolName: "ask_user_input",
-        input: JSON.stringify({
-          title: "Voyage details",
-          fields: [{ name: "grt", label: "Gross tonnage", type: "number", unit: "GRT", required: true }],
-        }),
-      }], "tool-calls"),
-    });
-    const agent = createMigrationMainAgent({ alias: "model-1", mainModel });
-    const result = await agent.generate({ prompt: "Calculate my port call" });
-    expect(result.toolCalls).toHaveLength(1);
-    expect(result.toolCalls[0]?.toolName).toBe("ask_user_input");
-    expect(result.toolResults).toHaveLength(0);
-    expect(mainModel.doGenerateCalls).toHaveLength(1);
-  });
-
-  it("preserves tariff citation, expiry, FX and GST rules in prompts", () => {
-    for (const fragment of ["document filename", "effective dates", "expired", "exchange rate", "GST", "static reference"]) {
-      expect(`${MAIN_SYSTEM_PROMPT}\n${PORT_AGENT_SYSTEM}`).toContain(fragment);
-    }
-  });
-
-  it("bounds nested provider calls and specialist consultations per run", async () => {
-    const consult = generated([{ type: "tool-call", toolCallId: "consult-loop", toolName: "consult_port_agent", input: JSON.stringify({ port_name: "mumbai", query: "Repeat lookup" }) }], "tool-calls");
-    const mainModel = new MockLanguageModelV4({
-      doGenerate: [consult, consult, consult, consult, generated([{ type: "text", text: "Budget-aware final answer" }], "stop")],
-    });
-    const specialistModels: MockLanguageModelV4[] = [];
-    const specialistFactory = vi.fn(() => {
-      const model = new MockLanguageModelV4({
-        doGenerate: generated([{ type: "text", text: "Specialist answer" }], "stop"),
-      });
-      specialistModels.push(model);
-      return model;
-    });
-    const agent = createMigrationMainAgent({
-      alias: "model-1",
-      mainModel,
-      specialistModelFactory: specialistFactory,
-    });
-    const result = await agent.generate({ prompt: "Pathological repeated consultations" });
-    expect(result.text).toBe("Budget-aware final answer");
-    expect(specialistFactory).toHaveBeenCalledTimes(3);
-    expect(mainModel.doGenerateCalls.length + specialistModels.reduce((sum, model) => sum + model.doGenerateCalls.length, 0)).toBeLessThanOrEqual(16);
-  });
-
-  it("propagates cancellation into a nested specialist call", async () => {
-    const controller = new AbortController();
-    let nestedSignal: AbortSignal | undefined;
-    const mainModel = new MockLanguageModelV4({
-      doGenerate: generated([{ type: "tool-call", toolCallId: "consult-abort", toolName: "consult_port_agent", input: JSON.stringify({ port_name: "mumbai", query: "Slow lookup" }) }], "tool-calls"),
-    });
-    const specialistModel = new MockLanguageModelV4({
-      doGenerate: async (options) => {
-        nestedSignal = options.abortSignal;
-        controller.abort(new DOMException("Stopped", "AbortError"));
-        options.abortSignal?.throwIfAborted();
-        return generated([{ type: "text", text: "must not complete" }], "stop");
-      },
-    });
-    const agent = createMigrationMainAgent({
-      alias: "model-1",
-      mainModel,
-      specialistModelFactory: () => specialistModel,
-    });
-    await expect(agent.generate({ prompt: "cancel nested", abortSignal: controller.signal })).rejects.toThrow();
-    expect(nestedSignal?.aborted).toBe(true);
-  });
-
-  it("stops before another provider call after checkpoint failure", async () => {
-    let checkpointFailure: Error | undefined;
-    const lookup = generated([{ type: "tool-call", toolCallId: "lookup-1", toolName: "get_vessel", input: JSON.stringify({ id: "1234567", id_type: "imo" }) }], "tool-calls");
-    const model = new MockLanguageModelV4({
-      doGenerate: [lookup, generated([{ type: "text", text: "must not run" }], "stop")],
-    });
-    const agent = createMigrationMainAgent({
-      alias: "model-1",
-      mainModel: model,
-      assertCanContinue: () => {
-        if (checkpointFailure) throw checkpointFailure;
-      },
-    });
-    await expect(agent.generate({
-      prompt: "checkpoint failure",
-      onStepEnd: async () => { checkpointFailure = new Error("checkpoint failed"); },
-    })).rejects.toThrow(/checkpoint failed/);
+  it("withholds truncated interpretation output and makes no implicit retry", async () => {
+    const model = new MockLanguageModelV4({ doGenerate: generated([{ type: "text", text: "UNSAFE PARTIAL FINANCIAL TOTAL 123456" }], "length") });
+    await expect(createMigrationMainAgent({ alias: "model-1", mainModel: model }).generate({ prompt: "Estimate Mumbai charges" })).rejects.toThrow(/did not finish/);
     expect(model.doGenerateCalls).toHaveLength(1);
   });
-
-  it("hard-stops at sixteen actual nested provider invocations", async () => {
-    const mainModel = new MockLanguageModelV4({
-      doGenerate: generated([{ type: "tool-call", toolCallId: "consult-budget", toolName: "consult_port_agent", input: JSON.stringify({ port_name: "mumbai", query: "Keep consulting" }) }], "tool-calls"),
-    });
-    const specialists: MockLanguageModelV4[] = [];
-    const specialistFactory = () => {
-      const model = new MockLanguageModelV4({
-        doGenerate: generated([{ type: "tool-call", toolCallId: "calc-budget", toolName: "calculate_charges", input: JSON.stringify({ expression: "1+1" }) }], "tool-calls"),
-      });
-      specialists.push(model);
-      return model;
-    };
-    const agent = createMigrationMainAgent({ alias: "model-1", mainModel, specialistModelFactory: specialistFactory });
-    await expect(agent.generate({ prompt: "exhaust nested budget" })).rejects.toThrow(/Provider call budget exhausted/);
-    const calls = mainModel.doGenerateCalls.length + specialists.reduce((sum, model) => sum + model.doGenerateCalls.length, 0);
-    expect(calls).toBe(16);
+  it("does not invoke a specialist for an empty tariff asset", async () => {
+    const question = "Estimate BPCL cargo jetty"; const p = await projectionProposal([{ role: "user", content: question }], "quote");
+    const model = new MockLanguageModelV4({ doGenerate: interpret(p) }); const factory = vi.fn(() => { throw new Error("No source"); });
+    const result = await createMigrationMainAgent({ alias: "model-1", mainModel: model, specialistModelFactory: factory }).generate({ prompt: question });
+    expect(factory).not.toHaveBeenCalled(); expect(result.text).toContain("not yet available"); expect(result.text).not.toMatch(/(?:USD|INR)\s*\d/);
+  });
+  it("suspends on one necessary structured question after interpretation", async () => {
+    const question = "Calculate my port call"; const p = await projectionProposal([{ role: "user", content: question }], "quote");
+    const model = new MockLanguageModelV4({ doGenerate: interpret(p) });
+    const result = await createMigrationMainAgent({ alias: "model-1", mainModel: model }).generate({ prompt: question });
+    const askStep = result.steps.at(-1)!;
+    expect(askStep.toolCalls).toHaveLength(1); expect(askStep.toolCalls[0]?.toolName).toBe("ask_user_input"); expect(askStep.toolResults).toHaveLength(0);
+    expect(JSON.stringify(askStep.toolCalls[0].input)).toContain("Requested port or terminal"); expect(model.doGenerateCalls).toHaveLength(1);
+  });
+  it("publishes financial rows, taxes, rounding, dates and citations exclusively from the source-bound ledger", async () => {
+    const model = new MockLanguageModelV4({ doGenerate: { ...interpret(mumbaiProposal()), content: [{ type: "text", text: "unbound INR999999" }, ...interpret(mumbaiProposal()).content] } });
+    const binding = { runId: "domain", fence: 2, revision: 4 }; const conversation = new ConversationSession(binding);
+    const result = await createMigrationMainAgent({ alias: "model-1", mainModel: model, conversation, quoteBinding: binding }).generate({ prompt: mumbaiQuestion });
+    for (const text of ["51,094.00", "CGST 9%", "SGST 9%", "2026-05-09", "whole-rupee", "cbic-gst.gov.in"]) expect(result.text).toContain(text);
+    expect(result.text).not.toContain("999999"); expect(conversation.answer?.binding).toEqual(binding); expect(await conversation.verify(conversation.answer)).toBe(true);
+  });
+  it.each(["generate", "stream"] as const)("bounds actual provider calls during a runaway read-only tool loop (%s)", async mode => {
+    const question = "Pathological repeated consultations"; let count = 0, executed = 0;
+    const next = () => count++ === 0 ? interpret(nonfinancialProposal(question)) : generated([{ type: "tool-call", toolCallId: `read-${count}`, toolName: "read_scratchpad", input: "{}" }]);
+    const model = new MockLanguageModelV4({ doGenerate: async () => next(), doStream: async () => streamed(next()) });
+    const agent = createMigrationMainAgent({ alias: "model-1", mainModel: model, memory: { instructions: async () => "No facts", tools: { read_scratchpad: tool({ inputSchema: z.object({}).strict(), execute: async () => { executed++; return "Synthetic notes"; } }) } } } as Parameters<typeof createMigrationMainAgent>[0]);
+    if (mode === "generate") await agent.generate({ prompt: question }); else { const r = await agent.stream({ prompt: question }); for await (const p of r.stream) if (p.type === "error") throw p.error; }
+    expect(count).toBeGreaterThan(1); expect(count).toBeLessThanOrEqual(16); expect(executed).toBe(count - 1);
+  });
+  it("propagates Stop into an executing tool and does not restart inference", async () => {
+    const controller = new AbortController(); let nested: AbortSignal | undefined;
+    const question = "cancel nested"; const model = new MockLanguageModelV4({ doGenerate: [interpret(nonfinancialProposal(question)), generated([{ type: "tool-call", toolCallId: "read", toolName: "read_scratchpad", input: "{}" }])] });
+    const agent = createMigrationMainAgent({ alias: "model-1", mainModel: model, memory: { instructions: async () => "", tools: { read_scratchpad: tool({ inputSchema: z.object({}), execute: async (_input, { abortSignal }) => { nested = abortSignal; controller.abort(new DOMException("Stopped", "AbortError")); abortSignal?.throwIfAborted(); return "must not complete"; } }) } } } as Parameters<typeof createMigrationMainAgent>[0]);
+    await expect(agent.generate({ prompt: question, abortSignal: controller.signal })).rejects.toThrow(); expect(nested?.aborted).toBe(true); expect(model.doGenerateCalls).toHaveLength(2);
+  });
+  it("stops before another provider call after checkpoint failure", async () => {
+    let failure: Error | undefined; const question = "checkpoint failure";
+    const model = new MockLanguageModelV4({ doGenerate: interpret(nonfinancialProposal(question)) });
+    const agent = createMigrationMainAgent({ alias: "model-1", mainModel: model, assertCanContinue: () => { if (failure) throw failure; } });
+    await expect(agent.generate({ prompt: question, onStepEnd: async () => { failure = new Error("checkpoint failed"); } })).rejects.toThrow(/checkpoint failed/); expect(model.doGenerateCalls).toHaveLength(1);
   });
 });

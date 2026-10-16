@@ -43,10 +43,14 @@ export default defineSchema({
     state: vConversationState,
     activeRunId: v.optional(v.id("migrationRuns")),
     pendingFormId: v.optional(v.id("migrationForms")),
+    creationRequestId: v.optional(v.string()),
+    creationPayloadHash: v.optional(v.string()),
+    initialIntent: v.optional(v.object({requestId:v.string(),question:v.string(),modelAlias:vModelAlias})),
     lastError: v.optional(v.string()),
     updatedAt: v.number(),
   })
     .index("by_owner_and_updated_at", ["ownerId", "updatedAt"])
+    .index("by_owner_and_creation_request", ["ownerId", "creationRequestId"])
     .index("by_owner_and_state", ["ownerId", "state"]),
 
   migrationRuns: defineTable({

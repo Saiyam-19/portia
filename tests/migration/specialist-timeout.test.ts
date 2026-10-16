@@ -3,6 +3,8 @@ import { MockLanguageModelV4 } from "ai/test";
 import type { LanguageModelV4StreamPart } from "@ai-sdk/provider";
 import { createMigrationMainAgent } from "../../src/lib/migration/domain-agent";
 import { MIGRATION_CHAT_TIMEOUT } from "../../src/lib/migration/agent-policy";
+import { ConversationSession } from "../../src/lib/migration/conversation-session";
+import { mumbaiProposal, mumbaiQuestion } from "./conversation-fixtures";
 import { publicChatStream } from "../../src/lib/migration/public-stream";
 
 vi.mock("../../src/lib/migration/ports", () => ({
@@ -10,7 +12,7 @@ vi.mock("../../src/lib/migration/ports", () => ({
   loadPortTariffBundle: async () => "Synthetic tariff fixture",
 }));
 
-afterEach(() => vi.useRealTimers());
+afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); });
 const usage = {
   inputTokens: { total: 1, noCache: 1, cacheRead: undefined, cacheWrite: undefined },
   outputTokens: { total: 1, text: 1, reasoning: undefined },
@@ -21,57 +23,28 @@ function stream(parts: LanguageModelV4StreamPart[]) {
   }) };
 }
 
-it("allows a healthy tariff specialist to run longer than the main stream's former 60-second idle limit", async () => {
+it("allows validated source work beyond the former 60-second main-stream idle limit", async () => {
   vi.useFakeTimers();
   let started!: () => void;
-  const specialistStarted = new Promise<void>(resolve => { started = resolve; });
-  const delay = async (abortSignal?: AbortSignal) => {
-    await new Promise<void>((resolve, reject) => {
-      const timer = setTimeout(resolve, 35_000);
-      const abort = () => { clearTimeout(timer); reject(abortSignal?.reason); };
-      if (abortSignal?.aborted) abort();
-      else abortSignal?.addEventListener("abort", abort, { once: true });
-    });
-  };
-  let specialistStep = 0;
-  const specialist = new MockLanguageModelV4({ doGenerate: async ({ abortSignal }) => {
-    if (specialistStep === 0) started();
-    await delay(abortSignal);
-    if (specialistStep++ === 0) return {
-      content: [{ type: "tool-call" as const, toolCallId: "calc", toolName: "calculate_charges", input: '{"expression":"2 + 2"}' }],
-      finishReason: { unified: "tool-calls" as const, raw: undefined }, usage, warnings: [],
-    };
-    return { content: [{ type: "text" as const, text: "Verified tariff calculation: 4" }],
-      finishReason: { unified: "stop" as const, raw: undefined }, usage, warnings: [] };
-  } });
-  const main = new MockLanguageModelV4({ doStream: [
-    stream([
-      { type: "stream-start", warnings: [] },
-      { type: "tool-call", toolCallId: "consult-1", toolName: "consult_port_agent", input: JSON.stringify({ port_name: "mumbai", query: "Compute vessel charges" }) },
-      { type: "finish", finishReason: { unified: "tool-calls", raw: undefined }, usage },
-    ]),
-    stream([
-      { type: "stream-start", warnings: [] },
-      { type: "text-start", id: "answer" },
-      { type: "text-delta", id: "answer", delta: "Completed estimate" },
-      { type: "text-end", id: "answer" },
-      { type: "finish", finishReason: { unified: "stop", raw: undefined }, usage },
-    ]),
-  ] });
-  const result = await createMigrationMainAgent({
-    alias: "model-1", mainModel: main, specialistModelFactory: () => specialist,
-  }).stream({ prompt: "Estimate Mumbai call", timeout: MIGRATION_CHAT_TIMEOUT });
-  const errors: unknown[] = [];
-  const consumed = (async () => { for await (const part of result.stream) if (part.type === "error") errors.push(part.error); })();
+  const sourceWorkStarted = new Promise<void>(resolve => { started = resolve; });
+  const binding = { runId: "slow-source", fence: 1, revision: 1 };
+  const conversation = new ConversationSession(binding);
+  const original = conversation.prepare.bind(conversation); let delayed = false;
+  vi.spyOn(conversation, "prepare").mockImplementation(async () => {
+    if (!conversation.pending.length && !delayed) { delayed = true; started(); await new Promise(resolve => setTimeout(resolve, 70_000)); }
+    await original();
+  });
+  const main = new MockLanguageModelV4({ doStream: stream([
+    { type: "stream-start", warnings: [] },
+    { type: "tool-call", toolCallId: "interpret", toolName: "interpret_request", input: JSON.stringify(mumbaiProposal()) },
+    { type: "finish", finishReason: { unified: "tool-calls", raw: undefined }, usage },
+  ]) });
+  const result = await createMigrationMainAgent({ alias: "model-1", mainModel: main, conversation, quoteBinding: binding }).stream({ prompt: mumbaiQuestion, timeout: MIGRATION_CHAT_TIMEOUT });
+  const errors: unknown[] = []; let text = "";
+  const consumed = (async () => { for await (const part of result.stream) { if (part.type === "error") errors.push(part.error); if (part.type === "text-delta") text += part.text; } })();
   const finished = Promise.resolve(result.finishReason).catch((error: unknown) => error);
-  await specialistStarted;
-  await vi.advanceTimersByTimeAsync(70_001);
-  await consumed;
-  expect(await finished).toBe("stop");
-  expect(errors).toEqual([]);
-  expect(specialist.doGenerateCalls).toHaveLength(2);
-  expect(main.doStreamCalls).toHaveLength(2);
-  expect(JSON.stringify(main.doStreamCalls[1].prompt)).toContain("Verified tariff calculation");
+  await sourceWorkStarted; await vi.advanceTimersByTimeAsync(70_001); await consumed;
+  expect(await finished).toBe("stop"); expect(errors).toEqual([]); expect(main.doStreamCalls).toHaveLength(1); expect(text).toContain("51,094.00");
 });
 
 it("still bounds a stalled response by the step deadline", async () => {

@@ -1,5 +1,6 @@
 import type { TextStreamPart, ToolSet } from "ai";
 import { modelErrorDetails } from "./error-reporting";
+import { INTERNAL_CONVERSATION_TOOLS } from "./contracts";
 
 export function publicChatStream<TOOLS extends ToolSet>(
   source: ReadableStream<TextStreamPart<TOOLS>>,
@@ -7,6 +8,7 @@ export function publicChatStream<TOOLS extends ToolSet>(
     abortSignal: AbortSignal;
     onFailure: (error: unknown) => void;
     result?: { finishReason: PromiseLike<unknown> };
+    officialTariff?: boolean;
   },
 ) {
   // The SDK may emit an abort without its reason when no model output arrived.
@@ -20,6 +22,19 @@ export function publicChatStream<TOOLS extends ToolSet>(
     : Promise.resolve(undefined);
   return source.pipeThrough(new TransformStream<TextStreamPart<TOOLS>, TextStreamPart<TOOLS>>({
     async transform(part, controller) {
+      // Interpretation receipts and bound ledgers are private checkpoint data.
+      // Their user-facing answer follows successful fenced completion.
+      if ((part.type === "tool-call" || part.type === "tool-result" || part.type === "tool-input-start") && INTERNAL_CONVERSATION_TOOLS.has(part.toolName)) return;
+      if (options.officialTariff && part.type === "tool-call" && part.toolName === "consult_port_agent") {
+        controller.enqueue(stripPrivateProviderData({ ...part, input: { port_name: "mumbai", query: "Current source-bound berth-hire request" } } as TextStreamPart<TOOLS>));
+        return;
+      }
+      // The internal ledger is committed through the fenced backend before its
+      // rendered text is published. A tool event must not expose it earlier.
+      if (part.type === "tool-result" && (part.toolName === "calculate_supplied_quote" || part.toolName === "consult_port_agent" && part.output && typeof part.output === "object" && "ledger" in part.output)) {
+        controller.enqueue(stripPrivateProviderData({ ...part, output: { status: "calculated" } } as TextStreamPart<TOOLS>));
+        return;
+      }
       if (part.type === "error") options.onFailure(part.error);
       if (part.type === "abort") {
         const error = options.abortSignal.reason ?? await failure ?? part.reason;

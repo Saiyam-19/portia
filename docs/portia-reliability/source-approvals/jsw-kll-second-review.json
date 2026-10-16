@@ -1,0 +1,249 @@
+{
+  "reviewed_utc": "2026-10-14T20:04:46.724386+00:00",
+  "review_type": "Independent primary-source and reference-arithmetic review; not application acceptance",
+  "overall": "No arithmetic correction. Approve explicitly scoped reference components; retain conditional applicability and blocked complete quotes/concession claims. One minor live-source provenance update.",
+  "integrity": {
+    "manifest_entries_checked": 34,
+    "breakdown": {
+      "deliverables": 9,
+      "source_snapshots": 9,
+      "page_images": 16
+    },
+    "all_match": true,
+    "original_development_sha256": "97cee8ab42e2377e15a703d3d44fc4d17601d01e5471084f0c876094bad5d63d",
+    "D08_D09_inputs_match": true,
+    "originals_unchanged": true,
+    "KLL26_fresh_primary_bytes_match": true,
+    "KLL26_sha256": "8d8bede2e65802d11e7ba0aaa9cb124eed6774e5ce61f029fd4ea451c8aa63b1",
+    "detail_files": [
+      "hash-review.json",
+      "independent-live-retrieval.json"
+    ],
+    "excluded_manifest_pointer": "Companion BPCL/ICTPL addendum points outside current package; not opened or counted."
+  },
+  "independence": {
+    "original_development_access": "Only exact D08/D09 entries semantically read; whole bytes hashed as authorized.",
+    "application_source_corpus_rules_prompts_tests_inspected": false,
+    "candidate_outputs_inspected": false,
+    "implementation_reports_other_chats_inspected": false,
+    "sealed_holdout_inspected": false,
+    "inference_paid_calls": 0,
+    "source_reference_script": "calculate-references.py hashed only; not semantically read or executed.",
+    "repo_or_original_artifact_writes": 0
+  },
+  "visual_evidence": {
+    "new_pages_rendered_and_inspected": 7,
+    "new_pages": {
+      "jsw-jnpt-2024-tariff.pdf": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "kll-2025-port-charges.pdf": [
+        1
+      ],
+      "kll-2026-port-charges-revision.pdf": [
+        1
+      ],
+      "jnpa-2026.pdf": [
+        7
+      ]
+    },
+    "prior_visual_evidence_reused_for_identical_primary_PDF_hashes": {
+      "jnpa-2026.pdf": {
+        "pages": [
+          1,
+          2,
+          3,
+          6,
+          8,
+          9,
+          12
+        ],
+        "sha256": "6a0853b86c086a8983a5aaaa2a6c6d5dec0a6435df7d373cebebea3f7fb70095"
+      },
+      "jnpa-2020-approved-sor.pdf": {
+        "pages": [
+          6,
+          7
+        ],
+        "sha256": "d99ced3120e14d0b5372315b4bc89c4792b250fb4881dabacd57d97868a8550c"
+      }
+    },
+    "total_distinct_relevant_pages": 16
+  },
+  "arithmetic": {
+    "assertions": 13,
+    "independent_method": "Decimal products and differences; offset-aware datetime duration using integer seconds. No supplied reference script executed.",
+    "results": {
+      "elapsed_hours": "30",
+      "initial": {
+        "berth": "2862.0000",
+        "jnpa_dues": "2804.4000",
+        "subtotal": "5666.4000",
+        "mbpa_conditional": "1247.4000"
+      },
+      "corrected": {
+        "berth": "2671.2000",
+        "jnpa_dues": "2617.4400",
+        "subtotal": "5288.6400",
+        "mbpa_conditional": "1164.2400"
+      },
+      "decrease": {
+        "berth": "190.8000",
+        "jnpa_dues": "186.9600",
+        "subtotal": "377.7600",
+        "mbpa_conditional": "83.1600"
+      }
+    },
+    "corrections": [],
+    "rounding": "Products terminate exactly at cents; no arbitrary money rounding needed for these USD references."
+  },
+  "findings": [
+    {
+      "severity": "P3 provenance update",
+      "files": [
+        "source-access-notes.json",
+        "sources.json JSW_OPERATOR_WEB",
+        "adjudication.md operator-page sentence"
+      ],
+      "finding": "The old group.jsw.in terminal URL now redirects to https://www.jswinfrastructure.in/terminals/jnpt-liquid-terminal/. The returned page describes the terminal but exposes no tariff download link. Record the earlier download-link observation as historical, not currently reproduced. June 2025 PDF extraction remains available; direct request independently returns 404 and screenshots fail.",
+      "effect": "No numeric correction. Latest terminal tariff/supersession gap remains."
+    },
+    {
+      "severity": "P1 retained approval boundary",
+      "case": "D08",
+      "finding": "The two-line subtotal excludes conditional MBPA dues, tax/FX, actual time adjustments and unresolved current terminal conditions. It cannot be frozen as an unconditional complete original quote. Arrival-to-departure elapsed time is not proof of billable berth occupancy.",
+      "evidence": [
+        "d08-adjudication-v1.json conditions",
+        "development.json D08 required complete charge ownership/applicability",
+        "jnpa-2026.pdf pp3,6-9,12"
+      ]
+    },
+    {
+      "severity": "P1 retained approval boundary",
+      "case": "D09",
+      "finding": "Absence of the vessel-delay trigger for terminal-only excess time is not a verified base-fee concession. The old footnote is not expressly continued or repealed by the November revision. Formal claim eligibility/procedure remains unestablished.",
+      "evidence": [
+        "kll-2025-port-charges.pdf p1 starred footnote",
+        "kll-2026-port-charges-revision.pdf p1"
+      ]
+    }
+  ],
+  "component_decisions": [
+    {
+      "case": "D08",
+      "component": "Charge ownership and scope",
+      "decision": "APPROVE",
+      "rule": "JSW 2024 p3 general condition sends berth hire and port dues directly to JNPA tariffs from time to time. Its cargo/infra prices are outside this two-charge request.",
+      "condition": "Current JSW terminal-version completeness remains conditional; 2025 extracted text corroborates routing but is not visually verified."
+    },
+    {
+      "case": "D08",
+      "component": "Duration and GT correction",
+      "decision": "APPROVE",
+      "result": "30 elapsed hours; GT only changes 18,000 to 16,800. Preserve NT 10,200; LOA 166 m; draft 7.8 m; cargo 9,500 t; 4 November 2026 10:00 to 5 November 2026 16:00 India time; foreign-going chemical tanker; no shifting/anchorage.",
+      "evidence": "Original development.json D08 steps and calculation-references.json"
+    },
+    {
+      "case": "D08",
+      "component": "Ordinary berth reference",
+      "decision": "CONDITIONAL",
+      "arithmetic": "APPROVE",
+      "initial_usd": "2862.00",
+      "corrected_usd": "2671.20",
+      "decrease_usd": "190.80",
+      "formula": "GT * 0.0053 * 30",
+      "condition": "30 ordinary billable berth hours; disclose occupancy assumption and event exclusions.",
+      "evidence": "jnpa-2026.pdf p6 \u00a72.3 row 1; pp7-9 berth notes"
+    },
+    {
+      "case": "D08",
+      "component": "Ordinary JNPA port-dues base",
+      "decision": "APPROVE",
+      "initial_usd": "2804.40",
+      "corrected_usd": "2617.44",
+      "decrease_usd": "186.96",
+      "formula": "GT * 0.1558 per entry",
+      "condition": "Standard other-vessel category using supplied gross tonnage; discharge of 9,500 t supports laden cargo call. Do not apply bulk-carrier classification, ballast/no-operation concession or certified reduced tonnage without evidence. This is the JNPA base component, not all possible port dues.",
+      "evidence": "jnpa-2026.pdf p2 \u00a72.1 row 2, notes 1-7"
+    },
+    {
+      "case": "D08",
+      "component": "Identified two-component subtotal",
+      "decision": "CONDITIONAL",
+      "initial_usd": "5666.40",
+      "corrected_usd": "5288.64",
+      "decrease_usd": "377.76",
+      "condition": "Only the two standard components above; exclude conditional additions and invoice dependencies. No full-quote completion credit."
+    },
+    {
+      "case": "D08",
+      "component": "MBPA-derived additional dues",
+      "decision": "CONDITIONAL",
+      "initial_usd": "1247.40",
+      "corrected_usd": "1164.24",
+      "decrease_usd": "83.16",
+      "formula": "GT * 0.0693",
+      "condition": "Mumbai-limit entry/operation predicate and complete MBPA amendment chain unresolved. Rate already contains 18%; do not apply 18% again or silently add to subtotal.",
+      "evidence": "jnpa-2026.pdf p3 \u00a72.1 note 8 and p12 row 1"
+    },
+    {
+      "case": "D08",
+      "component": "Final complete quotation/invoice",
+      "decision": "BLOCK",
+      "amount": null,
+      "reason": "Current source chain, actual chargeable events, additional dues, tax/exemption, exchange rate and invoice rounding not completely resolved. This does not prevent useful standard estimates."
+    },
+    {
+      "case": "D09",
+      "component": "2025 additional-delay rule explanation",
+      "decision": "APPROVE",
+      "rule": "Effective 1 October 2025; base berth charge covers up to 36 hours per call, first line ashore to cast off. Excess time attracts USD 0.0041/GRT/hour when attributable to vessel. Terminal-only excess does not satisfy that trigger; mixed causes unresolved.",
+      "evidence": "kll-2025-port-charges.pdf p1 starred footnote",
+      "condition": "Limited interpretation of this charge, subject to applicable notice/date; no base waiver/refund inferred."
+    },
+    {
+      "case": "D09",
+      "component": "November 2026 revised pricing and FX",
+      "decision": "APPROVE",
+      "rule": "Signed 5 October 2026; effective1November 2026. Combined berth hire and pilotage USD 0.359/GRT, cap none. SBI TT selling FX on scheduled berthing day, previous bank working day if holiday; advance payment at least 24 hours before with proforma/invoice difference settled later.",
+      "evidence": "kll-2026-port-charges-revision.pdf p1 heading, table, FX/payment paragraphs",
+      "condition": "Do not apply to October calls, charge 0.359 separately for each component, or reuse old caps."
+    },
+    {
+      "case": "D09",
+      "component": "Post-November continuation of 36-hour footnote, excess-charge rounding/cap interaction and tax treatment",
+      "decision": "BLOCK",
+      "reason": "New notice does not reconcile those earlier conditions. No automatic continuation, repeal or transfer of old GST/rounding terms."
+    },
+    {
+      "case": "D09",
+      "component": "General terminal-delay concession and official claim process",
+      "decision": "BLOCK",
+      "amount": null,
+      "reason": "No explicit base-fee concession, quantified relief, mandatory evidence checklist, deadline or mixed-delay allocation established. Ask for operative clause; date/base-versus-extra-charge needed only for a specific claim."
+    },
+    {
+      "case": "D09",
+      "component": "Practical evidence suggestions",
+      "decision": "APPROVE",
+      "suggestions": "Statement of facts; first-line/cast-off and cargo interruption times; invoices; terminal/vessel correspondence; written attribution and claim-process confirmation.",
+      "condition": "Recommendations only, not an official mandatory checklist. 24-hour payment instruction is not a claim deadline; Annexure A identifies bank/GST documentation."
+    }
+  ],
+  "version_scope_checks": [
+    "JSW 2024 cover effective 5 November 2024. Cargo section 3(A) p3 and infrastructure section 3(B) pp3-4 explicitly end 31 March 2025. Neither expiry governs every general clause; no expired cargo price applied. June 2025 extracted routing clause corroborated, but bytes/visual verification unavailable.",
+    "JNPA 2026 notice dated 17 April 2026 explicitly covers 1 May 2026 through 30 April 2027, encompassing4-5November 2026. Ordinary berth unit is GRT/hour or part; JNPA dues per entry. No daily minimum imported.",
+    "Historical JNPA 2020 p6 \u00a71.2(iv)(a): port-selected RBI/SBI/other public-sector-bank buying rate on port-limit entry date. p7 \u00a71.2(ix): round INR bill grand total upward to next rupee. Current continuation and actual values require confirmation; no USD-line rounding or transplant of JSW rules.",
+    "KLL 2025 signed 21 August 2025, operative 1 October 2025. New pricing/FX begins1November 2026, not signature date. Successor boundary is established for revised terms only, not blanket expiry of every older condition."
+  ],
+  "limitations": [
+    "No exhaustive amendment/contract chain or operational booking acceptance. No final tax-inclusive or INR invoice. No application/provider/production test.",
+    "Only KLL 2026 PDF was independently re-downloaded byte-for-byte from the primary URL in this review. Other retained hashes establish manifest consistency; digital signatures not cryptographically validated.",
+    "Web extraction of JSW June 2025 contains newer terms but cannot substitute for unavailable original bytes/table verification. Current operator redirect is discovery evidence, not complete tariff custody.",
+    "Original D08/D09 criteria unchanged; correct components, safe clarification and arithmetic do not constitute complete original-case approval."
+  ],
+  "process_note": "No persistent server, daemon, kernel or worker started/reused/stopped. Bounded foreground rendering, arithmetic and public retrieval commands completed; existing listeners preserved."
+}
