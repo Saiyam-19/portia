@@ -385,6 +385,12 @@ export function reduceInterpretation(previous: ConversationState, unknownProposa
     }
     const input = evidenceInput(op.evidence, inputs, op.operation === "reference" || op.operation === "preserve" ? new Set(inputs.map(i=>i.id)) : allowed);
     if (!state.scopes.some(s => s.id === op.scopeId)) throw new Error("Unknown fact scope.");
+    if(op.operation==='preserve'){
+      const saved=currentConversationFact(state,op.scopeId,op.field);
+      if(!saved||saved.value!==op.value||saved.unit!==op.unit)throw new Error("Preserve operation has no matching established fact.");
+      // Keeping a saved fact creates no new assertion or numeric evidence.
+      continue;
+    }
     let invalid = false, validationError: string | undefined;
     if (op.operation === "inherit") {
       const parent = state.scopes.find(s => s.id === op.scopeId)?.parentId;
@@ -404,10 +410,6 @@ export function reduceInterpretation(previous: ConversationState, unknownProposa
     if (named.length === 1 && named[0].id !== op.scopeId && !state.scopes.some(s => s.id === op.scopeId && s.parentId === named[0].id)) invalid = true;
     const prior = state.facts.filter(f => f.scopeId === op.scopeId && f.field === op.field && ["established", "conflicting"].includes(f.status));
     const same = prior.find(f => f.value === op.value && f.unit === op.unit);
-    if (op.operation === "preserve" && !invalid) {
-      if (!same || same.status !== "established") throw new Error("Preserve operation has no matching established fact.");
-      continue;
-    }
     let status: ConversationFact["status"] = "established";
     if (invalid) { status = "conflicting"; for (const f of prior) f.status = "conflicting"; }
     else if (op.operation === "reference") status = "reference";

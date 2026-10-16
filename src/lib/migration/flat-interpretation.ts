@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import Decimal from 'decimal.js';
+import { operationAt } from './request-semantics';
 import { BOOLEAN_FIELDS, FIELD_NAMES, codeOwnedUnit, conversationDigest, expandCardinals, validateOperation, type ConversationInput, type ConversationState, type ConversationField, type Interpretation } from './conversation';
 
 const fields = [...FIELD_NAMES.filter(f=>f!=='arithmeticExpression'&&!(BOOLEAN_FIELDS as readonly string[]).includes(f)), 'request'] as const;
@@ -80,7 +81,16 @@ export function compileFlatInterpretation(previous:ConversationState,unknown:unk
   const pending=inputs.filter(i=>!previous.consumed.includes(i.id));
   if(pending.length!==1)throw new Error('Flat interpretation requires one pending authored input.');
   const input=pending[0], evidence={inputId:input.id,quote:input.text};
-  for(const row of facts)if(row.field!=='request')row.value=numericValue(row.field,row.value,input.text);
+  const saved=(row:typeof facts[number])=>{
+    const subject=previous.scopes.find(s=>s.kind!=='quotation-rule'&&s.label.toLowerCase()===row.subject.toLowerCase());
+    const scope=row.item?previous.scopes.find(s=>s.parentId===subject?.id&&s.label.toLowerCase()===row.item.toLowerCase()):subject;
+    return previous.facts.find(f=>f.scopeId===scope?.id&&f.field===row.field&&f.status==='established'&&!previous.facts.some(c=>c.scopeId===f.scopeId&&c.field===f.field&&c.status==='conflicting'));
+  };
+  const kept=new Set<typeof facts[number]>();
+  for(const row of facts)if(row.field!=='request'){
+    if(/\b(?:keep|retain|preserve)\b/i.test(input.text)&&saved(row)?.value===row.value)kept.add(row);
+    else row.value=numericValue(row.field,row.value,input.text);
+  }
   const proposal:Interpretation={version:1,baseHash:previous.hash,inputIds:pending.map(i=>i.id),scopes:[],operations:[],tasks:[],unresolved:[]};
   const subjects=[...new Set(facts.map(f=>f.subject))];
   const scopeFor=new Map<string,string>();
@@ -95,6 +105,7 @@ export function compileFlatInterpretation(previous:ConversationState,unknown:unk
     }
   }
   for(const row of facts.filter(f=>f.field!=='request')){
+    if(kept.has(row))continue;
     const scopeId=scopeFor.get(row.subject+(row.item?'\0'+row.item:''))!;
     const local=subjectContext(row.subject,input.text);
     const rate=facts.find(f=>f.subject===row.subject&&f.item===row.item&&f.field==='rate')?.value;
@@ -110,6 +121,13 @@ export function compileFlatInterpretation(previous:ConversationState,unknown:unk
       op=ground('durationMinutes',total,input,scopeId,context);
     }else op=ground(row.field as ConversationField,row.value,input,scopeId,context);
     if(row.field==='charge'&&!/^item_\d+$/.test(row.value))op.evidence={inputId:input.id,quote:context};
+    const old=saved(row);
+    if(old&&old.value!==op.value&&row.item&&new RegExp(`\\b${escaped(row.item)}\\b`,'i').test(context)){
+      const at=input.text.indexOf(op.evidence.quote)+Math.max(0,op.evidence.quote.search(/\d/));
+      if(operationAt(input.text,at)==='replace'){
+        op.operation='correct';op.evidence={inputId:input.id,quote:context};validateOperation(op,input);
+      }
+    }
     proposal.operations.push(op);
   }
   for(const subject of subjects){
