@@ -14,6 +14,7 @@ listeners = subprocess.run(['lsof', '-nP', '-iTCP', '-sTCP:LISTEN'], capture_out
 env = {k:v for k,v in os.environ.items() if k in ['PATH','HOME','TMPDIR','LANG','TERM'] or k.startswith(('PASS2_','PASS3_'))}
 env['PASS1_GOLDEN_LABEL'] = 'pass3-regression'
 env['PASS2_LABEL'] = 'pass3-regression'
+env['PASS3_EVIDENCE_DIR'] = 'output/pass3'
 child = None
 def members():
     return [line for line in processes().splitlines() if len(line.split(None, 4)) >= 5 and int(line.split(None, 4)[2]) == child.pid]

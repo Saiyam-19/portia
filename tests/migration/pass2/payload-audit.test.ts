@@ -31,6 +31,7 @@ it('audits actual serialized outgoing bodies using a fake transport and syntheti
       messages.push(...await result.responseMessages);expect(session.answer?.complete).toBe(true);
     }
   }
-  fs.mkdirSync('output/pass2',{recursive:true});fs.writeFileSync('output/pass2/payload-audit.json',JSON.stringify({networkCalls:0,credential:'synthetic only; no env read',destination:'https://openrouter.ai/api/v1/chat/completions',scope:'five user-supplied fictional quote cases and D19 correction; code interpretation instructions and synthetic saved facts; no memory, lookup, workspace files or private configuration',payloads},null,2));
+  const output=process.env.PASS3_EVIDENCE_DIR??'output/pass2';
+  fs.mkdirSync(output,{recursive:true});fs.writeFileSync(output+'/payload-audit.json',JSON.stringify({networkCalls:0,credential:'synthetic only; no env read',destination:'https://openrouter.ai/api/v1/chat/completions',scope:'five user-supplied fictional quote cases and D19 correction; code interpretation instructions and synthetic saved facts; no memory, lookup, workspace files or private configuration',payloads},null,2));
   expect(payloads).toHaveLength(6);
 });
