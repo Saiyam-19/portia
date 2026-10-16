@@ -140,7 +140,7 @@ export function createMigrationMainAgent(options: MigrationMainAgentOptions) {
           return flatFacts ? session.interpretFacts(proposal,interpretationDispatch) : session.interpret(proposal,interpretationDispatch);
         }
         catch (error) {
-          session.failure = "I could not validate part of the request: " + (error instanceof Error ? error.message : "invalid interpretation") + " No estimate was published. Please clarify the affected fact or retry explicitly.";
+          session.failure = flatFacts ? "The interpretation could not be validated. Your supplied details are saved; no estimate was published." : "I could not validate part of the request: " + (error instanceof Error ? error.message : "invalid interpretation") + " No estimate was published. Please clarify the affected fact or retry explicitly.";
           return { status: "interpretation-unresolved" as const };
         }
       },
@@ -186,7 +186,7 @@ export function createMigrationMainAgent(options: MigrationMainAgentOptions) {
       if (stepNumber === 0) session.initialize(messages);
       if (++steps > MAX_PROVIDER_CALLS) throw new Error("Run step budget exhausted.");
       session.observeToolResults(completedSteps.flatMap(s=>s.toolResults));
-      await session.prepare();
+      await session.prepare({codeOwnedFailures:flatFacts});
       // Captured once before this serialized SDK step dispatches. Never replace
       // old output's binding with state read when the tool eventually commits.
       interpretationDispatch = session.pending.length ? session.captureInterpretationDispatch() : undefined;

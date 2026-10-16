@@ -140,7 +140,8 @@ const enumValues: Partial<Record<ConversationField, readonly string[]>> = {
   cargoTraffic: ["exim", "coastal", "transshipment"], handlingMode: ["road", "rail", "ship-yard"], cargoCategory: ["mechanized-bulk", "other"],
   fxFrom:["USD","INR","EUR","GBP"],fxTo:["USD","INR","EUR","GBP"],moneyRounding:["line","quote"],
 };
-const booleanFields = new Set<ConversationField>(["coastalLicence", "berthAllotted", "readinessValid", "favourableConditions", "idleTime", "shifting", "falseReadiness", "priority", "ousting", "penalty", "rebate", "directBilling", "registeredCustomer", "privateCustomer", "sez", "taxExemption", "standaloneBill", "otherAdjustments", "portCrane", "icdRail", "specialCargo"]);
+export const BOOLEAN_FIELDS = ["coastalLicence", "berthAllotted", "readinessValid", "favourableConditions", "idleTime", "shifting", "falseReadiness", "priority", "ousting", "penalty", "rebate", "directBilling", "registeredCustomer", "privateCustomer", "sez", "taxExemption", "standaloneBill", "otherAdjustments", "portCrane", "icdRail", "specialCargo"] as const;
+const booleanFields = new Set<ConversationField>(BOOLEAN_FIELDS);
 const words: Record<string, number> = { zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19, twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90 };
 export function expandCardinals(raw: string) {
   const atom = `(?:${Object.keys(words).join("|")}|hundred|thousand|million)`;

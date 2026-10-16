@@ -37,8 +37,9 @@ export class ConversationSession {
     if(dispatch.baseHash!==this.state.hash||dispatch.revision!==this.state.revision)throw new Error("Interpretation dispatch is stale; the conversation advanced before commit.");
     return this.interpret(compileFlatInterpretation(this.state,proposal,dispatch.inputs),dispatch);
   }
-  async prepare() {
+  async prepare(options: {codeOwnedFailures?:boolean} = {}) {
     if (!this.pending.length && !this.answer && this.state.tasks.some(t => t.kind !== "other")) this.answer = this.withAuxiliary(await planConversationAnswer(this.state, this.binding));
+    if(options.codeOwnedFailures&&this.answer&&!this.answer.complete&&this.answer.items.some(i=>i.sourceClass==='user-supplied-quotation'&&i.pending.length))this.failure="The supplied-quote interpretation could not be completed. Your details are saved; no complete estimate was published.";
   }
   get needsAuxiliary() { return !this.pending.length && !!this.answer && !this.auxiliaryItems && this.state.tasks.some(t => t.kind === "other"); }
   observeToolResults(results: readonly { toolName: string; toolCallId: string; output?: unknown; providerExecuted?: boolean }[]) {

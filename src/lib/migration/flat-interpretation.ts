@@ -1,19 +1,20 @@
 import { z } from 'zod';
 import Decimal from 'decimal.js';
-import { FIELD_NAMES, codeOwnedUnit, conversationDigest, expandCardinals, validateOperation, type ConversationInput, type ConversationState, type ConversationField, type Interpretation } from './conversation';
+import { BOOLEAN_FIELDS, FIELD_NAMES, codeOwnedUnit, conversationDigest, expandCardinals, validateOperation, type ConversationInput, type ConversationState, type ConversationField, type Interpretation } from './conversation';
 
-const fields = [...FIELD_NAMES.filter(f=>f!=='arithmeticExpression'), 'request'] as const;
+const fields = [...FIELD_NAMES.filter(f=>f!=='arithmeticExpression'&&!(BOOLEAN_FIELDS as readonly string[]).includes(f)), 'request'] as const;
+const identity={subject:z.string().min(1).max(100),item:z.string().max(64)};
 /** Only semantic facts cross the provider boundary. All receipt structure is local. */
-export const flatInterpretationSchema = z.object({facts:z.array(z.object({
-  subject:z.string().min(1).max(100), item:z.string().max(64),
-  field:z.enum(fields), value:z.string().min(1).max(200),
-}).strict()).min(1).max(256)}).strict();
+export const flatInterpretationSchema = z.object({facts:z.array(z.union([
+  z.object({...identity,field:z.enum(fields),value:z.string().min(1).max(200)}).strict(),
+  z.object({...identity,field:z.enum(BOOLEAN_FIELDS),value:z.enum(['yes','no'])}).strict(),
+])).min(1).max(256)}).strict();
 export type FlatInterpretation = z.infer<typeof flatInterpretationSchema>;
 export const FLAT_INTERPRETATION_INSTRUCTIONS = `Call interpret_request alone with a flat facts list. Each row is {subject,item,field,value}.
 Use a short human label as subject for each independent quotation, vessel or scenario. item is the charge name, or empty for facts shared by the subject. Unnamed amounts use item_1, item_2. Never merge comparison sides or scenarios.
 Include request rows with item empty and value supplied-quote, official-quote, rule, elapsed, comparison, facts, or other. Include all requested work. For a comparison include quote requests for each side and a separate Comparison subject with the conversion/rounding facts. A correction refers to the saved subject and named item.
 Return supplied facts only. No hashes, revisions, IDs, quote spans, units, totals, calculations or expression strings. Do not repeat saved facts; code retains them. Numeric values are the supplied number, without separators. Code grounds every fact against the user's message and supplies units. Timestamp values retain the user's original date/time text; never infer a date, year, zone or date order.
-Quoted line items: charge, currency, rate, basis (amount for a stated amount, flat for per call, gt-period for per GT per period, time-period for time-only blocks, movement, cargo-tonne), periodHours, rounding (started/exact), minimum/maximum, minimumScope/maximumScope (call/block). Do not invent missing terms. Call and block limits differ. Bare per GT means one GT. Keep no-tax and no-other-charges facts at subject level; yes/no values are true/false. A bare per hour period is 1. A composite duration retains hours and minutes separately. Code calculates, never the model.
+Quoted line items: charge, currency, rate, basis (amount for a stated amount, flat for per call, gt-period for per GT per period, time-period for time-only blocks, movement, cargo-tonne), periodHours, rounding (started/exact), minimum/maximum, minimumScope/maximumScope (call/block). Do not invent missing terms. Call and block limits differ. Bare per GT means one GT. Keep no-tax and no-other-charges facts at subject level; yes/no values MUST be the enums yes/no (never none, true, false or prose). A bare per hour period is 1. A composite duration retains hours and minutes separately. Code calculates, never the model.
 Official requested services use charge facts; never ask the user for official rates. No verified tariff is a code-owned gap. Negation, uncertainty and either/or dates must not be resolved by guessing. Do not emit a fact you cannot identify unambiguously.`;
 
 const stableId = (parts: string[]) => 'f_'+conversationDigest(parts).slice(0,24);
@@ -75,7 +76,7 @@ function ground(field:ConversationField,value:string,input:ConversationInput,sco
   throw new Error(`Unable to ground ${field} in the supplied message.`);
 }
 export function compileFlatInterpretation(previous:ConversationState,unknown:unknown,inputs:readonly ConversationInput[]):Interpretation {
-  const {facts}=flatInterpretationSchema.parse(unknown);
+  const facts=flatInterpretationSchema.parse(unknown).facts.map(row=>({...row,value:(BOOLEAN_FIELDS as readonly string[]).includes(row.field)?row.value==='yes'?'true':'false':row.value}));
   const pending=inputs.filter(i=>!previous.consumed.includes(i.id));
   if(pending.length!==1)throw new Error('Flat interpretation requires one pending authored input.');
   const input=pending[0], evidence={inputId:input.id,quote:input.text};

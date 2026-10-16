@@ -10,7 +10,7 @@ const text = (value: string): LanguageModelV4Content[] => [{ type: "text", text:
 const incomplete = () => new Error("The response did not finish. Please retry explicitly.");
 export class PortiaInterpretationError extends Error {
   readonly name = "PortiaInterpretationError";
-  constructor(readonly validationError: string) { super("The request could not be interpreted reliably. Please clarify or retry explicitly; no estimate was published."); }
+  constructor(readonly validationError: string) { super("The interpretation could not be validated. Your details are saved; no estimate was published."); }
 }
 const add = (a: number | undefined, b: number | undefined) => a === undefined && b === undefined ? undefined : (a ?? 0) + (b ?? 0);
 function combinedUsage(a: LanguageModelV4Usage | undefined, b: LanguageModelV4Usage): LanguageModelV4Usage {
@@ -21,7 +21,7 @@ function combinedUsage(a: LanguageModelV4Usage | undefined, b: LanguageModelV4Us
 /** All interpretation text and tool arguments are buffered. The model cannot
  * publish financial claims through a general/nonfinancial response. */
 export function createConversationModel(model: Model, session: ConversationSession, options: { repairEnabled?: boolean; flatFacts?: boolean } = {}) {
-  const repairEnabled = options.repairEnabled ?? MIGRATION_INTERPRETATION_REPAIR_ENABLED;
+  const repairEnabled = options.repairEnabled ?? (options.flatFacts ? true : MIGRATION_INTERPRETATION_REPAIR_ENABLED);
   const synthetic = (): LanguageModelV4GenerateResult | undefined => {
     let content: LanguageModelV4Content[] | undefined;
     if (session.failure || session.published) content = text(session.text()!);
