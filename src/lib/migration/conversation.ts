@@ -207,6 +207,23 @@ function booleanPolarity(field: ConversationField, raw: string): "positive" | "n
 /** Validate atomic values and dimensions, independently of model confidence.
  * Language role assignment remains an interpretation, never tariff authority.
  * Contextual uncertainties are retained, not erased by a valid substring. */
+/** Validate the two explicitly linked berth endpoints; never relabel a generic
+ * arrival/anchorage interval. Values and quoted evidence remain unchanged. */
+function explicitBerthInterval(op: Interpretation["operations"][number], input: ConversationInput): boolean {
+  if (op.field !== "berthStart" && op.field !== "berthEnd") return false;
+  const at = input.text.indexOf(op.evidence.quote);
+  const before = input.text.slice(0, at).split(/[.!?;\n]/).at(-1) ?? "";
+  const after = input.text.slice(at + op.evidence.quote.length).split(/[.!?;\n]/)[0];
+  const clause = before + op.evidence.quote + after;
+  if (/\b(?:not|never|either|possibly|maybe|might|could)\b/i.test(clause)) return false;
+  const stamps = timestampAtoms(clause);
+  if (stamps.length !== 2) return false;
+  const first = clause.indexOf(stamps[0]), second = clause.indexOf(stamps[1], first + stamps[0].length);
+  if (!/\b(?:alongside|berthed)\s+from\s*$/i.test(clause.slice(0, first)) || !/^\s+to\s+$/i.test(clause.slice(first + stamps[0].length, second))) return false;
+  const expected = stamps[op.field === "berthStart" ? 0 : 1];
+  return op.value === expected && op.evidence.quote.includes(expected);
+}
+
 function validateOperation(op: Interpretation["operations"][number], input: ConversationInput) {
   const raw = op.evidence.quote;
   if (input.text.indexOf(raw) !== input.text.lastIndexOf(raw)) throw new Error("Use an unambiguous evidence clause, including its role and context.");
@@ -219,7 +236,7 @@ function validateOperation(op: Interpretation["operations"][number], input: Conv
   }
   if (["assert", "correct"].includes(op.operation) && ["service", "vesselCategory", "port", "terminal"].includes(op.field) && ["reject", "reference", "preserve"].includes(operationAt(input.text, input.text.indexOf(raw)))) throw new Error("The location/category evidence is not asserted in the full user input.");
   const anchor = anchors[op.field];
-  if (anchor && !anchor.test(raw) && !anchor.test([input.fieldName, input.fieldLabel].join(" "))) throw new Error(`The evidence does not identify ${op.field}.`);
+  if (anchor && !anchor.test(raw) && !anchor.test([input.fieldName, input.fieldLabel].join(" ")) && !explicitBerthInterval(op, input)) throw new Error(`The evidence does not identify ${op.field}.`);
   if (categoryTerms[op.field] && !categoryTerms[op.field]![op.value]?.test(raw)) throw new Error(`The evidence does not support the proposed ${op.field} category.`);
   if (op.field === "rounding") {
     if (op.value === "exact" && /started|commenced|part\s+thereof|round[\s\S]*up/i.test(raw)) throw new Error("Commenced-period evidence cannot authorize exact-time billing.");

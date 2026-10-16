@@ -8,6 +8,8 @@ const invalid = (error: string, message: string): Parsed => ({ error, message })
 
 function offsetMinutes(zone: string): number | null {
   const normalized = zone.toUpperCase();
+  // Explicit country-qualified zone names; no timezone is inferred from a port or locale.
+  if (/^INDIA(?:N)? (?:STANDARD )?TIME$/.test(normalized)) return 330;
   if (["Z", "UTC", "GMT"].includes(normalized)) return 0;
   if (normalized === "IST") return 330; // India Standard Time, as documented by the tool.
   const match = /^(?:UTC|GMT)?([+-])(\d{2}):?(\d{2})$/.exec(normalized);
