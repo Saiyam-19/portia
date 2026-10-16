@@ -1,5 +1,6 @@
 import Decimal from 'decimal.js';
 import { operationAt } from './request-semantics';
+import {resolveCatalogLocation} from './port-identity';
 import { requiresLiteralGrounding, codeOwnedUnit, conversationDigest, expandCardinals, validateOperation, type ConversationInput, type ConversationState, type ConversationField, type Interpretation } from './conversation';
 
 export {flatInterpretationSchema,type FlatInterpretation} from './fact-contract';
@@ -62,6 +63,7 @@ function evidenceCandidates(text:string, value:string) {
 }
 function ground(field:ConversationField,value:string,input:ConversationInput,scopeId:string,context=input.text):Interpretation['operations'][number] {
   const unit=codeOwnedUnit(field);
+  if(field==='port'||field==='terminal')return {scopeId,field,value:resolveCatalogLocation(field,value,context),unit:'',operation:'assert',evidence:{inputId:input.id,quote:context}};
   if(!requiresLiteralGrounding(field)&&!['port','terminal'].includes(field)){
     const op={scopeId,field,value,unit,operation:'assert' as const,evidence:{inputId:input.id,quote:context}};
     if(!['minimumScope','maximumScope'].includes(field))validateOperation(op,input,true);

@@ -4,7 +4,7 @@ import Decimal from "decimal.js";
 import { z } from "zod";
 import { authenticatedInputs, timestampAtoms, type AuthoredInput } from "./call-context";
 import { classifyFormField, formQuantity, normalizeQuantity, operationAt, proseQuantities, type QuantityCandidate } from "./request-semantics";
-import { resolvePortIdentity } from "./port-identity";
+import { resolvePortIdentity, resolveCatalogLocation } from "./port-identity";
 
 export const conversationDigest = (value: unknown) => createHash("sha256").update(JSON.stringify(value)).digest("hex");
 const key = z.string().regex(/^[a-z][a-z0-9_-]{0,63}$/);
@@ -258,6 +258,10 @@ export function validateOperation(op: Interpretation["operations"][number], inpu
   if (booleanFields.has(op.field) && !["true", "false"].includes(op.value)) throw new Error(`Invalid boolean ${op.field}.`);
   if (enumValues[op.field] && !enumValues[op.field]!.includes(op.value)) throw new Error(`Invalid ${op.field} category.`);
   if (op.operation === "reference" || op.operation === "uncertain") return;
+  if(semanticEnums&&(op.field==='port'||op.field==='terminal')){
+    if(resolveCatalogLocation(op.field,op.value,input.text)!==op.value)throw new Error('Identity must be resolved by the catalog before reduction.');
+    return;
+  }
   if(semanticEnums&&!requiresLiteralGrounding(op.field)&&!['port','terminal'].includes(op.field)){
     if((op.field==='minimumScope'||op.field==='maximumScope')&&boundScopeCues(op.field,raw).some(cue=>cue!==op.value))throw new Error("The bound scope contradicts its per-call/per-block cue.");
     if(op.field==='basis'&&op.value==='gt-period'&&!/(?:per|\/)\s*(?:\d[\d,]*\s*)?(?:GT|GRT)\b/i.test(raw))throw new Error("Unable to ground the GT rate dimension.");

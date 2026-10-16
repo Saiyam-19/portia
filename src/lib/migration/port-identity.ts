@@ -57,3 +57,31 @@ export function resolvePortIdentity(text: string): PortSelection | undefined {
   return { status: selected.some(m => m.ambiguous) ? "ambiguous" : candidates.length === 1 ? "identified" : comparison ? "comparison" : "ambiguous", candidates, mentions: selected,
     ...(selected.every(m => operationAt(text, m.start) === "preserve") ? { operation: "preserve" as const } : {}) };
 }
+
+// Reviewed berth identities used by the existing official handlers. Catalog
+// identity establishes a name only; it never establishes a tariff or eligibility.
+const BERTH_IDENTITIES=[{canonical:'Indira Dock',port:'mumbai',aliases:['Indira Dock','indira-dock']}];
+const identityText=(s:string)=>s.normalize('NFKC').replace(/[‐‑‒–—_]/g,'-').replace(/\s+/g,' ').trim();
+const identityKey=(s:string)=>identityText(s).toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();
+export function resolveCatalogLocation(field:'port'|'terminal',proposed:string,authored:string):string {
+  const name=identityText(proposed),text=identityText(authored);
+  const berth=BERTH_IDENTITIES.find(b=>b.aliases.some(a=>identityKey(a)===identityKey(name)));
+  if(berth){
+    const key=identityKey(text);
+    const hits=berth.aliases.flatMap(a=>[...key.matchAll(new RegExp(`\\b${escape(identityKey(a))}\\b`,'g'))]);
+    if(!hits.some(m=>isAsserted(key,m.index!)))throw new Error('Catalog berth identity is absent or not asserted.');
+    const port=resolvePortIdentity(text);
+    if(port&&(!port.candidates.includes(berth.port)||port.status==='ambiguous'))throw new Error('Catalog berth conflicts with the stated port identity.');
+    return field==='terminal'?berth.canonical:berth.port;
+  }
+  const requested=resolvePortIdentity(name),actual=resolvePortIdentity(text);
+  if(requested?.status==='ambiguous'||actual?.status==='ambiguous')throw new Error('Catalog identity is ambiguous; no terminal is selected.');
+  if(requested?.status==='identified'){
+    if(actual?.status!=='identified'||actual.candidates[0]!==requested.candidates[0])throw new Error('Proposed catalog identity does not match the authored location.');
+    return actual.candidates[0];
+  }
+  if(actual)throw new Error('Proposed location is not the identified catalog entry.');
+  // An unsupported label stays unsupported. It cannot become a catalog ID or
+  // acquire authority just because the model supplied it.
+  return name;
+}
