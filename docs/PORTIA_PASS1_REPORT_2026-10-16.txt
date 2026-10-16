@@ -1,0 +1,228 @@
+PORTIA IMPLEMENTATION PASS 1 — OFFLINE ONLY — 16 OCTOBER 2026
+
+STATUS
+Authorized bounded repair pass finished. No product-readiness claim. D02 pricing
+and Mumbai dues/movement branches remain missing implementation. No model/provider
+requests, real local conversations, deployment or production changes occurred.
+
+WORKSPACE AND PRESERVATION
+Entry HEAD: b64420fcfe0eea206918bfb34cf9cf38112b8302. All 169 files in the previous
+implementation manifest matched at entry; required evidence/source paths existed.
+Graph tools were unavailable; exact source fallback was used. Sealed holdout unopened.
+A full sibling copy was created and dependencies installed with npm ci --offline,
+with install scripts enabled; the provider cancellation patch ran successfully.
+The user subsequently directed working in main. Before transfer, main source hashes
+were unchanged. Only the new harness and pass evidence transferred; inherited WIP
+was separately snapshotted in main. The sibling copy remains a backup.
+Active checkout: /Users/saiyamchaplot/Documents/portia-main
+Branch: pass1/golden-and-repairs
+Main inherited snapshot: 2f988cd, "WIP snapshot (unreviewed)".
+Copy inherited snapshot: 0bfdd91. Nothing pushed.
+
+Snapshot exclusions: env files, *.key, *.pem, local-app-env.json, local-user.json,
+.local/, *.sqlite3, node_modules/, .next/, .vercel/, private assistant configuration,
+and untracked output/ bulk evidence. Source-bound tariff assets under data/ were
+retained because runtime verifies their bytes. The 187 staged inherited files and
+explicit exclusion list are in output/pass1/staged-inherited-wip.txt and
+output/pass1/excluded-from-snapshot.txt. Existing inherited source whitespace was
+preserved, not reformatted. Some inherited tests require the preserved untracked
+output/ fixtures; this local snapshot alone is not a clean-clone test package.
+
+CODE IMPLEMENTED
+1. Hand-authored golden interpretations, derived from unchanged user texts, not
+   captured model output or the production parser. All input provenance hashes saved.
+2. D02 engine validation repair: explicit "alongside/berthed from ... to ..."
+   endpoints retain their event roles; explicit India time labels map to +05:30.
+   No port/locale-derived timezone guess. Anchorage and negated/uncertain intervals
+   are not authorized as berth evidence.
+3. Semantic rejection: per-call/per-block/per-movement cues associated with a
+   minimum or maximum/cap are cross-checked against its structured scope, including
+   its own monetary evidence. Contradictions reject; never auto-correct. Coverage
+   is ONLY the enumerated cues (including existing visit/period aliases), not a
+   general tariff-language proof. A narrowed quote cannot hide an explicit
+   either/or alternative timestamp in the same clause.
+4. Malformed required interpretation becomes PortiaInterpretationError, never plain
+   text while the SDK requires a tool. Generation and streaming support at most
+   one schema-repair re-ask with validation feedback. The explicit
+   MIGRATION_INTERPRETATION_REPAIR_ENABLED constant defaults to false. No real
+   re-ask ran. Cancellation/timeout/size bounds remain; successful retry usage
+   includes both attempts. The retry repairs malformed structure, not meanings.
+5. Official tasks consult reviewed handlers and coverage before model-written rate
+   questions. Code-owned messages distinguish missing implementation/rule review
+   from missing tariff authority. Genuine/unclear applicability issues remain
+   blockers and withhold amounts. Supplied quotation handling is unchanged.
+   Source-question recognition uses conservative lexical cues; broader paraphrase
+   coverage is unproven. This is not a universal semantic classifier.
+6. Provider schema omits baseHash/inputIds. Code supplies them from a frozen
+   authenticated dispatch snapshot. Only legacy bookkeeping echoes are discarded;
+   semantic values are never coerced. Commit checks reject a changed state/hash.
+   New scopes and assert/correct mutations require pending input evidence; unchanged
+   scope references, references and validated preserves may cite earlier input.
+   Prior scope identity cannot change. Historical receipt/replay shape retained.
+   Persistence revision/fence/lease/epoch code was not changed.
+
+SEPARATE COMMITS
+f07438c  hand-authored offline golden harness
+ae2e749  explicit berth intervals and India time labels
+b994f94  bound-scope and alternative-timestamp rejection
+3569fba  malformed interpretation / opt-in bounded repair
+13d5aca  authority before model-written rate questions
+c6f62b3  scope tied to its own monetary evidence
+c56f001  immutable dispatch binding, historical references and error-contract tests
+The final report is committed separately after these changes.
+
+LITERAL BEFORE / AFTER AND CASE CLASSIFICATION
+"Before" below is a literal excerpt from the historical real-model local UI.
+"After" is literal output from hand-authored interpretations in this offline pass,
+NOT a new real-model conversation. Full original UI text and full offline after-text
+are retained in output/pass1/before-after.json and report.html.
+
+D02 — engine bug repaired for elapsed time; MISSING IMPLEMENTATION for pricing.
+Before: "the start and end events with their full timestamps"
+        "the supplied charge terms and units"
+After:  "Elapsed berth occupancy: **30.5 hours** (2026-10-18T17:15:00.000Z → 2026-10-19T23:45:00.000Z)."
+        "berth: quoted rate units"
+Oracle: ceil(30.5/6)=6 blocks; INR24000. No existing basis represents a time-only
+block price. The amount was NOT produced; the remaining units clarification is
+not a completed or satisfactory quotation. No GT or flat-call basis was fabricated.
+
+D11 — golden PASS; historical INTERPRETATION ERROR.
+Before: "berth: minimum is conflicting or withdrawn"
+        "berth: maximum is conflicting or withdrawn" / "berth: rate"
+After:  "| **Total of supplied lines (USD)** | **USD 1,100.00** |"
+        "billable periods 3"
+Oracle: 9000*0.04*ceil(25/12)=1080; min1100/call and cap1800/call =>1100.
+The deliberately wrong block interpretation previously produced a validated
+USD1800 in the offline probe. It now yields incomplete/refused calculation with
+no total. The historic D11 UI did NOT publish that wrong total.
+
+D19 — golden PASS; historical APPLICATION/INTERPRETATION ERROR.
+Before first fragments: "Total of supplied lines (USD)" / "USD 1,280.00"
+Before correction: "Interpretation cites absent or already-consumed user evidence."
+After first: "| **Total of supplied lines (USD)** | **USD 1,280.00** |"
+After correction: "| **Total of supplied lines (USD)** | **USD 1,295.00** |"
+825 and390 retained; water becomes80. A separate fake-provider test accepts an
+otherwise valid correction echoing an old hash/inputIds and unchanged historical
+scope references. An old assertion/correction still rejects. This does not prove
+the historical provider would now emit a semantically valid correction.
+
+D24 — golden PASS; historical APPLICATION ERROR (timeout).
+Before: "The response timed out. Your submitted details are saved. Send a follow-up
+         to continue; partial work is not a completed estimate."
+After: "| A | INR 113,220.00 |" / "| B | INR 114,500.00 |"
+       "A has the lower amount; difference from B: **INR 1,280.00**."
+Oracle: (1275.35+84.65)*83.25=113220; comparison114500; difference1280.
+The prior timeout says nothing about numerical arithmetic correctness.
+
+original-19 — golden PASS; historical INTERPRETATION/APPLICATION ERROR.
+Before: "Couldn’t complete the response. Saved steps remain below; review them
+         before retrying."
+After totals: INR60,000.00 / INR62,500.00 / INR120,000.00.
+Billable periods:24 /25 /48, with the one-minute scenario preserved.
+
+MJ1 and MJ2 — MISSING IMPLEMENTATION / rule review; NOT accepted quotes.
+Before MJ1: "What are the current port dues, pilotage, and towage rates applicable
+             to a 23,680 GT foreign-going cargo ship at Mumbai Port, Indira Dock
+             for 2 movements?"
+Before follow-ups: "Interpretation revision is stale."
+Before MJ2: generic application failure, then timeout (full literals in JSON).
+After each initial supported projection:
+"Missing implementation / rule review: The requested additional Mumbai service
+needs its own approved clause and applicability; berth-hire approval does not
+establish all port-call charges."
+The harness reaches this branch gap and does not pretend to complete later shifts,
+ballast-concession revisions or the invoice-completeness question.
+
+Mumbai hand-worked oracle — NEEDS HUMAN SIGN-OFF:
+Source data/ports/mumbai/tariffs.md, §2.1(A) Docks/foreign cargo <=30000 GRT,
+notes1/8 (composite rate covers inward AND outward), shifting #/note2;
+§2.16 row1, notes1,4A,5(ii),6(i),8. Source hash and all qualifications saved in
+output/pass1/mumbai-oracles-needs-human-signoff.json.
+MJ1 ordinary full-dues branch: 23680*0.3850=USD9116.8000 port dues;
+23680*0.6322=USD14970.4960 composite pilotage/towage; subtotalUSD24087.2960.
+Requested no-tug shift:23680*0.1570=USD3717.7600; new subtotalUSD27805.0560.
+Do NOT double the composite movement rate. MJ1 does not explicitly exclude prior
+JNPA interaction; §2.16 note8 needs clarification/sign-off before an unconditional
+full-dues answer. Subtotal excludes berth/cargo/other services, GST and settlement
+conditions; it is not a complete agent invoice. Booking advance must not be added
+again when adjusted against the final bill (§2.1(C)).
+MJ2 after GT/no-JNPA clarification:18460*0.3850*0.75=USD5330.325000.
+After cancellation/no cargo/passengers:18460*0.3850*0.50=USD3553.550000.
+DecreaseUSD1776.775000. Figures retain unrounded precision; governing billing
+rounding and authority applicability require sign-off. No compounding concessions.
+
+OTHER REGRESSION DISPOSITIONS
+- Metre/hour R1 probe: already refused in main; retained, never USD20.
+- Negated DWT R1 probe: already unestablished in main, even with narrowed evidence.
+- Either/or date: full quote already refused; narrowed quote previously established
+  the first date, now refuses. No automatic date choice.
+- Malformed tool: before AI_ToolChoiceViolationError; after PortiaInterpretationError.
+  Retry OFF => one fake call; explicit ON => maximum two fake calls. Invalid scope
+  enum also tested. No schema coercion. Actual UI error presentation not exercised.
+- Official rate question: before quote replaced by model question; after known
+  Mumbai component INR51094.00 from reviewed fixtures. Empty BPCL source reports
+  "Missing tariff authority"; a real applicability contradiction withholds amounts.
+- Stale dispatch N->N+1: rejected before and after; regression preserved.
+
+OFFLINE VERIFICATION
+Baseline: typecheck PASS; 732 tests =730 PASS,2 FAIL.
+Final: typecheck PASS; changed-file ESLint PASS;777 tests =775 PASS,2 FAIL.
+All45 new pass1 tests pass. Test counts include limitation-characterization tests;
+they are NOT counts of completed customer cases.
+Same two baseline failures remain in tests/migration/domain-agent.test.ts:
+1. "keeps the selected alias path while declining to invent missing source
+   applicability": expected /requested.*scope|governing source/; actual asks for
+   call date/ordinary category and other source requirements.
+2. "does not invoke a specialist for an empty tariff asset": expected "not yet
+   available"; actual gives source/identity limitations (now authority-labelled).
+Neither pre-existing assertion was weakened or repaired in this pass.
+
+Test-first receipts in output/pass1:
+- golden-before:6 PASS,1 FAIL (D02 elapsed evidence).
+- berth-interval-red:3 PASS,2 FAIL; india-zone-red:5 PASS,3 FAIL.
+- semantics-red:6 PASS,2 FAIL; bound-association-red:8 PASS,1 FAIL.
+- model-repair-red:0 PASS,7 FAIL; authority-red:3 PASS,3 FAIL.
+- dispatch-red:3 PASS,3 FAIL; existing stale/old-assert protections already passed.
+- pass1-focused-final:94 PASS,0 FAIL.
+The first broad run exposed an introduced applicability/publication regression;
+it was fixed without weakening its test. Three existing assertions were changed
+from expecting the old SDK ToolChoiceViolation to requiring the exact new
+PortiaInterpretationError; their zero-extra-call checks remain.
+An intermediate typecheck exposed an unreachable old official-task branch after
+routing moved earlier; it was removed. Final results above include those repairs.
+Full before/after logs, JSON results and exit-status/process receipts are preserved.
+
+REAL LOCAL CONVERSATIONS
+NONE THIS PASS. No app/backend/browser journey was started. Fake SDK providers and
+hand-authored interpretations are the only new answer evidence.
+
+DEPLOYED
+NONE. No deployment, production configuration/privacy change, model-guard change,
+automation unpause or paid inference. Tariff data, Convex code, model.ts and package
+manifests match their entry hashes. No ports/features removed.
+
+OBSERVED, NOT FIXED / NOT CLAIMED
+- D02 time-only block pricing; missing Mumbai dues/pilotage/shifting/ballast branches.
+- Negative GT, reversed dates,29February,dd/mm ambiguity and mixed-time-zone alerts
+  not reached in the historical failed conversations: no real-language acceptance
+  or new fixes for those paths here. Explicit India zone-name support above is the
+  narrow D02 fix, not mixed-time-zone acceptance.
+- Regex financial-claim guard blocking legitimate rule questions remains unchanged.
+- All59 captured application requests requested reasoning disabled; unchanged.
+- Main R1 metre/DWT safeguards already passed; rejected R1/R2 never applied.
+- Wider interpretation semantics, paraphrase coverage, all-port/feature acceptance,
+  real-provider behavior, UI persistence and deployed behavior remain unverified.
+- Human sign-off for the Mumbai hand-worked tariff oracles remains outstanding.
+
+RESOURCE / OFFLINE RECEIPT
+Commands ran with an allowlisted environment excluding real provider credentials;
+no credential was supplied to run a test. Existing tests may use synthetic values.
+Tests additionally blocked outbound TCP and used the existing fake-fetch setup.
+Offline dependency installation used cached packages. All26 recorded install/test/
+typecheck/lint process groups exited; no owned survivors. No servers started or
+services reused/terminated. Existing apps, browser, database and dev listeners were
+preserved. Other app-owned helpers had uncertain ownership/use and were left alone.
+
+STOP GATE
+Stopped after this offline report. Real conversations and inference require the
+user's separate written authorization. No readiness statement or ETA.
