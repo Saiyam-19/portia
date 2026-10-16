@@ -1,5 +1,14 @@
 export const HEADLESS_POLICY = Object.freeze({model:'openai/gpt-6.1-sol',reasoning:{enabled:true,effort:'medium'},hardCapMicros:1_000_000,stopMicros:800_000,maxOutputTokens:8192,maxInputPrice:0.0000025,outputPrice:0.00001});
 export type AccountedCall={reserveMicros:number;actualMicros?:number};
+export function checkSyntheticPayload(request:Record<string,unknown>,allowed:ReadonlySet<string>){
+  const raw=JSON.stringify(request);
+  if(/OPENROUTER_API_KEY|\/Users\/|backend\/\.env|HISTORICAL_MEMORY/.test(raw))throw new Error('Private or unrelated payload rejected');
+  const messages=request.messages as {role:string;content:string|{text?:string}[]}[];
+  for(const message of messages.filter(m=>m.role==='user')){
+    const text=typeof message.content==='string'?message.content:message.content.map(p=>p.text??'').join('');
+    if(!allowed.has(text))throw new Error('Only the six frozen fictional user inputs may leave this harness');
+  }
+}
 export function reserveDispatch(calls:AccountedCall[],requestBytes:number,maxOutputTokens:number){
   if(maxOutputTokens!==HEADLESS_POLICY.maxOutputTokens||!Number.isSafeInteger(requestBytes)||requestBytes<1)throw new Error('Invalid frozen bounds');
   const inputBound=requestBytes+4096;

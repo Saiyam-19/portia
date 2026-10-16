@@ -4,7 +4,8 @@ export {texts};
 export type Row = FlatInterpretation['facts'][number];
 export const rows=(subject:string,item:string,values:Record<string,string>)=>Object.entries(values).map(([field,value])=>({subject,item,field,value})) as Row[];
 export const line=(subject:string,item:string,rate:string,currency='USD')=>rows(subject,item,{charge:item,currency,rate,basis:'amount'});
-export function quoteFacts(id:'D19'|'D24'|'D02'|'original-19'):FlatInterpretation {
+export function quoteFacts(id:'D11'|'D19'|'D24'|'D02'|'original-19'):FlatInterpretation {
+  if(id==='D11')return {facts:[...rows('Quote','',{request:'supplied-quote',gt:'9000',durationHours:'25',taxPercent:'0',otherAdjustments:'no'}),...rows('Quote','berth hire',{charge:'berth hire',currency:'USD',rate:'0.04',basis:'gt-period',periodHours:'12',rounding:'started',minimum:'1100',maximum:'1800',minimumScope:'call',maximumScope:'call'})]};
   if(id==='D19')return {facts:[...rows('Quote','',{request:'supplied-quote',taxPercent:'0'}),...line('Quote','berth hire','825'),...line('Quote','pilotage','390'),...line('Quote','water supply','65')]};
   if(id==='D24')return {facts:[
     ...rows('A','',{request:'supplied-quote',taxPercent:'0',otherAdjustments:'no'}),...line('A','item_1','1275.35'),...line('A','item_2','84.65'),

@@ -6,11 +6,13 @@ import {createOpenRouter} from '@openrouter/ai-sdk-provider';
 import type {ModelMessage} from 'ai';
 import {createMigrationMainAgent} from '../../src/lib/migration/domain-agent';
 import {ConversationSession} from '../../src/lib/migration/conversation-session';
-import {HEADLESS_POLICY,checkDispatch,reserveDispatch,type AccountedCall} from './pass2-budget';
+import {HEADLESS_POLICY,checkDispatch,checkSyntheticPayload,reserveDispatch,type AccountedCall} from './pass2-budget';
 
 const root=path.resolve('output/pass2/live'),sha=(x:string|Buffer)=>createHash('sha256').update(x).digest('hex');
 fs.mkdirSync(path.join(root,'calls'),{recursive:true});
 const freeze=JSON.parse(fs.readFileSync(path.join(root,'freeze.json'),'utf8'));
+const cases=JSON.parse(fs.readFileSync('tests/migration/pass1/inputs.json','utf8')).inputs;
+const allowedInputs=new Set<string>(['D11','D19','D24','original-19','D02'].flatMap(id=>cases[id]));
 if(process.argv[2]!=='--run-frozen')throw new Error('Explicit frozen-run flag required');
 if(fs.existsSync(path.join(root,'ledger.json')))throw new Error('A ledger already exists; never reset a spent budget or replay this run');
 const lock=fs.openSync(path.join(root,'run.lock'),'wx');
@@ -30,6 +32,7 @@ const guarded:typeof fetch=async(input,init)=>{
   const url=new URL(typeof input==='string'?input:input instanceof URL?input.href:input.url);
   if(url.href!=='https://openrouter.ai/api/v1/chat/completions'||typeof init?.body!=='string')throw new Error('Unexpected network request');
   const request=JSON.parse(init.body);request.stream_options={include_usage:true};
+  checkSyntheticPayload(request,allowedInputs);
   const prior=ledger.calls.filter(c=>c.turnId===turnId).length;
   const repair=checkDispatch(request,prior);
   let reservation;try{reservation=reserveDispatch(ledger.calls,Buffer.byteLength(JSON.stringify(request)),request.max_tokens);}catch(e){ledger.halt=String(e);save();throw e;}
@@ -40,7 +43,7 @@ const guarded:typeof fetch=async(input,init)=>{
     let raw='';const reader=response.clone().body!.getReader(),decoder=new TextDecoder();
     try{while(true){const next=await reader.read();if(next.done)break;raw+=decoder.decode(next.value,{stream:true});if(raw.length>2_000_000){await reader.cancel();throw new Error('Response size bound');}}row.status=response.ok?'complete':'http-error';}
     catch(e){row.status='body-error';row.error=(e as Error).name;}
-    fs.writeFileSync(path.join(root,'calls',row.id+'.response.txt'),raw);
+    fs.writeFileSync(path.join(root,'calls',row.id+'.response.txt'),raw.replaceAll(apiKey,'[redacted]'));
     for(const line of raw.split('\n'))if(line.startsWith('data: {')){
       let data;try{data=JSON.parse(line.slice(6));}catch{continue;}
       if(data.provider)row.provider=data.provider;if(data.id)row.generationId=data.id;
@@ -56,7 +59,6 @@ const apiKey=/^OPENROUTER_API_KEY\s*=\s*["']?([^\s"'\r\n]+)/m.exec(envText)?.[1]
 if(!apiKey)throw new Error('Existing credential unavailable');
 const provider=createOpenRouter({apiKey,fetch:guarded,compatibility:'strict'});
 const model=provider.chat(HEADLESS_POLICY.model,{reasoning:HEADLESS_POLICY.reasoning as {enabled:boolean;effort:'medium'},provider:{allow_fallbacks:false,require_parameters:true,data_collection:'allow',zdr:false,only:['openai'],max_price:{prompt:2,completion:10,request:0}}});
-const cases=JSON.parse(fs.readFileSync('tests/migration/pass1/inputs.json','utf8')).inputs;
 const required:Record<string,string[]>={D11:['USD 1,100.00','billable periods 3'],D19:['USD 1,280.00','berth hire','pilotage','water supply'],D19correction:['USD 1,295.00','USD 825.00','USD 390.00','USD 80.00'],D24:['INR 113,220.00','INR 114,500.00','INR 1,280.00'],'original-19':['INR 60,000.00','INR 62,500.00','INR 120,000.00','billable periods 24','billable periods 25','billable periods 48'],D02:['30.5 hours','billable periods 6','INR 24,000.00']};
 const results:unknown[]=[];
 try{
