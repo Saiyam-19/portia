@@ -39,7 +39,7 @@ it("allows validated source work beyond the former 60-second main-stream idle li
     { type: "tool-call", toolCallId: "interpret", toolName: "interpret_request", input: JSON.stringify(mumbaiProposal()) },
     { type: "finish", finishReason: { unified: "tool-calls", raw: undefined }, usage },
   ]) });
-  const result = await createMigrationMainAgent({ alias: "model-1", mainModel: main, conversation, quoteBinding: binding }).stream({ prompt: mumbaiQuestion, timeout: MIGRATION_CHAT_TIMEOUT });
+  const result = await createMigrationMainAgent({ interpretationFormat: "legacy", alias: "model-1", mainModel: main, conversation, quoteBinding: binding }).stream({ prompt: mumbaiQuestion, timeout: MIGRATION_CHAT_TIMEOUT });
   const errors: unknown[] = []; let text = "";
   const consumed = (async () => { for await (const part of result.stream) { if (part.type === "error") errors.push(part.error); if (part.type === "text-delta") text += part.text; } })();
   const finished = Promise.resolve(result.finishReason).catch((error: unknown) => error);
@@ -56,7 +56,7 @@ it("still bounds a stalled response by the step deadline", async () => {
       controller.enqueue({ type: "text-delta", id: "stalled", delta: "Partial work" });
     } }),
   }) });
-  const result = await createMigrationMainAgent({ alias: "model-1", mainModel: model })
+  const result = await createMigrationMainAgent({ interpretationFormat: "legacy", alias: "model-1", mainModel: model })
     .stream({ prompt: "Stall after partial text", timeout: MIGRATION_CHAT_TIMEOUT });
   const consumed = (async () => { for await (const part of result.stream) void part; })();
   const finished = Promise.resolve(result.finishReason).catch((error: unknown) => error);
@@ -74,7 +74,7 @@ it("reports a no-output provider timeout through the UI without an unhandled res
     } }),
   }) });
   const outer = new AbortController();
-  const result = await createMigrationMainAgent({ alias: "model-1", mainModel: model })
+  const result = await createMigrationMainAgent({ interpretationFormat: "legacy", alias: "model-1", mainModel: model })
     .stream({ prompt: "No model output", abortSignal: outer.signal, timeout: MIGRATION_CHAT_TIMEOUT });
   const onFailure = vi.fn();
   const parts: Array<{ type: string }> = [];

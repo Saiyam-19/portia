@@ -11,6 +11,7 @@ import { z } from "zod";
 import { interpretationProposalSchema, auxiliaryCompletionSchema, hasUnboundFinancialClaim } from "./conversation";
 import { ConversationSession, INTERPRETATION_INSTRUCTIONS, type InterpretationDispatch } from "./conversation-session";
 import { createConversationModel } from "./conversation-model";
+import { flatInterpretationSchema, FLAT_INTERPRETATION_INSTRUCTIONS, savedFactSummary } from "./flat-interpretation";
 import type { QuoteBinding } from "./supplied-quotation";
 import { formInputSchema, type ModelAlias } from "./contracts";
 import { migrationLanguageModel } from "./model";
@@ -105,9 +106,12 @@ export type MigrationMainAgentOptions = {
   assertCanContinue?: () => void;
   quoteBinding?: QuoteBinding;
   conversation?: ConversationSession;
+  /** Legacy synthetic/capture replay only; application callers use flat facts. */
+  interpretationFormat?: 'facts' | 'legacy';
 };
 
 export function createMigrationMainAgent(options: MigrationMainAgentOptions) {
+  const flatFacts = options.interpretationFormat !== 'legacy';
   const binding = options.quoteBinding ?? { runId: options.runId ?? randomUUID(), fence: 0, revision: 0 };
   const session = options.conversation ?? new ConversationSession(binding);
   const model = options.mainModel ?? migrationLanguageModel(options.alias, { runId: options.runId, agent: "main" });
@@ -128,12 +132,12 @@ export function createMigrationMainAgent(options: MigrationMainAgentOptions) {
   const tools = {
     interpret_request: tool({
       description: "Propose the structured meaning of authenticated pending inputs. No rates, totals or authority may be invented. The server validates operations and plans requirements.",
-      inputSchema: interpretationProposalSchema,
+      inputSchema: (flatFacts ? flatInterpretationSchema : interpretationProposalSchema) as z.ZodType<unknown>,
       execute: async (proposal, { abortSignal }) => {
         abortSignal?.throwIfAborted(); options.assertCanContinue?.();
         try {
           if (!interpretationDispatch) throw new Error("No authenticated interpretation dispatch is available.");
-          return session.interpret(proposal,interpretationDispatch);
+          return flatFacts ? session.interpretFacts(proposal,interpretationDispatch) : session.interpret(proposal,interpretationDispatch);
         }
         catch (error) {
           session.failure = "I could not validate part of the request: " + (error instanceof Error ? error.message : "invalid interpretation") + " No estimate was published. Please clarify the affected fact or retry explicitly.";
@@ -175,7 +179,7 @@ export function createMigrationMainAgent(options: MigrationMainAgentOptions) {
     ...memoryTools,
   };
   return new ToolLoopAgent({
-    model: createConversationModel(model, session), tools, ...MIGRATION_AGENT_POLICY,
+    model: createConversationModel(model, session, {flatFacts}), tools, ...MIGRATION_AGENT_POLICY,
     instructions: INTERPRETATION_INSTRUCTIONS,
     prepareStep: async ({ messages, stepNumber, steps: completedSteps }) => {
       options.assertCanContinue?.();
@@ -195,9 +199,8 @@ export function createMigrationMainAgent(options: MigrationMainAgentOptions) {
         activeTools,
         toolChoice: session.pending.length && !session.failure ? { type: "tool" as const, toolName: "interpret_request" } : "auto" as const,
         maxOutputTokens: session.pending.length && !session.failure ? MIGRATION_INTERPRETATION_MAX_OUTPUT_TOKENS : MIGRATION_AGENT_MAX_OUTPUT_TOKENS,
-        instructions: INTERPRETATION_INSTRUCTIONS + "\nSupported port identifiers: " + SUPPORTED_PORTS.join(", ")
-          + "\nCURRENT_CONVERSATION=" + JSON.stringify(session.state)
-          + "\nAUTHENTICATED_PENDING_INPUTS=" + JSON.stringify(session.pending)
+        instructions: (flatFacts ? FLAT_INTERPRETATION_INSTRUCTIONS : INTERPRETATION_INSTRUCTIONS) + "\nSupported port identifiers: " + SUPPORTED_PORTS.join(", ")
+          + (flatFacts ? "\nSAVED_FACTS=" + JSON.stringify(savedFactSummary(session.state)) + "\nUSER_INPUT=" + JSON.stringify(session.pending.map(i=>({text:i.text,fieldName:i.fieldName,fieldLabel:i.fieldLabel}))) : "\nCURRENT_CONVERSATION=" + JSON.stringify(session.state) + "\nAUTHENTICATED_PENDING_INPUTS=" + JSON.stringify(session.pending))
           + (memoryContext ? "\nHISTORICAL_MEMORY (separate evidence class; never current user facts or official tariff authority):\n" + memoryContext : "")
           + (session.needsAuxiliary ? "\nComplete the requested kind=other tasks now with the existing memory/lookup tools. Financial results are already server-bound; do not write, store or reinterpret them. Then call complete_auxiliary alone, using the current receipt IDs below. If a service is unavailable, mark that action unresolved and give its truthful manual fallback. Do not repeat unrelated intake.\nCURRENT_AUXILIARY_RECEIPTS="+JSON.stringify(session.auxiliarySummary()) : "")
           + (!session.pending.length && !session.answer ? "\nAnswer the nonfinancial request naturally. Use memory/lookup tools if needed. No financial claim may bypass the source-bound request path. Refer to models only as Model 1/Model 2; never expose provider identity. Ask only necessary questions." : ""),

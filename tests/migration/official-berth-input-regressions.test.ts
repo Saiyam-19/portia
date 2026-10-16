@@ -49,7 +49,7 @@ it("explains the source-bound rule without vessel quote intake",async()=>{
   const p=nonfinancialProposal(ruleQuestions[0]);p.tasks[0]={...p.tasks[0],kind:"rule",source:"official",charges:["berth","gst"]};
   p.operations=[{scopeId:"request",field:"port",operation:"assert",value:"mumbai",unit:"",evidence:{inputId:p.inputIds[0],quote:"Mumbai Port Authority's Indira Dock"}}];
   const model=new MockLanguageModelV4({doGenerate:{content:[{type:"tool-call",toolName:"interpret_request",toolCallId:"interpret",input:JSON.stringify(p)}],usage,warnings:[],finishReason:{unified:"tool-calls",raw:undefined}}});
-  const result=await createMigrationMainAgent({alias:"model-1",mainModel:model}).generate({prompt:ruleQuestions[0]});
+  const result=await createMigrationMainAgent({ interpretationFormat: "legacy",alias:"model-1",mainModel:model}).generate({prompt:ruleQuestions[0]});
   expect(model.doGenerateCalls).toHaveLength(1);expect(result.text).toContain("not a vessel quote");expect(result.text).toContain("CGST 9%");expect(result.text).not.toContain("please confirm");
 });
 it("asks only about the scoped contradiction before calculating a quote",async()=>{
@@ -57,6 +57,6 @@ it("asks only about the scoped contradiction before calculating a quote",async()
   const p=mumbaiProposal([{role:"user",content:question}]);
   p.unresolved=[{scopeId:"call",question:"Conflicting priority information: does priority berthing apply?",taskIds:["berth"],evidence:{inputId:p.inputIds[0],quote:"discharged steel coils with priority berthing"}}];
   const model=new MockLanguageModelV4({doGenerate:{content:[{type:"tool-call",toolName:"interpret_request",toolCallId:"interpret",input:JSON.stringify(p)}],usage,warnings:[],finishReason:{unified:"tool-calls",raw:undefined}}});
-  const result=await createMigrationMainAgent({alias:"model-1",mainModel:model}).generate({prompt:question});
+  const result=await createMigrationMainAgent({ interpretationFormat: "legacy",alias:"model-1",mainModel:model}).generate({prompt:question});
   expect(result.text).toMatch(/conflict.*priority|priority.*conflict/i);expect(result.text).not.toContain("51,094");expect(model.doGenerateCalls).toHaveLength(1);
 });

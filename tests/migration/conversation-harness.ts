@@ -22,7 +22,7 @@ export async function runInterpreted(messages: ModelMessage[], mode: "generate" 
   } });
   const binding = { runId: "code-aware-projection", fence: 1, revision: 1 };
   const conversation = new ConversationSession(binding);
-  const agent = createMigrationMainAgent({ alias: "model-1", mainModel: model, conversation, quoteBinding: binding });
+  const agent = createMigrationMainAgent({ interpretationFormat: "legacy", alias: "model-1", mainModel: model, conversation, quoteBinding: binding });
   let text = "";
   if (mode === "generate") text = (await agent.generate({ messages })).text;
   else { const result = await agent.stream({ messages }); for await (const part of result.stream) { if (part.type === "text-delta") text += part.text; if (part.type === "error") throw part.error; } }

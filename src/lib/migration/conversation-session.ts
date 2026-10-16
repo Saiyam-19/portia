@@ -3,6 +3,7 @@ import { emptyConversation, interpretationSchema, interpretationProposalSchema, 
 import { planConversationAnswer, renderConversationAnswer, type AnswerItem, type ConversationAnswer } from "./conversation-rules";
 import type { QuoteBinding } from "./supplied-quotation";
 import { formInputSchema } from "./contracts";
+import { compileFlatInterpretation } from "./flat-interpretation";
 
 export type InterpretationDispatch = Readonly<{baseHash:string;revision:number;inputIds:readonly string[];inputs:readonly ConversationInput[]}>;
 /** A session is created inside one authenticated run; never shared or cached. */
@@ -31,6 +32,10 @@ export class ConversationSession {
     const reduced = reduceInterpretation(this.state, parsed, dispatch?.inputs ?? this.inputs);
     this.state = reduced.state; this.pending = [];
     return reduced.receipt;
+  }
+  interpretFacts(proposal: unknown, dispatch: InterpretationDispatch) {
+    if(dispatch.baseHash!==this.state.hash||dispatch.revision!==this.state.revision)throw new Error("Interpretation dispatch is stale; the conversation advanced before commit.");
+    return this.interpret(compileFlatInterpretation(this.state,proposal,dispatch.inputs),dispatch);
   }
   async prepare() {
     if (!this.pending.length && !this.answer && this.state.tasks.some(t => t.kind !== "other")) this.answer = this.withAuxiliary(await planConversationAnswer(this.state, this.binding));

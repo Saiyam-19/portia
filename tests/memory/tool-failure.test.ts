@@ -31,7 +31,7 @@ it("a failed memory tool aborts the run before another provider call or checkpoi
  ]});
  const memory=new MemorySession(manager,"chat_a",{runId:"run_a",runFence:1}).agent();
  const checkpoint=vi.fn();
- await expect(createMigrationMainAgent({alias:"model-1",mainModel:model,memory}).generate({
+ await expect(createMigrationMainAgent({ interpretationFormat: "legacy",alias:"model-1",mainModel:model,memory}).generate({
   prompt:"Remember my preference",abortSignal:controller.signal,
   onStepEnd:()=>{controller.signal.throwIfAborted();checkpoint();},
  })).rejects.toThrow();

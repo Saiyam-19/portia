@@ -55,6 +55,6 @@ it("preserves the full unsupported quote for the existing agent path", async () 
     const p=await projectionProposal([{role:"user",content:text}],"quote");p.tasks[0].source="supplied";p.unresolved=[{scopeId:p.tasks[0].scopeId,taskIds:[p.tasks[0].id],question:"The free-hour condition needs interpretation.",evidence:{inputId:p.inputIds[0],quote:text}}];
     return {content:[{type:"tool-call",toolName:"interpret_request",toolCallId:"interpret",input:JSON.stringify(p)}],finishReason:{unified:"tool-calls",raw:undefined},warnings:[],usage:{inputTokens:{total:1,noCache:1,cacheRead:undefined,cacheWrite:undefined},outputTokens:{total:1,text:1,reasoning:undefined}}};
   } });
-  await createMigrationMainAgent({alias:"model-1",mainModel:model}).generate({prompt:text});
+  await createMigrationMainAgent({ interpretationFormat: "legacy",alias:"model-1",mainModel:model}).generate({prompt:text});
   expect(model.doGenerateCalls).toHaveLength(1);
 });

@@ -19,7 +19,7 @@ async function run(change:(p:Interpretation,f:ReturnType<typeof followup>)=>void
    if(advance)session.state=reduceInterpretation(session.state,f.d.p,session.inputs).state;
    return {content:[{type:'tool-call',toolName:'interpret_request',toolCallId:'correction',input:JSON.stringify(p)}],finishReason:{unified:'tool-calls',raw:undefined},usage,warnings:[]};
  }});
- const result=await createMigrationMainAgent({alias:'model-1',mainModel:model,conversation:session}).generate({messages:f.d.messages});return {text:result.text,session,wireSchema,calls:model.doGenerateCalls.length};
+ const result=await createMigrationMainAgent({ interpretationFormat: "legacy",alias:'model-1',mainModel:model,conversation:session}).generate({messages:f.d.messages});return {text:result.text,session,wireSchema,calls:model.doGenerateCalls.length};
 }
 it('binds correction to dispatch state despite echoed old hash/input IDs and unchanged scope references',async()=>{
  const r=await run((p,f)=>{p.baseHash=emptyConversation().hash;p.inputIds=f.first.p.inputIds;p.scopes=f.first.p.scopes;});

@@ -112,7 +112,8 @@ function suppliedTask(state: ConversationState, task: ConversationTask): AnswerI
       const denominator = fact(state, ruleScope, "basisQuantity")!.evidence.quote;
       const unit = basis === "gt-period" ? "(?:GT|GRT)" : basis === "movement" ? "movements?" : "(?:tonnes?|tons?)";
       const declared = [...denominator.matchAll(new RegExp(`(\\d[\\d,]*(?:\\.\\d+)?)\\s*${unit}\\b`, "gi"))];
-      if (!declared.some(m => new Decimal(m[1].replaceAll(",", "")).eq(basisQuantity!))) { pending.push(`${charge}: the rate denominator has the wrong dimension`); continue; }
+      const implicitOne = basisQuantity === "1" && new RegExp(`(?:per|/|each)\\s*${unit}\\b`, "i").test(denominator);
+      if (!implicitOne && !declared.some(m => new Decimal(m[1].replaceAll(",", "")).eq(basisQuantity!))) { pending.push(`${charge}: the rate denominator has the wrong dimension`); continue; }
     }
     if (!basisQuantity && /(?:per|\/|each)\s*(?:GT|GRT|movement|tonne|ton)\b/i.test(basisEvidence)) basisQuantity = "1";
     if (basis !== "flat" && basis !== "amount" && !basisQuantity) { pending.push(`${charge}: the quoted quantity per rate unit`); continue; }

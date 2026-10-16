@@ -19,7 +19,7 @@ beforeEach(async () => {
     c.enqueue({ type: "tool-call", toolName: "interpret_request", toolCallId: "interpret", input: JSON.stringify(mumbaiProposal()) });
     c.enqueue({ type: "finish", usage, finishReason: { unified: "tool-calls", raw: undefined } }); c.close();
   } }) }) });
-  mocks.agent.mockImplementation((options: Parameters<typeof createMigrationMainAgent>[0]) => actual.createMigrationMainAgent({ ...options, mainModel: main }));
+  mocks.agent.mockImplementation((options: Parameters<typeof createMigrationMainAgent>[0]) => actual.createMigrationMainAgent({ interpretationFormat: "legacy", ...options, mainModel: main }));
 });
 it.each([false, true])("shared answer waits for fenced persistence; rejection=%s", async reject => {
   let release!: () => void, entered!: () => void;

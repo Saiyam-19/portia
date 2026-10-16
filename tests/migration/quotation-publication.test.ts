@@ -25,7 +25,7 @@ const request = () => new Request("https://portia.test/api/chat", { method:"POST
 beforeEach(async () => {
   vi.clearAllMocks();
   const actual = await vi.importActual<typeof import("../../src/lib/migration/domain-agent")>("../../src/lib/migration/domain-agent");
-  mocks.agent.mockImplementation((options: Parameters<typeof realAgent>[0]) => actual.createMigrationMainAgent({ ...options, mainModel: new MockLanguageModelV4({ doStream: async () => {
+  mocks.agent.mockImplementation((options: Parameters<typeof realAgent>[0]) => actual.createMigrationMainAgent({ interpretationFormat: "legacy", ...options, mainModel: new MockLanguageModelV4({ doStream: async () => {
     const proposal = await quotationProposal(question);
     return { warnings: [], stream: new ReadableStream<LanguageModelV4StreamPart>({ start(c) {
       c.enqueue({type:"stream-start",warnings:[]});

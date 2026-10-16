@@ -13,7 +13,7 @@ async function setup(action:"remember"|"lookup",badReceipt=false){
  const binding={runId:"mixed",fence:1,revision:1};const session=new ConversationSession(binding);
  const remember=vi.fn(async()=>({saved:true}));const memory={instructions:async()=>"No saved facts.",tools:{remember_memory:tool({inputSchema:z.object({key:z.string(),value:z.string()}),execute:remember})}};
  const model=new MockLanguageModelV4({doGenerate:[generated("interpret_request",p,"interpret"),generated(action==="remember"?"remember_memory":"search_vessels",action==="remember"?{key:"units",value:"metric"}:{query:"Alpha",limit:5},"action"),generated("complete_auxiliary",{outcomes:[{taskId:"aux",status:action==="lookup"?"unresolved":"completed",text:action==="lookup"?"Vessel lookup is unavailable; please provide the needed particulars.":"Saved your preferred units as metric.",receiptIds:[badReceipt?"invented":"action"]}]},"complete")]});
- const result=await createMigrationMainAgent({alias:"model-1",mainModel:model,memory,conversation:session,quoteBinding:binding}).generate({prompt:question});
+ const result=await createMigrationMainAgent({ interpretationFormat: "legacy",alias:"model-1",mainModel:model,memory,conversation:session,quoteBinding:binding}).generate({prompt:question});
  return{result,session,model,remember};
 }
 it("completes independent memory work alongside calculation before final publication",async()=>{

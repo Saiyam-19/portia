@@ -27,7 +27,7 @@ beforeEach(async()=>{
     expect(system).toContain("https://www.mumbaiport.gov.in");expect(system).toContain("0.2165");expect(system).not.toContain("51094");
     return {content:[{type:"tool-call",toolName:"calculate_approved_berth_hire",toolCallId:"calculate",input:JSON.stringify({request_id,rule_id})}],warnings:[],usage,finishReason:{unified:"tool-calls",raw:undefined}};
   }});
-  mocks.agent.mockImplementation((options:Parameters<typeof createMigrationMainAgent>[0])=>actual.createMigrationMainAgent({...options,mainModel:main,specialistModelFactory:()=>specialist}));
+  mocks.agent.mockImplementation((options:Parameters<typeof createMigrationMainAgent>[0])=>actual.createMigrationMainAgent({ interpretationFormat: "legacy",...options,mainModel:main,specialistModelFactory:()=>specialist}));
 });
 it.each([false,true])("commits a verified official tariff ledger before monetary publication; reject=%s",async reject=>{
   let release!:()=>void,entered!:()=>void;const enteredPromise=new Promise<void>(r=>{entered=r;});const gate=new Promise<void>(r=>{release=r;});

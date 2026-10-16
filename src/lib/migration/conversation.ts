@@ -243,7 +243,10 @@ function boundScopeCues(field: "minimumScope" | "maximumScope", quote: string): 
   });
 }
 
-function validateOperation(op: Interpretation["operations"][number], input: ConversationInput) {
+export function codeOwnedUnit(field: ConversationField): string {
+  return numericFields[field]?.unit ?? (/^(?:berthStart|berthEnd|anchorageArrival|cargoCompleted|portDeparture|intervalStart|intervalEnd|readinessTime|callDate|fxDate)$/.test(field) ? "timestamp" : "");
+}
+export function validateOperation(op: Interpretation["operations"][number], input: ConversationInput) {
   const raw = op.evidence.quote;
   if (input.text.indexOf(raw) !== input.text.lastIndexOf(raw)) throw new Error("Use an unambiguous evidence clause, including its role and context.");
   if (booleanFields.has(op.field) && !["true", "false"].includes(op.value)) throw new Error(`Invalid boolean ${op.field}.`);
@@ -308,6 +311,7 @@ function validateOperation(op: Interpretation["operations"][number], input: Conv
     if (op.field === "taxPercent" && /\b(?:no|without|zero)\b/i.test(raw) && /\btax(?:es)?\b/i.test(raw) && !/\b(?:but|except|unless|if)\b/i.test(raw)) atoms.push("0");
     if (op.field === "periodHours" && /(?:per|\/)\s*hour\b/i.test(raw)) atoms.push("1");
     if (op.field === "periodHours" && /(?:per|\/)\s*day\b/i.test(raw)) atoms.push("24");
+    if (op.field === "basisQuantity" && /(?:per|\/|each)\s*(?:GT|GRT|movement|tonne|ton)\b/i.test(raw)) atoms.push("1");
     const convertible = ["gt", "nt", "dwt", "loa", "draught", "durationHours", "periodHours"].includes(op.field);
     const quantityField = op.field === "periodHours" ? "durationHours" : op.field as QuantityCandidate["field"];
     if (op.field === "periodHours") numericRaw = numericRaw.replace(/(?:per|\/)\s*(hour|day)\b/gi, "1 $1");
@@ -369,7 +373,8 @@ export function reduceInterpretation(previous: ConversationState, unknownProposa
   // Sort on authenticated chronology, never model array order alone.
   const ordered = proposal.operations.map((op, index) => ({ op, index, order: inputs.findIndex(i => i.id === op.evidence.inputId) })).sort((a, b) => a.order - b.order || a.index - b.index);
   for (const { op: proposed, order } of ordered) {
-    let op = proposed; const normalizations: string[] = [];
+    const currencyUnit = ['rate','minimum','maximum'].includes(proposed.field) && /^(USD|INR|EUR|GBP)$/.test(proposed.unit) && monetaryEvidenceCurrency(proposed) === proposed.unit;
+    let op = proposed.unit === "" || currencyUnit ? {...proposed,unit:codeOwnedUnit(proposed.field)} : proposed; const normalizations: string[] = [];
     if (proposed.unit === "timestamp" && !proposed.evidence.quote.includes(proposed.value)) {
       const atoms = timestampAtoms(proposed.evidence.quote);
       if (atoms.length === 1) { op = { ...proposed, value: atoms[0] }; normalizations.push("Replaced model-normalized timestamp with the single original timestamp in its event evidence."); }

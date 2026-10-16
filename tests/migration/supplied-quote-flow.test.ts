@@ -18,7 +18,7 @@ describe("supplied quotation through the actual main agent", () => {
   it("D01 completes both quoted charges without tariff intake or a model rewrite", async () => {
     const model = dispatcher(input("D01"));
     const instructions = vi.fn().mockResolvedValueOnce("No stored facts.").mockRejectedValue(new Error("Completed run cannot read memory"));
-    const result = await createMigrationMainAgent({ alias: "model-1", mainModel: model, memory: { instructions, tools: {} } }).generate({ prompt: input("D01") });
+    const result = await createMigrationMainAgent({ interpretationFormat: "legacy", alias: "model-1", mainModel: model, memory: { instructions, tools: {} } }).generate({ prompt: input("D01") });
     expect(result.text).toContain("USD 1,875.00"); expect(result.text).toContain("USD 2,400.00"); expect(result.text).toContain("USD 4,275.00");
     expect(result.text).toMatch(/supplied quotation/i); expect(result.text).toMatch(/not an official/i);
     expect(model.doGenerateCalls).toHaveLength(1);
@@ -26,13 +26,13 @@ describe("supplied quotation through the actual main agent", () => {
   });
   it("D11 applies per-call minimum/cap after time blocks", async () => {
     const model = dispatcher(input("D11"));
-    const result = await createMigrationMainAgent({ alias: "model-1", mainModel: model }).generate({ prompt: input("D11") });
+    const result = await createMigrationMainAgent({ interpretationFormat: "legacy", alias: "model-1", mainModel: model }).generate({ prompt: input("D11") });
     expect(result.text).toContain("USD 1,100.00"); expect(result.text).toContain("3"); expect(model.doGenerateCalls).toHaveLength(1);
   });
   it("original scenario 19 preserves all separately requested duration cases", async () => {
     const question = original.cases.find((c: { id: number }) => c.id === 19).messages[0];
     const model = dispatcher(question);
-    const result = await createMigrationMainAgent({ alias: "model-1", mainModel: model }).generate({ prompt: question });
+    const result = await createMigrationMainAgent({ interpretationFormat: "legacy", alias: "model-1", mainModel: model }).generate({ prompt: question });
     for (const value of ["INR 60,000.00", "INR 62,500.00", "INR 120,000.00"]) expect(result.text).toContain(value);
     expect(model.doGenerateCalls).toHaveLength(1);
   });

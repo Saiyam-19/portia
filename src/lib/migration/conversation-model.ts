@@ -2,6 +2,7 @@ import { wrapLanguageModel } from "ai";
 import type { LanguageModelV4Content, LanguageModelV4GenerateResult, LanguageModelV4StreamPart, LanguageModelV4Usage } from "@ai-sdk/provider";
 import type { ConversationSession } from "./conversation-session";
 import { interpretationProposalSchema, interpretationMeaning, hasUnboundFinancialClaim } from "./conversation";
+import { flatInterpretationSchema } from "./flat-interpretation";
 import { MIGRATION_PROVIDER_FIRST_OUTPUT_MS, MIGRATION_INTERPRETATION_REPAIR_ENABLED } from "./agent-policy";
 type Model = Parameters<typeof wrapLanguageModel>[0]["model"];
 const usage = { inputTokens: { total: 0, noCache: 0, cacheRead: 0, cacheWrite: 0 }, outputTokens: { total: 0, text: 0, reasoning: 0 } };
@@ -19,7 +20,7 @@ function combinedUsage(a: LanguageModelV4Usage | undefined, b: LanguageModelV4Us
 
 /** All interpretation text and tool arguments are buffered. The model cannot
  * publish financial claims through a general/nonfinancial response. */
-export function createConversationModel(model: Model, session: ConversationSession, options: { repairEnabled?: boolean } = {}) {
+export function createConversationModel(model: Model, session: ConversationSession, options: { repairEnabled?: boolean; flatFacts?: boolean } = {}) {
   const repairEnabled = options.repairEnabled ?? MIGRATION_INTERPRETATION_REPAIR_ENABLED;
   const synthetic = (): LanguageModelV4GenerateResult | undefined => {
     let content: LanguageModelV4Content[] | undefined;
@@ -36,7 +37,8 @@ export function createConversationModel(model: Model, session: ConversationSessi
       let issue = "Exactly one interpret_request tool call is required.";
       if (calls.length === 1 && calls[0].toolName === "interpret_request") {
         try {
-          const parsed = interpretationProposalSchema.safeParse(interpretationMeaning(JSON.parse(calls[0].input)));
+          const raw = JSON.parse(calls[0].input);
+          const parsed = options.flatFacts ? flatInterpretationSchema.safeParse(raw) : interpretationProposalSchema.safeParse(interpretationMeaning(raw));
           if (parsed.success) return [{...calls[0],input:JSON.stringify(parsed.data)}];
           issue = parsed.error.issues.map(i => `${i.path.join(".")}: ${i.message}`).join("; ").slice(0,1000);
         } catch { issue = "Malformed JSON in interpret_request."; }
