@@ -185,15 +185,15 @@ function suppliedTask(state: ConversationState, task: ConversationTask): AnswerI
 
 function sourceGap(state:ConversationState,task:ConversationTask,port:string):AnswerItem {
   const entry=(coverageGaps.ports as Record<string,{approvedComponents:Array<{charges:string[];scope:string}>;gaps:Array<{charges:string[];cause:string;message:string}>}>)[port];
-  if(!entry)return unresolved(task,["The requested port has no retained reviewed authority for this service."]);
+  if(!entry)return unresolved(task,["Missing tariff authority: the requested port has no retained reviewed authority for this service."]);
   const pending:string[]=[];
   for(const charge of task.charges){
     const invoice=(coverageGaps.invoiceGaps as Record<string,{message:string}>)[charge];if(invoice){pending.push(invoice.message);continue;}
     const approved=entry.approvedComponents.find(c=>c.charges.includes(charge)&&!(task.kind==="quote"&&/explanation|historical|identity|distinction/i.test(c.scope)));
-    if(approved){pending.push(approved.scope+" "+coverageGaps.contract.approvedButUnrouted);continue;}
+    if(approved){pending.push("Missing implementation: "+approved.scope+" "+coverageGaps.contract.approvedButUnrouted);continue;}
     const gaps=entry.gaps.filter(g=>g.charges.includes(charge)||g.charges.includes("*")&&g.cause!=="identity");
-    pending.push(...gaps.map(g=>g.message));
-    if(!gaps.length)pending.push(`${charge}: no reviewed executable rule is established for this requested scope.`);
+    pending.push(...gaps.map(g=>(g.cause==="authority-version"||g.cause==="document-identity"?"Missing tariff authority: ":g.cause==="rule-interpretation"?"Missing implementation / rule review: ":"")+g.message));
+    if(!gaps.length)pending.push(`Missing implementation / rule review: ${charge} has no reviewed executable rule for this requested scope.`);
   }
   if(!value(state,task.scopeId,"operator")&&!value(state,task.scopeId,"terminal"))pending.push(...entry.gaps.filter(g=>g.cause==="identity"&&g.charges.includes("*")).map(g=>g.message));
   return unresolved(task,[...new Set(pending)]);
@@ -207,7 +207,7 @@ const domesticTaxRequirements: Partial<Record<ConversationField, string>> = { di
 async function officialTask(state: ConversationState, task: ConversationTask, binding: QuoteBinding): Promise<AnswerItem> {
   const port = value(state, task.scopeId, "port");
   if (!port) return unresolved(task, ["the requested port/terminal"]);
-  if (!SUPPORTED_PORTS.includes(port)) return unresolved(task, [`No reviewed tariff is available for ${port}. Independent supplied-rate and elapsed-time work remains usable.`]);
+  if (!SUPPORTED_PORTS.includes(port)) return unresolved(task, [`Missing tariff authority: no reviewed tariff is available for ${port}. Independent supplied-rate and elapsed-time work remains usable.`]);
   const component = await reviewedComponents(state, task);
   if (component) return component;
   if (port !== "mumbai" || task.charges.some(c => !["berth", "gst", "rounding"].includes(c))) return sourceGap(state,task,port);
@@ -262,11 +262,31 @@ async function officialTask(state: ConversationState, task: ConversationTask, bi
 export async function planConversationAnswer(state: ConversationState, binding: QuoteBinding): Promise<ConversationAnswer> {
   const items: AnswerItem[] = [];
   for (const task of state.tasks.filter(t => t.kind !== "other" && t.kind !== "comparison")) {
-    const issues = state.unresolved.filter(i => i.scopeId === task.scopeId && (i.taskIds.includes(task.id) || !i.taskIds.length && ["quote", "rule"].includes(task.kind))).map(i => i.question);
+    const scopedIssues = state.unresolved.filter(i => i.scopeId === task.scopeId && (i.taskIds.includes(task.id) || !i.taskIds.length && ["quote", "rule"].includes(task.kind)));
+    if (task.source === "official") {
+      try {
+        // Authority and its requirements belong to code. Never publish a model's
+        // request for an official price/rate as a customer questionnaire.
+        const item = await officialTask(state,task,binding);
+        // This conservative lexical distinction only recognizes source-field
+        // questions. Other/unclear qualifications remain blockers, including
+        // applicability questions mentioning a rate. They are not silently erased.
+        const qualifications = scopedIssues.filter(i => !/\b(?:tariff|rate|schedule|pricing|charge\s+basis|billing\s+basis)\b/i.test(i.question) || /\b(?:whether|eligib\w*|entitl\w*|exempt\w*|discount\w*|rebate\w*|priority|penalty|concession\w*|waiv\w*|condition\w*|confirm\w*|conflict\w*|contradict\w*|uncertain)\b/i.test(i.question));
+        if (qualifications.length) {
+          // Looking up authority does not authorize an amount when its factual
+          // applicability remains uncertain. Withhold calculations and totals.
+          items.push(unresolved(task,[...new Set([...item.pending,...qualifications.map(i=>`Resolve the conflicting or uncertain applicability in your statement: ${safe(i.evidence.quote)}`)])]));
+        } else items.push(item);
+      } catch {
+        items.push(unresolved(task,["The source/rule calculation could not be validated. No complete estimate is available."]));
+      }
+      continue;
+    }
+    const issues = scopedIssues.map(i=>i.question);
     if (issues.length) { items.push(unresolved(task, issues)); continue; }
     try {
       const arithmetic = fact(state, task.scopeId, "arithmeticExpression");
-      items.push(task.kind === "facts" ? factsTask(state, task) : task.kind === "elapsed" ? elapsedTask(state, task) : task.source === "supplied" ? suppliedTask(state, task) : task.source === "official" ? await officialTask(state, task, binding) : task.kind === "arithmetic" && arithmetic ? {
+      items.push(task.kind === "facts" ? factsTask(state, task) : task.kind === "elapsed" ? elapsedTask(state, task) : task.source === "supplied" ? suppliedTask(state, task) : task.kind === "arithmetic" && arithmetic ? {
         taskId: task.id, scopeId: task.scopeId, kind: task.kind, status: "calculated", sourceClass: "user-facts", dependencies: [arithmetic.id], pending: [], body: `${safe(arithmetic.value)} = **${calculateTariffExpression(arithmetic.value)}**. Arithmetic only; no tariff applicability inferred.`,
       } : unresolved(task, ["the explicit arithmetic expression or governing supplied terms"]));
     } catch (error) {
