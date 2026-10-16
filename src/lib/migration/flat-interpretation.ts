@@ -121,7 +121,7 @@ export function compileFlatInterpretation(previous:ConversationState,unknown:unk
       const kind=request.endsWith('-quote')?'quote':request;
       if(!['quote','rule','elapsed','comparison','facts','other'].includes(kind))throw new Error('Invalid requested work.');
       const ruleScopes=[...previous.scopes,...proposal.scopes].filter(s=>s.parentId===scopeId&&s.kind==='quotation-rule');
-      const charges=ruleScopes.map(s=>proposal.operations.find(o=>o.scopeId===s.id&&o.field==='charge')?.value??previous.facts.find(f=>f.scopeId===s.id&&f.field==='charge'&&f.status==='established')?.value??s.label);
+      const charges=source==='official'?facts.filter(f=>f.subject===subject&&f.field==='charge').map(f=>f.value):ruleScopes.map(s=>proposal.operations.find(o=>o.scopeId===s.id&&o.field==='charge')?.value??previous.facts.find(f=>f.scopeId===s.id&&f.field==='charge'&&f.status==='established')?.value??s.label);
       proposal.tasks.push({id:stableId(['task',subject,request]),scopeId,kind:kind as Interpretation['tasks'][number]['kind'],source,charges,ruleScopeIds:ruleScopes.map(s=>s.id),evidence});
     }
   }

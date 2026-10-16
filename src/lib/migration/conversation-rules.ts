@@ -186,14 +186,14 @@ function suppliedTask(state: ConversationState, task: ConversationTask): AnswerI
 
 function sourceGap(state:ConversationState,task:ConversationTask,port:string):AnswerItem {
   const entry=(coverageGaps.ports as Record<string,{approvedComponents:Array<{charges:string[];scope:string}>;gaps:Array<{charges:string[];cause:string;message:string}>}>)[port];
-  if(!entry)return unresolved(task,["Missing tariff authority: the requested port has no retained reviewed authority for this service."]);
+  if(!entry)return unresolved(task,["Missing tariff authority: no verified tariff yet for this service."]);
   const pending:string[]=[];
   for(const charge of task.charges){
     const invoice=(coverageGaps.invoiceGaps as Record<string,{message:string}>)[charge];if(invoice){pending.push(invoice.message);continue;}
     const approved=entry.approvedComponents.find(c=>c.charges.includes(charge)&&!(task.kind==="quote"&&/explanation|historical|identity|distinction/i.test(c.scope)));
     if(approved){pending.push("Missing implementation: "+approved.scope+" "+coverageGaps.contract.approvedButUnrouted);continue;}
     const gaps=entry.gaps.filter(g=>g.charges.includes(charge)||g.charges.includes("*")&&g.cause!=="identity");
-    pending.push(...gaps.map(g=>(g.cause==="authority-version"||g.cause==="document-identity"?"Missing tariff authority: ":g.cause==="rule-interpretation"?"Missing implementation / rule review: ":"")+g.message));
+    pending.push(...gaps.map(g=>(g.cause==="authority-version"||g.cause==="document-identity"?"Missing tariff authority: no verified tariff yet. ":g.cause==="rule-interpretation"?"Missing implementation / rule review: ":"")+g.message));
     if(!gaps.length)pending.push(`Missing implementation / rule review: ${charge} has no reviewed executable rule for this requested scope.`);
   }
   if(!value(state,task.scopeId,"operator")&&!value(state,task.scopeId,"terminal"))pending.push(...entry.gaps.filter(g=>g.cause==="identity"&&g.charges.includes("*")).map(g=>g.message));
@@ -208,7 +208,7 @@ const domesticTaxRequirements: Partial<Record<ConversationField, string>> = { di
 async function officialTask(state: ConversationState, task: ConversationTask, binding: QuoteBinding): Promise<AnswerItem> {
   const port = value(state, task.scopeId, "port");
   if (!port) return unresolved(task, ["the requested port/terminal"]);
-  if (!SUPPORTED_PORTS.includes(port)) return unresolved(task, [`Missing tariff authority: no reviewed tariff is available for ${port}. Independent supplied-rate and elapsed-time work remains usable.`]);
+  if (!SUPPORTED_PORTS.includes(port)) return unresolved(task, [`Missing tariff authority: no verified tariff yet for ${port}. Independent supplied-rate and elapsed-time work remains usable.`]);
   const component = await reviewedComponents(state, task);
   if (component) return component;
   if (port !== "mumbai" || task.charges.some(c => !["berth", "gst", "rounding"].includes(c))) return sourceGap(state,task,port);
