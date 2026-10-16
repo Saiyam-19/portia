@@ -3,7 +3,7 @@ import { streamText, tool } from "ai";
 import { MockLanguageModelV4 } from "ai/test";
 import type { LanguageModelV4StreamPart } from "@ai-sdk/provider";
 import { createConversationModel } from "../../src/lib/migration/conversation-model";
-import { interpretationSchema } from "../../src/lib/migration/conversation";
+import { interpretationProposalSchema } from "../../src/lib/migration/conversation";
 import type { ConversationSession } from "../../src/lib/migration/conversation-session";
 import { MIGRATION_CHAT_TIMEOUT } from "../../src/lib/migration/agent-policy";
 const usage = { inputTokens:{total:1,noCache:1,cacheRead:0,cacheWrite:0},outputTokens:{total:1,text:1,reasoning:0} };
@@ -14,7 +14,7 @@ afterEach(()=>{vi.useRealTimers();vi.restoreAllMocks();});
 function start(events:Array<[number,LanguageModelV4StreamPart]>, outer?:AbortSignal, timeout=MIGRATION_CHAT_TIMEOUT) {
  const cancel=vi.fn();let providerSignal:AbortSignal|undefined;const timers:ReturnType<typeof setTimeout>[]=[];
  const model=new MockLanguageModelV4({doStream:async options=>{providerSignal=options.abortSignal;return {stream:new ReadableStream<LanguageModelV4StreamPart>({start(c){c.enqueue({type:"stream-start",warnings:[]});for(const [delay,p] of events)timers.push(setTimeout(()=>{c.enqueue(p);if(p.type==="finish")c.close();},delay));},cancel(reason){for(const t of timers)clearTimeout(t);cancel(reason);}})};}});
- const result=streamText({model:createConversationModel(model,session()),prompt:"hello",tools:{interpret_request:tool({inputSchema:interpretationSchema})},timeout,abortSignal:outer,maxRetries:0});
+ const result=streamText({model:createConversationModel(model,session()),prompt:"hello",tools:{interpret_request:tool({inputSchema:interpretationProposalSchema})},timeout,abortSignal:outer,maxRetries:0});
  const parts:Array<{type:string;error?:unknown}>=[];const consumed=(async()=>{for await(const p of result.fullStream)parts.push(p);})();
  const finish=Promise.resolve(result.finishReason).catch((e:unknown)=>e);
  return {result,parts,consumed,finish,cancel,signal:()=>providerSignal};

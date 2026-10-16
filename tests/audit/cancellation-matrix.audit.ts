@@ -58,7 +58,7 @@ it.each([15,25])('settles independent SDK first-chunk timeout versus user Stop a
 it('rejects an unbound legacy specialist dispatch without starting another provider',async()=>{
   const specialist=new MockLanguageModelV4({doGenerate:async()=>{throw new Error('Unexpected unbound specialist');}});
   const main=new MockLanguageModelV4({doGenerate:async()=>({content:[{type:'tool-call',toolCallId:'consult',toolName:'consult_port_agent',input:JSON.stringify({port_name:'mumbai',query:'Explain tariff'})}],finishReason:{unified:'tool-calls',raw:undefined},usage:{inputTokens:{total:1,noCache:1,cacheRead:undefined,cacheWrite:undefined},outputTokens:{total:1,text:1,reasoning:undefined}},warnings:[]})});
-  await expect(createMigrationMainAgent({alias:'model-1',mainModel:main,specialistModelFactory:()=>specialist}).generate({prompt:'Consult'})).rejects.toThrow(/required tool 'interpret_request'/);
+  await expect(createMigrationMainAgent({alias:'model-1',mainModel:main,specialistModelFactory:()=>specialist}).generate({prompt:'Consult'})).rejects.toMatchObject({name:'PortiaInterpretationError'});
   expect(main.doGenerateCalls).toHaveLength(1);expect(specialist.doGenerateCalls).toHaveLength(0);
 });
 

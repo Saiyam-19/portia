@@ -1,9 +1,10 @@
 import type { ModelMessage } from "ai";
-import { emptyConversation, interpretationSchema, auxiliaryCompletionSchema, hasUnboundFinancialClaim, conversationDigest, applyVesselLookup, reduceInterpretation, replayConversation, type VesselLookupReceipt, type ConversationInput, type ConversationState } from "./conversation";
+import { emptyConversation, interpretationSchema, interpretationProposalSchema, interpretationMeaning, auxiliaryCompletionSchema, hasUnboundFinancialClaim, conversationDigest, applyVesselLookup, reduceInterpretation, replayConversation, type VesselLookupReceipt, type ConversationInput, type ConversationState } from "./conversation";
 import { planConversationAnswer, renderConversationAnswer, type AnswerItem, type ConversationAnswer } from "./conversation-rules";
 import type { QuoteBinding } from "./supplied-quotation";
 import { formInputSchema } from "./contracts";
 
+export type InterpretationDispatch = Readonly<{baseHash:string;revision:number;inputIds:readonly string[];inputs:readonly ConversationInput[]}>;
 /** A session is created inside one authenticated run; never shared or cached. */
 export class ConversationSession {
   state: ConversationState = emptyConversation();
@@ -19,9 +20,15 @@ export class ConversationSession {
     const replay = replayConversation(messages);
     this.state = replay.state; this.inputs = replay.inputs; this.pending = replay.pending;
   }
-  interpret(proposal: unknown) {
-    const parsed = interpretationSchema.parse(proposal);
-    const reduced = reduceInterpretation(this.state, parsed, this.inputs);
+  captureInterpretationDispatch(): InterpretationDispatch {
+    return Object.freeze({baseHash:this.state.hash,revision:this.state.revision,inputIds:Object.freeze(this.pending.map(i=>i.id)),inputs:Object.freeze(structuredClone(this.inputs).map(i=>Object.freeze(i)))});
+  }
+  interpret(proposal: unknown, dispatch?: InterpretationDispatch) {
+    if (dispatch && (dispatch.baseHash !== this.state.hash || dispatch.revision !== this.state.revision)) throw new Error("Interpretation dispatch is stale; the conversation advanced before commit.");
+    const parsed = dispatch
+      ? interpretationSchema.parse({...interpretationProposalSchema.parse(interpretationMeaning(proposal)),baseHash:dispatch.baseHash,inputIds:[...dispatch.inputIds]})
+      : interpretationSchema.parse(proposal);
+    const reduced = reduceInterpretation(this.state, parsed, dispatch?.inputs ?? this.inputs);
     this.state = reduced.state; this.pending = [];
     return reduced.receipt;
   }
@@ -99,7 +106,7 @@ export class ConversationSession {
 
 export const INTERPRETATION_INSTRUCTIONS = `Before any domain action, call interpret_request alone. It proposes a typed interpretation; it cannot authorize a tariff, rate, formula or total.
 Read AUTHENTICATED_PENDING_INPUTS alongside CURRENT_CONVERSATION. Reuse stable scope IDs. Never merge vessels, alternative scenarios, calls or quotation rules. Use kind=scenario for explicitly requested hypothetical/alternative calculations; their assumptions apply only in that scenario. A merely mentioned old/example record is reference evidence, not a requested scenario. A new leg for the same named vessel may link parentId to the earlier call and use operation=inherit with fromFactId for unchanged GT/NT/DWT/LOA, citing the current same-vessel request. Never inherit call times, port, draught or operating conditions. Keep previous/next itinerary ports separate from the requested port.
-Include every pending input ID once. Each fact needs a full supporting clause, not an isolated matching number. Use only raw user/form/cancel-note inputs. Assistant text, lookup and memory are not current user facts. Don't use model confidence as authority.
+The server binds baseHash and inputIds to the dispatched request; do not emit those fields. Each fact needs a full supporting clause, not an isolated matching number. Assertions/corrections cite pending raw user/form/cancel-note inputs. References and unchanged scope references may cite earlier authenticated inputs. Assistant text, lookup and memory are not current user facts. Don't use model confidence as authority.
 Distinguish assert, correct, reject, preserve, reference and uncertain. Corrections address only their named scope/field. Rejecting a value does not establish another. Separate asserted from rejected/reference clauses. Uncertain scope, conflicting values and additional governing terms belong in unresolved; name the affected taskIds. Empty taskIds apply to quotes in that scope, never unrelated arithmetic. Never discard qualifiers to fit a known rule. A confirmed zero/false is different from missing.
 Numeric values must have matching evidence and dimensions: gt=GT, nt=NT, dwt/cargoTonnes=tonnes, loa/draught=m, durationHours/periodHours=hours, movements=movements, rate/minimum/maximum=money, taxPercent=percent, basisQuantity=basis-units. A rate per100GT needs basisQuantity100; never silently treat it as perGT. Bare perGT/per movement implies one basis unit, which code can normalize. Never convert tonnage categories. Code validates conversions. Timestamp values are the original date/time substring, unit=timestamp; do not invent dates, years, zones or date order. Other units use an empty string. Booleans use true/false strings.
 Keep event roles distinct: anchorageArrival, berthStart (all fast/first line), cargoCompleted, berthEnd (last line/cast off), portDeparture. Use intervalStart/intervalEnd only for an explicitly generic elapsed interval, never relabel anchorage arrival as berth arrival.

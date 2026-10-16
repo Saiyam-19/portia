@@ -46,6 +46,13 @@ export const interpretationSchema = z.object({
   inputIds: z.array(z.string().min(1).max(80)).min(1).max(128),
 }).strict();
 export type Interpretation = z.infer<typeof interpretationSchema>;
+// Wire proposals carry meaning only. Receipt/replay metadata remains server-owned.
+export const interpretationProposalSchema = interpretationSchema.omit({baseHash:true,inputIds:true});
+export function interpretationMeaning(proposal: unknown): unknown {
+  if (!proposal || typeof proposal !== "object" || Array.isArray(proposal)) return proposal;
+  // Ignore only legacy code-owned echoes; never coerce or repair semantic fields.
+  return Object.fromEntries(Object.entries(proposal).filter(([key])=>key!=="baseHash"&&key!=="inputIds"));
+}
 export type ConversationInput = AuthoredInput & { id: string };
 export type ConversationFact = z.infer<typeof operationSchema> & {
   id: string; revision: number; status: "established" | "conflicting" | "superseded" | "reference" | "rejected";
@@ -346,9 +353,11 @@ export function reduceInterpretation(previous: ConversationState, unknownProposa
   if (proposal.inputIds.length !== allowed.size || new Set(proposal.inputIds).size !== allowed.size || proposal.inputIds.some(id => !allowed.has(id))) throw new Error("Interpretation must account for every pending authenticated input.");
   const state = structuredClone(previous); state.revision++;
   for (const scope of proposal.scopes) {
-    evidenceInput(scope.evidence, inputs, allowed);
     const prior = state.scopes.find(s => s.id === scope.id);
     if (prior && (prior.kind !== scope.kind || prior.parentId !== scope.parentId || prior.label !== scope.label)) throw new Error("Existing scope identity cannot be reassigned.");
+    // Unchanged scope references may point to the input that created the scope.
+    // Creating a scope still requires this dispatch's pending input evidence.
+    evidenceInput(scope.evidence, inputs, prior ? new Set(inputs.map(i=>i.id)) : allowed);
     if (!prior) state.scopes.push(scope);
   }
   for (const scope of state.scopes) if (scope.parentId && (!state.scopes.some(s => s.id === scope.parentId && s.kind !== "quotation-rule") || scope.id === scope.parentId)) throw new Error("Invalid scope parent.");
@@ -362,7 +371,7 @@ export function reduceInterpretation(previous: ConversationState, unknownProposa
       const atoms = timestampAtoms(proposed.evidence.quote);
       if (atoms.length === 1) { op = { ...proposed, value: atoms[0] }; normalizations.push("Replaced model-normalized timestamp with the single original timestamp in its event evidence."); }
     }
-    const input = evidenceInput(op.evidence, inputs, allowed);
+    const input = evidenceInput(op.evidence, inputs, op.operation === "reference" || op.operation === "preserve" ? new Set(inputs.map(i=>i.id)) : allowed);
     if (!state.scopes.some(s => s.id === op.scopeId)) throw new Error("Unknown fact scope.");
     let invalid = false, validationError: string | undefined;
     if (op.operation === "inherit") {

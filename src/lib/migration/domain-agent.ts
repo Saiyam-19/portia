@@ -8,8 +8,8 @@ import {
   type ToolSet,
 } from "ai";
 import { z } from "zod";
-import { interpretationSchema, auxiliaryCompletionSchema, hasUnboundFinancialClaim } from "./conversation";
-import { ConversationSession, INTERPRETATION_INSTRUCTIONS } from "./conversation-session";
+import { interpretationProposalSchema, auxiliaryCompletionSchema, hasUnboundFinancialClaim } from "./conversation";
+import { ConversationSession, INTERPRETATION_INSTRUCTIONS, type InterpretationDispatch } from "./conversation-session";
 import { createConversationModel } from "./conversation-model";
 import type { QuoteBinding } from "./supplied-quotation";
 import { formInputSchema, type ModelAlias } from "./contracts";
@@ -113,6 +113,7 @@ export function createMigrationMainAgent(options: MigrationMainAgentOptions) {
   const model = options.mainModel ?? migrationLanguageModel(options.alias, { runId: options.runId, agent: "main" });
   if (typeof model === "string") throw new Error("An explicit configured model adapter is required.");
   let steps = 0;
+  let interpretationDispatch: InterpretationDispatch | undefined;
   const memoryTools: ToolSet = Object.fromEntries(Object.entries(options.memory?.tools ?? {}).map(([name, definition]) => {
     const execute = definition.execute;
     if (!execute) return [name, definition];
@@ -127,10 +128,13 @@ export function createMigrationMainAgent(options: MigrationMainAgentOptions) {
   const tools = {
     interpret_request: tool({
       description: "Propose the structured meaning of authenticated pending inputs. No rates, totals or authority may be invented. The server validates operations and plans requirements.",
-      inputSchema: interpretationSchema,
+      inputSchema: interpretationProposalSchema,
       execute: async (proposal, { abortSignal }) => {
         abortSignal?.throwIfAborted(); options.assertCanContinue?.();
-        try { return session.interpret(proposal); }
+        try {
+          if (!interpretationDispatch) throw new Error("No authenticated interpretation dispatch is available.");
+          return session.interpret(proposal,interpretationDispatch);
+        }
         catch (error) {
           session.failure = "I could not validate part of the request: " + (error instanceof Error ? error.message : "invalid interpretation") + " No estimate was published. Please clarify the affected fact or retry explicitly.";
           return { status: "interpretation-unresolved" as const };
@@ -179,6 +183,9 @@ export function createMigrationMainAgent(options: MigrationMainAgentOptions) {
       if (++steps > MAX_PROVIDER_CALLS) throw new Error("Run step budget exhausted.");
       session.observeToolResults(completedSteps.flatMap(s=>s.toolResults));
       await session.prepare();
+      // Captured once before this serialized SDK step dispatches. Never replace
+      // old output's binding with state read when the tool eventually commits.
+      interpretationDispatch = session.pending.length ? session.captureInterpretationDispatch() : undefined;
       // Check memory lifecycle before external inference even when the first
       // model step only interprets user input. Memory never becomes user facts.
       const memoryContext = (!session.answer || session.needsAuxiliary) && options.memory ? await options.memory.instructions() : "";

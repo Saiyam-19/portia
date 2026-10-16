@@ -22,7 +22,7 @@ describe("shared migration domain agent", () => {
   it("rejects an unbound specialist financial report for the original incomplete request", async () => {
     const model = new MockLanguageModelV4({ doGenerate: generated([{ type: "tool-call", toolCallId: "consult", toolName: "consult_port_agent", input: JSON.stringify({ port_name: "mumbai", query: "Calculate marine charges" }) }]) });
     const factory = vi.fn(() => { throw new Error("Unbound specialist must not run"); });
-    await expect(createMigrationMainAgent({ alias: "model-2", mainModel: model, specialistModelFactory: factory }).generate({ prompt: "Estimate Mumbai charges" })).rejects.toThrow(/required tool 'interpret_request'/); expect(factory).not.toHaveBeenCalled(); expect(model.doGenerateCalls).toHaveLength(1);
+    await expect(createMigrationMainAgent({ alias: "model-2", mainModel: model, specialistModelFactory: factory }).generate({ prompt: "Estimate Mumbai charges" })).rejects.toMatchObject({name:'PortiaInterpretationError'}); expect(factory).not.toHaveBeenCalled(); expect(model.doGenerateCalls).toHaveLength(1);
   });
   it("keeps the selected alias path while declining to invent missing source applicability", async () => {
     const question = "What are Mumbai charges for 50000 GRT?";

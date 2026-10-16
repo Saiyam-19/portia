@@ -24,7 +24,7 @@ it('rejects four legacy dispatches before any unbound specialist work', async ()
     generated([{type:'text',text:'Completed'}]),
   ] });
   const specialist = new MockLanguageModelV4({ doGenerate: generated([{type:'text',text:'Synthetic tariff summary'}]) });
-  await expect(createMigrationMainAgent({ alias:'model-1', mainModel:main, specialistModelFactory:() => { calls++; return specialist; } }).generate({prompt:'Compare four calls'})).rejects.toThrow(/required tool 'interpret_request'/);
+  await expect(createMigrationMainAgent({ alias:'model-1', mainModel:main, specialistModelFactory:() => { calls++; return specialist; } }).generate({prompt:'Compare four calls'})).rejects.toMatchObject({name:'PortiaInterpretationError'});
   expect(calls).toBe(0);expect(main.doGenerateCalls).toHaveLength(1);
 });
 
