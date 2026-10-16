@@ -36,7 +36,7 @@ try:
         child = subprocess.Popen(command, cwd=root, env=env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
         record = dict(pid=child.pid, pgid=child.pid, ppid=os.getpid(), command=command, cwd=str(root), ports=[], task='01a145b5-e5e1-75b3-b810-f039c5d31693', purpose=label)
         (out / (label + '-process.json')).write_text(json.dumps(record,indent=2))
-        result = child.wait(timeout=180)
+        result = child.wait(timeout=min(int(os.environ.get('PASS2_TIMEOUT_SECONDS','180')),2400))
 finally:
     cleanup()
     if child:
