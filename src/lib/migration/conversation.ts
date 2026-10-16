@@ -249,6 +249,18 @@ function boundScopeCues(field: "minimumScope" | "maximumScope", quote: string): 
 export function codeOwnedUnit(field: ConversationField): string {
   return numericFields[field]?.unit ?? (/^(?:berthStart|berthEnd|anchorageArrival|cargoCompleted|portDeparture|intervalStart|intervalEnd|readinessTime|callDate|fxDate)$/.test(field) ? "timestamp" : "");
 }
+export function authoredTimeZone(value:string,text:string):string {
+  const normalize=(s:string)=>{
+    const t=s.trim().toUpperCase();
+    if(/^(?:INDIA(?:N)? (?:STANDARD )?TIME|IST|ASIA\/(?:KOLKATA|CALCUTTA))$/.test(t))return '+05:30';
+    if(/^(?:Z|UTC|GMT)$/.test(t))return '+00:00';
+    const m=/^(?:UTC|GMT)?([+-])(\d{2}):?(\d{2})$/.exec(t);return m?`${m[1]}${m[2]}:${m[3]}`:undefined;
+  };
+  const target=normalize(value);
+  const observed=[...text.matchAll(/\b(?:India(?:n)? (?:Standard )?time|IST|Asia\/(?:Kolkata|Calcutta)|(?:UTC|GMT)(?:[+-]\d{2}:?\d{2})?)\b|(?<!\d)[+-]\d{2}:\d{2}(?!\d)/gi)].filter(m=>!['reject','reference'].includes(operationAt(text,m.index!))).map(m=>normalize(m[0]));
+  if(!target||new Set(observed).size!==1||observed[0]!==target)throw new Error('The timezone is absent, ambiguous or not supported by the authored timestamps.');
+  return target;
+}
 export function requiresLiteralGrounding(field:ConversationField) { return !!codeOwnedUnit(field); }
 export function validateOperation(op: Interpretation["operations"][number], input: ConversationInput, semanticEnums=false) {
   op = {...op,evidence:{...op.evidence,quote:op.evidence.quote.normalize("NFKC")}};
@@ -256,8 +268,11 @@ export function validateOperation(op: Interpretation["operations"][number], inpu
   const raw = op.evidence.quote;
   if (input.text.indexOf(raw) !== input.text.lastIndexOf(raw)) throw new Error("Use an unambiguous evidence clause, including its role and context.");
   if (booleanFields.has(op.field) && !["true", "false"].includes(op.value)) throw new Error(`Invalid boolean ${op.field}.`);
-  if (enumValues[op.field] && !enumValues[op.field]!.includes(op.value)) throw new Error(`Invalid ${op.field} category.`);
+  const absentEnum=semanticEnums&&op.value==='none'&&['rounding','moneyRounding','minimumScope','maximumScope'].includes(op.field);
+  if (enumValues[op.field] && !enumValues[op.field]!.includes(op.value)&&!absentEnum) throw new Error(`Invalid ${op.field} category.`);
   if (op.operation === "reference" || op.operation === "uncertain") return;
+  if(absentEnum)return;
+  if(semanticEnums&&op.field==='timeZone'){authoredTimeZone(op.value,input.text);return;}
   if(semanticEnums&&(op.field==='port'||op.field==='terminal')){
     if(resolveCatalogLocation(op.field,op.value,input.text)!==op.value)throw new Error('Identity must be resolved by the catalog before reduction.');
     return;
@@ -451,6 +466,11 @@ export function reduceInterpretation(previous: ConversationState, unknownProposa
   // may supersede an earlier term's scope without changing its monetary amount.
   for (const scope of state.scopes.filter(s=>s.kind==="quotation-rule")) {
     for (const bound of ["minimum","maximum"] as const) {
+      const treatment=currentConversationFact(state,scope.id,(bound+'Treatment') as ConversationField);
+      const amount=currentConversationFact(state,scope.id,bound);
+      if(treatment?.value==='none'&&amount&&amount.evidence.inputId===treatment.evidence.inputId&&new Decimal(amount.value).gt(0)){
+        treatment.status='conflicting';treatment.validationError='An absent bound contradicts a positive amount in the same authored input.';
+      }
       const field = bound === "minimum" ? "minimumScope" : "maximumScope";
       const term = currentConversationFact(state,scope.id,bound), limit = currentConversationFact(state,scope.id,field);
       if (term && limit && term.revision >= limit.revision && boundScopeCues(field,term.evidence.quote).some(cue=>cue!==limit.value)) {

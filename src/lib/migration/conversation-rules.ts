@@ -97,7 +97,7 @@ function suppliedTask(state: ConversationState, task: ConversationTask): AnswerI
   const readFact = (owner: string, field: ConversationField) => { const f = fact(state, owner, field); if (f) dependencies.add(f.id); return f?.value; };
   for (const [index, ruleScope] of task.ruleScopeIds.entries()) {
     const pendingAtStart = pending.length, expressionsAtStart = expressions.length;
-    for (const field of ["minimum","maximum","minimumScope","maximumScope","otherAdjustments","taxPercent"] as const) if (unresolvedConversationField(state,ruleScope,field)) pending.push(`${task.charges[index]}: ${field} is conflicting or withdrawn`);
+    for (const field of ["minimum","maximum","minimumTreatment","maximumTreatment","minimumScope","maximumScope","otherAdjustments","taxPercent"] as const) if (unresolvedConversationField(state,ruleScope,field)) pending.push(`${task.charges[index]}: ${field} is conflicting or withdrawn`);
     const id = `charge_${index}`;
     const charge = readFact(ruleScope, "charge"), basis = readFact(ruleScope, "basis"), currency = readFact(ruleScope, "currency"), rate = readFact(ruleScope, "rate");
     pending.push(...need(state, ruleScope, ["charge", "basis", "currency", "rate"]).map(m => `${task.charges[index]}: ${m}`));
@@ -134,8 +134,9 @@ function suppliedTask(state: ConversationState, task: ConversationTask): AnswerI
         for (const field of ["berthStart", "berthEnd", "timeZone", "dateOrder"] as const) readFact(scope, field);
       }
       pending.push(...(basis === "gt-period" ? need(state, scope, ["gt"]) : []), ...need(state, ruleScope, ["periodHours", "rounding"]));
+      if(rounding==='none')pending.push('the billing-time rounding mode is not stated');
       if (!hours) pending.push("stay duration or full start/end timestamps");
-      if ((gt || basis === "time-period") && hours && period && rounding) {
+      if ((gt || basis === "time-period") && hours && period && rounding&&rounding!=='none') {
         const quotient = minutes ? `${minutes}/(${period}*60)` : `${hours}/${period}`;
         const periods = rounding === "started" ? `ceil(${quotient})` : `(${quotient})`;
         expressions.push({ id: `${id}_periods`, expression: periods });
@@ -143,7 +144,7 @@ function suppliedTask(state: ConversationState, task: ConversationTask): AnswerI
         for (const bound of ["minimum", "maximum"] as const) {
           const amount = value(state,ruleScope,(bound+"Treatment") as ConversationField)==="none"?undefined:readFact(ruleScope, bound); if (!amount) continue;
           const limitScope = readFact(ruleScope, bound === "minimum" ? "minimumScope" : "maximumScope");
-          if (!limitScope) pending.push(`${charge}: ${bound} is per block or per call`);
+          if (!['block','call'].includes(limitScope??'')) pending.push(`${charge}: ${bound} is per block or per call`);
           if (limitScope === "block") unit = `${bound === "minimum" ? "max" : "min"}(${unit},${amount})`;
         }
         expression = `(${unit})*$${id}_periods`;
@@ -158,7 +159,7 @@ function suppliedTask(state: ConversationState, task: ConversationTask): AnswerI
     for (const bound of ["minimum", "maximum"] as const) {
       const amount = value(state,ruleScope,(bound+"Treatment") as ConversationField)==="none"?undefined:readFact(ruleScope, bound); if (!amount) continue;
       const limitScope = readFact(ruleScope, bound === "minimum" ? "minimumScope" : "maximumScope");
-      if (!limitScope || limitScope === "block" && basis !== "gt-period" && basis !== "time-period") pending.push(`${charge}: unsupported or missing ${bound} basis`);
+      if (!['block','call'].includes(limitScope??'') || limitScope === "block" && basis !== "gt-period" && basis !== "time-period") pending.push(`${charge}: unsupported or missing ${bound} basis`);
       if (limitScope === "call") expression = `${bound === "minimum" ? "max" : "min"}(${expression},${amount})`;
       formula += `; ${bound} ${currency} ${amount}/${limitScope}`;
     }
@@ -329,7 +330,7 @@ function compareTasks(state:ConversationState,task:ConversationTask,items:Answer
   const currencies=[...new Set(totals.map(t=>t.currency))];const target=value(state,task.scopeId,"currency")??(currencies.length===1?currencies[0]:undefined);
   if(!target)return unresolved(task,["the comparison currency and supplied conversion rate"]);
   const rate=fact(state,task.scopeId,"fxRate"),from=value(state,task.scopeId,"fxFrom"),to=value(state,task.scopeId,"fxTo");
-  const rounding=value(state,task.scopeId,"moneyRounding"),places=value(state,task.scopeId,"moneyDecimals");
+  const declaredRounding=value(state,task.scopeId,"moneyRounding"),rounding=declaredRounding==='none'?undefined:declaredRounding,places=value(state,task.scopeId,"moneyDecimals");
   if(["fxRate","fxFrom","fxTo","moneyRounding","moneyDecimals","currency"].some(f=>unresolvedConversationField(state,task.scopeId,f as ConversationField)))return unresolved(task,["resolve the conflicting conversion/rounding terms before comparison"]);
   if(rounding&&places===undefined)return unresolved(task,["the requested monetary rounding precision"]);
   if(currencies.some(c=>c!==target)){

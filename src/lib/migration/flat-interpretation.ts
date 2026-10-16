@@ -1,7 +1,7 @@
 import Decimal from 'decimal.js';
 import { operationAt } from './request-semantics';
 import {resolveCatalogLocation} from './port-identity';
-import { requiresLiteralGrounding, codeOwnedUnit, conversationDigest, expandCardinals, validateOperation, reduceInterpretation, type ConversationInput, type ConversationState, type ConversationField, type Interpretation } from './conversation';
+import { BOOLEAN_FIELDS,requiresLiteralGrounding, codeOwnedUnit, conversationDigest, expandCardinals, validateOperation, reduceInterpretation, authoredTimeZone, type ConversationInput, type ConversationState, type ConversationField, type Interpretation } from './conversation';
 
 export {flatInterpretationSchema,type FlatInterpretation} from './fact-contract';
 import {readFlatFacts,type InternalFlatFact} from './fact-contract';
@@ -68,6 +68,7 @@ function evidenceCandidates(text:string, value:string) {
 }
 function ground(field:ConversationField,value:string,input:ConversationInput,scopeId:string,context=input.text):Interpretation['operations'][number] {
   const unit=codeOwnedUnit(field);
+  if(field==='timeZone')return {scopeId,field,value:authoredTimeZone(value,input.text),unit:'',operation:'assert',evidence:{inputId:input.id,quote:context}};
   if(field==='port'||field==='terminal')return {scopeId,field,value:resolveCatalogLocation(field,value,context),unit:'',operation:'assert',evidence:{inputId:input.id,quote:context}};
   if(!requiresLiteralGrounding(field)&&!['port','terminal'].includes(field)){
     const op={scopeId,field,value,unit,operation:'assert' as const,evidence:{inputId:input.id,quote:context}};
@@ -256,8 +257,15 @@ function compilePending(previous:ConversationState,facts:InternalFlatFact[],inpu
 }
 
 export function savedFactSummary(state:ConversationState) {
-  return state.facts.filter(f=>f.status==='established').map(f=>{
+  return state.facts.filter(f=>f.status==='established'&&f.field!=='arithmeticExpression').flatMap(f=>{
     const scope=state.scopes.find(s=>s.id===f.scopeId)!;
-    return {subject:scope.parentId?state.scopes.find(s=>s.id===scope.parentId)?.label:scope.label,item:scope.kind==='quotation-rule'?scope.label:'',field:f.field,value:f.value};
+    let field:string=f.field,value=f.value;
+    if(field==='minimumTreatment'||field==='maximumTreatment')field=field.replace('Treatment','');
+    else if(field==='minimum'||field==='maximum')field+='Amount';
+    else if(field==='taxPercent'&&value==='0'&&/\bno\b[^.!?]*\btax(?:es)?\b/i.test(f.evidence.quote)){field='tax';value='none';}
+    else if(field==='taxExemption'){if(value==='false')return [];field='tax';value='exempt';}
+    else if(field==='otherAdjustments')value=value==='false'?'none':'present';
+    else if((BOOLEAN_FIELDS as readonly string[]).includes(field))value=value==='true'?'yes':'no';
+    return [{subject:scope.parentId?state.scopes.find(s=>s.id===scope.parentId)?.label:scope.label,item:scope.kind==='quotation-rule'?scope.label:'',field,value}];
   });
 }
