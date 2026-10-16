@@ -43,7 +43,7 @@ const guarded:typeof fetch=async(input,init)=>{
     let raw='';const reader=response.clone().body!.getReader(),decoder=new TextDecoder();
     try{while(true){const next=await reader.read();if(next.done)break;raw+=decoder.decode(next.value,{stream:true});if(raw.length>2_000_000){await reader.cancel();throw new Error('Response size bound');}}row.status=response.ok?'complete':'http-error';}
     catch(e){row.status='body-error';row.error=(e as Error).name;}
-    fs.writeFileSync(path.join(root,'calls',row.id+'.response.txt'),raw.replaceAll(apiKey,'[redacted]'));
+    fs.writeFileSync(path.join(root,'calls',row.id+'.response.txt'),apiKey?raw.replaceAll(apiKey,'[redacted]'):raw);
     for(const line of raw.split('\n'))if(line.startsWith('data: {')){
       let data;try{data=JSON.parse(line.slice(6));}catch{continue;}
       if(data.provider)row.provider=data.provider;if(data.id)row.generationId=data.id;
