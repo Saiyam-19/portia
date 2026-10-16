@@ -10,6 +10,10 @@ it('does not validate per-block minimum when its governing quote says per call',
  expect(answer.complete).toBe(false);expect(answer.items[0].totals).toBeUndefined();
  expect(renderConversationAnswer(answer)).not.toContain('USD 1,800.00');
 });
+it('cannot hide a per-call minimum by citing only the earlier billing-block clause for its scope',async()=>{
+ const d=d11(),op=d.p.operations.find(o=>o.field==='minimumScope')!;op.value='block';op.evidence=d.e('each started 12-hour block');
+ const answer=await planConversationAnswer(d.apply().state,binding);expect(answer.complete).toBe(false);expect(answer.items[0].totals).toBeUndefined();
+});
 it.each(['minimumScope','maximumScope'] as const)('checks enumerated per-movement cue for %s instead of treating it as per call',async field=>{
  const source=field==='minimumScope'?'USD 1,100 minimum per call':'USD 1,800 cap per call';
  const original=d11();const text=original.inputs[0].text.replace(source,source.replace('per call','per movement'));

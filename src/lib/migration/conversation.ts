@@ -402,6 +402,20 @@ export function reduceInterpretation(previous: ConversationState, unknownProposa
     state.facts.push(fact);
   }
   if (state.facts.length > 1024) throw new Error("Conversation fact limit exceeded.");
+  // Also bind the scope to its own monetary term: quoting a rate's block clause
+  // cannot override a minimum's per-call clause in the same interpretation.
+  // Only the enumerated cues above are covered. A later explicit scope correction
+  // may supersede an earlier term's scope without changing its monetary amount.
+  for (const scope of state.scopes.filter(s=>s.kind==="quotation-rule")) {
+    for (const bound of ["minimum","maximum"] as const) {
+      const field = bound === "minimum" ? "minimumScope" : "maximumScope";
+      const term = currentConversationFact(state,scope.id,bound), limit = currentConversationFact(state,scope.id,field);
+      if (term && limit && term.revision >= limit.revision && boundScopeCues(field,term.evidence.quote).some(cue=>cue!==limit.value)) {
+        limit.status="conflicting";
+        limit.validationError="The bound scope contradicts the explicit scope of its monetary term; confirm the governing term.";
+      }
+    }
+  }
   for (const task of proposal.tasks) {
     const taskInput = evidenceInput(task.evidence, inputs, new Set(inputs.map(i => i.id)));
     if (!state.scopes.some(s => s.id === task.scopeId && s.kind !== "quotation-rule")) throw new Error("Task needs a call/scenario scope.");
