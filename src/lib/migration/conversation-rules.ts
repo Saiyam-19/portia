@@ -81,7 +81,10 @@ function suppliedTask(state: ConversationState, task: ConversationTask): AnswerI
   if (task.charges.length !== task.ruleScopeIds.length || new Set(task.charges).size !== task.charges.length || new Set(task.ruleScopeIds).size !== task.ruleScopeIds.length) return unresolved(task, ["a separate unique quoted rule for every requested charge"]);
   const namedCharges = task.ruleScopeIds.map(id => value(state,id,"charge")).filter((v): v is string => v !== undefined);
   if (new Set(namedCharges).size !== namedCharges.length || namedCharges.some(name => !task.charges.includes(name))) return unresolved(task,["the quoted rules do not map uniquely to the requested charges"]);
-  const suppliedTax = value(state, scope, "taxPercent");
+  const taxTreatment=value(state,scope,"tax");
+  if(taxTreatment==="exempt"||taxTreatment==="included")return unresolved(task,["The supplied tax treatment needs an implemented calculation rule."]);
+  if(taxTreatment==="percentage"&&!value(state,scope,"taxPercent"))return unresolved(task,["The interpretation omitted the supplied tax percentage."]);
+  const suppliedTax = taxTreatment==="none" ? "0" : value(state, scope, "taxPercent");
   const tax = suppliedTax ?? "0";
   const unresolvedTax = unresolvedConversationField(state,scope,"taxPercent");
   if (unresolvedTax) pending.push("tax treatment is conflicting or withdrawn; confirm the governing tax term");
@@ -101,7 +104,7 @@ function suppliedTask(state: ConversationState, task: ConversationTask): AnswerI
     if (!charge || !task.charges.includes(charge)) { pending.push("quoted charge identity does not match requested scope"); continue; }
     if (!basis || !currency || !rate) continue;
     for (const field of ["rate","minimum","maximum"] as const) {
-      const term = fact(state,ruleScope,field);
+      const term = field!=="rate"&&value(state,ruleScope,(field+"Treatment") as ConversationField)==="none"?undefined:fact(state,ruleScope,field);
       if (term && monetaryEvidenceCurrency(term) !== currency) pending.push(`${charge}: ${field} currency does not match ${currency}; an explicit conversion rule is required`);
     }
     if (fact(state,ruleScope,"taxPercent")) pending.push(`${charge}: per-charge tax requires an explicit supported aggregation rule`);
@@ -138,7 +141,7 @@ function suppliedTask(state: ConversationState, task: ConversationTask): AnswerI
         expressions.push({ id: `${id}_periods`, expression: periods });
         let unit = basis === "time-period" ? rate : `(${gt}/${basisQuantity})*${rate}`;
         for (const bound of ["minimum", "maximum"] as const) {
-          const amount = readFact(ruleScope, bound); if (!amount) continue;
+          const amount = value(state,ruleScope,(bound+"Treatment") as ConversationField)==="none"?undefined:readFact(ruleScope, bound); if (!amount) continue;
           const limitScope = readFact(ruleScope, bound === "minimum" ? "minimumScope" : "maximumScope");
           if (!limitScope) pending.push(`${charge}: ${bound} is per block or per call`);
           if (limitScope === "block") unit = `${bound === "minimum" ? "max" : "min"}(${unit},${amount})`;
@@ -153,7 +156,7 @@ function suppliedTask(state: ConversationState, task: ConversationTask): AnswerI
     } else if (basis === "flat" || basis === "amount") { expression = rate; formula = `${currency} ${rate}${basis === "flat" ? " per call" : " supplied amount"}`; }
     if (!expression) { expressions.splice(expressionsAtStart); continue; }
     for (const bound of ["minimum", "maximum"] as const) {
-      const amount = readFact(ruleScope, bound); if (!amount) continue;
+      const amount = value(state,ruleScope,(bound+"Treatment") as ConversationField)==="none"?undefined:readFact(ruleScope, bound); if (!amount) continue;
       const limitScope = readFact(ruleScope, bound === "minimum" ? "minimumScope" : "maximumScope");
       if (!limitScope || limitScope === "block" && basis !== "gt-period" && basis !== "time-period") pending.push(`${charge}: unsupported or missing ${bound} basis`);
       if (limitScope === "call") expression = `${bound === "minimum" ? "max" : "min"}(${expression},${amount})`;
@@ -165,7 +168,7 @@ function suppliedTask(state: ConversationState, task: ConversationTask): AnswerI
     }
     expressions.push({ id, expression }); rows.push({ id, charge, currency, formula });
   }
-  readFact(scope, "taxPercent"); readFact(scope, "otherAdjustments");
+  readFact(scope, "taxPercent"); readFact(scope,"tax"); readFact(scope, "otherAdjustments");
   for (const charge of task.charges) if (!rows.some(row => row.charge === charge) && !pending.some(p => p.startsWith(charge+":"))) pending.push(`${charge}: requested charge remains unresolved`);
   if (!rows.length) return unresolved(task, [...new Set(pending)]);
   const currencies = [...new Set(rows.map(r => r.currency))];

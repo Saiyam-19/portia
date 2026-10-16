@@ -15,7 +15,7 @@ export const FIELD_NAMES = [
   "supplierState", "supplyState", "directBilling", "registeredCustomer", "privateCustomer", "sez", "taxExemption", "standaloneBill",
   "charge", "currency", "rate", "basis", "basisQuantity", "periodHours", "rounding", "minimum", "maximum", "minimumScope", "maximumScope", "taxPercent", "otherAdjustments", "arithmeticExpression",
   "operator", "cargoCategory", "ladenContainers", "emptyContainers", "containerSize", "cargoTraffic", "handlingMode", "portCrane", "icdRail", "specialCargo", "callDays",
-  "fxRate", "fxFrom", "fxTo", "fxDate", "moneyRounding", "moneyDecimals",
+  "fxRate", "fxFrom", "fxTo", "fxDate", "moneyRounding", "moneyDecimals", "tax", "minimumTreatment", "maximumTreatment",
 ] as const;
 export type ConversationField = typeof FIELD_NAMES[number];
 const evidenceSchema = z.object({ inputId: z.string().min(1).max(80), quote: z.string().min(1).max(4000) }).strict();
@@ -37,6 +37,7 @@ export const auxiliaryCompletionSchema = z.object({ outcomes: z.array(z.object({
 export const hasUnboundFinancialClaim = (value: string) => /(?:[$₹€£]|\b(?:INR|USD|EUR|GBP)\b)\s*\d|\b\d+(?:\.\d+)?\s*%|(?:charge|payable|total|cost|rate|discount|rebate|tax)[^.!?\n]{0,60}\d|\d[^.!?\n]{0,60}(?:charge|payable|cost|rate|discount|rebate|tax)|\b(?:GST|tax|berth\s+hire|port\s+dues|rebate|discount|exempt(?:ion)?|waiv(?:er|ed))\b/i.test(value);
 export type ConversationTask = z.infer<typeof taskSchema>;
 export const interpretationSchema = z.object({
+  contract: z.literal("facts-v3").optional(),
   version: z.literal(1), baseHash: z.string().length(64),
   scopes: z.array(z.object({ id: key, label: z.string().min(1).max(100), kind: z.enum(["call", "scenario", "quotation-rule"]), parentId: key.nullable(), evidence: evidenceSchema }).strict()).max(32),
   operations: z.array(operationSchema).max(256),
@@ -47,7 +48,7 @@ export const interpretationSchema = z.object({
 }).strict();
 export type Interpretation = z.infer<typeof interpretationSchema>;
 // Wire proposals carry meaning only. Receipt/replay metadata remains server-owned.
-export const interpretationProposalSchema = interpretationSchema.omit({baseHash:true,inputIds:true});
+export const interpretationProposalSchema = interpretationSchema.omit({baseHash:true,inputIds:true,contract:true});
 export function interpretationMeaning(proposal: unknown): unknown {
   if (!proposal || typeof proposal !== "object" || Array.isArray(proposal)) return proposal;
   // Ignore only legacy code-owned echoes; never coerce or repair semantic fields.
@@ -134,6 +135,7 @@ const metricNames: Partial<Record<ConversationField, RegExp>> = {
   dwt: /\b(?:DWT|deadweight)\b/i, loa: /\b(?:LOA|length\s+overall)\b/i, draught: /\b(?:draught|draft)\b/i,
 };
 const enumValues: Partial<Record<ConversationField, readonly string[]>> = {
+  tax: ["none","percentage","included","exempt"], minimumTreatment:["none","amount"], maximumTreatment:["none","amount"],
   basis: ["gt-period", "time-period", "movement", "flat", "amount", "cargo-tonne"], rounding: ["started", "exact"], minimumScope: ["block", "call"], maximumScope: ["block", "call"],
   dateOrder: ["DMY", "MDY"], currency: ["USD", "INR", "EUR", "GBP"], service: ["coastal", "foreign"], cargoOperation: ["loading", "discharging", "both", "none"],
   vesselCategory: ["general-cargo", "container", "tanker", "offshore-supply", "naval", "coast-guard", "passenger", "cruise", "other"],
@@ -247,7 +249,8 @@ function boundScopeCues(field: "minimumScope" | "maximumScope", quote: string): 
 export function codeOwnedUnit(field: ConversationField): string {
   return numericFields[field]?.unit ?? (/^(?:berthStart|berthEnd|anchorageArrival|cargoCompleted|portDeparture|intervalStart|intervalEnd|readinessTime|callDate|fxDate)$/.test(field) ? "timestamp" : "");
 }
-export function validateOperation(op: Interpretation["operations"][number], input: ConversationInput) {
+export function requiresLiteralGrounding(field:ConversationField) { return !!codeOwnedUnit(field); }
+export function validateOperation(op: Interpretation["operations"][number], input: ConversationInput, semanticEnums=false) {
   op = {...op,evidence:{...op.evidence,quote:op.evidence.quote.normalize("NFKC")}};
   input = {...input,text:input.text.normalize("NFKC")};
   const raw = op.evidence.quote;
@@ -255,6 +258,19 @@ export function validateOperation(op: Interpretation["operations"][number], inpu
   if (booleanFields.has(op.field) && !["true", "false"].includes(op.value)) throw new Error(`Invalid boolean ${op.field}.`);
   if (enumValues[op.field] && !enumValues[op.field]!.includes(op.value)) throw new Error(`Invalid ${op.field} category.`);
   if (op.operation === "reference" || op.operation === "uncertain") return;
+  if(semanticEnums&&!requiresLiteralGrounding(op.field)&&!['port','terminal'].includes(op.field)){
+    if((op.field==='minimumScope'||op.field==='maximumScope')&&boundScopeCues(op.field,raw).some(cue=>cue!==op.value))throw new Error("The bound scope contradicts its per-call/per-block cue.");
+    if(op.field==='basis'&&op.value==='gt-period'&&!/(?:per|\/)\s*(?:\d[\d,]*\s*)?(?:GT|GRT)\b/i.test(raw))throw new Error("Unable to ground the GT rate dimension.");
+    if(op.field==='basis'&&op.value==='time-period'&&/(?:GT|GRT|metre|meter|movement|tonne|container)/i.test(raw))throw new Error("A dimensional rate cannot become time-only billing.");
+    if(op.field==='rounding'&&op.value==='exact'&&/started|commenced|part\s+thereof|round[^.!?]*up/i.test(raw))throw new Error("Commenced-period evidence cannot authorize exact-time billing.");
+    if(op.field==='tax'&&op.value==='none'&&/\b(?:tax|GST|VAT)\s*(?:is|at|of|:)?\s*[1-9]\d*(?:\.\d+)?\s*%/i.test(raw))throw new Error("Tax none contradicts a supplied percentage.");
+    if(booleanFields.has(op.field)){
+      const polarity=booleanPolarity(op.field,raw);
+      if(polarity==='conditional'||op.value==='true'&&polarity==='negative')throw new Error("Condition contradicts its polarity cue.");
+    }
+    return;
+  }
+
   if ((op.field === "minimumScope" || op.field === "maximumScope") && boundScopeCues(op.field, raw).some(cue => cue !== op.value)) throw new Error("The bound scope contradicts its explicit per-call, per-block or per-movement evidence; confirm the governing term.");
   if (input.fieldName) {
     const meaning = classifyFormField(input.fieldName, input.fieldLabel);
@@ -400,7 +416,7 @@ export function reduceInterpretation(previous: ConversationState, unknownProposa
       const explicitSame = /\bsame\s+(?:vessel|ship)\b/i.test(input.text) && active.size === 1 && active.has(parent!) || identity && identity.label.length > 2 && input.text.toLowerCase().includes(identity.label.toLowerCase());
       if (!source || source.scopeId !== parent || source.field !== op.field || source.value !== op.value || source.unit !== op.unit || !["gt", "nt", "dwt", "loa"].includes(op.field) || !explicitSame || /\b(?:new|another|different)\s+(?:vessel|ship)\b/i.test(input.text)) { invalid = true; validationError = "Only unchanged vessel particulars can be explicitly inherited into an unambiguous linked call."; }
     } else {
-      try { validateOperation(op, input); } catch (error) { invalid = true; validationError = error instanceof Error ? error.message : "The fact could not be validated."; }
+      try { validateOperation(op, input, proposal.contract === "facts-v3"); } catch (error) { invalid = true; validationError = error instanceof Error ? error.message : "The fact could not be validated."; }
     }
     // An explicit named entity in the same clause outranks a proposed scope.
     // This only detects contradictions; absence of a name is not proof of role.
@@ -452,7 +468,7 @@ export function reduceInterpretation(previous: ConversationState, unknownProposa
       for (const ruleId of task.ruleScopeIds) {
         const identity = currentConversationFact(state, ruleId, "charge");
         if (!identity) continue;
-        for (const term of state.facts.filter(f => f.scopeId === ruleId && f.status === "established" && f.field !== "charge")) {
+        for (const term of state.facts.filter(f => f.scopeId === ruleId && f.status === "established" && f.field !== "charge" && (proposal.contract !== "facts-v3" || requiresLiteralGrounding(f.field)))) {
           const enclosed = term.evidence.inputId === identity.evidence.inputId && identity.evidence.quote.includes(term.evidence.quote);
           if (!enclosed && !term.evidence.quote.toLowerCase().includes(identity.value.toLowerCase())) throw new Error("A quoted term cannot be assigned to a different charge by its label.");
         }

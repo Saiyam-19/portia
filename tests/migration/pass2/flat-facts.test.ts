@@ -5,9 +5,9 @@ import { currentConversationFact } from '../../../src/lib/migration/conversation
 import { d11 } from '../pass1/golden';
 
 const facts = [
-  ['','request','supplied-quote'],['','gt','9000'],['','durationHours','25'],['','taxPercent','0'],['','otherAdjustments','no'],
+  ['','request','supplied-quote'],['','gt','9000'],['','durationHours','25'],['','tax','none'],['','otherAdjustments','none'],
   ['berth hire','charge','berth hire'],['berth hire','currency','USD'],['berth hire','rate','0.04'],['berth hire','basis','gt-period'],
-  ['berth hire','periodHours','12'],['berth hire','rounding','started'],['berth hire','minimum','1100'],['berth hire','maximum','1800'],
+  ['berth hire','periodHours','12'],['berth hire','rounding','started'],['berth hire','minimum','amount'],['berth hire','minimumAmount','1100'],['berth hire','maximum','amount'],['berth hire','maximumAmount','1800'],
   ['berth hire','minimumScope','call'],['berth hire','maximumScope','call'],
 ].map(([item,field,value])=>({subject:'Quote',item,field,value}));
 it('accepts a flat list of D11 facts and exposes no model-owned state, evidence, units or expressions', async()=>{

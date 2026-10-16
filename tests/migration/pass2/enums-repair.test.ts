@@ -18,10 +18,10 @@ async function attempt(mode:'generate'|'stream',outputs:unknown[]){
   else{const r=streamText(options);const end=Promise.resolve(r.finishReason).catch(e=>e);for await(const p of r.fullStream){if(p.type==='error')error=p.error;if(p.type==='tool-call')accepted++;}await end;}
   return {calls,error,accepted};
 }
-const malformed={facts:rows('Quote','',{otherAdjustments:'none'})};
+const malformed={facts:rows('Quote','',{coastalLicence:'none'})};
 it('yes/no fields have enum values and reject none/false/free text',()=>{
-  for(const value of ['none','false','no extras'])expect(flatInterpretationSchema.safeParse({facts:rows('Quote','',{otherAdjustments:value})}).success).toBe(false);
-  for(const value of ['yes','no'])expect(flatInterpretationSchema.safeParse({facts:rows('Quote','',{otherAdjustments:value})}).success).toBe(true);
+  for(const value of ['none','false','no extras'])expect(flatInterpretationSchema.safeParse({facts:rows('Quote','',{coastalLicence:value})}).success).toBe(false);
+  for(const value of ['yes','no'])expect(flatInterpretationSchema.safeParse({facts:rows('Quote','',{coastalLicence:value})}).success).toBe(true);
 });
 it.each(['generate','stream'] as const)('%s repairs malformed output once internally by default',async mode=>{
   const r=await attempt(mode,[malformed]);expect(r.calls).toBe(2);expect(r.accepted).toBe(1);expect(r.error).toBeUndefined();

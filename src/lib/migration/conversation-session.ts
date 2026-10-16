@@ -35,7 +35,8 @@ export class ConversationSession {
   }
   interpretFacts(proposal: unknown, dispatch: InterpretationDispatch) {
     if(dispatch.baseHash!==this.state.hash||dispatch.revision!==this.state.revision)throw new Error("Interpretation dispatch is stale; the conversation advanced before commit.");
-    return this.interpret(compileFlatInterpretation(this.state,proposal,dispatch.inputs),dispatch);
+    const reduced=reduceInterpretation(this.state,compileFlatInterpretation(this.state,proposal,dispatch.inputs),dispatch.inputs);
+    this.state=reduced.state;this.pending=[];return reduced.receipt;
   }
   async prepare(options: {codeOwnedFailures?:boolean} = {}) {
     if (!this.pending.length && !this.answer && this.state.tasks.some(t => t.kind !== "other")) this.answer = this.withAuxiliary(await planConversationAnswer(this.state, this.binding));

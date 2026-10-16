@@ -1,21 +1,14 @@
-import { z } from 'zod';
 import Decimal from 'decimal.js';
 import { operationAt } from './request-semantics';
-import { BOOLEAN_FIELDS, FIELD_NAMES, codeOwnedUnit, conversationDigest, expandCardinals, validateOperation, type ConversationInput, type ConversationState, type ConversationField, type Interpretation } from './conversation';
+import { requiresLiteralGrounding, codeOwnedUnit, conversationDigest, expandCardinals, validateOperation, type ConversationInput, type ConversationState, type ConversationField, type Interpretation } from './conversation';
 
-const fields = [...FIELD_NAMES.filter(f=>f!=='arithmeticExpression'&&!(BOOLEAN_FIELDS as readonly string[]).includes(f)), 'request'] as const;
-const identity={subject:z.string().min(1).max(100),item:z.string().max(64)};
-/** Only semantic facts cross the provider boundary. All receipt structure is local. */
-export const flatInterpretationSchema = z.object({facts:z.array(z.union([
-  z.object({...identity,field:z.enum(fields),value:z.string().min(1).max(200)}).strict(),
-  z.object({...identity,field:z.enum(BOOLEAN_FIELDS),value:z.enum(['yes','no'])}).strict(),
-])).min(1).max(256)}).strict();
-export type FlatInterpretation = z.infer<typeof flatInterpretationSchema>;
+export {flatInterpretationSchema,type FlatInterpretation} from './fact-contract';
+import {readFlatFacts} from './fact-contract';
 export const FLAT_INTERPRETATION_INSTRUCTIONS = `Call interpret_request alone with a flat facts list. Each row is {subject,item,field,value}.
 Use a short human label as subject for each independent quotation, vessel or scenario. item is the charge name, or empty for facts shared by the subject. Unnamed amounts use item_1, item_2. Never merge comparison sides or scenarios.
 Include request rows with item empty and value supplied-quote, official-quote, rule, elapsed, comparison, facts, or other. Include all requested work. For a comparison include quote requests for each side and a separate Comparison subject with the conversion/rounding facts. A correction refers to the saved subject and named item.
-Return supplied facts only. No hashes, revisions, IDs, quote spans, units, totals, calculations or expression strings. Do not repeat saved facts; code retains them. Numeric values are the supplied number, without separators. Code grounds every fact against the user's message and supplies units. Timestamp values retain the user's original date/time text; never infer a date, year, zone or date order.
-Quoted line items: charge, currency, rate, basis (amount for a stated amount, flat for per call, gt-period for per GT per period, time-period for time-only blocks, movement, cargo-tonne), periodHours, rounding (started/exact), minimum/maximum, minimumScope/maximumScope (call/block). Do not invent missing terms. Call and block limits differ. Bare per GT means one GT. Keep no-tax and no-other-charges facts at subject level; yes/no values MUST be the enums yes/no (never none, true, false or prose). A bare per hour period is 1. A composite duration retains hours and minutes separately. Code calculates, never the model.
+Return supplied facts only. No hashes, revisions, IDs, quote spans, units, totals, calculations or expression strings. Do not repeat saved facts; code retains them. Numeric values are the supplied number, without separators. Code grounds only arithmetic numbers and dates/times literally and supplies units. Semantic categories are strict enums, not quote spans. Timestamp values retain the user's original date/time text; never infer a date, year, zone or date order.
+Quoted line items: charge, currency, rate, basis (amount for a stated amount, flat for per call, gt-period for per GT per period, time-period for time-only blocks, movement, cargo-tonne), periodHours, rounding (started/exact), minimum/maximum are enums none, amount, not_stated. When amount is stated, put the quoted number in minimumAmount/maximumAmount and scope in minimumScope/maximumScope (call/block). Never emit zero for no minimum or no cap. Do not invent missing terms. Call and block limits differ. Bare per GT means one GT. Tax uses tax=none for No tax, percentage with taxPercent for a quoted percentage, included, exempt, or not_stated. Never emit taxExemption or taxPercent=0 for No tax. otherAdjustments=none/present/not_stated. Keep these at subject level. Other yes/no fields use yes/no/not_stated. Use not_stated for missing terms; none only for an explicit exclusion. moneyRounding=line/quote/none/not_stated; after adding each quotation means quote, never prose. A bare per hour period is 1. A composite duration retains hours and minutes separately. Code calculates, never the model.
 Official requested services use charge facts; never ask the user for official rates. No verified tariff is a code-owned gap. Negation, uncertainty and either/or dates must not be resolved by guessing. Do not emit a fact you cannot identify unambiguously.`;
 
 const stableId = (parts: string[]) => 'f_'+conversationDigest(parts).slice(0,24);
@@ -69,6 +62,11 @@ function evidenceCandidates(text:string, value:string) {
 }
 function ground(field:ConversationField,value:string,input:ConversationInput,scopeId:string,context=input.text):Interpretation['operations'][number] {
   const unit=codeOwnedUnit(field);
+  if(!requiresLiteralGrounding(field)&&!['port','terminal'].includes(field)){
+    const op={scopeId,field,value,unit,operation:'assert' as const,evidence:{inputId:input.id,quote:context}};
+    if(!['minimumScope','maximumScope'].includes(field))validateOperation(op,input,true);
+    return op;
+  }
   for(const quote of evidenceCandidates(context,value)) {
     if(field==='basis'&&value==='gt-period'&&!/(?:per|\/)\s*(?:\d[\d,]*\s*)?(?:GT|GRT)\b/i.test(quote))continue;
     const op={scopeId,field,value,unit,operation:'assert' as const,evidence:{inputId:input.id,quote}};
@@ -77,7 +75,7 @@ function ground(field:ConversationField,value:string,input:ConversationInput,sco
   throw new Error(`Unable to ground ${field} in the supplied message.`);
 }
 export function compileFlatInterpretation(previous:ConversationState,unknown:unknown,inputs:readonly ConversationInput[]):Interpretation {
-  const facts=flatInterpretationSchema.parse(unknown).facts.map(row=>({...row,value:(BOOLEAN_FIELDS as readonly string[]).includes(row.field)?row.value==='yes'?'true':'false':row.value}));
+  const facts=readFlatFacts(unknown,inputs.filter(i=>!previous.consumed.includes(i.id)).map(i=>i.text).join("\n"));
   const pending=inputs.filter(i=>!previous.consumed.includes(i.id));
   if(pending.length!==1)throw new Error('Flat interpretation requires one pending authored input.');
   const input=pending[0], evidence={inputId:input.id,quote:input.text};
@@ -91,7 +89,7 @@ export function compileFlatInterpretation(previous:ConversationState,unknown:unk
     if(/\b(?:keep|retain|preserve)\b/i.test(input.text)&&saved(row)?.value===row.value)kept.add(row);
     else row.value=numericValue(row.field,row.value,input.text);
   }
-  const proposal:Interpretation={version:1,baseHash:previous.hash,inputIds:pending.map(i=>i.id),scopes:[],operations:[],tasks:[],unresolved:[]};
+  const proposal:Interpretation={contract:"facts-v3",version:1,baseHash:previous.hash,inputIds:pending.map(i=>i.id),scopes:[],operations:[],tasks:[],unresolved:[]};
   const subjects=[...new Set(facts.map(f=>f.subject))];
   const scopeFor=new Map<string,string>();
   for(const subject of subjects){
@@ -125,7 +123,7 @@ export function compileFlatInterpretation(previous:ConversationState,unknown:unk
     if(old&&old.value!==op.value&&row.item&&new RegExp(`\\b${escaped(row.item)}\\b`,'i').test(context)){
       const at=input.text.indexOf(op.evidence.quote)+Math.max(0,op.evidence.quote.search(/\d/));
       if(operationAt(input.text,at)==='replace'){
-        op.operation='correct';op.evidence={inputId:input.id,quote:context};validateOperation(op,input);
+        op.operation='correct';op.evidence={inputId:input.id,quote:context};validateOperation(op,input,true);
       }
     }
     proposal.operations.push(op);
