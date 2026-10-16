@@ -224,12 +224,25 @@ function explicitBerthInterval(op: Interpretation["operations"][number], input: 
   return op.value === expected && op.evidence.quote.includes(expected);
 }
 
+/** Limited semantic cross-check: enumerated per-call/visit, per-block/period,
+ * and per-movement cues attached to a minimum or maximum/cap. This is not a
+ * general tariff-language validator. Contradictions are rejected, never repaired. */
+function boundScopeCues(field: "minimumScope" | "maximumScope", quote: string): string[] {
+  const roles = [...quote.matchAll(/\b(minimum|maximum|cap)\b/gi)];
+  return roles.flatMap((role, index) => {
+    if (field === "minimumScope" ? role[1].toLowerCase() !== "minimum" : role[1].toLowerCase() === "minimum") return [];
+    const clause = quote.slice(role.index! + role[0].length, roles[index + 1]?.index ?? quote.length);
+    return [...clause.matchAll(/\b(?:per|each)\s+(?:(?:billed|started|commenced)\s+)?(?:\d+[- ](?:hour|day)s?\s+)?(call|visit|block|period|movement)\b/gi)].map(m => /call|visit/i.test(m[1]) ? "call" : /block|period/i.test(m[1]) ? "block" : "movement");
+  });
+}
+
 function validateOperation(op: Interpretation["operations"][number], input: ConversationInput) {
   const raw = op.evidence.quote;
   if (input.text.indexOf(raw) !== input.text.lastIndexOf(raw)) throw new Error("Use an unambiguous evidence clause, including its role and context.");
   if (booleanFields.has(op.field) && !["true", "false"].includes(op.value)) throw new Error(`Invalid boolean ${op.field}.`);
   if (enumValues[op.field] && !enumValues[op.field]!.includes(op.value)) throw new Error(`Invalid ${op.field} category.`);
   if (op.operation === "reference" || op.operation === "uncertain") return;
+  if ((op.field === "minimumScope" || op.field === "maximumScope") && boundScopeCues(op.field, raw).some(cue => cue !== op.value)) throw new Error("The bound scope contradicts its explicit per-call, per-block or per-movement evidence; confirm the governing term.");
   if (input.fieldName) {
     const meaning = classifyFormField(input.fieldName, input.fieldLabel);
     if (meaning.conflicts.length || meaning.field && meaning.field !== op.field) throw new Error("The submitted form field identifies a different or conflicting measurement/event.");
@@ -318,6 +331,9 @@ function validateOperation(op: Interpretation["operations"][number], input: Conv
     // Date/time normalization is performed by code later. The model cannot
     // silently resolve numeric date order, invent a year, or change a timestamp.
     if (op.unit !== "timestamp" || !raw.includes(op.value)) throw new Error("Timestamp must retain the original user text.");
+    const at = input.text.indexOf(raw);
+    const clause = (input.text.slice(0, at).split(/[.!?;\n]/).at(-1) ?? "") + raw + input.text.slice(at + raw.length).split(/[.!?;\n]/)[0];
+    if (/\beither\b[\s\S]*\bor\b/i.test(clause) && timestampAtoms(clause).length > 1) throw new Error("The event has alternative timestamps; confirm which applies before establishing a date.");
     if (timestampAtoms(raw).length > 1) throw new Error("Use a distinct supporting clause for each event timestamp.");
   }
 }
