@@ -134,7 +134,7 @@ const metricNames: Partial<Record<ConversationField, RegExp>> = {
   dwt: /\b(?:DWT|deadweight)\b/i, loa: /\b(?:LOA|length\s+overall)\b/i, draught: /\b(?:draught|draft)\b/i,
 };
 const enumValues: Partial<Record<ConversationField, readonly string[]>> = {
-  basis: ["gt-period", "movement", "flat", "amount", "cargo-tonne"], rounding: ["started", "exact"], minimumScope: ["block", "call"], maximumScope: ["block", "call"],
+  basis: ["gt-period", "time-period", "movement", "flat", "amount", "cargo-tonne"], rounding: ["started", "exact"], minimumScope: ["block", "call"], maximumScope: ["block", "call"],
   dateOrder: ["DMY", "MDY"], currency: ["USD", "INR", "EUR", "GBP"], service: ["coastal", "foreign"], cargoOperation: ["loading", "discharging", "both", "none"],
   vesselCategory: ["general-cargo", "container", "tanker", "offshore-supply", "naval", "coast-guard", "passenger", "cruise", "other"],
   cargoTraffic: ["exim", "coastal", "transshipment"], handlingMode: ["road", "rail", "ship-yard"], cargoCategory: ["mechanized-bulk", "other"],
@@ -142,7 +142,7 @@ const enumValues: Partial<Record<ConversationField, readonly string[]>> = {
 };
 const booleanFields = new Set<ConversationField>(["coastalLicence", "berthAllotted", "readinessValid", "favourableConditions", "idleTime", "shifting", "falseReadiness", "priority", "ousting", "penalty", "rebate", "directBilling", "registeredCustomer", "privateCustomer", "sez", "taxExemption", "standaloneBill", "otherAdjustments", "portCrane", "icdRail", "specialCargo"]);
 const words: Record<string, number> = { zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19, twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90 };
-function expandCardinals(raw: string) {
+export function expandCardinals(raw: string) {
   const atom = `(?:${Object.keys(words).join("|")}|hundred|thousand|million)`;
   return raw.replace(new RegExp(`\\b${atom}(?:[ -]+(?:and[ -]+)?${atom})*\\b`, "gi"), phrase => {
     let total = 0, group = 0, previous = -1;
@@ -174,7 +174,7 @@ const anchors: Partial<Record<ConversationField, RegExp>> = {
 };
 const categoryTerms: Partial<Record<ConversationField, Record<string, RegExp>>> = {
   service: { coastal: /\bcoastal\b/i, foreign: /\bforeign\b/i },
-  basis: { "gt-period": /(?:GT|GRT|gross[ -]tonnage)[\s\S]*(?:hour|day|block)|(?:hour|day|block)[\s\S]*(?:GT|GRT|gross[ -]tonnage)/i, movement: /movement|moves?/i, flat: /flat|fixed|per[ -]call|per[ -]visit/i, amount:/(?:USD|INR|EUR|GBP|[$₹€£])\s*\d/i, "cargo-tonne": /cargo[\s\S]*(?:tonne|ton)|(?:tonne|ton)[\s\S]*cargo/i },
+  basis: { "time-period": /(?:each|per)[\s\S]*(?:hour|day|block|period)/i, "gt-period": /(?:GT|GRT|gross[ -]tonnage)[\s\S]*(?:hour|day|block)|(?:hour|day|block)[\s\S]*(?:GT|GRT|gross[ -]tonnage)/i, movement: /movement|moves?/i, flat: /flat|fixed|per[ -]call|per[ -]visit/i, amount:/(?:USD|INR|EUR|GBP|[$₹€£])\s*\d/i, "cargo-tonne": /cargo[\s\S]*(?:tonne|ton)|(?:tonne|ton)[\s\S]*cargo/i },
   moneyRounding:{line:/each[\s\S]*(?:line|charge|item)|per[ -]line/i,quote:/after[\s\S]*(?:add|sum|total)|(?:quotation|quote|total)[\s\S]*round|round[\s\S]*(?:quotation|quote|total)/i},
   rounding: { started: /started|commenced|part[ -]thereof|round[\s\S]*up/i, exact: /exact|pro[ -]?rata|per[ -]hour|\/\s*(?:hour|h)\b/i },
   minimumScope: { block: /block|period/i, call: /call|visit/i }, maximumScope: { block: /block|period/i, call: /call|visit/i },
@@ -189,7 +189,7 @@ const categoryTerms: Partial<Record<ConversationField, Record<string, RegExp>>> 
 /** Currency belongs to the same monetary atom and governing role, not merely
  * some other matching currency word in a quoted paragraph. */
 export function monetaryEvidenceCurrency(fact: Pick<ConversationFact, "field" | "value" | "evidence">): string | undefined {
-  const text = fact.evidence.quote;
+  const text = fact.evidence.quote.normalize("NFKC");
   const currencies = [...text.matchAll(/(USD|INR|EUR|GBP|US\$|[$₹€£])\s*(\d[\d,]*(?:\.\d+)?)/gi)].flatMap(m => {
     if (!new Decimal(m[2].replaceAll(",", "")).eq(fact.value)) return [];
     const role = /\b(minimum|maximum|cap)\s*$/i.exec(text.slice(0, m.index).trim())?.[1] ?? /^(minimum|maximum|cap)\b/i.exec(text.slice(m.index! + m[0].length).trim())?.[1];
@@ -247,6 +247,8 @@ export function codeOwnedUnit(field: ConversationField): string {
   return numericFields[field]?.unit ?? (/^(?:berthStart|berthEnd|anchorageArrival|cargoCompleted|portDeparture|intervalStart|intervalEnd|readinessTime|callDate|fxDate)$/.test(field) ? "timestamp" : "");
 }
 export function validateOperation(op: Interpretation["operations"][number], input: ConversationInput) {
+  op = {...op,evidence:{...op.evidence,quote:op.evidence.quote.normalize("NFKC")}};
+  input = {...input,text:input.text.normalize("NFKC")};
   const raw = op.evidence.quote;
   if (input.text.indexOf(raw) !== input.text.lastIndexOf(raw)) throw new Error("Use an unambiguous evidence clause, including its role and context.");
   if (booleanFields.has(op.field) && !["true", "false"].includes(op.value)) throw new Error(`Invalid boolean ${op.field}.`);
@@ -261,6 +263,7 @@ export function validateOperation(op: Interpretation["operations"][number], inpu
   const anchor = anchors[op.field];
   if (anchor && !anchor.test(raw) && !anchor.test([input.fieldName, input.fieldLabel].join(" ")) && !explicitBerthInterval(op, input)) throw new Error(`The evidence does not identify ${op.field}.`);
   if (categoryTerms[op.field] && !categoryTerms[op.field]![op.value]?.test(raw)) throw new Error(`The evidence does not support the proposed ${op.field} category.`);
+  if (op.field === "basis" && op.value === "time-period" && /(?:GT|GRT|metre|meter|movement|tonne|container)/i.test(raw)) throw new Error("A dimensional rate cannot be treated as time-only billing.");
   if (op.field === "rounding") {
     if (op.value === "exact" && /started|commenced|part\s+thereof|round[\s\S]*up/i.test(raw)) throw new Error("Commenced-period evidence cannot authorize exact-time billing.");
     if (/round[\s\S]*(?:amount|bill|charge|dollar|rupee|currency)/i.test(raw) && !/round[^.!?\n]*(?:stay|duration|hours?|periods?|blocks?)/i.test(raw)) throw new Error("Monetary rounding is distinct from billing-time rounding.");

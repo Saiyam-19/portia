@@ -116,9 +116,9 @@ function suppliedTask(state: ConversationState, task: ConversationTask): AnswerI
       if (!implicitOne && !declared.some(m => new Decimal(m[1].replaceAll(",", "")).eq(basisQuantity!))) { pending.push(`${charge}: the rate denominator has the wrong dimension`); continue; }
     }
     if (!basisQuantity && /(?:per|\/|each)\s*(?:GT|GRT|movement|tonne|ton)\b/i.test(basisEvidence)) basisQuantity = "1";
-    if (basis !== "flat" && basis !== "amount" && !basisQuantity) { pending.push(`${charge}: the quoted quantity per rate unit`); continue; }
+    if (basis !== "flat" && basis !== "amount" && basis !== "time-period" && !basisQuantity) { pending.push(`${charge}: the quoted quantity per rate unit`); continue; }
     let expression: string | undefined; let formula = "";
-    if (basis === "gt-period") {
+    if (basis === "gt-period" || basis === "time-period") {
       const gt = readFact(scope, "gt"), period = readFact(ruleScope, "periodHours"), rounding = readFact(ruleScope, "rounding");
       let hours = readFact(scope, "durationHours"); const time = times(state, scope);
       const minutes = readFact(scope, "durationMinutes");
@@ -130,13 +130,13 @@ function suppliedTask(state: ConversationState, task: ConversationTask): AnswerI
         hours ??= time.elapsedHours;
         for (const field of ["berthStart", "berthEnd", "timeZone", "dateOrder"] as const) readFact(scope, field);
       }
-      pending.push(...need(state, scope, ["gt"]), ...need(state, ruleScope, ["periodHours", "rounding"]));
+      pending.push(...(basis === "gt-period" ? need(state, scope, ["gt"]) : []), ...need(state, ruleScope, ["periodHours", "rounding"]));
       if (!hours) pending.push("stay duration or full start/end timestamps");
-      if (gt && hours && period && rounding) {
+      if ((gt || basis === "time-period") && hours && period && rounding) {
         const quotient = minutes ? `${minutes}/(${period}*60)` : `${hours}/${period}`;
         const periods = rounding === "started" ? `ceil(${quotient})` : `(${quotient})`;
         expressions.push({ id: `${id}_periods`, expression: periods });
-        let unit = `(${gt}/${basisQuantity})*${rate}`;
+        let unit = basis === "time-period" ? rate : `(${gt}/${basisQuantity})*${rate}`;
         for (const bound of ["minimum", "maximum"] as const) {
           const amount = readFact(ruleScope, bound); if (!amount) continue;
           const limitScope = readFact(ruleScope, bound === "minimum" ? "minimumScope" : "maximumScope");
@@ -144,7 +144,7 @@ function suppliedTask(state: ConversationState, task: ConversationTask): AnswerI
           if (limitScope === "block") unit = `${bound === "minimum" ? "max" : "min"}(${unit},${amount})`;
         }
         expression = `(${unit})*$${id}_periods`;
-        formula = `${gt} GT / ${basisQuantity} GT × ${currency} ${rate} per ${period}h; ${rounding} periods over ${hours}h`;
+        formula = `${basis === "gt-period" ? `${gt} GT / ${basisQuantity} GT × ` : ""}${currency} ${rate} per ${period}h; ${rounding} periods over ${hours}h`;
       }
     } else if (basis === "movement" || basis === "cargo-tonne") {
       const field = basis === "movement" ? "movements" : "cargoTonnes";
@@ -155,7 +155,7 @@ function suppliedTask(state: ConversationState, task: ConversationTask): AnswerI
     for (const bound of ["minimum", "maximum"] as const) {
       const amount = readFact(ruleScope, bound); if (!amount) continue;
       const limitScope = readFact(ruleScope, bound === "minimum" ? "minimumScope" : "maximumScope");
-      if (!limitScope || limitScope === "block" && basis !== "gt-period") pending.push(`${charge}: unsupported or missing ${bound} basis`);
+      if (!limitScope || limitScope === "block" && basis !== "gt-period" && basis !== "time-period") pending.push(`${charge}: unsupported or missing ${bound} basis`);
       if (limitScope === "call") expression = `${bound === "minimum" ? "max" : "min"}(${expression},${amount})`;
       formula += `; ${bound} ${currency} ${amount}/${limitScope}`;
     }
