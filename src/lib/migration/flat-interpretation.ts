@@ -40,10 +40,15 @@ function moneyAtoms(text:string){
 }
 function itemContext(item:string,rate:string|undefined,text:string):string {
   if(!rate)throw new Error(`The ${item} item has no supplied rate fact.`);
-  const candidates=moneyAtoms(text).filter(m=>m.amount===rate);
   const anonymous=/^item_\d+$/.test(item);
+  if(anonymous){
+    const atom=moneyAtoms(text)[Number(item.slice(5))-1];
+    if(!atom||atom.amount!==rate)throw new Error('Numbered item amount does not match its position in this named quote.');
+    // Prefix includes the quote name and occurrence, distinguishing equal amounts.
+    return text.slice(0,atom.at+atom.raw.length);
+  }
+  const candidates=moneyAtoms(text).filter(m=>m.amount===rate);
   for(const m of candidates){
-    if(anonymous)return m.raw;
     const before=text.slice(0,m.at),after=text.slice(m.at+m.raw.length);
     const suffix=new RegExp(`^\\s*${escaped(item)}\\b`,'i').exec(after);
     const prefix=new RegExp(`\\b${escaped(item)}(?:\\s+(?:hire|charge|rate|is|at|now|of))?\\s*(?:(?:is|now|at)\\s*)?[:=]?\\s*$`,'i').exec(before);
@@ -81,6 +86,25 @@ export function compileFlatInterpretation(previous:ConversationState,unknown:unk
   const pending=inputs.filter(i=>!previous.consumed.includes(i.id));
   if(pending.length!==1)throw new Error('Flat interpretation requires one pending authored input.');
   const input=pending[0], evidence={inputId:input.id,quote:input.text};
+  for(const row of facts){
+    const short=row.subject.replace(/^(?:quote|quotation|scenario)\s+/i,'');
+    if(short!==row.subject&&(subjectContext(short,input.text).quotation||subjectContext(short,input.text).scenario))row.subject=short;
+    const ordinal=/^(?:item[_ -]?)?([1-9]\d*)$/i.exec(row.item);
+    if(ordinal){row.item='item_'+ordinal[1];if(row.field==='charge')row.value=row.item;}
+  }
+  const itemKeys=[...new Set(facts.filter(f=>f.item).map(f=>JSON.stringify([f.subject,f.item])))];
+  for(const key of itemKeys){
+    const [subject,item]=JSON.parse(key) as [string,string];
+    if(!facts.some(f=>f.subject===subject&&f.item===item&&f.field==='charge'))facts.push({subject,item,field:'charge',value:item});
+  }
+  for(const subject of new Set(facts.map(f=>f.subject))){
+    const numbered=[...new Set(facts.filter(f=>f.subject===subject&&/^item_\d+$/.test(f.item)).map(f=>f.item))];
+    if(!numbered.length)continue;
+    const quote=subjectContext(subject,input.text).quotation;
+    if(!quote)throw new Error('Numbered items require an unambiguous named quotation.');
+    const count=moneyAtoms(quote).length;
+    if(count!==numbered.length||numbered.some(item=>Number(item.slice(5))>count))throw new Error('Numbered items must cover every amount in their named quote exactly once.');
+  }
   const saved=(row:typeof facts[number])=>{
     const subject=previous.scopes.find(s=>s.kind!=='quotation-rule'&&s.label.toLowerCase()===row.subject.toLowerCase());
     const scope=row.item?previous.scopes.find(s=>s.parentId===subject?.id&&s.label.toLowerCase()===row.item.toLowerCase()):subject;
