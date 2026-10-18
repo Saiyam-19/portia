@@ -1,0 +1,13 @@
+{
+  "results": [
+    "Exact approval executes and publishes USD 161.75 without another provider call; pending survives reload; no preselected approval; mobile no horizontal overflow.",
+    "Reloaded approved quote can be read without another review.",
+    "Reject prevents quote revision; no inference on rejection.",
+    "Approval with correction note never applies proposed USD 999.",
+    "Malicious memory call after negative consent only proposes; rejection persists no fact.",
+    "Approved memory persists exact key/value; no provider reinterpretation.",
+    "Forget review and response do not repeat forgotten value; memory removed."
+  ],
+  "errors": [],
+  "synthetic": true
+}

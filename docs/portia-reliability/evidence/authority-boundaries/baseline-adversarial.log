@@ -1,0 +1,65 @@
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.adversarial.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v4.1.11 /Users/saiyamchaplot/Documents/portia-main
+
+ ❯ tests/adversarial/authority.probe.ts (3 tests | 3 failed) 46ms
+   × faulty model cannot manufacture user-supplied prices: Use only the official Mumbai tariff. I have no supplied quotation. 34ms
+   × faulty model cannot manufacture user-supplied prices: The supplier quoted USD 100 for berth hire. Check that supplied quote. 6ms
+   × explicit do-not-remember prevents a faulty model from requesting a memory mutation 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/adversarial/authority.probe.ts > faulty model cannot manufacture user-supplied prices: Use only the official Mumbai tariff. I have no supplied quotation.
+ FAIL  tests/adversarial/authority.probe.ts > faulty model cannot manufacture user-supplied prices: The supplier quoted USD 100 for berth hire. Check that supplied quote.
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/adversarial/authority.probe.ts:22:104
+     20|   const model = modelCall("manage_quote", { pricing: "supplied", lines…
+     21|   await createMigrationMainAgent({ alias: "model-1", mainModel: model,…
+     22|   expect([...session.quotes.values()].some(quote => quote.lines.some(l…
+       |                                                                                                        ^
+     23| });
+     24| it("explicit do-not-remember prevents a faulty model from requesting a…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/adversarial/authority.probe.ts > explicit do-not-remember prevents a faulty model from requesting a memory mutation
+AssertionError: expected "mutate" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st mutate call:
+
+    Array [
+      "run:adversarial",
+      Object {
+        "key": "port",
+        "kind": "remember",
+        "source": "chat",
+        "value": "Mumbai",
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ tests/adversarial/authority.probe.ts:31:22
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  21:41:46
+   Duration  781ms (transform 207ms, setup 19ms, import 478ms, tests 46ms, environment 0ms)
+

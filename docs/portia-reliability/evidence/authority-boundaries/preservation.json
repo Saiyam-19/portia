@@ -1,0 +1,17 @@
+{
+  "head": "2a77ead22c5a8dc365b58806f38accd4f959b2bd",
+  "branch": "pass1/golden-and-repairs",
+  "dataFiles": 79,
+  "dataHashesUnchanged": true,
+  "privateConfigsUnchanged": true,
+  "chat": {
+    "canonicalDataTraced": 79,
+    "forbiddenPaths": []
+  },
+  "migration/chat": {
+    "canonicalDataTraced": 79,
+    "forbiddenPaths": []
+  },
+  "providerLedgerRows": 1106,
+  "providerLedgerSha256": "8aba4746ed0bc94a8bdc4b1807f4048d4453f2c9181aa0b5888b6e0e031857e5"
+}
