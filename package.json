@@ -10,10 +10,11 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "memory:lab": "node --import ./prototypes/memory-persistence/node_modules/tsx/dist/loader.mjs scripts/memory-chat-lab.mts",
+    "memory:lab": "node --experimental-strip-types scripts/memory-chat-lab.mts",
     "postinstall": "node scripts/patch-provider-cancellation.mjs",
     "prebuild": "node scripts/patch-provider-cancellation.mjs --check",
-    "pretest": "node scripts/patch-provider-cancellation.mjs --check"
+    "pretest": "node scripts/patch-provider-cancellation.mjs --check",
+    "test:adversarial": "vitest run --config vitest.adversarial.config.ts"
   },
   "engines": {
     "node": "22.x"

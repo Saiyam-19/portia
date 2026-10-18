@@ -10,6 +10,7 @@ const lab = JSON.parse(await fs.readFile('.local/memory-chat-lab.json','utf8'));
 assert.equal(lab.site, site);
 assert.equal(lab.url, backend);
 assert.equal(process.env.PORTIA_AUDIT_SYNTHETIC_PROVIDER, 'true', 'Set only after starting the local lab with the audited provider substitute.');
+await fs.mkdir(output,{recursive:true});
 const results=[];
 const password='Audit-local-20261014-only!';
 const states = {};

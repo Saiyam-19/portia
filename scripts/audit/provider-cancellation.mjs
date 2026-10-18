@@ -1,5 +1,5 @@
 import {createOpenRouter} from '@openrouter/ai-sdk-provider';
-import {writeFile} from 'node:fs/promises';
+import {mkdir,writeFile} from 'node:fs/promises';
 const failures=[];
 const unhandled=error=>failures.push({name:error?.name,message:error?.message});
 process.on('unhandledRejection',unhandled);
@@ -31,6 +31,7 @@ try {
     results.push({order,unhandled:failures.slice(before)});
   }
 }finally{process.off('unhandledRejection',unhandled);}
-await writeFile('.local/audit-20261014/provider-cancellation.json',JSON.stringify(results,null,2));
+await mkdir('.local/provider-cancellation',{recursive:true});
+await writeFile('.local/provider-cancellation/results.json',JSON.stringify(results,null,2));
 console.log(JSON.stringify(results));
 process.exitCode=failures.length?1:0;

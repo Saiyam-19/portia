@@ -9,10 +9,11 @@ import net from "node:net";
 import { fileURLToPath } from "node:url";
 
 const cwd = fileURLToPath(new URL("..", import.meta.url)).replace(/\/$/, "");
+assert(!process.env.PORTIA_FREE_TEST_MODEL?.trim() && !process.env.MIGRATION_MODEL_OVERRIDE?.trim() && !process.env.PORTIA_LIVE_KEY_FILE?.trim() && process.env.PORTIA_QUOTATION_MOCK !== "true", "Retired free/mock model modes are unsupported. No lab was started.");
 const local = path.join(cwd, ".local");
 await mkdir(local, { recursive: true });
 const lockPath = path.join(local, "chat-integration.lock");
-const lock = await open(lockPath, "wx").catch(() => { throw new Error("Prototype run already owns .local/integration.lock; inspect its PID before retrying."); });
+const lock = await open(lockPath, "wx").catch(() => { throw new Error("Another lab owns .local/chat-integration.lock; inspect its PID before retrying."); });
 await lock.writeFile(JSON.stringify({ pid: process.pid, cwd, task: process.env.PORTIA_PROCESS_OWNER ?? "chat-memory-integration" }));
 await lock.close();
 const runDir = await mkdtemp(path.join(local, "run-"));
@@ -27,7 +28,6 @@ const secret = randomBytes(32).toString("hex");
 const workerSecret = randomBytes(32).toString("hex");
 const sensitive = new Set([secret, workerSecret]);
 const redact = (s: string) => [...sensitive].reduce((text, value) => value ? text.replaceAll(value, "[redacted]") : text, s).replace(/eyJ[A-Za-z0-9_.-]{40,}/g, "[jwt]");
-const tsxLoader = process.env.PORTIA_TSX_LOADER ?? path.join(cwd, "prototypes/memory-persistence/node_modules/tsx/dist/loader.mjs");
 let adminKey = "";
 const logFile = path.join(runDir, "backend.log");
 const cached = path.join(homedir(), ".cache/convex/binaries");
@@ -214,14 +214,12 @@ async function startApp() {
   throw new Error("APP_START_TIMEOUT");
 }
 async function restartApp(){if(app)await stop(app);await startApp();console.log("APP_RESTARTED");}
-async function runVerification(kind: "memory" | "quote" | "tariff" = "memory") {
+async function runVerification() {
   const verificationEnv:NodeJS.ProcessEnv={...appEnv,MEMORY_E2E_ADMIN_KEY:adminKey,MEMORY_E2E_DIR:runDir,MEMORY_CHROMIUM_PATH:process.env.MEMORY_CHROMIUM_PATH};
   // Browser verification never receives the inference credential.
-  if(kind!=="memory")delete verificationEnv.OPENROUTER_API_KEY;
-  const script = process.env.PORTIA_BROWSER_VERIFY_SCRIPT ?? (kind==="quote" ? "scripts/audit/quotation-journey.mts" : kind==="tariff" ? "scripts/audit/tariff-journey.mts" : "scripts/memory-chat-e2e.mts");
-  // Precompiled local verification supports hosts without the optional TS loader.
-  // This affects the isolated lab only, never the serving application.
-  const child=spawn(process.execPath,[...(/\.[cm]?js$/.test(script) ? [] : ["--import",tsxLoader]),script],{
+  const script = process.env.PORTIA_BROWSER_VERIFY_SCRIPT ?? "scripts/memory-chat-e2e.mts";
+  // Node 22 executes erasable TypeScript; no retired prototype dependency.
+  const child=spawn(process.execPath,[...(/\.[cm]?js$/.test(script) ? [] : ["--experimental-strip-types"]),script],{
     cwd,env:verificationEnv,detached:true,stdio:["ignore","pipe","pipe","ipc"],
   });
   child.stdout?.on("data",data=>process.stdout.write(redact(String(data))));
@@ -246,18 +244,16 @@ try {
   await writeFile(path.join(runDir,"process-baseline.txt"),execFileSync("ps",["-axo","pid,ppid,pgid,etime,%cpu,%mem,comm"],{encoding:"utf8"}));
   await writeFile(path.join(runDir,"listeners-before.txt"),execFileSync("lsof",["-nP","-iTCP","-sTCP:LISTEN"],{encoding:"utf8"}));
   adminKey=execFileSync(binary,["keygen","admin-key","--instance-name","local-memory-integration","--instance-secret",secret],{encoding:"utf8"}).trim();
-  const existing=process.env.OPENROUTER_API_KEY ? {} : readEnv(process.env.PORTIA_VERIFY_ENV ?? "/Users/saiyamchaplot/.codex/worktrees/portia-convex-migration/portia-main/.env.local");
+  const existing=process.env.OPENROUTER_API_KEY ? {} : readEnv(process.env.PORTIA_VERIFY_ENV ?? path.join(cwd, ".env.local"));
   const providerKey=process.env.OPENROUTER_API_KEY ?? existing.OPENROUTER_API_KEY;
   if(providerKey)sensitive.add(providerKey);
   assert(providerKey,"Set OPENROUTER_API_KEY or PORTIA_VERIFY_ENV for the requested live-model acceptance run");
-  const freeModel=process.env.PORTIA_FREE_TEST_MODEL?.trim();
-  assert(!freeModel||freeModel==="openrouter/free"||/^[a-z0-9][a-z0-9/._-]*:free$/i.test(freeModel),"Free acceptance requires an explicit free model");
   const betterAuthSecret=randomBytes(32).toString("hex");
   appEnv={...baseEnv,PORTIA_LOCAL_BACKEND:"true",PORTIA_ENABLED:"true",PORTIA_CONVEX_DEPLOYMENT:"local-memory-integration",
     PORTIA_MEMORY_ENABLED:"true",NEXT_PUBLIC_CONVEX_URL:url,NEXT_PUBLIC_CONVEX_SITE_URL:"http://127.0.0.1:"+(port+1),
     SITE_URL:site,NEXT_PUBLIC_SITE_URL:site,PORTIA_AUTH_MODE:"basic",PORTIA_SERVER_SECRET:workerSecret,
-    BETTER_AUTH_SECRET:betterAuthSecret,OPENROUTER_API_KEY:providerKey,LLM_ALLOW_PAID:freeModel?"false":"true",
-    MIGRATION_TEST_MODE:freeModel?"true":"false",MIGRATION_MODEL_OVERRIDE:freeModel??"",NEXT_TELEMETRY_DISABLED:"1"};
+    BETTER_AUTH_SECRET:betterAuthSecret,OPENROUTER_API_KEY:providerKey,LLM_ALLOW_PAID:"true",
+    NEXT_TELEMETRY_DISABLED:"1"};
   await startBackend();
   const cliEnv={...baseEnv,CONVEX_SELF_HOSTED_URL:url,CONVEX_SELF_HOSTED_ADMIN_KEY:adminKey};
   const serverValues={PORTIA_LOCAL_BACKEND:"true",PORTIA_ENABLED:"true",PORTIA_CONVEX_DEPLOYMENT:"local-memory-integration",
@@ -274,24 +270,13 @@ try {
   }else await buildApp();
   await startApp();
   await writeFile(path.join(local,"memory-chat-lab.json"),JSON.stringify({runner:process.pid,cwd,runDir,site,url,ports:[port,port+1,appPort]},null,2));
-  console.log("READY "+site+" ; commands: verify, restart, rebuild, deploy, live, stop");
+  console.log("READY "+site+" ; commands: verify, restart, rebuild, deploy, stop");
   const {createInterface}=await import("node:readline");
   const lines=createInterface({input:process.stdin,terminal:false});
   for await(const line of lines){
     try{
       if(line.trim()==="stop")break;
-      if(line.trim()==="live"){
-        assert(process.env.PORTIA_LIVE_KEY_FILE,"Live credential path must be explicitly supplied");
-        assert(freeModel?.endsWith(":free"),"Live acceptance requires a pinned free model");
-        const value=(await import("node:fs/promises")).readFile;
-        const key=(await value(process.env.PORTIA_LIVE_KEY_FILE,"utf8")).trim();
-        assert(key,"Live credential is empty");sensitive.add(key);
-        appEnv.OPENROUTER_API_KEY=key;appEnv.PORTIA_QUOTATION_MOCK="false";
-        await restartApp();console.log("LIVE_FREE_MODE_READY");
-      }
-      else if(line.trim()==="quote")await runVerification("quote");
-      else if(line.trim()==="tariff")await runVerification("tariff");
-      else if(line.trim()==="verify")await runVerification();
+      if(line.trim()==="verify")await runVerification();
       else if(line.trim()==="restart"){await restartApp();await stop(backend!);await startBackend();console.log("RESTART_PASS");}
       else if(line.trim()==="rebuild"){if(app)await stop(app);await buildApp();await startApp();console.log("READY "+site);}
       else if(line.trim()==="deploy"){await command(["deploy","--yes","--typecheck","disable"],cliEnv,"deploy");console.log("DEPLOY_PASS");}
