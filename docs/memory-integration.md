@@ -39,7 +39,7 @@ Set PORTIA_MEMORY_ENABLED=true in both the Next server and the matching Convex d
 
 Local verification requires PORTIA_LOCAL_BACKEND=true, the exact deployment name local-memory-integration, an explicit loopback API/site pair and a loopback app origin. These guards never accept a mixed cloud/local target.
 
-The local lab configures fresh backend/auth/bridge secrets and synthetic accounts, uses the existing configured model credential (or an explicit OPENROUTER_API_KEY / PORTIA_VERIFY_ENV), and changes no existing deployment. Model aliases/provider privacy settings remain unchanged.
+The local lab configures fresh backend/auth/bridge secrets and synthetic accounts, uses the existing configured model credential (or an explicit OPENROUTER_API_KEY / PORTIA_VERIFY_ENV), and changes no existing deployment. The lab uses the current runtime model/provider settings. Retired free/mock model-switch environment variables are rejected before launching anything; this is a live paid-inference harness when used with real credentials.
 
 ## Reproduce locally
 
@@ -49,11 +49,10 @@ From this worktree:
 
 ~~~sh
 npm ci
-npm --prefix prototypes/memory-persistence ci
 npm run memory:lab
 ~~~
 
-The lab starts Convex on 3220/3221 and a Next production build on 3022; conflicting ports/run locks cause refusal. At READY, enter:
+The lab uses Node 22 native TypeScript stripping; no prototype install is needed. It starts Convex on 3220/3221 and a Next production build on 3022; conflicting ports/run locks cause refusal. At READY, enter:
 
 ~~~text
 verify

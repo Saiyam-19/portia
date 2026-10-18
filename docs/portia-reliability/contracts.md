@@ -1,3 +1,5 @@
+> Historical specification/review. Implementation and coverage changed; use [current coverage](../portia-coverage.md) and [cleanup report](2026-10-18-repository-cleanup.md). Old experiment paths are provenance, not runnable instructions.
+
 # B/C/D/E interface review proposal
 
 Version `reliability-v1-draft`, 14 October 2026. **Design only; not implemented or approved.** Targets the existing Next.js 16.3.8 / AI SDK 7.0.134 / Convex stack. Installed route-handler and ToolLoopAgent docs inspected. Existing source and saved dirty work take precedence over the stale graph (generation 2026-10-13T18:25:09Z).

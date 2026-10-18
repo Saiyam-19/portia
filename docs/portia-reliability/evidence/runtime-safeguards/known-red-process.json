@@ -1,0 +1,21 @@
+{
+  "task": "runtime-safeguards-20261018",
+  "purpose": "known-red",
+  "command": [
+    "/opt/homebrew/opt/node@22/bin/node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/migration/conversation-auxiliary.test.ts",
+    "tests/migration/conversation-integrity.test.ts",
+    "--maxWorkers=1"
+  ],
+  "cwd": "/Users/saiyamchaplot/Documents/portia-main",
+  "startedUtc": "2026-10-18T15:26:30.576348+00:00",
+  "ports": [],
+  "parentPid": 84898,
+  "pid": 84900,
+  "pgid": 84900,
+  "exitCode": 1,
+  "finishedUtc": "2026-10-18T15:26:31.983012+00:00",
+  "processGroupStillExists": false
+}

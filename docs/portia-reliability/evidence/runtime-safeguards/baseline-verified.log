@@ -1,0 +1,205 @@
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (../../../../private/var/folders/f5/bd7rzwsj7wx13_wfcn7zp4340000gn/T/portia-safeguards-20261018-ym2hom41/before-runtime/vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v4.1.11 /private/var/folders/f5/bd7rzwsj7wx13_wfcn7zp4340000gn/T/portia-safeguards-20261018-ym2hom41/before-runtime
+
+ ❯ tests/portia/runtime-safeguards.test.ts (29 tests | 22 failed) 107ms
+   × historical foreign-minimum never becomes an apparently complete current quotation 41ms
+   × historical foreign-maximum never becomes an apparently complete current quotation 3ms
+   × historical foreign-rate never becomes an apparently complete current quotation 5ms
+   × historical missing-charge never becomes an apparently complete current quotation 2ms
+   × historical line-tax never becomes an apparently complete current quotation 3ms
+   × historical money-precision never becomes an apparently complete current quotation 4ms
+   × historical duration-conflict never becomes an apparently complete current quotation 2ms
+   × current session respects form cancellation=true and keeps human note 2ms
+   × independent arithmetic does not conceal invalid quotation arguments 1ms
+   × no-tool financial claim is not published: Berth hire costs two thousand dollars. 1ms
+   × no-tool financial claim is not published: The amount is 2000 USD. 0ms
+   × no-tool financial claim is not published: Total payable: 2k dollars. 0ms
+   × no-tool financial claim is not published: The amount is ٢٠٠٠ USD. 1ms
+   × no-tool financial claim is not published: 2000USD 0ms
+   × no-tool financial claim is not published: Twenty dollars. 0ms
+   × GTI never prices berth occupancy past source expiry 13ms
+   × JSW JNPT Liquid Terminal never prices berth occupancy past source expiry 2ms
+   × BMCT never prices berth occupancy past source expiry 3ms
+   × NSIGT never prices berth occupancy past source expiry 3ms
+   × comparison preserves a rounded source invoice or rejects incompatible line conversion 3ms
+   × tool execution failures stay visible until a matching retry repairs them 0ms
+   × read-only or unresolved sibling calls cannot certify a failed correction 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 22 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/portia/runtime-safeguards.test.ts > historical foreign-minimum never becomes an apparently complete current quotation
+ FAIL  tests/portia/runtime-safeguards.test.ts > historical foreign-maximum never becomes an apparently complete current quotation
+ FAIL  tests/portia/runtime-safeguards.test.ts > historical foreign-rate never becomes an apparently complete current quotation
+ FAIL  tests/portia/runtime-safeguards.test.ts > historical missing-charge never becomes an apparently complete current quotation
+ FAIL  tests/portia/runtime-safeguards.test.ts > historical line-tax never becomes an apparently complete current quotation
+ FAIL  tests/portia/runtime-safeguards.test.ts > historical money-precision never becomes an apparently complete current quotation
+ FAIL  tests/portia/runtime-safeguards.test.ts > historical duration-conflict never becomes an apparently complete current quotation
+AssertionError: expected 'calculated' to be 'unresolved' // Object.is equality
+
+Expected: "unresolved"
+Received: "calculated"
+
+ ❯ tests/portia/runtime-safeguards.test.ts:41:25
+     39|   expect(session.quotes.size).toBe(1); expect(session.warning).toBeUnd…
+     40|   const id = [...session.quotes.keys()][0], result = await session.upd…
+     41|   expect(result.status).toBe("unresolved"); expect(result.questions.le…
+       |                         ^
+     42|   expect("totals" in result ? result.totals?.length ?? 0 : 0).toBe(0);…
+     43|   // Generic clearing of user-editable terms cannot erase retained sou…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/22]⎯
+
+ FAIL  tests/portia/runtime-safeguards.test.ts > current session respects form cancellation=true and keeps human note
+AssertionError: expected 'calculated' to be 'error' // Object.is equality
+
+Expected: "error"
+Received: "calculated"
+
+ ❯ tests/portia/runtime-safeguards.test.ts:57:25
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/22]⎯
+
+ FAIL  tests/portia/runtime-safeguards.test.ts > independent arithmetic does not conceal invalid quotation arguments
+AssertionError: expected '2 + 3 = **5**' to match /quotation.*(?:failed|could not|incom…/i
+
+- Expected:
+/quotation.*(?:failed|could not|incomplete)|business inputs.*not.*validated/i
+
++ Received:
+"2 + 3 = **5**"
+
+ ❯ tests/portia/runtime-safeguards.test.ts:64:107
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/22]⎯
+
+ FAIL  tests/portia/runtime-safeguards.test.ts > no-tool financial claim is not published: Berth hire costs two thousand dollars.
+AssertionError: expected 'Berth hire costs two thousand dollars.' not to be 'Berth hire costs two thousand dollars.' // Object.is equality
+ ❯ tests/portia/runtime-safeguards.test.ts:68:43
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/22]⎯
+
+ FAIL  tests/portia/runtime-safeguards.test.ts > no-tool financial claim is not published: The amount is 2000 USD.
+AssertionError: expected 'The amount is 2000 USD.' not to be 'The amount is 2000 USD.' // Object.is equality
+ ❯ tests/portia/runtime-safeguards.test.ts:68:43
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/22]⎯
+
+ FAIL  tests/portia/runtime-safeguards.test.ts > no-tool financial claim is not published: Total payable: 2k dollars.
+AssertionError: expected 'Total payable: 2k dollars.' not to be 'Total payable: 2k dollars.' // Object.is equality
+ ❯ tests/portia/runtime-safeguards.test.ts:68:43
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/22]⎯
+
+ FAIL  tests/portia/runtime-safeguards.test.ts > no-tool financial claim is not published: The amount is ٢٠٠٠ USD.
+AssertionError: expected 'The amount is ٢٠٠٠ USD.' not to be 'The amount is ٢٠٠٠ USD.' // Object.is equality
+ ❯ tests/portia/runtime-safeguards.test.ts:68:43
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/22]⎯
+
+ FAIL  tests/portia/runtime-safeguards.test.ts > no-tool financial claim is not published: 2000USD
+AssertionError: expected '2000USD' not to be '2000USD' // Object.is equality
+ ❯ tests/portia/runtime-safeguards.test.ts:68:43
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/22]⎯
+
+ FAIL  tests/portia/runtime-safeguards.test.ts > no-tool financial claim is not published: Twenty dollars.
+AssertionError: expected 'Twenty dollars.' not to be 'Twenty dollars.' // Object.is equality
+ ❯ tests/portia/runtime-safeguards.test.ts:68:43
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/22]⎯
+
+ FAIL  tests/portia/runtime-safeguards.test.ts > GTI never prices berth occupancy past source expiry
+ FAIL  tests/portia/runtime-safeguards.test.ts > JSW JNPT Liquid Terminal never prices berth occupancy past source expiry
+ FAIL  tests/portia/runtime-safeguards.test.ts > BMCT never prices berth occupancy past source expiry
+ FAIL  tests/portia/runtime-safeguards.test.ts > NSIGT never prices berth occupancy past source expiry
+AssertionError: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/portia/runtime-safeguards.test.ts:79:38
+     77|  for (const interval of [{berthStart:day+" 00:00 IST",berthEnd:end+" 0…
+     78|   const result=await lookupTariff({port,charges:["berth"],service:"for…
+     79|   expect(result.totals?.length ?? 0).toBe(0);expect(result.status).not…
+       |                                      ^
+     80|  }
+     81| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/22]⎯
+
+ FAIL  tests/portia/runtime-safeguards.test.ts > comparison preserves a rounded source invoice or rejects incompatible line conversion
+AssertionError: expected [ '80.4', '80.56' ] to deeply equal [ '80.8', '80.8' ]
+
+- Expected
++ Received
+
+  [
+-   "80.8",
+-   "80.8",
++   "80.4",
++   "80.56",
+  ]
+
+ ❯ tests/portia/runtime-safeguards.test.ts:87:75
+     85|  await session.update({pricing:"supplied",lines:[{name:"Service",curre…
+     86|  const result=await session.compare({quoteIds:[...session.quotes.keys(…
+     87|  if("converted" in result) {expect(result.converted.map(row=>row.amoun…
+       |                                                                           ^
+     88| });
+     89|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/22]⎯
+
+ FAIL  tests/portia/runtime-safeguards.test.ts > tool execution failures stay visible until a matching retry repairs them
+AssertionError: expected '2+3 = **5**' to match /could not complete/i
+
+- Expected:
+/could not complete/i
+
++ Received:
+"2+3 = **5**"
+
+ ❯ tests/portia/runtime-safeguards.test.ts:93:30
+     91|  const s=new QuoteSession("errors");await s.initialize([]);s.recordAns…
+     92|  s.observeTools([],[],[{toolCallId:"failed",toolName:"manage_quote",in…
+     93|  expect(s.finalText("Done")).toMatch(/could not complete/i);
+       |                              ^
+     94|  s.observeTools([{toolCallId:"other",toolName:"manage_quote",input:{qu…
+     95|  expect(s.finalText("Done")).toMatch(/could not complete/i);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/22]⎯
+
+ FAIL  tests/portia/runtime-safeguards.test.ts > read-only or unresolved sibling calls cannot certify a failed correction
+AssertionError: expected '2+3 = **5**' to match /could not complete/
+
+- Expected:
+/could not complete/
+
++ Received:
+"2+3 = **5**"
+
+ ❯ tests/portia/runtime-safeguards.test.ts:104:137
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/22]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  22 failed | 7 passed (29)
+   Start at  21:17:52
+   Duration  535ms (transform 188ms, setup 19ms, import 260ms, tests 107ms, environment 0ms)
+

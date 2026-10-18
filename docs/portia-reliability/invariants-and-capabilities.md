@@ -1,3 +1,5 @@
+> Historical specification/review. Implementation and coverage changed; use [current coverage](../portia-coverage.md) and [cleanup report](2026-10-18-repository-cleanup.md). Old experiment paths are provenance, not runnable instructions.
+
 # Scope lock — 14 October 2026
 
 Application baseline: `b64420fcfe0eea206918bfb34cf9cf38112b8302` plus the pre-existing dirty tree. This milestone changes documentation/inventory utilities only. Existing features below are preservation requirements, not claims that all paths currently work. Fresh offline baseline: 49 files, 309 tests passed. Independent tariff and product acceptance remain separate.

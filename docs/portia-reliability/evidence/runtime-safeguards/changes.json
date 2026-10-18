@@ -1,0 +1,67 @@
+[
+  {
+    "path": "src/lib/portia/session.ts",
+    "before": "c7a93fcf873f9a975e2d3b37d055c1b0c47ec33718782aaa5018b27409648406",
+    "after": "3627105cd5fae3f2f2dabdc7cae3307e8ede79759c03436697f47093ae7843a5"
+  },
+  {
+    "path": "src/lib/portia/legacy-quotes.ts",
+    "before": "965aee537daa6b9233451da4e5aecf3f734c92cda6c7b49c3a675d59e9ea2e0a",
+    "after": "a5d40d6a3a24a7e08f29a97e9f62c6788e6e0cf51646d26546d3c5eeb84048a2"
+  },
+  {
+    "path": "src/lib/portia/tariffs.ts",
+    "before": "7f5327f5a1f27aad5b5d523f04f22afebf4e254e14fc08311564fa4ee0aee8b3",
+    "after": "b593dfa62ffb04347501dcf4194545da3163ee7fbb33f861074a7258d3d77f9f"
+  },
+  {
+    "path": "src/lib/portia/published-components.ts",
+    "before": "70aed3d6241d94a08a420b61ccf94f3c5882e5fc0fedcd67de49640be098fd9e",
+    "after": "74f460c127076a854d9e8e16c056a383306331475e59677a9963a88b7f90042c"
+  },
+  {
+    "path": "src/lib/migration/domain-agent.ts",
+    "before": "1fbebbdf6e5ba164465c0d41080e2be1c97d97997bd08df4009037aec99efb5f",
+    "after": "ef07f2f4a1dabf93ea57148c538aa534a8992d20d1da16ef3eb16f1f1b553671"
+  },
+  {
+    "path": "src/app/api/migration/chat/route.ts",
+    "before": "9f3e7e1641ba4fdc1bdd03795042b8be65246091d827429d549c9e3bb2f33512",
+    "after": "1b2d5d00241b661d68e9fef3a42fba2a5a0f3c6835376afda30ca71cbc8ea4e2"
+  },
+  {
+    "path": "convex/migration.ts",
+    "before": "a1e61c2638c93808a90f2da8792be8a3c17fe68b2ccaf2340b6cc1f0bd71a322",
+    "after": "ce21fe5dc271b45164476a92be452bfe089380651e59ac7f54727f21b9d92748"
+  },
+  {
+    "path": "tests/portia/route.test.ts",
+    "before": "633835651dd2917e2222dcd125fe92080c4dbc4acd0e3260e7114b251726da37",
+    "after": "c1cb67683a658a364d18ccd427d4d9ffec13ceae95ad758b89f3c929d959f9a6"
+  },
+  {
+    "path": "tests/portia/published-components.test.ts",
+    "before": "3162e0a5bb911ed5dc21d5008f4262ffab13f9d3614968364594785264acf961",
+    "after": "784b5a8c2b5c9d4744d03010c88e95d48fe0ea55b1db44b49aa28046088af046"
+  },
+  {
+    "path": "tests/migration/conversation-auxiliary.test.ts",
+    "before": "1e43c221408467c2a2ab86a49510434b3c27fd20abcbdf0921790868a2556f41",
+    "after": "227ce3cbdee8282ca3975bdd024869092074e37fe011651e5b7efb97adc56dea"
+  },
+  {
+    "path": "tests/migration/conversation-integrity.test.ts",
+    "before": "96df061d7769f7b620ae9e76800abe9eca1f36cb2a821aa8d03cb8a515a56f8b",
+    "after": "01647831c2081d653c31fc877d9f691b6eec7faee790ed8e472586910f069a01"
+  },
+  {
+    "path": "tests/migration/state.test.ts",
+    "before": "64655af5c2fc50f217d6df3aee006b2fd18b40d74409d92eea8bb53e35edf8c8",
+    "after": "c5a835b0907f60f3de7599a4e8b134c4696eecb23d0a03d7ae1741510519e5a7"
+  },
+  {
+    "path": "package.json",
+    "before": "8d7af33a9005459d46c228cca470ee8a9b1000d9f25a979b92df3795dbd1f466",
+    "after": "c25063d6305fb7f276015d0be704f8e8a7037ca8e00be0d73122f2bfede20742"
+  }
+]

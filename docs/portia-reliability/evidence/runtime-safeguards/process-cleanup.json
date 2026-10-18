@@ -1,0 +1,170 @@
+{
+  "checkedGroups": 22,
+  "allExited": true,
+  "noRespawnObserved": true,
+  "persistentServicesStarted": 0,
+  "unrelatedProcessesTerminated": 0,
+  "preservedExpectedListeners": {
+    "5276": 5198,
+    "54057": 5174,
+    "97012": 3210,
+    "97585": 3000,
+    "47194": 9749
+  },
+  "checks": [
+    {
+      "check": "audit-red-process",
+      "pid": 87188,
+      "pgid": 87188,
+      "exitCode": 1,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "authority-probes-process",
+      "pid": 93149,
+      "pgid": 93149,
+      "exitCode": 1,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "baseline-adversarial-process",
+      "pid": 99636,
+      "pgid": 99636,
+      "exitCode": 1,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "baseline-verified-process",
+      "pid": 99862,
+      "pgid": 99862,
+      "exitCode": 1,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "core-green-process",
+      "pid": 89643,
+      "pgid": 89643,
+      "exitCode": 1,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "expanded-green-process",
+      "pid": 91583,
+      "pgid": 91583,
+      "exitCode": 1,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "expanded-red-process",
+      "pid": 90259,
+      "pgid": 90259,
+      "exitCode": 1,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "final-authority-probes-process",
+      "pid": 1548,
+      "pgid": 1548,
+      "exitCode": 1,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "final-lint-process",
+      "pid": 94274,
+      "pgid": 94274,
+      "exitCode": 0,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "final-types-process",
+      "pid": 94275,
+      "pgid": 94275,
+      "exitCode": 0,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "first-green-process",
+      "pid": 88604,
+      "pgid": 88604,
+      "exitCode": 1,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "full-tests-process",
+      "pid": 94263,
+      "pgid": 94263,
+      "exitCode": 1,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "interim-types-process",
+      "pid": 93150,
+      "pgid": 93150,
+      "exitCode": 2,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "known-red-process",
+      "pid": 84900,
+      "pgid": 84900,
+      "exitCode": 1,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "production-build-process",
+      "pid": 99922,
+      "pgid": 99922,
+      "exitCode": 0,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "retained-green-process",
+      "pid": 93151,
+      "pgid": 93151,
+      "exitCode": 0,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "review-green-process",
+      "pid": 97442,
+      "pgid": 97442,
+      "exitCode": 0,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "review-red-process",
+      "pid": 96570,
+      "pgid": 96570,
+      "exitCode": 1,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "route-green-process",
+      "pid": 93686,
+      "pgid": 93686,
+      "exitCode": 0,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "verified-lint-process",
+      "pid": 98156,
+      "pgid": 98156,
+      "exitCode": 0,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "verified-tests-process",
+      "pid": 98145,
+      "pgid": 98145,
+      "exitCode": 0,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "verified-types-process",
+      "pid": 98157,
+      "pgid": 98157,
+      "exitCode": 0,
+      "remainingGroupMembers": []
+    }
+  ]
+}

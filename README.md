@@ -14,15 +14,19 @@ For the example origin, run `npm run dev -- --hostname 127.0.0.1 --port 3002` on
 
 ## Chat and safety boundaries
 
-`/api/chat` and `/api/chat/cancel` are canonical; `/api/migration/chat` and `/api/migration/cancel` remain compatibility aliases. `/api/auth` is canonical, with the old auth URL rewritten to it. Browser users never receive provider model identifiers: only Model 1 / Model 2.
+`/api/chat` and `/api/chat/cancel` are canonical; `/api/migration/chat` and `/api/migration/cancel` remain compatibility aliases. `/api/auth` is canonical, with the old auth URL rewritten to it. Historical Model 1 / Model 2 aliases remain accepted; the current UI labels the selected model. Credentials and provider routing remain server-side.
 
 Conversation creation, reads and deletion require a live owner session. New chats create a saved empty conversation before navigation and first inference. Run claims and form continuations use revisions, idempotency, fencing, expiry, periodic session refresh, and per-user rolling limits. Stop applies across tabs. Deletion revokes the root immediately, fences the active run, then schedules bounded cleanup.
 
-Tariff references live in `data/ports`; they include historical documents, not live tariff feeds. Specialists use the bounded decimal calculator and must finish cleanly before returning tariff output. Saved tool steps and interrupted work are distinguished from completed responses. No uploads or RAG have been added.
+One `ToolLoopAgent` uses typed tariff, quotation, comparison, arithmetic, vessel and memory tools. Code owns tariff arithmetic and saved quotation rendering. Canonical sources live in `data/ports` and `data/reviewed-tariffs`; published references retain date and applicability limitations. See [current coverage](docs/portia-coverage.md).
 
-Python sources remain in `backend/` solely as reference/parity fixtures. They are excluded from the frontend deployment; their old Vercel serving configuration is archived in `docs/archive`. Frontend runtime has no Supabase or Python API dependency. No historical account/chat import is required for the empty source database.
+The retired Python/Supabase implementation, duplicate corpus, prototype and interpreter experiment harnesses have been removed. Historical tracked implementations remain in Git. Saved-receipt compatibility remains in the serving code.
 
-See [architecture](docs/architecture.md), [verified development acceptance](docs/migration-acceptance.md), and [deployment configuration](docs/deployment.md). Production now runs on Vercel and Convex; see [production acceptance](docs/memory-production-acceptance.md) for the tested release and scope.
+See [architecture](docs/architecture.md), [deployment configuration](docs/deployment.md), [tariff integration](docs/portia-reliability/2026-10-18-tariff-integration.md), and [test evidence limits](docs/portia-reliability/2026-10-18-test-evidence-audit.md). Historical production acceptance documents describe their dated releases; the current dirty checkout has not been deployed or independently evaluated on unseen conversations.
+
+[Current adversarial audit](docs/portia-reliability/2026-10-18-runtime-safeguard-audit.md): the original two defects are repaired, but supplied-price provenance and memory-consent probes remain blocking. Run both `npm test` and `npm run test:adversarial`; passing the ordinary suite alone does not satisfy readiness.
+
+[Cleanup report](docs/portia-reliability/2026-10-18-repository-cleanup.md) records retained evidence and known gaps. Disposable runs belong in ignored `output/` or `.local/`; durable evidence belongs in `data/` or `docs/portia-reliability/evidence/`.
 
 ## Chat memory
 

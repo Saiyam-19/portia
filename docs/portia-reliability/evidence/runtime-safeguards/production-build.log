@@ -1,0 +1,40 @@
+▲ Next.js 16.3.8 (webpack)
+- Environments: .env.local
+✓ Running next.config.ts took 60ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 11.0s
+  Running TypeScript ...
+  Finished TypeScript in 6.9s ...
+  Collecting page data using 9 workers ...
+  Generating static pages using 9 workers (0/12) ...
+  Generating static pages using 9 workers (3/12) 
+  Generating static pages using 9 workers (6/12) 
+  Generating static pages using 9 workers (9/12) 
+✓ Generating static pages using 9 workers (12/12) in 405ms
+  Finalizing page optimization ...
+  Collecting build traces ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api/auth/[...all]
+├ ƒ /api/chat
+├ ƒ /api/chat/cancel
+├ ƒ /api/memory
+├ ƒ /api/migration/auth/[...all]
+├ ƒ /api/migration/cancel
+├ ƒ /api/migration/chat
+├ ƒ /auth/callback
+├ ○ /chat
+├ ○ /dashboard
+├ ƒ /dashboard/chat/[id]
+├ ƒ /login
+└ ƒ /migration
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

@@ -1,0 +1,19 @@
+{
+  "task": "runtime-safeguards-20261018",
+  "purpose": "production-build",
+  "command": [
+    "/opt/homebrew/opt/node@22/bin/node",
+    "node_modules/next/dist/bin/next",
+    "build",
+    "--webpack"
+  ],
+  "cwd": "/Users/saiyamchaplot/Documents/portia-main",
+  "startedUtc": "2026-10-18T15:47:55.264425+00:00",
+  "ports": [],
+  "parentPid": 99921,
+  "pid": 99922,
+  "pgid": 99922,
+  "exitCode": 0,
+  "finishedUtc": "2026-10-18T15:48:24.633103+00:00",
+  "processGroupStillExists": false
+}
