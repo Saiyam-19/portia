@@ -1,0 +1,63 @@
+{
+  "asOfUtc": "2026-10-18T11:25:07.423765+00:00",
+  "head": "2a77ead22c5a8dc365b58806f38accd4f959b2bd",
+  "buildId": "2lCcWi5qAYtzgmTCCmfyZ",
+  "node": "22.23.2",
+  "bundler": "webpack",
+  "files": {
+    "data/reviewed-tariffs/coverage-gaps.json": "faf36e46572b5384d16b88ae4311d6ae157a8ec2f8ac932ce1817fb5922ded04",
+    "data/reviewed-tariffs/full-scope-2026/gac-finolex-2023.json": "fb6aa663ec44878bd10a791f59dfe7a1e538186028759152b2f54913b60049d2",
+    "data/reviewed-tariffs/full-scope-2026/gac-redi-2023.json": "e241e740562279f7363ec46b259b5f6f0a15385c8216dfd51a2cbc802c6a0924",
+    "data/reviewed-tariffs/full-scope-2026/gac-redi-2024.json": "d57ae06340438b849e067ca11a9d8151d9e35b07a8e63221d430bc31eac73c03",
+    "data/reviewed-tariffs/full-scope-2026/ictpl-2016.pdf": "2eec91ccc714f004264e31567e339c2ed937d2de6e56928165a502d0ba710cc7",
+    "data/reviewed-tariffs/full-scope-2026/ictpl-2018.pdf": "a8e2eb0f20ec6dd0608d284ef4b60ad82945dc7a0cb429976e544cc3585dbb52",
+    "data/reviewed-tariffs/full-scope-2026/ictpl-dec2025-continuation.pdf": "82dc434fc11ae8b1f98ced963e86c019e0463f32b8d373a244f1ae8cd89b3e85",
+    "data/reviewed-tariffs/full-scope-2026/ictpl-full-sop.pdf": "b772eb44242a2af68edbe58bde109bddaa09194c75c2c08f6449fda52341778f",
+    "data/reviewed-tariffs/full-scope-2026/jsw-dec2025-indexed.json": "64ca3eea3c168c7ef5a7cb9ffbf5e9723fcf8a77739871a395b2241d1c93a0d5",
+    "data/reviewed-tariffs/full-scope-2026/mumbai-legacy-sor.pdf": "5c69dcc744ff02b7394fd8cc5db9442418d2e082b643bccb48334f5d7a6f599f",
+    "data/reviewed-tariffs/full-scope-2026/oct-evidence.json": "34e7b4982144c892e30e8b37655309540052c17c85666bc69526daab4f852e8e",
+    "data/reviewed-tariffs/full-scope-2026/rules.json": "7dcce2a860ac01a326cfaf28117d1883c3d1a720dbd95685fb677f94eb16ed27",
+    "docs/portia-coverage.md": "7660a25e40c15b7643bb42046d586654d99da3344f63f0e6e4a86a8b1cd8f465",
+    "docs/portia-reliability/2026-10-18-tariff-integration.md": "6cf49f877bc5216a4d2195d5525a38652cc69ea374a45e5d4f15ae07070babc3",
+    "next.config.ts": "5475db26956802e5eb6ab5c515c1b6febbaad44c38a1c19b07e99f7208b746e1",
+    "src/lib/migration/domain-agent.ts": "1fbebbdf6e5ba164465c0d41080e2be1c97d97997bd08df4009037aec99efb5f",
+    "src/lib/portia/category-evidence.ts": "5834b51372102738c0c7fd81dce94b85e3ca500bf10247b7d7455e32a3313c60",
+    "src/lib/portia/public-evidence.ts": "a8276f472395730e529687d97b57e809067d0df2b590491d689c38d0d454669c",
+    "src/lib/portia/published-components.ts": "70aed3d6241d94a08a420b61ccf94f3c5882e5fc0fedcd67de49640be098fd9e",
+    "src/lib/portia/quotes.ts": "a2f291e0012cebb2a924c36d82ea796f2dc141a50f44451d704bd34d2783ae0f",
+    "src/lib/portia/session.ts": "c7a93fcf873f9a975e2d3b37d055c1b0c47ec33718782aaa5018b27409648406",
+    "src/lib/portia/tariff-input.ts": "725ffea949e24a6b2a6bcccc6b0f72d07954fa6ec304b97570d2e5e645801367",
+    "src/lib/portia/tariff-types.ts": "6f9345cd2819b52ef26aeecb9f9b6288ab00654749e2a021798fc174bd48b107",
+    "src/lib/portia/tariffs.ts": "7f5327f5a1f27aad5b5d523f04f22afebf4e254e14fc08311564fa4ee0aee8b3",
+    "tests/portia/full-scope-review.test.ts": "896fd721280fb6f0913dc37ccda57b333c72e2fb9213b969c8947ca05246bc86",
+    "tests/portia/public-evidence.test.ts": "8aa6771e0843070439abce0657c26d6a62cee23675c7868d2e2b8fddcef4a563"
+  },
+  "verification": {
+    "focusedTests": {
+      "passed": 394,
+      "files": 17,
+      "log": "final-tests.log"
+    },
+    "newDevelopmentRegressions": 34,
+    "typecheck": "PASS",
+    "scopedLint": "PASS",
+    "nextConfigLint": "PASS",
+    "productionBuildWebpack": "PASS",
+    "requiredAssetsPerChatRoute": 12,
+    "packagedLogsPrivateEnvOrRepoMetadata": 0,
+    "defaultTurbopack": "BLOCKED by local worker-port permission",
+    "liveProviderEvaluation": "NOT RUN",
+    "deployment": "NOT RUN"
+  },
+  "paidCalls": 0,
+  "cleanupPerformed": false,
+  "commitsCreated": false,
+  "sharedServicesPreserved": [
+    3000,
+    3210,
+    3211,
+    5174,
+    5198,
+    9749
+  ]
+}

@@ -1,0 +1,54 @@
+[
+  {
+    "name": "archive-all-urls",
+    "url": "https://web.archive.org/cdx/search/cdx?url=*.rediport.com/*&output=json&filter=statuscode:200&collapse=urlkey&fl=timestamp,original,mimetype&limit=5000",
+    "retrieved_utc": "2026-10-18T09:41:00.626104+00:00",
+    "status": 200,
+    "final_url": "https://web.archive.org/cdx/search/cdx?url=*.rediport.com/*&output=json&filter=statuscode:200&collapse=urlkey&fl=timestamp,original,mimetype&limit=5000",
+    "bytes": 51407,
+    "sha256": "88f692d9b457c428728d92d1a42a95853ded6c71e61232bc409ee6ef440db4f7",
+    "path": "/Users/saiyamchaplot/Documents/portia-main/output/public-source-followup-20261018/redi/archive-all-urls.body"
+  },
+  {
+    "name": "archive-parent-pdfs",
+    "url": "https://web.archive.org/cdx/search/cdx?url=*.earnestjohn.com/*&output=json&filter=mimetype:application/pdf&filter=statuscode:200&collapse=urlkey",
+    "retrieved_utc": "2026-10-18T09:41:00.626606+00:00",
+    "status": 200,
+    "final_url": "https://web.archive.org/cdx/search/cdx?url=*.earnestjohn.com/*&output=json&filter=mimetype:application/pdf&filter=statuscode:200&collapse=urlkey",
+    "bytes": 349,
+    "sha256": "dae122cef98cb7a98a410e5eec46001621fe6de34ab80b71bd934b6d18ceafcc",
+    "path": "/Users/saiyamchaplot/Documents/portia-main/output/public-source-followup-20261018/redi/archive-parent-pdfs.body"
+  },
+  {
+    "name": "ministry-private-ports-2024",
+    "url": "https://commerce.gov.in/wp-content/uploads/2024/08/LS-USQ-No.2416-dt.-06.08.2024.pdf",
+    "retrieved_utc": "2026-10-18T09:41:00.626767+00:00",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "name": "acuite-rating-2022",
+    "url": "https://connect.acuite.in/fcompany-details/REDI_PORT_LIMITED/23rd_Sep_22",
+    "retrieved_utc": "2026-10-18T09:41:00.626878+00:00",
+    "status": 200,
+    "final_url": "https://connect.acuite.in/fcompany-details/REDI_PORT_LIMITED/23rd_Sep_22",
+    "bytes": 51365,
+    "sha256": "8b0818cf856359a8b0f7b6bd62171acfb6f8faf4e12b89586384d185a4f73266",
+    "path": "/Users/saiyamchaplot/Documents/portia-main/output/public-source-followup-20261018/redi/acuite-rating-2022.body"
+  },
+  {
+    "name": "vocean-undated",
+    "url": "https://www.voceanship.com/country/india/redi-port-information",
+    "retrieved_utc": "2026-10-18T09:41:01.396540+00:00",
+    "status": 200,
+    "final_url": "https://www.voceanship.com/country/india/redi-port-information",
+    "bytes": 4542,
+    "sha256": "013747ac4849da01ecabb9228ffa04fd2964d3e548f57295688c551523dcdee9",
+    "path": "/Users/saiyamchaplot/Documents/portia-main/output/public-source-followup-20261018/redi/vocean-undated.body"
+  },
+  {
+    "name": "unrelated-building-brochure",
+    "url": "https://earnestjohn.com/wp-content/uploads/2018/10/8135464454e836407d6a88Earnest-House.pdf",
+    "retrieved_utc": "2026-10-18T09:41:01.487915+00:00",
+    "error": "HTTP Error 403: Forbidden"
+  }
+]

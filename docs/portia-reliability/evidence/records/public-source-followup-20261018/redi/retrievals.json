@@ -1,0 +1,64 @@
+[
+  {
+    "name": "operator-media",
+    "url": "https://www.rediport.com/wp-json/wp/v2/media?media_type=application&per_page=100",
+    "retrieved_utc": "2026-10-18T09:39:56.162995+00:00",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "name": "parent-media",
+    "url": "https://earnestjohn.com/wp-json/wp/v2/media?media_type=application&per_page=100",
+    "retrieved_utc": "2026-10-18T09:39:56.163499+00:00",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "name": "operator-sitemap",
+    "url": "https://www.rediport.com/sitemap_index.xml",
+    "retrieved_utc": "2026-10-18T09:39:56.163627+00:00",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "name": "archive-pdfs",
+    "url": "https://web.archive.org/cdx/search/cdx?url=rediport.com/*&output=json&filter=mimetype:application/pdf&filter=statuscode:200&collapse=urlkey",
+    "retrieved_utc": "2026-10-18T09:39:56.163708+00:00",
+    "status": 200,
+    "final_url": "https://web.archive.org/cdx/search/cdx?url=rediport.com/*&output=json&filter=mimetype:application/pdf&filter=statuscode:200&collapse=urlkey",
+    "content_type": "application/json",
+    "bytes": 3,
+    "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "path": "/Users/saiyamchaplot/Documents/portia-main/output/public-source-followup-20261018/redi/archive-pdfs.body"
+  },
+  {
+    "name": "archive-availability",
+    "url": "https://archive.org/wayback/available?url=rediport.com",
+    "retrieved_utc": "2026-10-18T09:39:56.445775+00:00",
+    "status": 200,
+    "final_url": "https://archive.org/wayback/available?url=rediport.com",
+    "content_type": "application/json",
+    "bytes": 205,
+    "sha256": "bb5f761e4b986ebe2a8e73b2b59e39174f4f13f96d62a83b10df44757962ccb3",
+    "path": "/Users/saiyamchaplot/Documents/portia-main/output/public-source-followup-20261018/redi/archive-availability.body"
+  },
+  {
+    "name": "ministry-status-2017",
+    "url": "https://www.shipmin.gov.in/sites/default/files/Update%20%20September%202017.pdf",
+    "retrieved_utc": "2026-10-18T09:39:57.041369+00:00",
+    "status": 200,
+    "final_url": "https://www.shipmin.gov.in/sites/default/files/Update%20%20September%202017.pdf",
+    "content_type": "application/pdf",
+    "bytes": 2988089,
+    "sha256": "b65dabbe47b838a8730e29bf4dd2c4dbe47dae88053ad433e68d3f39b6cda40b",
+    "path": "/Users/saiyamchaplot/Documents/portia-main/output/public-source-followup-20261018/redi/ministry-status-2017.pdf"
+  },
+  {
+    "name": "litigation-2026",
+    "url": "https://ibbi.gov.in/uploads/order/2346b653bf24db0aa29f223c6d3f8901.pdf",
+    "retrieved_utc": "2026-10-18T09:39:57.045601+00:00",
+    "status": 200,
+    "final_url": "https://ibbi.gov.in/uploads/order/2346b653bf24db0aa29f223c6d3f8901.pdf",
+    "content_type": "application/pdf",
+    "bytes": 608760,
+    "sha256": "bcdb19ee2b06a4cfe914e7f00f78edb96b804ebc6aca0faa3fef969a68a082af",
+    "path": "/Users/saiyamchaplot/Documents/portia-main/output/public-source-followup-20261018/redi/litigation-2026.pdf"
+  }
+]

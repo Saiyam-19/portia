@@ -1,0 +1,122 @@
+{
+  "asOf": "2026-10-18",
+  "scope": "Verify whether Finolex/Ranpar private marine prices reported by GAC on 2023-09-07 remain operative; attributable HTML accepted, no PDF requirement.",
+  "result": {
+    "lastLocatedDatedPriceSchedule": "GAC, 2023-09-07, effective immediately",
+    "sourceUrl": "https://www.gac.com/hot-port-news/revised-port-charges-at-terminal",
+    "subsequentPriceRevisionFound": false,
+    "independent2024to2026PriceCorroborationFound": false,
+    "presentOperativeCurrentness": "Unconfirmed",
+    "interpretation": "The five amounts are verified as GAC's dated report. They are not shown to have expired, and this search did not find a successor. Neither fact proves no private or unindexed amendment occurred."
+  },
+  "prices": [
+    {
+      "component": "Berth hire",
+      "currency": "INR",
+      "rate": 75,
+      "unit": "per hour per metre LOA"
+    },
+    {
+      "component": "Pilotage",
+      "currency": "INR",
+      "rate": 250000,
+      "unit": "per berthing"
+    },
+    {
+      "component": "Towage",
+      "currency": "INR",
+      "rate": 200000,
+      "unit": "per berthing"
+    },
+    {
+      "component": "Towage standby",
+      "currency": "INR",
+      "rate": 1500,
+      "unit": "per hour vessel stay in port"
+    },
+    {
+      "component": "Mooring and unmooring",
+      "currency": "INR",
+      "rate": 50000,
+      "unit": "per activity"
+    }
+  ],
+  "newChecks": [
+    {
+      "source": "J M Baxi Marine Services circular index",
+      "url": "https://www.jmbaximarineservices.com/circulars",
+      "latestVisibleEntryDate": "2026-10-14",
+      "relevance": "Public agency notice archive maintained into the current month; raw HTML and web extraction searched for Finolex, Ranpar, Pawas and Ratnagiri.",
+      "outcome": "No Finolex/Ranpar/Pawas text. Ratnagiri entries concern monsoon restrictions and reopening (2021, 2023, 2024), not revised service prices.",
+      "localOriginal": "jmbaxi-circulars.html",
+      "sha256": "1fae63102e4dfa9d03ce3a501fdf2d572e09f31fc91701b9a75d40ae5e99ed0d",
+      "limit": "Archive is not guaranteed to contain every private terminal circular."
+    },
+    {
+      "source": "Wilhelmsen Ranpar port location",
+      "url": "https://www.wilhelmsen.com/contacts-locations/locations/asia/india/ports/ranpar-ratnagiri/",
+      "outcome": "Current agency location/contact page; no tariff or pricing displayed. Does not corroborate amounts."
+    },
+    {
+      "source": "Silver Port Services operator service page",
+      "url": "https://www.svsgroup.in/port-management.php",
+      "outcome": "Continues to identify Finolex Sea Terminal among managed facilities, with pilotage, tugs and mooring services. No price schedule or revision date."
+    },
+    {
+      "source": "MySeaTime Ratnagiri directory",
+      "url": "https://myseatime.app/ports/inrtc",
+      "outcome": "Accessible search extraction identifies separate liquid and coal facilities, operator and marine particulars. No prices; recent crawl is not tariff currentness."
+    },
+    {
+      "source": "Finolex current compliance HTML",
+      "url": "https://www.finolexpipes.com/investors/compliance-report/",
+      "outcome": "Public port section identifies technical information and MARPOL reception resources only. No new marine charge schedule located in this follow-up."
+    },
+    {
+      "source": "J M Baxi port directory and estimated disbursement service",
+      "urls": [
+        "https://www.jmbaximarineservices.com/port-directory",
+        "https://www.jmbaximarineservices.com/epda/request"
+      ],
+      "outcome": "Public directory request redirects to homepage with login controls; EPDA did not expose an anonymous quote. No sign-up, login bypass or estimate request submitted."
+    },
+    {
+      "source": "Atlantic Global Shipping public site and indexed pages",
+      "url": "https://www.atlanticglobalshipping.com/",
+      "outcome": "Agency information and member login; no indexed Ratnagiri/Finolex price page found."
+    }
+  ],
+  "searchCoverage": {
+    "queryCount": 48,
+    "logs": "search-01.json through search-12.json, with search-09-alternate-service.json",
+    "included": "Finolex, Ranpar, Pawas, Ratnagiri, Silver Port Services; later year/revision/service-charge wording; berth/pilotage/towage/PDA/disbursement terms; agency directories and public examples; domain-limited searches for ISS, Wilhelmsen, Atlantic, Marcons and Parekh.",
+    "excludedAsFalsePositives": "Finolex Cables retail prices, electricity tariffs for Ranpar substations, company loan charges, current crawl timestamps on old documents, other ports in Ratnagiri district.",
+    "saturation": "Later rounds returned the same dated GAC report, historical compilations, facility descriptions, or unrelated tariffs. No independent current-period price evidence emerged."
+  },
+  "sourceUseRecommendation": {
+    "acceptableLabel": "Latest publicly located Finolex marine rates: GAC report dated 7 September 2023; checked 18 October 2026; no later public revision found.",
+    "unacceptableLabel": "Confirmed current October 2026 tariff / complete Finolex invoice.",
+    "missingTerms": [
+      "Chemical versus coal jetty applicability",
+      "Taxes and statutory dues inclusion",
+      "Fractional-hour treatment and minima",
+      "Contract or negotiated overrides",
+      "Any unindexed later amendments"
+    ],
+    "pdfRequirement": false,
+    "contactRequiredByThisResearch": false
+  },
+  "firecrawl": {
+    "toolAvailability": "No Firecrawl/crawl/scrape tool exposed in the researcher's available tools.",
+    "usefulness": "The known GAC page is already readable and its date was visually recovered. Current blocker is independent newer price evidence, not extraction of that page. A different crawler may discover additional pages but cannot certify unchanged rates merely by re-scraping the same report."
+  },
+  "boundaries": {
+    "contactsSent": false,
+    "paidInference": false,
+    "purchases": false,
+    "appCodeChanges": false,
+    "cuaUsed": false,
+    "persistentProcessesStarted": false,
+    "processesStopped": false
+  }
+}

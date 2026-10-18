@@ -1,0 +1,20 @@
+{
+  "task": "tariff-integration-20261018",
+  "purpose": "final-types",
+  "command": [
+    "/opt/homebrew/opt/node@22/bin/node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--incremental",
+    "false"
+  ],
+  "cwd": "/Users/saiyamchaplot/Documents/portia-main",
+  "startedUtc": "2026-10-18T11:14:25.205087+00:00",
+  "ports": [],
+  "parentPid": 17616,
+  "pid": 17626,
+  "pgid": 17626,
+  "exitCode": 0,
+  "finishedUtc": "2026-10-18T11:14:34.053245+00:00",
+  "processGroupStillExists": false
+}

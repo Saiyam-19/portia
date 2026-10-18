@@ -1,0 +1,555 @@
+{
+  "reviewer": "independent acceptance_reviewer",
+  "reviewedAt": "2026-10-17T19:24:03.524912+00:00",
+  "disposition": "APPROVED_BOUNDED_COMBINED_EVIDENCE",
+  "combined": {
+    "scenarioRequirements": 26,
+    "passed": 26,
+    "reusedFullScreenPasses": 23,
+    "targetedRerunPasses": 3,
+    "lifecycleReusedPasses": 6,
+    "singleBuildFullSweepClaim": false
+  },
+  "singleFullScreen": {
+    "buildId": "XmLbSTZb0Za_6lL58Lapb",
+    "passed": 24,
+    "failed": 2,
+    "failures": [
+      {
+        "id": "O-JAIGARH",
+        "calls": [
+          "366",
+          "367",
+          "368"
+        ],
+        "cause": "Model misfiled tariff itemJ-1 as physical terminal; unresolved quote saved/published; no2000 result."
+      },
+      {
+        "id": "I09-TWO-RULE-EXPLANATIONS",
+        "calls": [
+          "401",
+          "402"
+        ],
+        "cause": "Both rule tools completed privately, but continuous tiny model deltas never finished;180s parent step timeout prevented publication."
+      }
+    ]
+  },
+  "acceptedCandidate": {
+    "buildId": "IO5bVpFNYWlizOMezpgPY",
+    "manifest": "candidate-post.json",
+    "verifiedFiles": 184,
+    "archive": "accepted-source/",
+    "archiveHashesMatch": true
+  },
+  "frozenOracles": {
+    "independentCasesSHA256": "2796a06802ee91d1d594f675686f2046d0d1e2a43a3f23384613a02357c4c746",
+    "coreCasesSHA256": "f482c7f53be22a79a038195828463ed68f0b18cd06f50131c48554e11e6f62e3"
+  },
+  "cases": [
+    {
+      "id": "C1",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb",
+      "calls": [
+        "336",
+        "337",
+        "338",
+        "339",
+        "340",
+        "341"
+      ],
+      "conversationIds": [
+        "js70d74n6vy95b0ahrqywjrfgn8gexw2"
+      ],
+      "finding": "INR40876→49051; same quote revisions0/1/2; only GT8000→9600 on correction; category/tax/eligibility retained; conditional May-rule boundary."
+    },
+    {
+      "id": "C2",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb",
+      "calls": [
+        "342",
+        "343",
+        "344",
+        "345",
+        "346",
+        "347"
+      ],
+      "conversationIds": [
+        "js7crf15hx4jamyg23pfgrke618gezbq"
+      ],
+      "finding": "USD1005→1020/delta15; berth720/pilotage240 retained; recovered344→345 produces one correction; read-only followup preserves revision1."
+    },
+    {
+      "id": "C3",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb",
+      "calls": [
+        "348",
+        "349",
+        "350",
+        "351"
+      ],
+      "conversationIds": [
+        "js733ygz7aqv37dnrgz30cntz98gf2pd"
+      ],
+      "finding": "Amber USD950; Blue EUR900→USD990; Amber lower byUSD40; both itemized quotes and comparison visible."
+    },
+    {
+      "id": "C4",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb",
+      "calls": [
+        "352",
+        "353",
+        "354",
+        "355",
+        "356"
+      ],
+      "conversationIds": [
+        "js71mkcg634yzm080d0y837ycn8gf2m9"
+      ],
+      "finding": "USD75 per commenced6h;13h10m→3blocks/USD225;12h→2blocks/USD150; same quote; latest result only."
+    },
+    {
+      "id": "C5",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb",
+      "calls": [
+        "357",
+        "358"
+      ],
+      "conversationIds": [
+        "js773m11zdc9pv2475epehpp3d8gew2s"
+      ],
+      "finding": "Exact BPCL Cargo Jetty retained; specific empty-source/identity coverage gap, no liquid-terminal substitution or price."
+    },
+    {
+      "id": "C6",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb",
+      "calls": [
+        "359",
+        "360"
+      ],
+      "conversationIds": [
+        "js7e8hhxxadvx5e2xg8214jwgx8gfkkp"
+      ],
+      "finding": "Mumbai Indira coastal rule INR0.2165/GRT/commenced hour,1000GT floor/INR100 minimum; no quotation."
+    },
+    {
+      "id": "O-GTI",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb",
+      "calls": [
+        "361",
+        "362"
+      ],
+      "conversationIds": [
+        "js70vjx6pgka3vwj3ds3vr7qhs8gfse5"
+      ],
+      "finding": "USD2122.12; GTI/JNPA source identity, no Mumbai substitution or tax intake."
+    },
+    {
+      "id": "O-NSFT",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb",
+      "calls": [
+        "363",
+        "364",
+        "365"
+      ],
+      "conversationIds": [
+        "js77qw95bz9h8w6k2n5mw4yav58gfehh"
+      ],
+      "finding": "USD17967.20;120laden/80empty, matching road leg once; agent supplied missing service in same turn, one current output."
+    },
+    {
+      "id": "O-JAIGARH",
+      "status": "PASS",
+      "evidenceMode": "targeted-rerun",
+      "buildId": "IO5bVpFNYWlizOMezpgPY",
+      "calls": [
+        "419",
+        "420",
+        "421"
+      ],
+      "conversationIds": [
+        "js7c8edthrse1t61wkzgxbjd1s8gedjy"
+      ],
+      "finding": "Targeted USD2000 monetary minimum for5000GT/30days; sole revision0, no J-1 physical terminal or invented vessel category."
+    },
+    {
+      "id": "O-JNPA",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb",
+      "calls": [
+        "369",
+        "370",
+        "371"
+      ],
+      "conversationIds": [
+        "js78jzx6rytcdxemqphx9baz258gehfg"
+      ],
+      "finding": "USD3464; tanker retained; routine towage once; provider369 discarded before sole committed quote."
+    },
+    {
+      "id": "O-CORRECTION-ORIGINAL",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb",
+      "calls": [
+        "372",
+        "373",
+        "374",
+        "375"
+      ],
+      "conversationIds": [
+        "js78actqb5kkr1c0xmpnkfkr8n8gfehf"
+      ],
+      "finding": "USD1280→1295/delta15; only water65→80, berth825/pilotage390 unchanged, same quote."
+    },
+    {
+      "id": "O-CORRECTION-REWORDED",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb",
+      "calls": [
+        "376",
+        "377",
+        "378",
+        "379"
+      ],
+      "conversationIds": [
+        "js759qy74jxr6nj7mjhgxpa2jh8geecm"
+      ],
+      "finding": "USD1280→1295/delta15; same three lines and quote continuity."
+    },
+    {
+      "id": "I01-GTI-HIERARCHY-FRACTION",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb",
+      "calls": [
+        "380",
+        "381"
+      ],
+      "conversationIds": [
+        "js71mdhtryd9w6q0e1erpryw858gf5y9"
+      ],
+      "finding": "USD780.16;8commenced hours from7h10m; explicit general-cargo retained."
+    },
+    {
+      "id": "I02-NSFT-CHANGED-QUANTITIES",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb",
+      "calls": [
+        "382",
+        "383"
+      ],
+      "conversationIds": [
+        "js7a6n1mw42h7zjjt66qfsccbs8gen4f"
+      ],
+      "finding": "USD2756.88;23laden/7empty and normal20ft foreignEXIM road facts retained."
+    },
+    {
+      "id": "I03-JAIGARH-ABOVE-MINIMUM",
+      "status": "PASS",
+      "evidenceMode": "targeted-rerun",
+      "buildId": "IO5bVpFNYWlizOMezpgPY",
+      "calls": [
+        "422",
+        "423"
+      ],
+      "conversationIds": [
+        "js77fkmwmct7291fqv7yqhde5d8gfkhv"
+      ],
+      "finding": "Targeted USD2640;8000GT/17days; JSW operator and mechanized-bulk retained, no vessel category invented."
+    },
+    {
+      "id": "I04-JNPA-PRETAX-NEIGHBOR",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb",
+      "calls": [
+        "386",
+        "387"
+      ],
+      "conversationIds": [
+        "js74ktbn55hdtxf7n9pa8a765s8gf7f3"
+      ],
+      "finding": "USD4330; explicit tanker retained; two movements; no GST intake."
+    },
+    {
+      "id": "I05-EXPLICIT-IDENTITY-CONFLICT",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb",
+      "calls": [
+        "388",
+        "389"
+      ],
+      "conversationIds": [
+        "js7epkqjgcmxqc0dzfgj4cy9bd8ge01h"
+      ],
+      "finding": "Mumbai+GTI conflict retained and clarified, no calculated amount."
+    },
+    {
+      "id": "I06-GENERIC-AND-OPERATOR-NEIGHBORS",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb",
+      "calls": [
+        "390",
+        "391"
+      ],
+      "conversationIds": [
+        "js76natnss5pd3c9kzbmtx1jns8gemgt"
+      ],
+      "finding": "All3 outputs retained: Gateway GTI/NSIGT ambiguity; BPCL Cargo/Liquid ambiguity; Angre/JSW conflict."
+    },
+    {
+      "id": "I07-DATED-SOURCE-GAP",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb",
+      "calls": [
+        "392",
+        "393"
+      ],
+      "conversationIds": [
+        "js72rkvmrk01xvgqvp5vdccnsn8ge0wy"
+      ],
+      "finding": "Requested2027-05-01 exceeds governing source through2027-04-30; no old-rate quote or user-rate request."
+    },
+    {
+      "id": "I08-MISSING-INPUT-THEN-CORRECTION",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb",
+      "calls": [
+        "394",
+        "395",
+        "396",
+        "397",
+        "398",
+        "399",
+        "400"
+      ],
+      "conversationIds": [
+        "js7bmd7421ht6kxpd1e0wqkzy58gfj9n"
+      ],
+      "finding": "No assumed empties; then USD2756.88→2851.66/delta94.78; same quote revisions0/1/2/3, stableQuotation1,23→24laden with7empties retained."
+    },
+    {
+      "id": "I09-TWO-RULE-EXPLANATIONS",
+      "status": "PASS",
+      "evidenceMode": "targeted-rerun",
+      "buildId": "IO5bVpFNYWlizOMezpgPY",
+      "calls": [
+        "424",
+        "425",
+        "426"
+      ],
+      "conversationIds": [
+        "js791x7zjncgy7vbzbrzeskp598gebm1"
+      ],
+      "finding": "Targeted both NSFT and JNPA rules/source identities retained; no calculated quote. Duplicate JNPA paragraph cosmetic."
+    },
+    {
+      "id": "I10-TWO-ARITHMETIC-OUTPUTS",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb",
+      "calls": [
+        "403",
+        "404"
+      ],
+      "conversationIds": [
+        "js7as8ckhajx1ddwfy49xdtqg18gffyb"
+      ],
+      "finding": "Both A91/B437 retained with labels."
+    },
+    {
+      "id": "I11-TWO-ELAPSED-TIMES",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb",
+      "calls": [
+        "405",
+        "406"
+      ],
+      "conversationIds": [
+        "js794q65qvjft3weda1vhazt798gfbwr"
+      ],
+      "finding": "Both A90min/1.5h and B150min/2.5h with IST and date rollover correct."
+    },
+    {
+      "id": "I12-QUOTES-COMPARISON-UNRELATED-RULE",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb",
+      "calls": [
+        "407",
+        "408",
+        "409"
+      ],
+      "conversationIds": [
+        "js7d0g3rxam98x281zmtjgjw7d8ge80s"
+      ],
+      "finding": "Both Amber/Blue quotes, USD40 comparison and separate Mumbai rule retained; both supplied call objects empty."
+    },
+    {
+      "id": "I13-MEMORY-WITH-QUOTE",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb",
+      "calls": [
+        "410",
+        "411"
+      ],
+      "conversationIds": [
+        "js79j2eq0nv76806ywg6yhpnzn8gest7"
+      ],
+      "finding": "Explicit marker persisted and acknowledged alongside USD41+9=50 supplied quote."
+    },
+    {
+      "id": "I14-TAX-INCLUSIVE-POSITIVE-NEIGHBOR",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb",
+      "calls": [
+        "412",
+        "413"
+      ],
+      "conversationIds": [
+        "js73h5r6p6swty7y2qw3tnr5qh8ge6nq"
+      ],
+      "finding": "General-cargo and supplied eligibility retained; exactly6 missing GST/customer facts requested in prose, no unsupported tax-inclusive total."
+    }
+  ],
+  "lifecycle": [
+    {
+      "name": "explicit marker persisted",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb"
+    },
+    {
+      "name": "server restart retains mixed quote and memory response",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb"
+    },
+    {
+      "name": "cross-chat recall after server restart",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb"
+    },
+    {
+      "name": "stale request no inference",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb"
+    },
+    {
+      "name": "duplicate request no inference",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb"
+    },
+    {
+      "name": "explicit forget persisted",
+      "status": "PASS",
+      "evidenceMode": "reused-full-screen",
+      "buildId": "XmLbSTZb0Za_6lL58Lapb"
+    }
+  ],
+  "verification": {
+    "variantsFinalPrivateAndReloadMatch": true,
+    "variantsPostPrivateAndReloadMatch": true,
+    "finalReceiptDigestChecksIncludingHistoricalRepeats": 30,
+    "postReceiptDigestChecks": 2,
+    "coreDurableReceiptCoverage": 6,
+    "corePrivateSnapshotsUnchangedAfterRestart": 6,
+    "browserUtf8CaptureScope": "20 final variants and3 targeted reruns; core6 uses public stored text, DOM/reload and direct private recovery, not raw-wire equality",
+    "initialFullSuite": "106files/1036tests passed before later bounded changes",
+    "latestAffectedSuite": "12files/142tests passed",
+    "latestNewRegressions": "2files/13tests passed",
+    "latestTypecheck": "pass",
+    "latestScopedLint": "pass; not repository-wide lint approval"
+  },
+  "additionalBudget": {
+    "firstDispatchId": 297,
+    "lastDispatchId": 426,
+    "dispatches": 130,
+    "knownUSD": "0.085999790",
+    "unknownUsageCount": 12,
+    "unknownIds": [
+      "304",
+      "325",
+      "329",
+      "333",
+      "344",
+      "349",
+      "367",
+      "369",
+      "402",
+      "417",
+      "419",
+      "424"
+    ],
+    "unknownReserveUSD": "0.147751",
+    "knownPlusReserveUSD": "0.233750790",
+    "keyLifetimeIncreaseUSD": "0.094334390",
+    "keyIncreasePlusReserveUSD": "0.242085390",
+    "capUSD": "0.50",
+    "withinCap": true,
+    "qualification": "Unknown usage is not zero; reserves are not billed amounts; key usage increase is not exact task attribution."
+  },
+  "boundaries": [
+    "Local synthetic-account acceptance only; no deployment or authenticated production approval.",
+    "Conditional retained-source arithmetic only; current-call tariffs, amendments and complete invoice eligibility remain unapproved.",
+    "23 scenario passes and6 lifecycle checks were reused across the narrow post-screen changes; no second26-case sweep.",
+    "Provider recovery is bounded, not a guarantee:60s first-output,15s semantic idle,90s attempt, at most2 recoveries/run inside unchanged180s step/240s turn.",
+    "90s trickle cutoff verified deterministically; targeted live retries419/424 used first-output timeout, not90s absolute cutoff.",
+    "Old-format chats and historical failed test conversations were preserved; no migration/repair of those histories claimed.",
+    "I09 duplicates the JNPA explanation paragraph; cosmetic, no missing result or source misassociation."
+  ],
+  "cleanup": {
+    "status": "VERIFIED_FROM_OWNER_EVIDENCE",
+    "evidence": "cleanup-verification.json",
+    "trackedProcessGroups": 28,
+    "registryEntriesChecked": 28,
+    "allRegistryEntriesStopped": true,
+    "ownedSurvivors": [],
+    "ownedPortsClosed": {
+      "3022": true,
+      "3220": true,
+      "3221": true
+    },
+    "lockRemoved": true,
+    "preservedResponses": {
+      "http://[::1]:3000": 403,
+      "http://127.0.0.1:3210/version": 200,
+      "http://127.0.0.1:3211": 404,
+      "http://127.0.0.1:5174": 200,
+      "http://[::1]:5198": 200
+    },
+    "sharedGraphStillListening": true,
+    "reviewerStartedProcesses": false,
+    "reviewerStoppedProcesses": false,
+    "qualification": "Reviewer verified cleanup artifact and exact tracked registry. Direct ps inspection unavailable under reviewer sandbox; response/listening status is not a functional-health certification."
+  }
+}

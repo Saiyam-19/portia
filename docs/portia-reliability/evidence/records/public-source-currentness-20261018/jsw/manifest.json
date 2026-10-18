@@ -1,0 +1,87 @@
+[
+  {
+    "file": "dec2025-indexed-excerpts.txt",
+    "bytes": 9884,
+    "sha256": "b72e1ab8eb5bd79e3eff764079d8d0082004042ca608feebf02b084b93f7859d"
+  },
+  {
+    "file": "findings.json",
+    "bytes": 14246,
+    "sha256": "256f738fdb226714dd5d3ffc13916724aed294950625902efd425d1655587550"
+  },
+  {
+    "file": "page2-attempt.json",
+    "bytes": 293,
+    "sha256": "00538a1d3559f45ea9fd0c261b98755d9d5e46b9b252d77d8f247ad8a47fdde9"
+  },
+  {
+    "file": "search1.json",
+    "bytes": 71,
+    "sha256": "1048ddaf93c0dfa7b1304db3ffef722f4a37db0018ad2c63d0062118c5d92b42"
+  },
+  {
+    "file": "search10.json",
+    "bytes": 8949,
+    "sha256": "e3391999cae9219fa88b95a5001282ece403e6354601446a3fe488ac53b26cda"
+  },
+  {
+    "file": "search11.json",
+    "bytes": 24261,
+    "sha256": "a74d1de66d32f8a191e9e2401bece389a86a36bb31f20cc34785f9b651c8ad18"
+  },
+  {
+    "file": "search12.json",
+    "bytes": 21824,
+    "sha256": "33752efe22747ccdb946095bef5748897b708147e7030d6726ea367cb45540e2"
+  },
+  {
+    "file": "search13.json",
+    "bytes": 25792,
+    "sha256": "1b41289736943feada913c189a7445b8974b97a43e45ba901d5e088dd3e7fa00"
+  },
+  {
+    "file": "search14.json",
+    "bytes": 33621,
+    "sha256": "5f52ad8ad80044a4f5ce5489c8e463796d1124902c413c1f40a4a6df865237e9"
+  },
+  {
+    "file": "search2.json",
+    "bytes": 29260,
+    "sha256": "2c33e58732261cd58c8d7ad727d7ed880018f069b155d56e6992e839f501a61f"
+  },
+  {
+    "file": "search3.json",
+    "bytes": 32264,
+    "sha256": "7d39e01766ca5b90d8e1605ffcdacc4289ac616c785c567079df587f5d5bf66f"
+  },
+  {
+    "file": "search4.json",
+    "bytes": 32390,
+    "sha256": "147c257e8da52cadc7fefe1d0dcc073b997cf6244a96dd40ef16e64bb821c55a"
+  },
+  {
+    "file": "search5.json",
+    "bytes": 71,
+    "sha256": "1048ddaf93c0dfa7b1304db3ffef722f4a37db0018ad2c63d0062118c5d92b42"
+  },
+  {
+    "file": "search6.json",
+    "bytes": 34615,
+    "sha256": "43ffd626a5ee7a136d7711113930c5578fa44ae75471262207797971c35f6fbd"
+  },
+  {
+    "file": "search7.json",
+    "bytes": 35185,
+    "sha256": "cd673c572ea9ba4751e9891dcf364b49c5627483d6ddf48c761bca265f656518"
+  },
+  {
+    "file": "search8.json",
+    "bytes": 35594,
+    "sha256": "db73298e02e5a50b259a9ee50e85805d1584e8851cc3313fd5419053c5267be9"
+  },
+  {
+    "file": "search9.json",
+    "bytes": 16629,
+    "sha256": "8e0ba8f746edc992baf5c3b8f5964e6d57571b009fd7514a23caacd92e740e01"
+  }
+]

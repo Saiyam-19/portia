@@ -1,0 +1,118 @@
+{
+  "scope": "Public-source follow-up for ICTPL Mumbai OCT exact berth-hire base-row linkage",
+  "checkedAt": "2026-10-18T09:43:59.621875+00:00",
+  "outcome": "not_closed",
+  "contact_required_proven": false,
+  "messages_sent": 0,
+  "runtime_changes": false,
+  "paid_calls": 0,
+  "confirmed": [
+    {
+      "claim": "2018 approved tariff Chapter II 2.1 explicitly ties hourly OCT berth hire to 1.3 times MbPT berth hire as applicable from time to time. It does not literally name a specific MbPT dock row.",
+      "source": "https://www.abmp.gov.in/uploads/tariff_orders_master/order_6a451062d2ea0.pdf",
+      "local": "data/reviewed-tariffs/bounded-explanations-2026/ictpl-2018-approved-order.pdf",
+      "page": 35
+    },
+    {
+      "claim": "Current May2026 MbPA SOR2.17 has distinct ordinary foreign/coastal rows: Indira Dock/harbour walls/Ballard Pier/BPX USD0.0137/INR0.2165; Princes/Victoria docks and harbour walls USD0.0109/INR0.1676 per GRT per hour or part. OCT not separately listed.",
+      "source": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1778833452.pdf",
+      "local": "output/full-scope-20261018/sources/mumbai/mumbai-sor-may2026.pdf",
+      "pages": [
+        21,
+        22
+      ]
+    },
+    {
+      "claim": "TAMP27Mar2025 annual-indexation circular expressly addresses Indira Container Terminal Private Limited. It announces1.04% SOR annual indexation for1May2025-30Apr2026; it neither selects OCT dock base-row nor constitutes an OCT2026 tariff.",
+      "source": "https://dpw-p-001.sitecorecontenthub.cloud/api/public/content/2c14ee65c65843d7bbf106029f3cbdbd?v=aaadcef3",
+      "local": "output/public-source-followup-20261018/ictpl/tamp-indexation-2025.pdf",
+      "pages": [
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "claim": "2021 government environmental dossier contains2017-18 provisional revenue model INR1.42/GRT-hour and a separate revival feasibility model INR1.35/GRT-hour. Its feasibility assumptions expressly require tariff notification before operations; these are not current charge sheets.",
+      "source": "https://environmentclearance.nic.in/writereaddata/Online/EDS/0_0_15_Jun_2021_165349537132ndEACCompliance_OCT.pdf",
+      "local": "output/public-source-followup-20261018/ictpl/eac-oct-2021.pdf",
+      "pages": [
+        134,
+        269,
+        364,
+        365
+      ],
+      "visualReview": [
+        134
+      ]
+    },
+    {
+      "claim": "The same feasibility report says port dues and pilotage accrue to MbPT under its general SOR. This supports separating MbPA marine components from private OCT berth hire, without establishing which pilotage facility row applies.",
+      "source": "https://environmentclearance.nic.in/writereaddata/Online/EDS/0_0_15_Jun_2021_165349537132ndEACCompliance_OCT.pdf",
+      "page": 365
+    },
+    {
+      "claim": "Ministry circuler.pdf is26Sept2024 draft migration consultation; appended as-of1May2023 operator table discusses ICTPL interim MbPA tariff. It is supplementary historical context, not adopted migration or exact row authority.",
+      "source": "https://shipmin.gov.in/sites/default/files/circuler.pdf",
+      "inspection": "web original PDF cover checked; attachment table indexed"
+    },
+    {
+      "claim": "CurrentMumbaiSOR expressly mentionsOCT under dock-to-dock shifting and specificport-convenience movement rules. Separate ordinaryMbPA marine components should not be blocked merely because privateberthrow unresolved.",
+      "source": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1778833452.pdf",
+      "local": "output/full-scope-20261018/sources/mumbai/mumbai-sor-may2026.pdf",
+      "check": "SearchMay2026textforOCT and inspectrelevantpilotage/shiftingnotes beforeimplementation."
+    }
+  ],
+  "judgment": {
+    "likely_base_row": "Current2.17 row1 Indira/Ballard ordinary cargo row is a plausible comparison, because OCT substitutes for these working cargo berths and is linked from Indira Dock; this remains contextual inference.",
+    "why_not_closed": "The cross-reference does not itself remove choice between multiple published berth schedules. The new financial models expressly use hypothetical upfront ARR pricing rather than actual ad-hoc1.3x billing, so they cannot calibrate the intended row.",
+    "do_not_do": [
+      "Apply1.3x to all Mumbai charges",
+      "Treat INR1.42 or INR1.35 model estimates as live tariff",
+      "Treat2024/2025 migration drafts as adopted",
+      "Add1.04% indexation on top of already indexed2026MbPA base without source"
+    ]
+  },
+  "remaining_public_routes": [
+    "Archived operator tariff on ictpl.in, when archive/origin retrieval works",
+    "Public annexures to consent letters from MOL/Parekh/M.Dinshaw referenced in2018order",
+    "Published itemized actual berth invoice with service date and GRT sufficient to identify row, verified against operator authority",
+    "Specific MbPA board-resolution annexure or current operational tariff supplement"
+  ],
+  "search_routes": [
+    "Official Mumbai tariff/SOP/circular and current facility pages",
+    "ABMP port-wise/year-wise archive",
+    "CAG2018compliance report and Ministry accounts",
+    "2021environment-clearance dossier and revival feasibility report",
+    "AJR corporate financials2018/2024",
+    "TAMP27Mar2025indexation circular",
+    "Ministry2024migration draft",
+    "Operator origin and Internet Archive CDX",
+    "Shipping agent/association public tariff and billing searches"
+  ],
+  "limitations": [
+    "Bounded search; failure to find is not proof document unavailable publicly",
+    "AJR2018direct download returned200HTML, recorded as invalid response; indexed extract only",
+    "EAC host failed local certificate validation; public bytes retrieved with verification disabled, explicitly logged",
+    "EAC pypdf extraction fails for a subset of pages due SymbolSetEncoding; relevant page134visually reviewed; extraction errors preserved",
+    "No server/kernel/daemon launched. All download/extraction/render commands are bounded foreground jobs."
+  ],
+  "html_followup": {
+    "policy": "Attributable published HTML price pages accepted; no PDF prerequisite. Date, facility identity, rate/unit and conditions must support the intended quote.",
+    "checked": [
+      "https://chowgulebrothers.com/branch-office/mumbai/",
+      "https://www.jmbaximarineservices.com/circulars",
+      "https://www.voceanship.com/e-pda/33a5eb0a-5a0c-4617-9ae0-93307857009a",
+      "https://ictpl.in",
+      "https://web.archive.org/cdx/search/cdx?url=ictpl.in/*&output=json&filter=statuscode:200&collapse=urlkey"
+    ],
+    "results": [
+      "Chowgule HTML identifies OCT1/OCT2 as RoRo berths but contains no numeric OCT tariff; facilities/current officials exhibit stale context.",
+      "JMBaxi HTML circular index contains13Mar2025OCT SOP listing, not a separately quoted numeric OCT berth rate.",
+      "V-Ocean directHTML is a JavaScript app shell; search excerpt0.025 has no verifiedOCT identity/date/unit and cannot calibrateOCT.",
+      "Operator origin timed out. ArchivePDFinventory returnedempty; all-URLinventory timed out. These failures do not establishabsence of pricing.",
+      "Targeted general and shipping-agent-domain searches found no attributable datednumeric OCT cargo berth price."
+    ]
+  },
+  "finishedAt": "2026-10-18T09:45:42.809283+00:00"
+}

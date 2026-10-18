@@ -1,0 +1,12 @@
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+
+ RUN  v4.1.11 /Users/saiyamchaplot/Documents/portia-main
+
+
+ Test Files  17 passed (17)
+      Tests  394 passed (394)
+   Start at  16:44:25
+   Duration  7.35s (transform 478ms, setup 120ms, import 2.33s, tests 2.06s, environment 1ms)
+

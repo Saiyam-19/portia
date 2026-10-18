@@ -1,0 +1,29 @@
+[
+  {
+    "id": "vocean-epda",
+    "url": "https://www.voceanship.com/e-pda/33a5eb0a-5a0c-4617-9ae0-93307857009a",
+    "retrieved": "2026-10-18T09:45:02.699745+00:00",
+    "status": 200,
+    "bytes": 4542,
+    "sha256": "2dfda83f34e7f69fc4e33160df3313676cc26c305c1b7921df81ff5bff757a0f",
+    "error": "No module named 'bs4'"
+  },
+  {
+    "id": "chowgule-mumbai",
+    "url": "https://chowgulebrothers.com/branch-office/mumbai/",
+    "retrieved": "2026-10-18T09:45:02.700728+00:00",
+    "status": 200,
+    "bytes": 110261,
+    "sha256": "9a94e1bc01af41367e1c1a112aa3d21a2a48689ed557864f162544888da19d49",
+    "error": "No module named 'bs4'"
+  },
+  {
+    "id": "jmbaxi-circulars",
+    "url": "https://www.jmbaximarineservices.com/circulars",
+    "retrieved": "2026-10-18T09:45:02.701044+00:00",
+    "status": 200,
+    "bytes": 977221,
+    "sha256": "50acd5200b43cf073b02ef12f6600b375be1881b6173616305dcc49dd1fe5897",
+    "error": "No module named 'bs4'"
+  }
+]

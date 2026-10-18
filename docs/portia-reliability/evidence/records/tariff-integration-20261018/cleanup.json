@@ -1,0 +1,106 @@
+{
+  "checks": [
+    {
+      "check": "build",
+      "pid": 18245,
+      "pgid": 18245,
+      "exitCode": 1,
+      "survivingProcessGroup": false
+    },
+    {
+      "check": "config-lint",
+      "pid": 25109,
+      "pgid": 25109,
+      "exitCode": 0,
+      "survivingProcessGroup": false
+    },
+    {
+      "check": "node22-tests",
+      "pid": 13536,
+      "pgid": 13536,
+      "exitCode": 0,
+      "survivingProcessGroup": false
+    },
+    {
+      "check": "build-final",
+      "pid": 23700,
+      "pgid": 23700,
+      "exitCode": 0,
+      "survivingProcessGroup": false
+    },
+    {
+      "check": "node22-types",
+      "pid": 13535,
+      "pgid": 13535,
+      "exitCode": 0,
+      "survivingProcessGroup": false
+    },
+    {
+      "check": "final-lint",
+      "pid": 17625,
+      "pgid": 17625,
+      "exitCode": 0,
+      "survivingProcessGroup": false
+    },
+    {
+      "check": "review-green",
+      "pid": 16666,
+      "pgid": 16666,
+      "exitCode": 0,
+      "survivingProcessGroup": false
+    },
+    {
+      "check": "build-webpack-permitted",
+      "pid": 21402,
+      "pgid": 21402,
+      "exitCode": 0,
+      "survivingProcessGroup": false
+    },
+    {
+      "check": "final-types",
+      "pid": 17626,
+      "pgid": 17626,
+      "exitCode": 0,
+      "survivingProcessGroup": false
+    },
+    {
+      "check": "final-tests",
+      "pid": 17624,
+      "pgid": 17624,
+      "exitCode": 0,
+      "survivingProcessGroup": false
+    },
+    {
+      "check": "review-red",
+      "pid": 15806,
+      "pgid": 15806,
+      "exitCode": 1,
+      "survivingProcessGroup": false
+    },
+    {
+      "check": "build-permitted",
+      "pid": 19198,
+      "pgid": 19198,
+      "exitCode": 1,
+      "survivingProcessGroup": false
+    },
+    {
+      "check": "build-webpack",
+      "pid": 20222,
+      "pgid": 20222,
+      "exitCode": 1,
+      "survivingProcessGroup": false
+    }
+  ],
+  "persistentServersStarted": 0,
+  "explicitlyStoppedProcesses": [],
+  "temporaryCheckGroupsExited": true,
+  "sharedServicesPreserved": [
+    3000,
+    3210,
+    3211,
+    5174,
+    5198,
+    9749
+  ]
+}

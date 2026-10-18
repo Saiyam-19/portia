@@ -1,0 +1,69 @@
+[
+  {
+    "id": "003",
+    "status": 200,
+    "data": {
+      "data": {
+        "created_at": "2026-10-17T13:04:14.611Z",
+        "model": "openai/gpt-6-luna-20260922",
+        "app_id": null,
+        "external_user": null,
+        "streamed": true,
+        "cancelled": true,
+        "latency": 32314,
+        "moderation_latency": null,
+        "generation_time": 179469,
+        "tokens_prompt": 6547,
+        "tokens_completion": 406,
+        "native_tokens_prompt": 6547,
+        "native_tokens_completion": 406,
+        "native_tokens_completion_images": 0,
+        "native_tokens_reasoning": 0,
+        "native_tokens_cached": 0,
+        "num_media_prompt": null,
+        "num_input_audio_prompt": null,
+        "num_media_completion": 0,
+        "num_search_results": null,
+        "num_fetches": null,
+        "web_search_engine": null,
+        "origin": "",
+        "is_byok": false,
+        "finish_reason": null,
+        "native_finish_reason": null,
+        "service_tier": null,
+        "usage": 0.0008577,
+        "router": null,
+        "user_agent": "ai-sdk-agent/tool-loop ai-sdk/provider-utils/5.0.42 runtime/node.js/22",
+        "http_referer": null,
+        "request_id": "req-1792242254-mXQasEWDbW9DsZtTC2t3",
+        "session_id": null,
+        "preset_id": null,
+        "api_type": "completions",
+        "id": "gen-1792242254-Q3PokzoHa4uj3cowM3Zy",
+        "upstream_id": "0b63d451-66d7-4861-8885-6c5cc0738d7a",
+        "provider_responses": [
+          {
+            "endpoint_id": "4c3b5df9-1e2f-4f1c-ab3f-9f89216885bb",
+            "id": "0b63d451-66d7-4861-8885-6c5cc0738d7a",
+            "is_byok": false,
+            "latency": 18332,
+            "model_permaslug": "openai/gpt-6-luna-20260922",
+            "provider_name": "Azure",
+            "status": 499
+          }
+        ],
+        "total_cost": 0.0008577,
+        "cache_discount": null,
+        "upstream_inference_cost": 0,
+        "provider_name": "Azure",
+        "response_cache_source_id": null,
+        "data_region": "global",
+        "workspace_id": "62a175d6-a629-5afa-8008-6a0da7b85d98"
+      }
+    }
+  },
+  {
+    "id": "008",
+    "status": "unknown-no-generation-id"
+  }
+]

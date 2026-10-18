@@ -1,0 +1,14 @@
+[
+  {
+    "id": "mumbai-legacy-sor",
+    "url": "https://mumbaiport.gov.in/WriteReadData/RTF1984/1686052615.pdf",
+    "retrieved": "2026-10-18T09:56:10.784751+00:00",
+    "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+  },
+  {
+    "id": "oct-wharfage-notification-dec2025",
+    "url": "https://www.mumbaiport.gov.in/showfile.php?lang=1&level=1&lid=1132&ls_id=1429",
+    "retrieved": "2026-10-18T09:56:10.785369+00:00",
+    "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
+  }
+]

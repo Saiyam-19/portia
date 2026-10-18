@@ -1,0 +1,26 @@
+[
+  {
+    "id": "ministry-migration-draft-2024",
+    "url": "https://shipmin.gov.in/sites/default/files/circuler.pdf",
+    "retrieved": "2026-10-18T09:42:47.163096+00:00",
+    "status": 200,
+    "bytes": 1898583,
+    "sha256": "a7f3d2ccaf73bbec7ca1695bb737244fa172906d4d3ae33bf0130f78721d4468",
+    "path": "ministry-migration-draft-2024.pdf"
+  },
+  {
+    "id": "operator-home",
+    "url": "https://ictpl.in",
+    "retrieved": "2026-10-18T09:42:47.163551+00:00",
+    "error": "<urlopen error timed out>"
+  },
+  {
+    "id": "operator-archive-cdx",
+    "url": "https://web.archive.org/cdx/search/cdx?url=ictpl.in/*&output=json&filter=statuscode:200&filter=mimetype:application/pdf&collapse=urlkey",
+    "retrieved": "2026-10-18T09:42:47.163757+00:00",
+    "status": 200,
+    "bytes": 3,
+    "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "path": "operator-archive-cdx.html"
+  }
+]

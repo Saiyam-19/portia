@@ -1,0 +1,38 @@
+{
+  "at": "2026-10-17T10:53:40.317Z",
+  "node": "v22.23.2",
+  "checks": [
+    {
+      "command": "node --test --experimental-test-isolation=none --test-concurrency=1 tests/migration/bounded-screen-guard.test.mts",
+      "exitCode": 0,
+      "passed": 18,
+      "failed": 0,
+      "log": "offline-tests.txt"
+    },
+    {
+      "command": "node node_modules/typescript/bin/tsc --noEmit --target ES2022 --module nodenext --moduleResolution nodenext --allowImportingTsExtensions --strict --skipLibCheck scripts/audit/bounded-screen-guard.mts tests/migration/bounded-screen-guard.test.mts",
+      "exitCode": 0,
+      "log": "typecheck.txt"
+    },
+    {
+      "command": "node node_modules/eslint/bin/eslint.js scripts/audit/bounded-screen-guard.mts tests/migration/bounded-screen-guard.test.mts",
+      "exitCode": 0,
+      "log": "lint.txt"
+    }
+  ],
+  "preservation": {
+    "frozenFilesChecked": 182,
+    "changed": [],
+    "addedInFrozenScopes": [],
+    "head": "2a77ead22c5a8dc365b58806f38accd4f959b2bd",
+    "buildId": "Wkf4nBgG3birbDjx0ns-j"
+  },
+  "sourceFiles": {
+    "scripts/audit/bounded-screen-guard.mts": "19f2f13065f38416eb89e5dd60844ea8de5327e65f97f7d3ede417d53b63a508",
+    "tests/migration/bounded-screen-guard.test.mts": "71f4f2743122354cc83bbbc026ad831f252029e6b053ca3f4670a6528bc000f5"
+  },
+  "actualSpendNano": "0",
+  "actualProviderDispatches": 0,
+  "outstandingReservationsNano": "0",
+  "remainingCapNano": "1500000000"
+}

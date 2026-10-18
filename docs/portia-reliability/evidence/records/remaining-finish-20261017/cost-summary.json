@@ -1,0 +1,88 @@
+{
+  "scope": "Additional remaining-failures pass from dispatch297; previous cumulative evidence retained",
+  "dispatches": 130,
+  "providerReportedKnownUSD": "0.085999790",
+  "unknownUsageCalls": [
+    {
+      "id": "304",
+      "turn": "remaining-affected-O-CORRECTION-ORIGINAL-2",
+      "reserve": "0.0125658",
+      "event": "stream-error"
+    },
+    {
+      "id": "325",
+      "turn": "remaining-affected-I12-QUOTES-COMPARISON-UNRELATED-RULE-1",
+      "reserve": "0.0134352",
+      "event": "stream-error"
+    },
+    {
+      "id": "329",
+      "turn": "remaining-affected-I14-TAX-INCLUSIVE-POSITIVE-NEIGHBOR-1",
+      "reserve": "0.012771",
+      "event": "stream-error"
+    },
+    {
+      "id": "333",
+      "turn": "remaining-repair-I14-TAX-INCLUSIVE-POSITIVE-NEIGHBOR-1",
+      "reserve": "0.011783",
+      "event": "stream-error"
+    },
+    {
+      "id": "344",
+      "turn": "remaining-final-C2-2",
+      "reserve": "0.0126246",
+      "event": "stream-error"
+    },
+    {
+      "id": "349",
+      "turn": "remaining-final-C3-1",
+      "reserve": "0.012768999999999999",
+      "event": "stream-error"
+    },
+    {
+      "id": "367",
+      "turn": "remaining-final-O-JAIGARH-1",
+      "reserve": "0.012129599999999999",
+      "event": "stream-error"
+    },
+    {
+      "id": "369",
+      "turn": "remaining-final-O-JNPA-1",
+      "reserve": "0.011715",
+      "event": "stream-error"
+    },
+    {
+      "id": "402",
+      "turn": "remaining-final-I09-TWO-RULE-EXPLANATIONS-1",
+      "reserve": "0.0124306",
+      "event": "stream-error"
+    },
+    {
+      "id": "417",
+      "turn": "remaining-final-MEMORY-FORGET-2",
+      "reserve": "0.0118744",
+      "event": "stream-error"
+    },
+    {
+      "id": "419",
+      "turn": "remaining-post-O-JAIGARH-1",
+      "reserve": "0.0118236",
+      "event": "stream-error"
+    },
+    {
+      "id": "424",
+      "turn": "remaining-post-I09-TWO-RULE-EXPLANATIONS-1",
+      "reserve": "0.0118292",
+      "event": "stream-error"
+    }
+  ],
+  "unknownUsageCount": 12,
+  "pending": [],
+  "conservativeUnpricedReserveUSD": "0.147750999999999998",
+  "knownPlusReserveUSD": "0.233750789999999998",
+  "guardAccountedUSD": "0.233750789999999998",
+  "approvedCapUSD": "0.50",
+  "boundedCumulativeDispatchLimit": 150,
+  "withinConservativeCap": true,
+  "note": "Unknown usage is not zero. Reservations are not billed amounts."
+}

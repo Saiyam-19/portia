@@ -1,0 +1,202 @@
+{
+  "combinedEvidence": true,
+  "notASingleFreshPassOnLatestBuild": true,
+  "singleFullScreen": {
+    "buildId": "BZVCexRLScrXT8YpelZb0",
+    "file": "screen-final.json",
+    "cleanPricingPasses": 10,
+    "cleanSourceGapResponses": 2,
+    "literalFailures": 4,
+    "automatedPassesBeforeLiteralReview": 14
+  },
+  "targetedRerun": {
+    "buildId": "DGNja2nucdFbUkXZSM2Tw",
+    "file": "screen-post.json",
+    "passes": 4
+  },
+  "combined": {
+    "pricedExamples": 12,
+    "sourceGapResponses": 4,
+    "catalogEntries": 16
+  },
+  "results": [
+    {
+      "id": "F-BMCT",
+      "status": "SCOPED_PRICE_PASS",
+      "evidence": "screen-final.json",
+      "buildId": "BZVCexRLScrXT8YpelZb0",
+      "dispatches": [
+        "511",
+        "512"
+      ],
+      "literalReview": "final-literal-review.md"
+    },
+    {
+      "id": "F-NSIGT",
+      "status": "SCOPED_PRICE_PASS",
+      "evidence": "screen-final.json",
+      "buildId": "BZVCexRLScrXT8YpelZb0",
+      "dispatches": [
+        "513",
+        "514",
+        "515"
+      ],
+      "literalReview": "final-literal-review.md"
+    },
+    {
+      "id": "F-NSICT",
+      "status": "SCOPED_PRICE_PASS",
+      "evidence": "screen-final.json",
+      "buildId": "BZVCexRLScrXT8YpelZb0",
+      "dispatches": [
+        "516",
+        "517"
+      ],
+      "literalReview": "final-literal-review.md"
+    },
+    {
+      "id": "F-NSFT",
+      "status": "SCOPED_PRICE_PASS",
+      "evidence": "screen-final.json",
+      "buildId": "BZVCexRLScrXT8YpelZb0",
+      "dispatches": [
+        "518",
+        "519"
+      ],
+      "literalReview": "final-literal-review.md"
+    },
+    {
+      "id": "F-GTI",
+      "status": "SCOPED_PRICE_PASS",
+      "evidence": "screen-final.json",
+      "buildId": "BZVCexRLScrXT8YpelZb0",
+      "dispatches": [
+        "520",
+        "521"
+      ],
+      "literalReview": "final-literal-review.md"
+    },
+    {
+      "id": "F-JNPA",
+      "status": "SCOPED_PRICE_PASS",
+      "evidence": "screen-final.json",
+      "buildId": "BZVCexRLScrXT8YpelZb0",
+      "dispatches": [
+        "522",
+        "523"
+      ],
+      "literalReview": "final-literal-review.md"
+    },
+    {
+      "id": "F-JSW-JNPT",
+      "status": "SCOPED_PRICE_PASS",
+      "evidence": "screen-final.json",
+      "buildId": "BZVCexRLScrXT8YpelZb0",
+      "dispatches": [
+        "524",
+        "525"
+      ],
+      "literalReview": "final-literal-review.md"
+    },
+    {
+      "id": "F-JAIGARH",
+      "status": "SCOPED_PRICE_PASS",
+      "evidence": "screen-final.json",
+      "buildId": "BZVCexRLScrXT8YpelZb0",
+      "dispatches": [
+        "526",
+        "527"
+      ],
+      "literalReview": "final-literal-review.md"
+    },
+    {
+      "id": "F-KLL",
+      "status": "SCOPED_PRICE_PASS",
+      "evidence": "screen-final.json",
+      "buildId": "BZVCexRLScrXT8YpelZb0",
+      "dispatches": [
+        "528",
+        "529"
+      ],
+      "literalReview": "final-literal-review.md"
+    },
+    {
+      "id": "F-MUMBAI",
+      "status": "SCOPED_PRICE_PASS",
+      "evidence": "screen-post.json",
+      "buildId": "DGNja2nucdFbUkXZSM2Tw",
+      "dispatches": [
+        "545",
+        "546",
+        "547"
+      ],
+      "literalReview": "final-literal-review.md"
+    },
+    {
+      "id": "F-CRUISE",
+      "status": "SCOPED_PRICE_PASS",
+      "evidence": "screen-post.json",
+      "buildId": "DGNja2nucdFbUkXZSM2Tw",
+      "dispatches": [
+        "548",
+        "549"
+      ],
+      "literalReview": "final-literal-review.md"
+    },
+    {
+      "id": "F-BPCL-LIQUID",
+      "status": "SCOPED_PRICE_PASS",
+      "evidence": "screen-final.json",
+      "buildId": "BZVCexRLScrXT8YpelZb0",
+      "dispatches": [
+        "535",
+        "536"
+      ],
+      "literalReview": "final-literal-review.md"
+    },
+    {
+      "id": "F-BPCL-CARGO",
+      "status": "SOURCE_GAP_RESPONSE_PASS_NOT_PRICING",
+      "evidence": "screen-final.json",
+      "buildId": "BZVCexRLScrXT8YpelZb0",
+      "dispatches": [
+        "537",
+        "538"
+      ],
+      "literalReview": "final-literal-review.md"
+    },
+    {
+      "id": "F-ICTPL",
+      "status": "SOURCE_GAP_RESPONSE_PASS_NOT_PRICING",
+      "evidence": "screen-final.json",
+      "buildId": "BZVCexRLScrXT8YpelZb0",
+      "dispatches": [
+        "539",
+        "540"
+      ],
+      "literalReview": "final-literal-review.md"
+    },
+    {
+      "id": "F-FINOLEX",
+      "status": "SOURCE_GAP_RESPONSE_PASS_NOT_PRICING",
+      "evidence": "screen-post.json",
+      "buildId": "DGNja2nucdFbUkXZSM2Tw",
+      "dispatches": [
+        "550",
+        "551"
+      ],
+      "literalReview": "final-literal-review.md"
+    },
+    {
+      "id": "F-REDI",
+      "status": "SOURCE_GAP_RESPONSE_PASS_NOT_PRICING",
+      "evidence": "screen-post.json",
+      "buildId": "DGNja2nucdFbUkXZSM2Tw",
+      "dispatches": [
+        "552",
+        "553"
+      ],
+      "literalReview": "final-literal-review.md"
+    }
+  ]
+}

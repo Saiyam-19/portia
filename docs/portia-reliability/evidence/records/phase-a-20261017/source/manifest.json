@@ -1,0 +1,50 @@
+{
+  "source_file": "tests/migration/pass1/inputs.json",
+  "source_sha256": "52b1162c8ba5a54e9903028565f46da4c0100cf2b79adf2263a90143b58b1832",
+  "source_byte_length": 3325,
+  "encoding": "UTF-8",
+  "entries": [
+    {
+      "json_pointer": "/inputs/D11/0",
+      "copy": "source/D11-0.txt",
+      "decoded_utf8_sha256": "ca0830370cdc5e4f93be1f85048d4f02dd6d158c7e2d025be00bac0145422310",
+      "decoded_utf8_byte_length": 318,
+      "copy_policy": "Exact decoded message string, UTF-8, no appended newline."
+    },
+    {
+      "json_pointer": "/inputs/D19/0",
+      "copy": "source/D19-0.txt",
+      "decoded_utf8_sha256": "780686db49359bf083a67bbc5b0b796fff3dfad578f6488068887fc4c9dbfb53",
+      "decoded_utf8_byte_length": 131,
+      "copy_policy": "Exact decoded message string, UTF-8, no appended newline."
+    },
+    {
+      "json_pointer": "/inputs/D19/1",
+      "copy": "source/D19-1.txt",
+      "decoded_utf8_sha256": "ea0c4184c579e7fc9463d0c9f75516a44b57e8e39b439d5d4adee1cfe5072077",
+      "decoded_utf8_byte_length": 87,
+      "copy_policy": "Exact decoded message string, UTF-8, no appended newline."
+    },
+    {
+      "json_pointer": "/inputs/D24/0",
+      "copy": "source/D24-0.txt",
+      "decoded_utf8_sha256": "568e1c9bd809e1b2322f7e66c37065aa8e2971d3c2ef20c126daae45c98b69c6",
+      "decoded_utf8_byte_length": 214,
+      "copy_policy": "Exact decoded message string, UTF-8, no appended newline."
+    },
+    {
+      "json_pointer": "/inputs/original-19/0",
+      "copy": "source/original-19-0.txt",
+      "decoded_utf8_sha256": "6167a973a1bf6aed2b4e62dffada732aedd7f8247e942111818f4777e773fda0",
+      "decoded_utf8_byte_length": 392,
+      "copy_policy": "Exact decoded message string, UTF-8, no appended newline."
+    },
+    {
+      "json_pointer": "/inputs/D02/0",
+      "copy": "source/D02-0.txt",
+      "decoded_utf8_sha256": "714382388d1442fc52a561c518082e7822cf6cb69176ae7972d503862fcbc1f6",
+      "decoded_utf8_byte_length": 230,
+      "copy_policy": "Exact decoded message string, UTF-8, no appended newline."
+    }
+  ]
+}

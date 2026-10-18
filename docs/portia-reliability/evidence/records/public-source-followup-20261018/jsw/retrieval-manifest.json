@@ -1,0 +1,248 @@
+[
+  {
+    "id": "terminal",
+    "url": "https://www.jswinfrastructure.in/terminals/jnpt-liquid-terminal/",
+    "http_status_chain": [
+      301,
+      200
+    ],
+    "retrieval_date_utc": "2026-10-18",
+    "path": "output/public-source-followup-20261018/jsw/terminal.html",
+    "bytes": 56453,
+    "sha256": "3abd2f2a5373dc1659039062799323fde6de39b9f0eef9d0db91c50fbd0dcaa9"
+  },
+  {
+    "id": "wp-media",
+    "url": "https://www.jswinfrastructure.in/wp-json/wp/v2/media?search=JNPT&per_page=100",
+    "http_status_chain": [
+      200
+    ],
+    "retrieval_date_utc": "2026-10-18",
+    "path": "output/public-source-followup-20261018/jsw/wp-media.body",
+    "bytes": 24651,
+    "sha256": "17f55211742dd7586eb59d579b3370a31b828b9d48d112c49ac49c14f45894c8"
+  },
+  {
+    "id": "wp-tariff",
+    "url": "https://www.jswinfrastructure.in/wp-json/wp/v2/media?search=tariff&per_page=100",
+    "http_status_chain": [
+      200
+    ],
+    "retrieval_date_utc": "2026-10-18",
+    "path": "output/public-source-followup-20261018/jsw/wp-tariff.body",
+    "bytes": 7171,
+    "sha256": "8fc99dafcaf8fec3592581bd7362e18f63b2b6cde559c77444a94f701497ad89"
+  },
+  {
+    "id": "wp-search",
+    "url": "https://www.jswinfrastructure.in/wp-json/wp/v2/search?search=tariff&per_page=100",
+    "http_status_chain": [
+      200
+    ],
+    "retrieval_date_utc": "2026-10-18",
+    "path": "output/public-source-followup-20261018/jsw/wp-search.body",
+    "bytes": 2,
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  {
+    "id": "wp-jnpt-search",
+    "url": "https://www.jswinfrastructure.in/wp-json/wp/v2/search?search=JNPT&per_page=100",
+    "http_status_chain": [
+      200
+    ],
+    "retrieval_date_utc": "2026-10-18",
+    "path": "output/public-source-followup-20261018/jsw/wp-jnpt-search.body",
+    "bytes": 485,
+    "sha256": "21a87153a9fb1f85b6ff68735545bcc842562dce7f1441d6de3b4bee4fafaf06"
+  },
+  {
+    "id": "wp-terminal",
+    "url": "https://www.jswinfrastructure.in/wp-json/wp/v2/terminals/1781",
+    "http_status_chain": [
+      200
+    ],
+    "retrieval_date_utc": "2026-10-18",
+    "path": "output/public-source-followup-20261018/jsw/wp-terminal.body",
+    "bytes": 7473,
+    "sha256": "57cccfa57315da0ca4e9d0aef1fe8b9887513f16baa99c0f5e68e2a4efe421dc"
+  },
+  {
+    "id": "wp-terminal-attachments",
+    "url": "https://www.jswinfrastructure.in/wp-json/wp/v2/media?parent=1781&per_page=100",
+    "http_status_chain": [
+      200
+    ],
+    "retrieval_date_utc": "2026-10-18",
+    "path": "output/public-source-followup-20261018/jsw/wp-terminal-attachments.body",
+    "bytes": 78908,
+    "sha256": "ecdd268fdf97a10d85d8ac9f8e027732aa1cc74bfc25fbf5109255915e1ed3e3"
+  },
+  {
+    "id": "jnpt-private",
+    "url": "https://jswin.s3.ap-south-1.amazonaws.com/jswinfrastructure/uploads/2025/11/JSW-JNPT-Liquid-Terminal-Private.pdf",
+    "http_status_chain": [
+      200
+    ],
+    "retrieval_date_utc": "2026-10-18",
+    "path": "output/public-source-followup-20261018/jsw/jnpt-private.body",
+    "bytes": 6958414,
+    "sha256": "b0241a8aefb378e1d0da230d5d5f91c7c7afeb8fbd8111ba1658150976fc37ee"
+  },
+  {
+    "id": "jnpt-private-ltd",
+    "url": "https://www.jswinfrastructure.in/wp-content/uploads/2025/11/JSW-JNPT-Liquid-Terminal-Private-Limited.pdf",
+    "http_status_chain": [
+      200
+    ],
+    "retrieval_date_utc": "2026-10-18",
+    "path": "output/public-source-followup-20261018/jsw/jnpt-private-ltd.body",
+    "bytes": 19873509,
+    "sha256": "8dd3a2c4f66df9e749d9d367b5fabee007be9557d49184f21b66e13e929bf9ee"
+  },
+  {
+    "id": "jnpt-private-ltd-1",
+    "url": "https://www.jswinfrastructure.in/wp-content/uploads/2025/11/JSW-JNPT-Liquid-Terminal-Private-Limited-1.pdf",
+    "http_status_chain": [
+      200
+    ],
+    "retrieval_date_utc": "2026-10-18",
+    "path": "output/public-source-followup-20261018/jsw/jnpt-private-ltd-1.body",
+    "bytes": 3847126,
+    "sha256": "80a74d83bec74e7cd67cd67f6490852d20e2780d1ac2623dc673cccff234bbf7"
+  },
+  {
+    "id": "s3-list",
+    "url": "https://jswin.s3.ap-south-1.amazonaws.com/?list-type=2&prefix=jswinfrastructure/uploads/2026/02/JSW-JNPT",
+    "http_status_chain": [
+      403
+    ],
+    "retrieval_date_utc": "2026-10-18",
+    "path": "output/public-source-followup-20261018/jsw/s3-list.body",
+    "bytes": 263,
+    "sha256": "232c363944f0c9b72593716e215a170f392fd0963d3d2d761293b73bb73db701"
+  },
+  {
+    "id": "group-wp-jnpt",
+    "url": "https://www.jsw.in/wp-json/wp/v2/media?search=JNPT&per_page=100",
+    "http_status_chain": [
+      404
+    ],
+    "retrieval_date_utc": "2026-10-18",
+    "path": "output/public-source-followup-20261018/jsw/group-wp-jnpt.body",
+    "bytes": 114,
+    "sha256": "321227fe038fc2f282fd904a174fbaf931eb5d763ce64eded0e6a3f31d32119f"
+  },
+  {
+    "id": "group-home",
+    "url": "https://www.jsw.in/",
+    "http_status_chain": [
+      200
+    ],
+    "retrieval_date_utc": "2026-10-18",
+    "path": "output/public-source-followup-20261018/jsw/group-home.body",
+    "bytes": 99772,
+    "sha256": "6177ac4f35726b567171fb6ba96c53a8e876cf523fd222ee2c2c6d516deeddbd"
+  },
+  {
+    "id": "group-rest",
+    "url": "https://www.jsw.in/?rest_route=/wp/v2/media&search=JNPT&per_page=100",
+    "http_status_chain": [
+      404
+    ],
+    "retrieval_date_utc": "2026-10-18",
+    "path": "output/public-source-followup-20261018/jsw/group-rest.body",
+    "bytes": 114,
+    "sha256": "321227fe038fc2f282fd904a174fbaf931eb5d763ce64eded0e6a3f31d32119f"
+  },
+  {
+    "id": "group-rest-root",
+    "url": "https://www.jsw.in/wp-json/",
+    "http_status_chain": [
+      404
+    ],
+    "retrieval_date_utc": "2026-10-18",
+    "path": "output/public-source-followup-20261018/jsw/group-rest-root.body",
+    "bytes": 114,
+    "sha256": "321227fe038fc2f282fd904a174fbaf931eb5d763ce64eded0e6a3f31d32119f"
+  },
+  {
+    "id": "dec-original",
+    "url": "https://group.jsw.in/sites/default/files/assets/infrastructure/JSW-JNPT-Liquid-Terminal-Private-Limited-tariff-w-e-f-Dec-5-2025.pdf",
+    "http_status_chain": [],
+    "retrieval_date_utc": "2026-10-18",
+    "error": "DNS resolution failed"
+  },
+  {
+    "id": "dec-www",
+    "url": "https://www.jsw.in/sites/default/files/assets/infrastructure/JSW-JNPT-Liquid-Terminal-Private-Limited-tariff-w-e-f-Dec-5-2025.pdf",
+    "http_status_chain": [
+      404
+    ],
+    "retrieval_date_utc": "2026-10-18",
+    "path": "output/public-source-followup-20261018/jsw/dec-www.body",
+    "bytes": 38269,
+    "sha256": "960f3fd4e7569423cf4d4af2b9c309fb5afda5e9c90a3944f1ffe50fa1ec0af5"
+  },
+  {
+    "id": "dec-infra",
+    "url": "https://www.jswinfrastructure.in/sites/default/files/assets/infrastructure/JSW-JNPT-Liquid-Terminal-Private-Limited-tariff-w-e-f-Dec-5-2025.pdf",
+    "http_status_chain": [
+      404
+    ],
+    "retrieval_date_utc": "2026-10-18",
+    "path": "output/public-source-followup-20261018/jsw/dec-infra.body",
+    "bytes": 43751,
+    "sha256": "ad2511f7c4ffd61870e0e1d76d341a0e39392cfa56e3c3e5661e2a68b1fca819"
+  },
+  {
+    "id": "archive-cdx",
+    "url": "https://web.archive.org/cdx/search/cdx?url=group.jsw.in/sites/default/files/assets/infrastructure/JSW-JNPT*&output=json&filter=statuscode:200&collapse=urlkey",
+    "http_status_chain": [],
+    "retrieval_date_utc": "2026-10-18",
+    "error": "Request timed out after 25 seconds without response"
+  },
+  {
+    "id": "archive-availability",
+    "url": "https://archive.org/wayback/available?url=https://group.jsw.in/sites/default/files/assets/infrastructure/JSW-JNPT-Liquid-Terminal-Private-Limited-tariff-w-e-f-Dec-5-2025.pdf",
+    "http_status_chain": [
+      200
+    ],
+    "retrieval_date_utc": "2026-10-18",
+    "path": "output/public-source-followup-20261018/jsw/archive-availability.body",
+    "bytes": 168,
+    "sha256": "0e64d0637bb32df5f2beb4cee9b19fdce13a72827e809b46e853770ded56c73b"
+  },
+  {
+    "id": "archive-www-dec",
+    "url": "https://archive.org/wayback/available?url=https://www.jsw.in/sites/default/files/assets/infrastructure/JSW-JNPT-Liquid-Terminal-Private-Limited-tariff-w-e-f-Dec-5-2025.pdf",
+    "http_status_chain": [
+      200
+    ],
+    "retrieval_date_utc": "2026-10-18",
+    "path": "output/public-source-followup-20261018/jsw/archive-www-dec.body",
+    "bytes": 166,
+    "sha256": "d37cfbee20e264682ee089f3ee012d200fe244923673bbf8ec4ec7068d223d52"
+  },
+  {
+    "id": "archive-june",
+    "url": "https://archive.org/wayback/available?url=https://www.jsw.in/sites/default/files/assets/infrastructure/JSW-JNPT-Liquid-Terminal-Private-Limited-tariff-w-e-f-01-06-2025.pdf",
+    "http_status_chain": [
+      200
+    ],
+    "retrieval_date_utc": "2026-10-18",
+    "path": "output/public-source-followup-20261018/jsw/archive-june.body",
+    "bytes": 166,
+    "sha256": "44f34b11fe29f60f655602837e0bbef91ec5c3dc8fbfc34c9ea2e06a829bdb28"
+  },
+  {
+    "id": "archive-page",
+    "url": "https://archive.org/wayback/available?url=https://group.jsw.in/infrastructure/jsw-jnpt-liquid-terminal-private-limited",
+    "http_status_chain": [
+      200
+    ],
+    "retrieval_date_utc": "2026-10-18",
+    "path": "output/public-source-followup-20261018/jsw/archive-page.body",
+    "bytes": 113,
+    "sha256": "7f24a99ce4a660a0f90b580ff09a261429d9296a4c44563c9272fd8f8040ea7b"
+  }
+]

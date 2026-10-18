@@ -1,0 +1,120 @@
+{
+  "createdAt": "2026-10-18T10:01:53.201129+00:00",
+  "files": [
+    {
+      "path": "output/public-source-currentness-20261018/ictpl/current-p22.png",
+      "bytes": 311172,
+      "sha256": "04d138e964424c53554cc0352f8aebaef75a770c3e434d4abfbe9fe7c90fdabf"
+    },
+    {
+      "path": "output/public-source-currentness-20261018/ictpl/current-p22.render-log",
+      "bytes": 826246,
+      "sha256": "574746b0900896b3e9c194f9a2980c04dcc6d6cbaf0c5d06514d3cb51919ee1a"
+    },
+    {
+      "path": "output/public-source-currentness-20261018/ictpl/current-p28-pdfium.png",
+      "bytes": 230565,
+      "sha256": "7110e898d2afb13192222e34df5a634c11f4011bedc674f55739dedf4da212b0"
+    },
+    {
+      "path": "output/public-source-currentness-20261018/ictpl/current-p28.png",
+      "bytes": 212729,
+      "sha256": "788f7aca3ec9de76176c34272ee8e8acd429fd26ac6c1b5e179fa10aa082cbef"
+    },
+    {
+      "path": "output/public-source-currentness-20261018/ictpl/current-p28.render-log",
+      "bytes": 826246,
+      "sha256": "574746b0900896b3e9c194f9a2980c04dcc6d6cbaf0c5d06514d3cb51919ee1a"
+    },
+    {
+      "path": "output/public-source-currentness-20261018/ictpl/findings.json",
+      "bytes": 14643,
+      "sha256": "e147459c9852047ad7b58272d8a15133a6230d00ddc3b4f82c6414b90355e7f2"
+    },
+    {
+      "path": "output/public-source-currentness-20261018/ictpl/ictpl-2016-p3.png",
+      "bytes": 194218,
+      "sha256": "60b3c11736ee3c6cc27d81ce698970b4203779dfe5c517d83680c72021b1acf9"
+    },
+    {
+      "path": "output/public-source-currentness-20261018/ictpl/ictpl-2016-p3.render-log",
+      "bytes": 826246,
+      "sha256": "574746b0900896b3e9c194f9a2980c04dcc6d6cbaf0c5d06514d3cb51919ee1a"
+    },
+    {
+      "path": "output/public-source-currentness-20261018/ictpl/ictpl-2016-withdrawal-order.pdf",
+      "bytes": 254696,
+      "sha256": "2eec91ccc714f004264e31567e339c2ed937d2de6e56928165a502d0ba710cc7"
+    },
+    {
+      "path": "output/public-source-currentness-20261018/ictpl/ictpl-2016-withdrawal-order.txt",
+      "bytes": 9868,
+      "sha256": "3ab058d4341ae52a0fec2c50d848b8cfb0ece18caf04219eb9db25678ae0fd6c"
+    },
+    {
+      "path": "output/public-source-currentness-20261018/ictpl/ictpl-2018-p35-pdfium.png",
+      "bytes": 222299,
+      "sha256": "e4a74cd98ce449b579c0dd63804df35444846fe4ef0a2ad1c5a1f5f8cdd6571b"
+    },
+    {
+      "path": "output/public-source-currentness-20261018/ictpl/ictpl-2018-p35.png",
+      "bytes": 195287,
+      "sha256": "ba5bcdd636a6388b2f10f1fe7e5955782fbecea05f78819878d68311c0727359"
+    },
+    {
+      "path": "output/public-source-currentness-20261018/ictpl/ictpl-2018-p35.render-log",
+      "bytes": 826246,
+      "sha256": "574746b0900896b3e9c194f9a2980c04dcc6d6cbaf0c5d06514d3cb51919ee1a"
+    },
+    {
+      "path": "output/public-source-currentness-20261018/ictpl/independent-examples.json",
+      "bytes": 9255,
+      "sha256": "f6bc63f1c4f50943e6edf285bc555ffc876360c59f319f80380243217b1ad10c"
+    },
+    {
+      "path": "output/public-source-currentness-20261018/ictpl/legacy-p18.png",
+      "bytes": 224072,
+      "sha256": "7df7f778f2fa55a0d314f9c8edb32348e86eb47cecb46d66a464edf247402b52"
+    },
+    {
+      "path": "output/public-source-currentness-20261018/ictpl/legacy-p18.render-log",
+      "bytes": 826246,
+      "sha256": "574746b0900896b3e9c194f9a2980c04dcc6d6cbaf0c5d06514d3cb51919ee1a"
+    },
+    {
+      "path": "output/public-source-currentness-20261018/ictpl/mumbai-legacy-sor.original",
+      "bytes": 923018,
+      "sha256": "5c69dcc744ff02b7394fd8cc5db9442418d2e082b643bccb48334f5d7a6f599f"
+    },
+    {
+      "path": "output/public-source-currentness-20261018/ictpl/mumbai-legacy-sor.pdf",
+      "bytes": 923018,
+      "sha256": "5c69dcc744ff02b7394fd8cc5db9442418d2e082b643bccb48334f5d7a6f599f"
+    },
+    {
+      "path": "output/public-source-currentness-20261018/ictpl/mumbai-legacy-sor.txt",
+      "bytes": 133512,
+      "sha256": "232e409ce5e1491c2ad356b8bd48ca3ff117de95e5b3bf6e5c0f2b913d1c22b3"
+    },
+    {
+      "path": "output/public-source-currentness-20261018/ictpl/oct-wharfage-notification-dec2025.original",
+      "bytes": 191458,
+      "sha256": "de6d8b006a7dee8c6e0826198969442252778ec09e43b9edfbaa0997a6ee7a91"
+    },
+    {
+      "path": "output/public-source-currentness-20261018/ictpl/retrievals-more.json",
+      "bytes": 661,
+      "sha256": "fd5d4ef10726d9944bd835d5dc66df0223ad075823ab93f8876d1c58d2b74610"
+    },
+    {
+      "path": "output/public-source-currentness-20261018/ictpl/retrievals-retry.json",
+      "bytes": 1202,
+      "sha256": "2ce063988e48965d59539dc8e199a83e668c6d2bd2f5e72df196ba75c7e2de19"
+    },
+    {
+      "path": "output/public-source-currentness-20261018/ictpl/retrievals.json",
+      "bytes": 276,
+      "sha256": "d3f01c6ab669f1bc7d3e8fcd8c69b9d090ca5fb70c04b480896c4c774330eaac"
+    }
+  ]
+}

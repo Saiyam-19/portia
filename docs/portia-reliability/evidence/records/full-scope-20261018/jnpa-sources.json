@@ -1,0 +1,1729 @@
+{
+  "version": 1,
+  "createdOnIndia": "2026-10-18",
+  "status": "Primary-sourcecandidatefacts and independentarithmeticoracles; runtimeintegration/acceptance separate",
+  "sources": [
+    {
+      "file": "jnpa-2026.pdf",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/SOR_w_e_f_01_05_2026_including_MBPA.pdf",
+      "finalUrl": "https://www.jnport.gov.in/uploads/content_manager/SOR_w_e_f_01_05_2026_including_MBPA.pdf",
+      "sha256": "6a0853b86c086a8983a5aaaa2a6c6d5dec0a6435df7d373cebebea3f7fb70095",
+      "bytes": 378278,
+      "retrievedAt": "2026-10-17T20:47:59.593072+00:00",
+      "headers": {
+        "Date": "Sat, 17 Oct 2026 20:47:59 GMT",
+        "Server": "Apache",
+        "X-Frame-Options": "SAMEORIGIN",
+        "Content-Security-Policy": "upgrade-insecure-requests;",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+        "Upgrade": "h2,h2c",
+        "Connection": "Upgrade, close",
+        "Last-Modified": "Thu, 30 Apr 2026 07:25:32 GMT",
+        "Accept-Ranges": "bytes",
+        "Content-Length": "378278",
+        "X-XSS-Protection": "1; mode=block",
+        "X-Content-Type-Options": "nosniff",
+        "X-Firefox-Spdy": "h2",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Origin": "https://www.jnport.gov.in/",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers": "accept, content-type, X-Requested-With, X-Prototype-Version, X-CSRF-Token, authorization",
+        "Referrer-Policy": "same-origin",
+        "Feature-Policy": "geolocation 'self'; vibrate 'none'",
+        "Set-Cookie": "HttpOnly;Secure;;HttpOnly;Secure;SameSite=strict; SameSite=strict",
+        "Content-Type": "application/pdf"
+      }
+    },
+    {
+      "file": "nsict-2026.pdf",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/NSICT_Tariff_2026.pdf",
+      "finalUrl": "https://www.jnport.gov.in/uploads/content_manager/NSICT_Tariff_2026.pdf",
+      "sha256": "572e163b2995cb6ed9f1649771f08fd3830afa04adfa3d7cb565ee82a5e048e7",
+      "bytes": 403770,
+      "retrievedAt": "2026-10-17T20:47:59.566334+00:00",
+      "headers": {
+        "Date": "Sat, 17 Oct 2026 20:47:59 GMT",
+        "Server": "Apache",
+        "X-Frame-Options": "SAMEORIGIN",
+        "Content-Security-Policy": "upgrade-insecure-requests;",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+        "Upgrade": "h2,h2c",
+        "Connection": "Upgrade, close",
+        "Last-Modified": "Tue, 28 Jul 2026 11:19:56 GMT",
+        "Accept-Ranges": "bytes",
+        "Content-Length": "403770",
+        "X-XSS-Protection": "1; mode=block",
+        "X-Content-Type-Options": "nosniff",
+        "X-Firefox-Spdy": "h2",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Origin": "https://www.jnport.gov.in/",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers": "accept, content-type, X-Requested-With, X-Prototype-Version, X-CSRF-Token, authorization",
+        "Referrer-Policy": "same-origin",
+        "Feature-Policy": "geolocation 'self'; vibrate 'none'",
+        "Set-Cookie": "HttpOnly;Secure;;HttpOnly;Secure;SameSite=strict; SameSite=strict",
+        "Content-Type": "application/pdf"
+      }
+    },
+    {
+      "file": "nsigt-2026.pdf",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/Scale_of_Rates_1st_April_2026.pdf",
+      "finalUrl": "https://www.jnport.gov.in/uploads/content_manager/Scale_of_Rates_1st_April_2026.pdf",
+      "sha256": "e1e7b142ca42f384b8f7a0e2cf5fdd1946faa1bbea2d31a86ef2967f865420c6",
+      "bytes": 380952,
+      "retrievedAt": "2026-10-17T20:47:59.605022+00:00",
+      "headers": {
+        "Date": "Sat, 17 Oct 2026 20:47:59 GMT",
+        "Server": "Apache",
+        "X-Frame-Options": "SAMEORIGIN",
+        "Content-Security-Policy": "upgrade-insecure-requests;",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+        "Upgrade": "h2,h2c",
+        "Connection": "Upgrade, close",
+        "Last-Modified": "Tue, 28 Jul 2026 11:23:56 GMT",
+        "Accept-Ranges": "bytes",
+        "Content-Length": "380952",
+        "X-XSS-Protection": "1; mode=block",
+        "X-Content-Type-Options": "nosniff",
+        "X-Firefox-Spdy": "h2",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Origin": "https://www.jnport.gov.in/",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers": "accept, content-type, X-Requested-With, X-Prototype-Version, X-CSRF-Token, authorization",
+        "Referrer-Policy": "same-origin",
+        "Feature-Policy": "geolocation 'self'; vibrate 'none'",
+        "Set-Cookie": "HttpOnly;Secure;;HttpOnly;Secure;SameSite=strict; SameSite=strict",
+        "Content-Type": "application/pdf"
+      }
+    },
+    {
+      "file": "nsft-2026.pdf",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/NSFTPL_Terminal_Tariff_01_05_2026.pdf",
+      "finalUrl": "https://www.jnport.gov.in/uploads/content_manager/NSFTPL_Terminal_Tariff_01_05_2026.pdf",
+      "sha256": "337c9ec529dd4959f3186565d0b147f98b5f68e1cef4d4aa5367f3d57c50a95e",
+      "bytes": 901210,
+      "retrievedAt": "2026-10-17T20:47:59.625935+00:00",
+      "headers": {
+        "Date": "Sat, 17 Oct 2026 20:47:59 GMT",
+        "Server": "Apache",
+        "X-Frame-Options": "SAMEORIGIN",
+        "Content-Security-Policy": "upgrade-insecure-requests;",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+        "Upgrade": "h2,h2c",
+        "Connection": "Upgrade, close",
+        "Last-Modified": "Tue, 28 Jul 2026 11:26:31 GMT",
+        "Accept-Ranges": "bytes",
+        "Content-Length": "901210",
+        "X-XSS-Protection": "1; mode=block",
+        "X-Content-Type-Options": "nosniff",
+        "X-Firefox-Spdy": "h2",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Origin": "https://www.jnport.gov.in/",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers": "accept, content-type, X-Requested-With, X-Prototype-Version, X-CSRF-Token, authorization",
+        "Referrer-Policy": "same-origin",
+        "Feature-Policy": "geolocation 'self'; vibrate 'none'",
+        "Set-Cookie": "HttpOnly;Secure;;HttpOnly;Secure;SameSite=strict; SameSite=strict",
+        "Content-Type": "application/pdf"
+      }
+    },
+    {
+      "file": "gti-2026.pdf",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/Commercial_2026_Tariff_-_Effective_01st_May_2026_0001_hrs.pdf",
+      "finalUrl": "https://www.jnport.gov.in/uploads/content_manager/Commercial_2026_Tariff_-_Effective_01st_May_2026_0001_hrs.pdf",
+      "sha256": "613c33f6c67c4f9e2f81749469dcdc2beae585292e35d583467b0020e169b554",
+      "bytes": 295549,
+      "retrievedAt": "2026-10-17T20:47:59.940901+00:00",
+      "headers": {
+        "Date": "Sat, 17 Oct 2026 20:47:59 GMT",
+        "Server": "Apache",
+        "X-Frame-Options": "SAMEORIGIN",
+        "Content-Security-Policy": "upgrade-insecure-requests;",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+        "Upgrade": "h2,h2c",
+        "Connection": "Upgrade, close",
+        "Last-Modified": "Tue, 28 Jul 2026 11:25:27 GMT",
+        "Accept-Ranges": "bytes",
+        "Content-Length": "295549",
+        "X-XSS-Protection": "1; mode=block",
+        "X-Content-Type-Options": "nosniff",
+        "X-Firefox-Spdy": "h2",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Origin": "https://www.jnport.gov.in/",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers": "accept, content-type, X-Requested-With, X-Prototype-Version, X-CSRF-Token, authorization",
+        "Referrer-Policy": "same-origin",
+        "Feature-Policy": "geolocation 'self'; vibrate 'none'",
+        "Set-Cookie": "HttpOnly;Secure;;HttpOnly;Secure;SameSite=strict; SameSite=strict",
+        "Content-Type": "application/pdf"
+      }
+    },
+    {
+      "file": "bmct-2026-04-06-jnpa.pdf",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/SoR-_BMCT_w_e_f_06-Apr-2026.pdf",
+      "finalUrl": "https://www.jnport.gov.in/uploads/content_manager/SoR-_BMCT_w_e_f_06-Apr-2026.pdf",
+      "sha256": "efed96a2230d2ffd36dde38bc995114b43af2871406ef3bd6c933edaaf3d8740",
+      "bytes": 273984,
+      "retrievedAt": "2026-10-17T20:47:59.959092+00:00",
+      "headers": {
+        "Date": "Sat, 17 Oct 2026 20:47:59 GMT",
+        "Server": "Apache",
+        "X-Frame-Options": "SAMEORIGIN",
+        "Content-Security-Policy": "upgrade-insecure-requests;",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+        "Upgrade": "h2,h2c",
+        "Connection": "Upgrade, close",
+        "Last-Modified": "Tue, 28 Jul 2026 11:21:45 GMT",
+        "Accept-Ranges": "bytes",
+        "Content-Length": "273984",
+        "X-XSS-Protection": "1; mode=block",
+        "X-Content-Type-Options": "nosniff",
+        "X-Firefox-Spdy": "h2",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Origin": "https://www.jnport.gov.in/",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers": "accept, content-type, X-Requested-With, X-Prototype-Version, X-CSRF-Token, authorization",
+        "Referrer-Policy": "same-origin",
+        "Feature-Policy": "geolocation 'self'; vibrate 'none'",
+        "Set-Cookie": "HttpOnly;Secure;;HttpOnly;Secure;SameSite=strict; SameSite=strict",
+        "Content-Type": "application/pdf"
+      }
+    },
+    {
+      "file": "bmct-2026-04-06-psa.pdf",
+      "url": "https://india.globalpsa.com/wp-content/uploads/2026/04/SoR-BMCT-w.e.f-01-Apr-2026.pdf",
+      "finalUrl": "https://india.globalpsa.com/wp-content/uploads/2026/04/SoR-BMCT-w.e.f-01-Apr-2026.pdf",
+      "sha256": "efed96a2230d2ffd36dde38bc995114b43af2871406ef3bd6c933edaaf3d8740",
+      "bytes": 273984,
+      "retrievedAt": "2026-10-17T20:47:59.834667+00:00",
+      "headers": {
+        "Date": "Sat, 17 Oct 2026 20:47:59 GMT",
+        "Content-Type": "application/pdf",
+        "Content-Length": "273984",
+        "Connection": "close",
+        "Server": "cloudflare",
+        "Last-Modified": "Tue, 13 Oct 2026 10:08:47 GMT",
+        "ETag": "\"6ace032f-42e40\"",
+        "Age": "57834",
+        "Cache-Control": "public, max-age=31536000",
+        "Vary": "Accept-Encoding",
+        "Access-Control-Allow-Origin": "*",
+        "Accept-Ranges": "bytes",
+        "set-cookie": "__cf_bm=xKd9rPu0ifim33u9bT.SPdG6Nygx3XIUYil3gmuYixs-1792270079.7769377-1.0.1.1-oYfopBSODKVxO3uTopxXO5nj.ugpUD99Ea2FQtLMD.7tl5r2NkkokoUAm7qTrQdhPi2Wb7NMnBPQBA6xl77X5FlE0E8vB7Hw3s3faN8MJv9cbyk.FVu4GsDHmA2lSO1M; HttpOnly; SameSite=None; Secure; Path=/; Domain=india.globalpsa.com; Expires=Sat, 17 Oct 2026 21:17:59 GMT",
+        "Content-Security-Policy": "default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval'     https://code.jquery.com     https://cdnjs.cloudflare.com     https://cdn.jsdelivr.net     https://unpkg.com     https://www.googletagmanager.com     https://www.google-analytics.com     https://www.clarity.ms     https://clarity.ms     https://widgets.sociablekit.com; style-src 'self' 'unsafe-inline'     https://fonts.googleapis.com     https://cdnjs.cloudflare.com     https://cdn.jsdelivr.net     https://unpkg.com; img-src 'self' data: blob: https:; font-src 'self' data:     https://fonts.gstatic.com     https://cdnjs.cloudflare.com; connect-src 'self'     https:     wss:; frame-src 'self' https:; worker-src 'self' blob:; media-src 'self' https:; object-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests;",
+        "Referrer-Policy": "strict-origin",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "SAMEORIGIN",
+        "cf-cache-status": "HIT",
+        "CF-RAY": "a4c2295e9e4d2433-BOM",
+        "alt-svc": "h3=\":443\"; ma=86400"
+      }
+    },
+    {
+      "file": "bmct-2026-04-01-psa.pdf",
+      "url": "https://india.globalpsa.com/wp-content/uploads/2026/03/SoR-BMCT-w.e.f-01-Apr-2026.pdf",
+      "finalUrl": "https://india.globalpsa.com/wp-content/uploads/2026/03/SoR-BMCT-w.e.f-01-Apr-2026.pdf",
+      "sha256": "78bfdb1912dd4d1a9c1a8549d415cd066250b80fc91de249c41459f4e74fe207",
+      "bytes": 342174,
+      "retrievedAt": "2026-10-17T20:48:00.113101+00:00",
+      "headers": {
+        "Date": "Sat, 17 Oct 2026 20:48:00 GMT",
+        "Content-Type": "application/pdf",
+        "Content-Length": "342174",
+        "Connection": "close",
+        "Server": "cloudflare",
+        "Last-Modified": "Tue, 13 Oct 2026 10:08:47 GMT",
+        "ETag": "\"6ace032f-5389e\"",
+        "Age": "54664",
+        "Cache-Control": "public, max-age=31536000",
+        "Vary": "Accept-Encoding",
+        "Access-Control-Allow-Origin": "*",
+        "Accept-Ranges": "bytes",
+        "set-cookie": "__cf_bm=WYQC99XPFIzdRQJxWrSji1moeg37jo3SAnHcXUVpmT4-1792270079.7935686-1.0.1.1-LNy6gSkTwwFumJMD6WtSkwtSxJWltWZEt.82USNqKJMpSFB8ez6uPlRjWjU5r56tk4QiTjaSF7duIh4_Bq1apEF7EBk6lRjzughP5kmzvfiKPuJO0MNJhu7a64ugE.Rp; HttpOnly; SameSite=None; Secure; Path=/; Domain=india.globalpsa.com; Expires=Sat, 17 Oct 2026 21:18:00 GMT",
+        "Content-Security-Policy": "default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval'     https://code.jquery.com     https://cdnjs.cloudflare.com     https://cdn.jsdelivr.net     https://unpkg.com     https://www.googletagmanager.com     https://www.google-analytics.com     https://www.clarity.ms     https://clarity.ms     https://widgets.sociablekit.com; style-src 'self' 'unsafe-inline'     https://fonts.googleapis.com     https://cdnjs.cloudflare.com     https://cdn.jsdelivr.net     https://unpkg.com; img-src 'self' data: blob: https:; font-src 'self' data:     https://fonts.gstatic.com     https://cdnjs.cloudflare.com; connect-src 'self'     https:     wss:; frame-src 'self' https:; worker-src 'self' blob:; media-src 'self' https:; object-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests;",
+        "Referrer-Policy": "strict-origin",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "SAMEORIGIN",
+        "cf-cache-status": "HIT",
+        "CF-RAY": "a4c2295ebf579a40-BOM",
+        "alt-svc": "h3=\":443\"; ma=86400"
+      }
+    },
+    {
+      "file": "jnpa-index.html",
+      "url": "https://www.jnport.gov.in/page/jnpa-sor/czVZdTZmWGZobUFzcU91b3RGMnp3QT09",
+      "finalUrl": "https://www.jnport.gov.in/page/jnpa-sor/czVZdTZmWGZobUFzcU91b3RGMnp3QT09",
+      "sha256": "b4ac0f381141f164dfe71b15476a3ffa865b4510c16b01828b8e0631527d04b2",
+      "bytes": 76876,
+      "retrievedAt": "2026-10-17T20:48:00.269276+00:00",
+      "headers": {
+        "Date": "Sat, 17 Oct 2026 20:47:59 GMT",
+        "Server": "Apache",
+        "Expires": "Thu, 19 Nov 1981 08:52:00 GMT",
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+        "Pragma": "no-cache",
+        "X-Frame-Options": "SAMEORIGIN",
+        "Content-Security-Policy": "upgrade-insecure-requests;",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+        "Set-Cookie": "ci_session=iki29kv8he0hkhdqntv02soiq7htnuff; expires=Sat, 17-Oct-2026 22:48:00 GMT; Max-Age=7200; path=/; secure; HttpOnly; SameSite=strict; Secure",
+        "Upgrade": "h2,h2c",
+        "Connection": "Upgrade, close",
+        "Vary": "Accept-Encoding",
+        "X-XSS-Protection": "1; mode=block",
+        "X-Content-Type-Options": "nosniff",
+        "X-Firefox-Spdy": "h2",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Origin": "https://www.jnport.gov.in/",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers": "accept, content-type, X-Requested-With, X-Prototype-Version, X-CSRF-Token, authorization",
+        "Referrer-Policy": "same-origin",
+        "Feature-Policy": "geolocation 'self'; vibrate 'none'",
+        "Transfer-Encoding": "chunked",
+        "Content-Type": "text/html; charset=UTF-8"
+      }
+    },
+    {
+      "file": "jnpa-terminal-index.html",
+      "url": "https://www.jnport.gov.in/page/terminal-sor/RHBVd096Y3Y3MXVISlRWU24ySE53Zz09",
+      "finalUrl": "https://www.jnport.gov.in/page/terminal-sor/RHBVd096Y3Y3MXVISlRWU24ySE53Zz09",
+      "sha256": "593b26d0c26b1d71c6416cfd6fe4f882afe4b334e9878bb67580d5f8a1b10174",
+      "bytes": 75841,
+      "retrievedAt": "2026-10-17T20:48:00.381548+00:00",
+      "headers": {
+        "Date": "Sat, 17 Oct 2026 20:48:00 GMT",
+        "Server": "Apache",
+        "Expires": "Thu, 19 Nov 1981 08:52:00 GMT",
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+        "Pragma": "no-cache",
+        "X-Frame-Options": "SAMEORIGIN",
+        "Content-Security-Policy": "upgrade-insecure-requests;",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+        "Set-Cookie": "ci_session=3k4uvb60ongie946f909noh58f4l195n; expires=Sat, 17-Oct-2026 22:48:00 GMT; Max-Age=7200; path=/; secure; HttpOnly; SameSite=strict; Secure",
+        "Upgrade": "h2,h2c",
+        "Connection": "Upgrade, close",
+        "Vary": "Accept-Encoding",
+        "X-XSS-Protection": "1; mode=block",
+        "X-Content-Type-Options": "nosniff",
+        "X-Firefox-Spdy": "h2",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Origin": "https://www.jnport.gov.in/",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Headers": "accept, content-type, X-Requested-With, X-Prototype-Version, X-CSRF-Token, authorization",
+        "Referrer-Policy": "same-origin",
+        "Feature-Policy": "geolocation 'self'; vibrate 'none'",
+        "Transfer-Encoding": "chunked",
+        "Content-Type": "text/html; charset=UTF-8"
+      }
+    },
+    {
+      "file": "psa-index.html",
+      "url": "https://india.globalpsa.com/psa-mumbai/",
+      "error": "HTTP Error 403: Forbidden"
+    },
+    {
+      "file": "apm-index.html",
+      "url": "https://www2.apmterminals.com/en/mumbai/services/tariffs-and-terms",
+      "finalUrl": "https://www2.apmterminals.com/en/mumbai/services/tariffs-and-terms",
+      "sha256": "a351d3c26cf5bd839da9e0a8e89f6304541e06de0d3b559731847d2e0504b4c4",
+      "bytes": 24562,
+      "retrievedAt": "2026-10-17T20:48:01.377954+00:00",
+      "headers": {
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Security-Policy-Report-Only": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://maps.googleapis.com https://www.youtube.com https://policy.app.cookieinformation.com https://*.maerskline.com https://*.maersk-digital.net https://*.apmterminals.com; connect-src 'self' https://www.google-analytics.com https://argus.maersk.io https://app.launchdarkly.com https://events.launchdarkly.com https://policy.app.cookieinformation.com https://*.maerskline.com https://*.maersk-digital.net https://*.apmterminals.com; style-src 'self' 'unsafe-inline' https://*.maerskline.com https://*.maersk-digital.net https://*.apmterminals.com; font-src 'self' https://fonts.gstatic.com https://maersk-designsystem.azureedge.net https://*.maerskline.com https://*.maersk-digital.net https://*.apmterminals.com; img-src 'self' data: https:; frame-src 'self' https://www.youtube.com https://player.vimeo.com https://www.google.com https://policy.app.cookieinformation.com; object-src 'none'; base-uri 'self'; frame-ancestors 'self'",
+        "X-Cache-Status": "MISS",
+        "Edge-Cache-Tag": "www2.apmterminals.com-3586197B3D8C195FB8CD2DCE04AFAEF7,www2.apmterminals.com-en,www2.apmterminals.com-en-mumbai",
+        "X-Akamai-Transformed": "l - 0 -",
+        "Vary": "Accept-Encoding",
+        "Cache-Control": "max-age=300",
+        "Expires": "Sat, 17 Oct 2026 20:53:01 GMT",
+        "Date": "Sat, 17 Oct 2026 20:48:01 GMT",
+        "Content-Length": "24562",
+        "Connection": "close",
+        "Set-Cookie": "INGRESSCOOKIE=1792270081.974.29.705705|7c6757d425c891180850d9842ff8f63c; Path=/; Secure; HttpOnly",
+        "x-origin": "cms-rendering-eu1-prod",
+        "Strict-Transport-Security": "max-age=15768000 ; includeSubDomains"
+      }
+    },
+    {
+      "file": "jnpa-circular-index.html",
+      "url": "https://www.jnport.gov.in/page/circular-and-trade-notices/ejdHU1h3aTRCMHJCeFN6Q0dEUmljdz09",
+      "finalUrl": "https://www.jnport.gov.in/page/circular-and-trade-notices/ejdHU1h3aTRCMHJCeFN6Q0dEUmljdz09",
+      "sha256": "76a995bd5fe773b460156f373bed48dc480cc6111da6a872f99a2a6831d802eb",
+      "bytes": 181159,
+      "retrievedAt": "2026-10-17T20:49:50.254589+00:00"
+    },
+    {
+      "file": "jnpa-2024-vrc-notice.pdf",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/Final_SOR_2024_w_e_f__01_09_2024.pdf",
+      "finalUrl": "https://www.jnport.gov.in/uploads/content_manager/Final_SOR_2024_w_e_f__01_09_2024.pdf",
+      "sha256": "db1ceac97146a1fa4005639405b39d73c3aae49567662deb9ffc5fba85cf2fa6",
+      "bytes": 2710933,
+      "retrievedAt": "2026-10-17T20:49:50.163074+00:00"
+    },
+    {
+      "file": "jnpa-seafarers-club-notice.pdf",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/Levy_of_Seafarers_Club_Charges_Trade_Notice.pdf",
+      "finalUrl": "https://www.jnport.gov.in/uploads/content_manager/Levy_of_Seafarers_Club_Charges_Trade_Notice.pdf",
+      "sha256": "056af8b4bc63695611deb07452021db665bb4031a557de5fba551d03b3e0d343",
+      "bytes": 297503,
+      "retrievedAt": "2026-10-17T20:49:50.009834+00:00"
+    },
+    {
+      "file": "jnpa-middle-east-waiver-2026.pdf",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/1773215092.pdf",
+      "finalUrl": "https://www.jnport.gov.in/uploads/content_manager/1773215092.pdf",
+      "sha256": "ccf5ecdc5aafa197a4ce7dc12d5e4855083e291e0c4356aefb1acabdb387f88d",
+      "bytes": 1484848,
+      "retrievedAt": "2026-10-17T20:49:51.238265+00:00"
+    },
+    {
+      "file": "jnpa-middle-east-extension-2026.jpeg",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/1775399647.jpeg",
+      "finalUrl": "https://www.jnport.gov.in/uploads/content_manager/1775399647.jpeg",
+      "sha256": "46b009fa989701c2168ee0ea2c707c205f0d09fac6536dcbfcca0a579e8244c1",
+      "bytes": 109559,
+      "retrievedAt": "2026-10-17T20:49:50.278722+00:00"
+    },
+    {
+      "file": "nsft-operator-2026.pdf",
+      "url": "https://www.nsft.com/uploads/NSFTPL_Terminal%20Tariff.pdf",
+      "finalUrl": "https://www.nsft.com/uploads/NSFTPL_Terminal%20Tariff.pdf",
+      "sha256": "337c9ec529dd4959f3186565d0b147f98b5f68e1cef4d4aa5367f3d57c50a95e",
+      "bytes": 901210,
+      "retrievedAt": "2026-10-17T20:49:50.753289+00:00"
+    },
+    {
+      "file": "dpw-nsigt-index.html",
+      "url": "https://www.dpworld.com/en/ports-terminals/india/nsigt/tools-documents",
+      "finalUrl": "https://www.dpworld.com/en/ports-terminals/india/nsigt/tools-documents",
+      "sha256": "a5027c2ac24ded70496d33a43963b474b63e2930d52b0b7118cfa0e9ab73e6e3",
+      "bytes": 738330,
+      "retrievedAt": "2026-10-17T20:49:52.701969+00:00"
+    },
+    {
+      "file": "dpw-nsict-index.html",
+      "url": "https://www.dpworld.com/en/ports-terminals/india/nsict/tools-documents",
+      "finalUrl": "https://www.dpworld.com/en/ports-terminals/india/nsict/tools-documents",
+      "sha256": "fd1d7f21f27859c9623054984483bc423eb409672d2e931a13c83eb149afc003",
+      "bytes": 738070,
+      "retrievedAt": "2026-10-17T20:49:52.604478+00:00"
+    },
+    {
+      "file": "nldsl-muc-2024-2027.pdf",
+      "url": "https://www.dpworld.com/india/-/media/project/dpwg/dpwg-tenant/apac/india/media-files/ports-and-terminals/cochin/customer-advisory/tn-199.pdf?rev=88368489f5e044b2bf4ee0d5e3dc6829",
+      "finalUrl": "https://dpw-p-001.sitecorecontenthub.cloud/api/public/content/e4b1ab18d74b46b798033106ffe2c7ea?v=7450cba0",
+      "sha256": "10051fea865725f4d0c253b9f573ee198c44dfafac1ac2756ef36c20f48b1639",
+      "bytes": 675184,
+      "retrievedAt": "2026-10-17T20:50:43.502204+00:00"
+    },
+    {
+      "file": "jnpa-ground-rent-waiver-2026.pdf",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/Trade_Notice_9_6_2026.pdf",
+      "finalUrl": "https://www.jnport.gov.in/uploads/content_manager/Trade_Notice_9_6_2026.pdf",
+      "sha256": "4baf74723e5fd91e5c36f7bca117fdb014392173d270e8a6cab924cf8d240e4e",
+      "bytes": 787270,
+      "retrievedAt": "2026-10-17T20:50:42.186974+00:00"
+    },
+    {
+      "file": "jnpa-chabahar-discount-2024.pdf",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/Trade_notice_for_Discount_on_CRC_VRC_on_vessel_coming_from_Chabahar_Port.pdf",
+      "finalUrl": "https://www.jnport.gov.in/uploads/content_manager/Trade_notice_for_Discount_on_CRC_VRC_on_vessel_coming_from_Chabahar_Port.pdf",
+      "sha256": "bc64ea7efb30c7783e1452d2170fdfb9b62da79eb01dd761892e4a8701b2a476",
+      "bytes": 1385256,
+      "retrievedAt": "2026-10-17T20:50:42.237577+00:00"
+    },
+    {
+      "file": "jnpa-toll-2025.pdf",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/Toll__Trade_Notice_MJPRCL_01_02_2025.pdf",
+      "finalUrl": "https://www.jnport.gov.in/uploads/content_manager/Toll__Trade_Notice_MJPRCL_01_02_2025.pdf",
+      "sha256": "70b32ee3a9a8ea2972a4fe3887e6abf96eaff591dd04913766d35583ab47287e",
+      "bytes": 359652,
+      "retrievedAt": "2026-10-17T20:50:42.119392+00:00"
+    },
+    {
+      "file": "jnpa-toll-corrigendum-2025.pdf",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/2025_02_01_Corrigendum_Trade_Notice_MJPRCL.pdf",
+      "finalUrl": "https://www.jnport.gov.in/uploads/content_manager/2025_02_01_Corrigendum_Trade_Notice_MJPRCL.pdf",
+      "sha256": "f2262de6cf37b36cd11fb787034e2fc3aaf0879402fc846af5636927237cdf1b",
+      "bytes": 250912,
+      "retrievedAt": "2026-10-17T20:50:42.428216+00:00"
+    },
+    {
+      "file": "paradip-circular-index.html",
+      "url": "https://paradipport.gov.in/archive-circulars-notices/",
+      "sha256": "92d57b514a5cccaa4b8b30f191802bb885041f027f1f98d42547f5e8af8c5c77",
+      "bytes": 1733532,
+      "retrievedAt": "2026-10-17T20:55:44.402541+00:00"
+    },
+    {
+      "file": "paradip-muc-ministry-order-2024.pdf",
+      "url": "https://www.paradipport.gov.in/uploads/2025/10/MUC_19112024.pdf",
+      "finalUrl": "https://www.paradipport.gov.in/uploads/2025/10/MUC_19112024.pdf",
+      "sha256": "0a41ed78a31d81cdf94486e0af8d08902c5bed8084ea03f1bf516d6559671906",
+      "bytes": 1029423,
+      "retrievedAt": "2026-10-17T20:56:15.037486+00:00"
+    }
+  ],
+  "findings": {
+    "bmct": {
+      "facilityId": "mumbai-container-terminal",
+      "authority": "Bharat Mumbai Container Terminals Private Limited (PSA Mumbai), JNPA",
+      "identityCondition": "Explicit BMCT / Bharat Mumbai Container Terminals / PSA Mumbai identity; generic Mumbai Container Terminal or Mumbai Port is insufficient.",
+      "source": {
+        "path": "output/full-scope-20261018/sources/jnpa/bmct-2026-04-06-jnpa.pdf",
+        "sha256": "efed96a2230d2ffd36dde38bc995114b43af2871406ef3bd6c933edaaf3d8740",
+        "url": "https://www.jnport.gov.in/uploads/content_manager/SoR-_BMCT_w_e_f_06-Apr-2026.pdf",
+        "physicalPages": [
+          3,
+          4,
+          5,
+          11
+        ]
+      },
+      "corroboratingSameBytes": {
+        "path": "output/full-scope-20261018/sources/jnpa/bmct-2026-04-06-psa.pdf",
+        "sha256": "efed96a2230d2ffd36dde38bc995114b43af2871406ef3bd6c933edaaf3d8740",
+        "url": "https://india.globalpsa.com/wp-content/uploads/2026/04/SoR-BMCT-w.e.f-01-Apr-2026.pdf",
+        "physicalPages": [
+          3
+        ]
+      },
+      "effectiveFromConservative": "2026-04-06",
+      "effectiveThrough": "2027-03-31",
+      "dateBasis": "PSA navigation explicitly labels the /2026/04/ link Effective 06th April2026. JNPA current terminal index names its byte-identical copy 06-Apr-2026. Generic annual indexation note p11 says Apr1-Mar31; do not backdate the revised rates beforeApr6 without clarification.",
+      "berth": {
+        "currency": "INR",
+        "basis": "GRT * started hours",
+        "foreignRate": "2.378",
+        "coastalRate": "1.427",
+        "scope": "Published operator ceiling component; ordinary occupancy only, no penalties/priority/readiness cap/exempt idle. Do not automatically add JNPA berth charge.",
+        "rounding": "ceil(total billable occupancy minutes /60); final invoice next-higher-rupee rule applies only grandtotal of completebill, not each component.",
+        "coastalEligibility": "Certified coastalstatus under Customs/DGShipping licence/conversion terms; cargo origin alone insufficient; status-change berth interval must split.",
+        "ceilings": true,
+        "ordinaryPredicates": [
+          "No vessel-caused delayedstart/idling/departure penalty",
+          "No false readiness signal",
+          "No terminal-caused idle exemption",
+          "No requested readiness-to-sail cessation adjustment",
+          "No separate agreed discounted ceiling",
+          "No status change in quoted interval"
+        ],
+        "conditions": {
+          "postCargoPenaltyGraceHours": "2",
+          "startCargoWithinHours": "1",
+          "continuousIdlePenaltyThresholdHours": "2",
+          "readyToSailCapHours": "4",
+          "falseReadyPenalty": "one day berth hire",
+          "excludedDelay": "terminal/port attribution and adverse tides/badweather/rain for penalty; operator-attributable downtime excludes base berth; readiness cap excludes tides/weather/no-night-navigation wait"
+        },
+        "penaltyBandsINRPerGRT": {
+          "upTo6Hours": "19.28",
+          "over6UpTo12Hours": "28.90",
+          "over12Hours": "57.81"
+        },
+        "penaltyInterpretation": "Published table lacks per-hour wording. Do not turn into hourly/progressive bands without adjudicating the bracket application."
+      },
+      "normalHandling": {
+        "currency": "INR",
+        "unit": "per20ft/TEU; more20to40ft multiplier1.5",
+        "foreign": {
+          "shipYardLaden": "6538.65",
+          "shipYardEmpty": "5281.24",
+          "yardRailICD": "3269.34",
+          "yardTruck": "1005.97"
+        },
+        "coastal": {
+          "shipYardLaden": "3923.22",
+          "shipYardEmpty": "3168.75",
+          "yardRailICD": "3269.34",
+          "yardTruck": "1005.97"
+        },
+        "scope": "Distinct selected service components; roadleg or actualICD railleg separate fromship-yard. Published coastalrail/truck equalforeign despite generic60% language; use explicit rows, do not multiplytable twice. >40ft not safely inferred from thisschedule."
+      },
+      "remaining": [
+        "Complete invoice ownership/additivity with JNPA berth and applicable tax",
+        "Other special handling/storage/penalty branches need own reviewed handler/oracles",
+        "Exact revised-rate treatment before6April2026 if requested"
+      ]
+    },
+    "jnpa": {
+      "facilityId": "jawahar-nehru-port-authority-jnpa",
+      "source": {
+        "path": "output/full-scope-20261018/sources/jnpa/jnpa-2026.pdf",
+        "sha256": "6a0853b86c086a8983a5aaaa2a6c6d5dec0a6435df7d373cebebea3f7fb70095",
+        "url": "https://www.jnport.gov.in/uploads/content_manager/SOR_w_e_f_01_05_2026_including_MBPA.pdf",
+        "physicalPages": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          10,
+          11,
+          12,
+          13
+        ]
+      },
+      "effectiveFrom": "2026-05-01",
+      "effectiveThrough": "2027-04-30",
+      "pilotage": {
+        "unit": "GRT per full inward+outwardvisit",
+        "ordinaryOnly": true,
+        "routineTugsIncluded": true,
+        "foreign": {
+          "currency": "USD",
+          "minimum": "275.40",
+          "bands": [
+            {
+              "maxGRT": 30000,
+              "rate": "0.3464"
+            },
+            {
+              "minGRT": 30001,
+              "maxGRT": 60000,
+              "baseGRT": 30000,
+              "base": "10393",
+              "marginalRate": "0.2776"
+            },
+            {
+              "minGRT": 60001,
+              "baseGRT": 60000,
+              "base": "18722",
+              "marginalRate": "0.2429"
+            }
+          ]
+        },
+        "coastal": {
+          "currency": "INR",
+          "minimum": "7217.62",
+          "bands": [
+            {
+              "maxGRT": 30000,
+              "rate": "9.0792"
+            },
+            {
+              "minGRT": 30001,
+              "maxGRT": 60000,
+              "baseGRT": 30000,
+              "base": "272376",
+              "marginalRate": "7.2605"
+            },
+            {
+              "minGRT": 60001,
+              "baseGRT": 60000,
+              "base": "490191",
+              "marginalRate": "6.3584"
+            }
+          ]
+        },
+        "conditions": [
+          "Published fixedbase mustbeused; do not re-deriveforeign10393/18722 bymultiplyingpreviousband",
+          "Eachleg50% accordingtostatusofthatleg; minimum ispervisit; mixedstatusmin allocation remains interpretationgap",
+          "IntegerGRT avoids undefinedfractional gaps between30000 and30001 or60000 and60001",
+          "Cold inward+outward twice normal; onecoldleg1.5normal; shiftingcold twice normal; not ordinaryhandler",
+          "Port-convenience shifts included, user/terminal-requested shifts separate",
+          "No-tug pilotage is separate2.2F: foreign0.1281/GRT min183.33USD; coastal3.3643/GRT min4804.57INR"
+        ]
+      },
+      "portDues": {
+        "unit": "GRT perentry",
+        "statusAtEntry": true,
+        "foreignUSD": {
+          "bulk": "0.2017",
+          "container": "0.1558",
+          "roRo": "0.1009",
+          "other10TplusExceptFishing": "0.1558",
+          "tugRiverBoat": "0.1558"
+        },
+        "coastalINR": {
+          "bulk": "5.2962",
+          "container": "4.0740",
+          "roRo": "2.6335",
+          "other10TplusExceptFishing": "4.0740",
+          "tugRiverBoat": "4.0740",
+          "offshore": "1.3677"
+        },
+        "conditions": [
+          "Ballast/no passengers75%; no cargo/passengeroperation50%; overlap betweenthese conditions mustnotstackwithoutinterpretation",
+          "Distresswithcargo100%, distresswithoutcargo75%",
+          "LASHsecondcall prescribedempty/ladenbargepickup exemption",
+          "Segregated-ballast oil tankers use reducedGRT endorsedInternationalTonnageCertificate forportdues only",
+          "ConditionalMBPAdues per2.1note8 distinct: no automaticchargeifMumbaiportlimitsconditionunestablished"
+        ]
+      },
+      "berth": {
+        "foreignUSDPerGRTStartedHour": "0.0053",
+        "coastalINRPerGRTStartedHour": "0.1309",
+        "anchorageForeignUSD": "0.0026",
+        "anchorageCoastalINR": "0.0582",
+        "scope": "JNPA berths under2.3. Privateoperatoradditivity notestablished byrate table alone."
+      },
+      "otherSimpleComponents": {
+        "waterForeignUSDPerMT": "3.6666",
+        "waterCoastalINRPerMT": "96.0887",
+        "waterONGCSupplyINRPerMT": "96.0991",
+        "garbageINRPerCollectorVisit": "727.50",
+        "bunkerOilWharfageINRPerMT": "43.70",
+        "VIACancellationINRPerOccasion": "1951.51",
+        "floatingCraftINRPerStartedHourMin4": {
+          "tug30tBollardPull": "15612.10",
+          "tug50tBollardPull": "18214.12",
+          "tug60tBollardPull": "25369.67",
+          "pilotLaunch": "2927.81",
+          "securityLaunch": "2602.02",
+          "VIPspeedLaunch": "1691.31"
+        },
+        "manpowerINRPerPersonHourMin4": {
+          "managerial": "249.45",
+          "nonmanagerial": "187.09"
+        },
+        "fireTenderINRPerHourMin4": "3897.34"
+      },
+      "dateBoundary": "p13: arrival/berthing preMay1 portdues/inwardpilotage oldrates; berthsplit atmidnightApr30; outboundpilotage afterboundary newrates. No blanketnewrateonallcharges basedonsailingdate."
+    },
+    "muc": {
+      "source": {
+        "path": "output/full-scope-20261018/sources/jnpa/nldsl-muc-2024-2027.pdf",
+        "sha256": "10051fea865725f4d0c253b9f573ee198c44dfafac1ac2756ef36c20f48b1639",
+        "url": "https://www.dpworld.com/india/-/media/project/dpwg/dpwg-tenant/apac/india/media-files/ports-and-terminals/cochin/customer-advisory/tn-199.pdf?rev=88368489f5e044b2bf4ee0d5e3dc6829",
+        "physicalPages": [
+          2
+        ]
+      },
+      "corroboration": {
+        "path": "output/full-scope-20261018/sources/jnpa/nsict-2026.pdf",
+        "sha256": "572e163b2995cb6ed9f1649771f08fd3830afa04adfa3d7cb565ee82a5e048e7",
+        "url": "https://www.jnport.gov.in/uploads/content_manager/NSICT_Tariff_2026.pdf",
+        "physicalPages": [
+          10
+        ]
+      },
+      "issuer": "NICDC Logistics Data Services Limited",
+      "letter": "NLDSL/MUC/01/2024-25 dated6November2024, referencingMoPSW PD-14033/34/2017-PD-V dated5November2024",
+      "effectiveFrom": "2024-10-28",
+      "effectiveThrough": "2027-09-30",
+      "scope": "Allcontainers excepttransshipmentandcoastal atMajorPorts/BOTterminals; INR170 excludingGST percontainer",
+      "componentsINRPerContainer": {
+        "MUC": "145",
+        "maritimeSectorDevelopmentFund": "25"
+      },
+      "GTIConflictResolution": "GTI2026p11 repeatslapsed2021approval. FreshNLDSLletter explicitlyextendsgeneralMajorPortschemethrough2027 andNSICT2026 repeatsit. Use datedNLDSLauthority, nottheoldGTIexpiry.",
+      "limits": [
+        "5%collectioncommission isnotacustomerdiscount",
+        "NoTEUmultiplier: percontainer, not20ft equivalent",
+        "No broadGST18%inference fromexGSTwording",
+        "Do notchargeagain ifa selectedsuppliedbundlerate alreadyincludesthislevy",
+        "Original Ministry order and Annex I now retained from government authority; source3 supplies ceiling/lower-rate condition omitted in previous operator summary.",
+        "Neither Ministry Annex I nor NLDSL letter establishes a numerical GST rate. Invoice Annex B not included in retrieved 2-page NLDSL reproduction."
+      ],
+      "originalMinistryAuthority": {
+        "url": "https://www.paradipport.gov.in/uploads/2025/10/MUC_19112024.pdf",
+        "path": "output/full-scope-20261018/sources/jnpa/paradip-muc-ministry-order-2024.pdf",
+        "sha256": "0a41ed78a31d81cdf94486e0af8d08902c5bed8084ea03f1bf516d6559671906",
+        "physicalPages": [
+          2,
+          3
+        ],
+        "letter": "PD-14033/34/2017-PD-V, 5 November 2024",
+        "annex": "Annex I"
+      },
+      "ceiling": true,
+      "lowerRateRule": "INR145 MUC is a ceiling; lower rate only when authorized by NLDSL. INR25 development fund stays unchanged even if MUC is lower.",
+      "minimalInputs": [
+        "Eligible Major Port/BOT terminal",
+        "Charge date",
+        "Number of eligible containers",
+        "Coastal/transshipment classification; ordinary EXIM containers eligible",
+        "Whether an explicit supplied bundle already includes this levy"
+      ],
+      "notRequired": [
+        "GRT",
+        "Berth duration",
+        "Container size or TEU count",
+        "Road versus rail",
+        "FX rate"
+      ]
+    },
+    "nsft": {
+      "facilityId": "nhava-sheva-freeport-terminal",
+      "source": {
+        "path": "output/full-scope-20261018/sources/jnpa/nsft-2026.pdf",
+        "sha256": "337c9ec529dd4959f3186565d0b147f98b5f68e1cef4d4aa5367f3d57c50a95e",
+        "url": "https://www.jnport.gov.in/uploads/content_manager/NSFTPL_Terminal_Tariff_01_05_2026.pdf",
+        "physicalPages": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ]
+      },
+      "operatorCopyMatches": true,
+      "retainedCopyMatches": true,
+      "effectiveFrom": "2026-05-01",
+      "normalHandlingUSD": {
+        "20": {
+          "roadLaden": "94.78",
+          "roadEmpty": "82.42",
+          "railLaden": "111.26",
+          "railEmpty": "105.08"
+        },
+        "40": {
+          "roadLaden": "142.17",
+          "roadEmpty": "123.63",
+          "railLaden": "166.89",
+          "railEmpty": "157.62"
+        },
+        "over40": {
+          "roadLaden": "189.56",
+          "roadEmpty": "164.84",
+          "railLaden": "222.52",
+          "railEmpty": "210.16"
+        }
+      },
+      "bundleIncludes": "Ship-yard plus matching truck or rail leg; never add that landside handling again. Road empty flat-rack/bolster/platform bundle priced per bundle/move.",
+      "coastal": "Stevedoring 60% of EXIM tariff; other charges same as EXIM. Must collect INR using applicable dated FX; do not claim final coastal INR absent rate.",
+      "fx": "Import: market-buying rate from nominated RBI/SBI/subsidiary/other public-sector bank on vessel port entry date. Export: container terminal arrival date. Source bank specified from time to time.",
+      "transshipmentUSDBySize": [
+        "115.38",
+        "173.07",
+        "230.76"
+      ],
+      "transshipmentScope": "Full discharge+load cycle; interterminal leg 50% of own fullcycle plus own lift-on/off and otherterminal own50%; line supplies transportation.",
+      "hazardousMultiplier": "1.5",
+      "ODCMultiplier": "2",
+      "ODCWithSpecialGearMultiplier": "3",
+      "reeferUSDPer4HoursOrPartBySize": [
+        "10.72",
+        "16.07",
+        "21.44"
+      ],
+      "hatchCoverUSD": {
+        "notLanded": "72.11",
+        "landed": "144.23"
+      },
+      "notes": [
+        "Additional special services/dunnage/equipment are extra",
+        "GST and government levies at prevailing billing rates; no numericGST rate in schedule",
+        "Storage calendar-day definition, specific landing-day exclusion and event transitions apply",
+        "Container tariff independent of port ITRHO/DMIDC/toll notifications; sourcep3clausev does not establish all marine charges"
+      ],
+      "sourceReviewStatus": "Fresh official bytes verified; rates/table scope visually checked on cited main pages; all source branches not exhaustively independently adjudicated."
+    },
+    "nsigt": {
+      "facilityId": "nhava-sheva-gateway-terminal",
+      "source": {
+        "path": "output/full-scope-20261018/sources/jnpa/nsigt-2026.pdf",
+        "sha256": "e1e7b142ca42f384b8f7a0e2cf5fdd1946faa1bbea2d31a86ef2967f865420c6",
+        "url": "https://www.jnport.gov.in/uploads/content_manager/Scale_of_Rates_1st_April_2026.pdf",
+        "physicalPages": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          10
+        ]
+      },
+      "retainedCopyMatches": true,
+      "effectiveFrom": "2026-04-01",
+      "effectiveThrough": "2027-03-31",
+      "ceiling": true,
+      "berthINRPerGRTStartedHour": {
+        "foreign": "2.0476",
+        "coastal": "1.2283"
+      },
+      "berthConditions": "Same specified 2h postcargo grace,1h start requirement,>2h continuousidling penalty,4h readiness cap with tidal/weather/no-night exclusions and operator downtime exclusion as sourcepp3-4; ordinary component can execute without complexbranches if predicates explicit.",
+      "normalHandlingINRPer20ft": {
+        "foreign": {
+          "shipYardLaden": "4947.13",
+          "shipYardEmpty": "3995.79",
+          "yardRailICD": "2473.54",
+          "yardTruck": "761.09"
+        },
+        "coastal": {
+          "shipYardLaden": "2968.27",
+          "shipYardEmpty": "2397.47",
+          "yardRailICD": "2473.54",
+          "yardTruck": "761.09"
+        }
+      },
+      "sizeMultiplier": {
+        "20": "1",
+        "over20To40": "1.5"
+      },
+      "scope": "Separate ship-yard and matching landside components. ICD rail only requires actual ICD use. Coastal rows for landside are explicitly same asforeign; no second60%discount. No generic45ft handling inferred.",
+      "invoiceRounding": "Next higher rupee on grand total of each bill only.",
+      "transshipment": "Published annual-volume bands depend on total TEUs brought by line/agent in same financial year; interpretation of boundary crossing/progressive versusselected bracket not established by table alone."
+    },
+    "nsict": {
+      "facilityId": "nhava-sheva-international-container-terminal",
+      "source": {
+        "path": "output/full-scope-20261018/sources/jnpa/nsict-2026.pdf",
+        "sha256": "572e163b2995cb6ed9f1649771f08fd3830afa04adfa3d7cb565ee82a5e048e7",
+        "url": "https://www.jnport.gov.in/uploads/content_manager/NSICT_Tariff_2026.pdf",
+        "physicalPages": [
+          1,
+          2,
+          3,
+          4,
+          10
+        ]
+      },
+      "retainedCopyMatches": true,
+      "effectiveFrom": "2026-05-01",
+      "normalHandlingINR": {
+        "20": {
+          "foreignLaden": "6666.25",
+          "foreignEmpty": "5666.10",
+          "coastalLaden": "3999.55",
+          "coastalEmpty": "3400.07",
+          "yardRoadOrICDRail": "1062.02"
+        },
+        "40": {
+          "foreignLaden": "9999.38",
+          "foreignEmpty": "8499.15",
+          "coastalLaden": "5999.33",
+          "coastalEmpty": "5100.11",
+          "yardRoadOrICDRail": "1593.03"
+        },
+        "over40To45": {
+          "foreignLaden": "13332.50",
+          "foreignEmpty": "11332.20",
+          "coastalLaden": "7999.10",
+          "coastalEmpty": "6800.14",
+          "yardRoadOrICDRail": "2124.04"
+        }
+      },
+      "scope": "Ship-yard uses port crane;1B yard-rail only for ICD,1C yard-road. Normal excludes hazardous/ODC; reefer handling same table but monitoring extra. Use printed size rows rather than recalculate rounded20ft amounts.",
+      "coastalCargoEligibility": "Indian flagged general trading licence carrying coastal cargo qualifies whether converted or not; foreignflag requires specified-period/voyage DGShipping licence and Customs conversion; vessel berth status remains separately documented.",
+      "invoiceRounding": "Next higher rupee on grand total of each bill, not each line.",
+      "fx": "RBI or SBI rate as specified; date vessel port entry for import, container terminal arrival for export. Native normal handling table already INR.",
+      "berthOwnerEvidence": "p3clause2.12 explicitly discusses rebate equivalent to berth hire payable toJNPA; no separateoperatorberth rate present.",
+      "mucResolved": true,
+      "sourceReviewStatus": "Fresh official bytes verified; rates/table scope visually checked on cited main pages; all source branches not exhaustively independently adjudicated."
+    },
+    "gti": {
+      "facilityId": "gateway-terminals-india-pvt-ltd",
+      "source": {
+        "path": "output/full-scope-20261018/sources/jnpa/gti-2026.pdf",
+        "sha256": "613c33f6c67c4f9e2f81749469dcdc2beae585292e35d583467b0020e169b554",
+        "url": "https://www.jnport.gov.in/uploads/content_manager/Commercial_2026_Tariff_-_Effective_01st_May_2026_0001_hrs.pdf",
+        "physicalPages": [
+          1,
+          2,
+          10,
+          11
+        ]
+      },
+      "retainedCopyMatches": true,
+      "effectiveFrom": "2026-05-01T00:01:00+05:30",
+      "normalHandlingINR": {
+        "20": {
+          "foreignLaden": "3943.04",
+          "foreignICDLaden": "3943.05",
+          "foreignEmpty": "3181.30",
+          "coastalLaden": "2365.82",
+          "coastalICDLaden": "2365.83",
+          "coastalEmpty": "1908.78",
+          "foreignYardRoadOrICDRail": "1245.25"
+        },
+        "40": {
+          "foreignLaden": "5914.57",
+          "foreignICDLaden": "5914.57",
+          "foreignEmpty": "4771.96",
+          "coastalLaden": "3548.74",
+          "coastalICDLaden": "3548.74",
+          "coastalEmpty": "2863.17",
+          "foreignYardRoadOrICDRail": "1867.85"
+        },
+        "over40": {
+          "foreignLaden": "7886.08",
+          "foreignICDLaden": "7886.08",
+          "foreignEmpty": "6362.61",
+          "coastalLaden": "4731.64",
+          "coastalICDLaden": "4731.64",
+          "coastalEmpty": "3817.57",
+          "foreignYardRoadOrICDRail": "2490.43"
+        }
+      },
+      "scope": "Section1 ship-yard portcrane; separate selected landsideleg; landside table headedForeign-Going so do not invent coastalcolumn. Printed20ft ICD loaded differsby1paise fromordinaryloaded; preserve exactrow.",
+      "berthOwnerEvidence": "p11generalnote5 explicitly references berth hire payable toJNPT; apply selected JNPA berth rule once.",
+      "mucConflictResolved": "Use primary datedNLDSLletter with NSICT2026corroboration; GTI2026oldexpiry isstale.",
+      "remaining": [
+        "Full invoice contract/discount/FX and service selections",
+        "Special containers,storage,reefer,railout/non-vessel branches need explicit predicates and handlers"
+      ],
+      "sourceReviewStatus": "Fresh official bytes verified; rates/table scope visually checked on cited main pages; all source branches not exhaustively independently adjudicated."
+    },
+    "ownershipDecision": {
+      "basis": [
+        {
+          "path": "output/full-scope-20261018/sources/jnpa/jnpa-chabahar-discount-2024.pdf",
+          "sha256": "bc64ea7efb30c7783e1452d2170fdfb9b62da79eb01dd761892e4a8701b2a476",
+          "url": "https://www.jnport.gov.in/uploads/content_manager/Trade_notice_for_Discount_on_CRC_VRC_on_vessel_coming_from_Chabahar_Port.pdf",
+          "physicalPages": [
+            1,
+            3
+          ]
+        },
+        {
+          "path": "output/full-scope-20261018/sources/jnpa/gti-2026.pdf",
+          "sha256": "613c33f6c67c4f9e2f81749469dcdc2beae585292e35d583467b0020e169b554",
+          "url": "https://www.jnport.gov.in/uploads/content_manager/Commercial_2026_Tariff_-_Effective_01st_May_2026_0001_hrs.pdf",
+          "physicalPages": [
+            11
+          ]
+        },
+        {
+          "path": "output/full-scope-20261018/sources/jnpa/nsict-2026.pdf",
+          "sha256": "572e163b2995cb6ed9f1649771f08fd3830afa04adfa3d7cb565ee82a5e048e7",
+          "url": "https://www.jnport.gov.in/uploads/content_manager/NSICT_Tariff_2026.pdf",
+          "physicalPages": [
+            3
+          ]
+        },
+        {
+          "path": "output/full-scope-20261018/sources/jnpa/nsigt-2026.pdf",
+          "sha256": "e1e7b142ca42f384b8f7a0e2cf5fdd1946faa1bbea2d31a86ef2967f865420c6",
+          "url": "https://www.jnport.gov.in/uploads/content_manager/Scale_of_Rates_1st_April_2026.pdf",
+          "physicalPages": [
+            3
+          ]
+        },
+        {
+          "path": "output/full-scope-20261018/sources/jnpa/bmct-2026-04-06-jnpa.pdf",
+          "sha256": "efed96a2230d2ffd36dde38bc995114b43af2871406ef3bd6c933edaaf3d8740",
+          "url": "https://www.jnport.gov.in/uploads/content_manager/SoR-_BMCT_w_e_f_06-Apr-2026.pdf",
+          "physicalPages": [
+            3
+          ]
+        }
+      ],
+      "decision": "One berth owner: BMCT/NSIGT operator schedules; GTI/NSICT JNPA. NSFT has container-only operator schedule and historicalJNPA explicitownership; retain clearcomponentlabel until currentmarineinvoiceconfirms. Never sum operator+JNPA berth bydefault.",
+      "inferenceBoundary": "2024Chabahar discount expired31Dec2024. Use only ownership explanation corroboratedcurrent2026schedules; NOTthe40%discount."
+    },
+    "otherNotices": [
+      {
+        "source": {
+          "path": "output/full-scope-20261018/sources/jnpa/jnpa-seafarers-club-notice.pdf",
+          "sha256": "056af8b4bc63695611deb07452021db665bb4031a557de5fba551d03b3e0d343",
+          "url": "https://www.jnport.gov.in/uploads/content_manager/Levy_of_Seafarers_Club_Charges_Trade_Notice.pdf",
+          "physicalPages": [
+            1
+          ]
+        },
+        "fact": "INR1500 plus applicabletax perforeignvesselberthing; notice dated12Jul2024 effective after30days; no bodyexpiry. Index19Sep2024 is notissuancedate.",
+        "status": "Published candidate; no laterreplacement found in boundedcurrentindex."
+      },
+      {
+        "source": {
+          "path": "output/full-scope-20261018/sources/jnpa/jnpa-toll-2025.pdf",
+          "sha256": "70b32ee3a9a8ea2972a4fe3887e6abf96eaff591dd04913766d35583ab47287e",
+          "url": "https://www.jnport.gov.in/uploads/content_manager/Toll__Trade_Notice_MJPRCL_01_02_2025.pdf",
+          "physicalPages": [
+            1
+          ]
+        },
+        "correction": {
+          "path": "output/full-scope-20261018/sources/jnpa/jnpa-toll-corrigendum-2025.pdf",
+          "sha256": "f2262de6cf37b36cd11fb787034e2fc3aaf0879402fc846af5636927237cdf1b",
+          "url": "https://www.jnport.gov.in/uploads/content_manager/2025_02_01_Corrigendum_Trade_Notice_MJPRCL.pdf",
+          "physicalPages": [
+            1
+          ]
+        },
+        "facts": {
+          "from": "2025-02-01",
+          "roadContainerINRPerTEU": "598.95",
+          "roadProjectLiquidINRPerMT": "24.20",
+          "cementLPGINRPerMT": "5.50"
+        },
+        "scope": "Road goods traffic through terminalgates only, notrail; interim until revisedapprovedrates, not index31Dec2025expiry. Need supersessionsearch before currentactivation."
+      },
+      {
+        "source": {
+          "path": "output/full-scope-20261018/sources/jnpa/jnpa-ground-rent-waiver-2026.pdf",
+          "sha256": "4baf74723e5fd91e5c36f7bca117fdb014392173d270e8a6cab924cf8d240e4e",
+          "url": "https://www.jnport.gov.in/uploads/content_manager/Trade_Notice_9_6_2026.pdf",
+          "physicalPages": [
+            1
+          ]
+        },
+        "fact": "50%reimbursement of paidgroundrent fromday9 forladenroadCFS/DPD imports unloaded from07:00May1 throughJun12midnight2026 andgatedoutbyJun20midnight; claiminvoices/DO/bankdetails andverification required. Notautomatic50%lowerceiling onall2026storage."
+      },
+      {
+        "source": {
+          "path": "output/full-scope-20261018/sources/jnpa/jnpa-middle-east-waiver-2026.pdf",
+          "sha256": "ccf5ecdc5aafa197a4ce7dc12d5e4855083e291e0c4356aefb1acabdb387f88d",
+          "url": "https://www.jnport.gov.in/uploads/content_manager/1773215092.pdf",
+          "physicalPages": [
+            1,
+            2
+          ]
+        },
+        "extensionFile": "output/full-scope-20261018/sources/jnpa/jnpa-middle-east-extension-2026.jpeg",
+        "fact": "StrandedMiddleEastexporteligibility:insideFeb28orgatedinbyMar8at07:00;100%groundrentwaiver and80%perishablereeferplugin; extensiontillApr5at24:00. Do notuseindexDec31expiry."
+      }
+    ]
+  },
+  "independentOracles": [
+    {
+      "id": "JNPA-PILOT-foreign-1",
+      "GRT": 1,
+      "status": "foreign",
+      "sameStatusBothLegs": true,
+      "expectedUnrounded": "275.40",
+      "currency": "USD",
+      "basis": "Publishedp3bands+p4pervisitminimum, independentlyDecimalderivedbeforecandidateoutputs"
+    },
+    {
+      "id": "JNPA-PILOT-foreign-795",
+      "GRT": 795,
+      "status": "foreign",
+      "sameStatusBothLegs": true,
+      "expectedUnrounded": "275.40",
+      "currency": "USD",
+      "basis": "Publishedp3bands+p4pervisitminimum, independentlyDecimalderivedbeforecandidateoutputs"
+    },
+    {
+      "id": "JNPA-PILOT-foreign-796",
+      "GRT": 796,
+      "status": "foreign",
+      "sameStatusBothLegs": true,
+      "expectedUnrounded": "275.7344",
+      "currency": "USD",
+      "basis": "Publishedp3bands+p4pervisitminimum, independentlyDecimalderivedbeforecandidateoutputs"
+    },
+    {
+      "id": "JNPA-PILOT-foreign-29999",
+      "GRT": 29999,
+      "status": "foreign",
+      "sameStatusBothLegs": true,
+      "expectedUnrounded": "10391.6536",
+      "currency": "USD",
+      "basis": "Publishedp3bands+p4pervisitminimum, independentlyDecimalderivedbeforecandidateoutputs"
+    },
+    {
+      "id": "JNPA-PILOT-foreign-30000",
+      "GRT": 30000,
+      "status": "foreign",
+      "sameStatusBothLegs": true,
+      "expectedUnrounded": "10392.0000",
+      "currency": "USD",
+      "basis": "Publishedp3bands+p4pervisitminimum, independentlyDecimalderivedbeforecandidateoutputs"
+    },
+    {
+      "id": "JNPA-PILOT-foreign-30001",
+      "GRT": 30001,
+      "status": "foreign",
+      "sameStatusBothLegs": true,
+      "expectedUnrounded": "10393.2776",
+      "currency": "USD",
+      "basis": "Publishedp3bands+p4pervisitminimum, independentlyDecimalderivedbeforecandidateoutputs"
+    },
+    {
+      "id": "JNPA-PILOT-foreign-59999",
+      "GRT": 59999,
+      "status": "foreign",
+      "sameStatusBothLegs": true,
+      "expectedUnrounded": "18720.7224",
+      "currency": "USD",
+      "basis": "Publishedp3bands+p4pervisitminimum, independentlyDecimalderivedbeforecandidateoutputs"
+    },
+    {
+      "id": "JNPA-PILOT-foreign-60000",
+      "GRT": 60000,
+      "status": "foreign",
+      "sameStatusBothLegs": true,
+      "expectedUnrounded": "18721.0000",
+      "currency": "USD",
+      "basis": "Publishedp3bands+p4pervisitminimum, independentlyDecimalderivedbeforecandidateoutputs"
+    },
+    {
+      "id": "JNPA-PILOT-foreign-60001",
+      "GRT": 60001,
+      "status": "foreign",
+      "sameStatusBothLegs": true,
+      "expectedUnrounded": "18722.2429",
+      "currency": "USD",
+      "basis": "Publishedp3bands+p4pervisitminimum, independentlyDecimalderivedbeforecandidateoutputs"
+    },
+    {
+      "id": "JNPA-PILOT-coastal-1",
+      "GRT": 1,
+      "status": "coastal",
+      "sameStatusBothLegs": true,
+      "expectedUnrounded": "7217.62",
+      "currency": "INR",
+      "basis": "Publishedp3bands+p4pervisitminimum, independentlyDecimalderivedbeforecandidateoutputs"
+    },
+    {
+      "id": "JNPA-PILOT-coastal-795",
+      "GRT": 795,
+      "status": "coastal",
+      "sameStatusBothLegs": true,
+      "expectedUnrounded": "7217.9640",
+      "currency": "INR",
+      "basis": "Publishedp3bands+p4pervisitminimum, independentlyDecimalderivedbeforecandidateoutputs"
+    },
+    {
+      "id": "JNPA-PILOT-coastal-796",
+      "GRT": 796,
+      "status": "coastal",
+      "sameStatusBothLegs": true,
+      "expectedUnrounded": "7227.0432",
+      "currency": "INR",
+      "basis": "Publishedp3bands+p4pervisitminimum, independentlyDecimalderivedbeforecandidateoutputs"
+    },
+    {
+      "id": "JNPA-PILOT-coastal-29999",
+      "GRT": 29999,
+      "status": "coastal",
+      "sameStatusBothLegs": true,
+      "expectedUnrounded": "272366.9208",
+      "currency": "INR",
+      "basis": "Publishedp3bands+p4pervisitminimum, independentlyDecimalderivedbeforecandidateoutputs"
+    },
+    {
+      "id": "JNPA-PILOT-coastal-30000",
+      "GRT": 30000,
+      "status": "coastal",
+      "sameStatusBothLegs": true,
+      "expectedUnrounded": "272376.0000",
+      "currency": "INR",
+      "basis": "Publishedp3bands+p4pervisitminimum, independentlyDecimalderivedbeforecandidateoutputs"
+    },
+    {
+      "id": "JNPA-PILOT-coastal-30001",
+      "GRT": 30001,
+      "status": "coastal",
+      "sameStatusBothLegs": true,
+      "expectedUnrounded": "272383.2605",
+      "currency": "INR",
+      "basis": "Publishedp3bands+p4pervisitminimum, independentlyDecimalderivedbeforecandidateoutputs"
+    },
+    {
+      "id": "JNPA-PILOT-coastal-59999",
+      "GRT": 59999,
+      "status": "coastal",
+      "sameStatusBothLegs": true,
+      "expectedUnrounded": "490183.7395",
+      "currency": "INR",
+      "basis": "Publishedp3bands+p4pervisitminimum, independentlyDecimalderivedbeforecandidateoutputs"
+    },
+    {
+      "id": "JNPA-PILOT-coastal-60000",
+      "GRT": 60000,
+      "status": "coastal",
+      "sameStatusBothLegs": true,
+      "expectedUnrounded": "490191.0000",
+      "currency": "INR",
+      "basis": "Publishedp3bands+p4pervisitminimum, independentlyDecimalderivedbeforecandidateoutputs"
+    },
+    {
+      "id": "JNPA-PILOT-coastal-60001",
+      "GRT": 60001,
+      "status": "coastal",
+      "sameStatusBothLegs": true,
+      "expectedUnrounded": "490197.3584",
+      "currency": "INR",
+      "basis": "Publishedp3bands+p4pervisitminimum, independentlyDecimalderivedbeforecandidateoutputs"
+    },
+    {
+      "id": "BMCT-BERTH-foreign-59",
+      "GRT": 10000,
+      "occupancyMinutes": 59,
+      "status": "foreign",
+      "expectedBillableHours": "1",
+      "expectedUnroundedINR": "23780.000",
+      "date": "2026-10-18",
+      "ordinaryPredicates": true,
+      "basis": "Physicalp3explicitGRT/hourorparttable"
+    },
+    {
+      "id": "BMCT-BERTH-foreign-60",
+      "GRT": 10000,
+      "occupancyMinutes": 60,
+      "status": "foreign",
+      "expectedBillableHours": "1",
+      "expectedUnroundedINR": "23780.000",
+      "date": "2026-10-18",
+      "ordinaryPredicates": true,
+      "basis": "Physicalp3explicitGRT/hourorparttable"
+    },
+    {
+      "id": "BMCT-BERTH-foreign-61",
+      "GRT": 10000,
+      "occupancyMinutes": 61,
+      "status": "foreign",
+      "expectedBillableHours": "2",
+      "expectedUnroundedINR": "47560.000",
+      "date": "2026-10-18",
+      "ordinaryPredicates": true,
+      "basis": "Physicalp3explicitGRT/hourorparttable"
+    },
+    {
+      "id": "BMCT-BERTH-foreign-1439",
+      "GRT": 10000,
+      "occupancyMinutes": 1439,
+      "status": "foreign",
+      "expectedBillableHours": "24",
+      "expectedUnroundedINR": "570720.000",
+      "date": "2026-10-18",
+      "ordinaryPredicates": true,
+      "basis": "Physicalp3explicitGRT/hourorparttable"
+    },
+    {
+      "id": "BMCT-BERTH-foreign-1440",
+      "GRT": 10000,
+      "occupancyMinutes": 1440,
+      "status": "foreign",
+      "expectedBillableHours": "24",
+      "expectedUnroundedINR": "570720.000",
+      "date": "2026-10-18",
+      "ordinaryPredicates": true,
+      "basis": "Physicalp3explicitGRT/hourorparttable"
+    },
+    {
+      "id": "BMCT-BERTH-foreign-1441",
+      "GRT": 10000,
+      "occupancyMinutes": 1441,
+      "status": "foreign",
+      "expectedBillableHours": "25",
+      "expectedUnroundedINR": "594500.000",
+      "date": "2026-10-18",
+      "ordinaryPredicates": true,
+      "basis": "Physicalp3explicitGRT/hourorparttable"
+    },
+    {
+      "id": "BMCT-BERTH-coastal-59",
+      "GRT": 10000,
+      "occupancyMinutes": 59,
+      "status": "coastal",
+      "expectedBillableHours": "1",
+      "expectedUnroundedINR": "14270.000",
+      "date": "2026-10-18",
+      "ordinaryPredicates": true,
+      "basis": "Physicalp3explicitGRT/hourorparttable"
+    },
+    {
+      "id": "BMCT-BERTH-coastal-60",
+      "GRT": 10000,
+      "occupancyMinutes": 60,
+      "status": "coastal",
+      "expectedBillableHours": "1",
+      "expectedUnroundedINR": "14270.000",
+      "date": "2026-10-18",
+      "ordinaryPredicates": true,
+      "basis": "Physicalp3explicitGRT/hourorparttable"
+    },
+    {
+      "id": "BMCT-BERTH-coastal-61",
+      "GRT": 10000,
+      "occupancyMinutes": 61,
+      "status": "coastal",
+      "expectedBillableHours": "2",
+      "expectedUnroundedINR": "28540.000",
+      "date": "2026-10-18",
+      "ordinaryPredicates": true,
+      "basis": "Physicalp3explicitGRT/hourorparttable"
+    },
+    {
+      "id": "BMCT-BERTH-coastal-1439",
+      "GRT": 10000,
+      "occupancyMinutes": 1439,
+      "status": "coastal",
+      "expectedBillableHours": "24",
+      "expectedUnroundedINR": "342480.000",
+      "date": "2026-10-18",
+      "ordinaryPredicates": true,
+      "basis": "Physicalp3explicitGRT/hourorparttable"
+    },
+    {
+      "id": "BMCT-BERTH-coastal-1440",
+      "GRT": 10000,
+      "occupancyMinutes": 1440,
+      "status": "coastal",
+      "expectedBillableHours": "24",
+      "expectedUnroundedINR": "342480.000",
+      "date": "2026-10-18",
+      "ordinaryPredicates": true,
+      "basis": "Physicalp3explicitGRT/hourorparttable"
+    },
+    {
+      "id": "BMCT-BERTH-coastal-1441",
+      "GRT": 10000,
+      "occupancyMinutes": 1441,
+      "status": "coastal",
+      "expectedBillableHours": "25",
+      "expectedUnroundedINR": "356750.000",
+      "date": "2026-10-18",
+      "ordinaryPredicates": true,
+      "basis": "Physicalp3explicitGRT/hourorparttable"
+    },
+    {
+      "id": "MUC-0",
+      "containers": 0,
+      "cargoTraffic": "foreignEXIM",
+      "date": "2026-10-18",
+      "expectedExGSTINR": "0",
+      "rateBasis": "Published ceiling with no NLDSL-authorized lower rate; excludes GST"
+    },
+    {
+      "id": "MUC-1",
+      "containers": 1,
+      "cargoTraffic": "foreignEXIM",
+      "date": "2026-10-18",
+      "expectedExGSTINR": "170",
+      "rateBasis": "Published ceiling with no NLDSL-authorized lower rate; excludes GST"
+    },
+    {
+      "id": "MUC-2",
+      "containers": 2,
+      "cargoTraffic": "foreignEXIM",
+      "date": "2026-10-18",
+      "expectedExGSTINR": "340",
+      "rateBasis": "Published ceiling with no NLDSL-authorized lower rate; excludes GST"
+    },
+    {
+      "id": "MUC-40",
+      "containers": 40,
+      "cargoTraffic": "foreignEXIM",
+      "date": "2026-10-18",
+      "expectedExGSTINR": "6800",
+      "rateBasis": "Published ceiling with no NLDSL-authorized lower rate; excludes GST"
+    },
+    {
+      "id": "BMCT-NORMAL-foreign-20-shipYardOnly",
+      "laden": 3,
+      "empty": 2,
+      "sizeFeet": 20,
+      "mode": "shipYardOnly",
+      "status": "foreign",
+      "expectedUnroundedINR": "30178.43",
+      "basis": "Printed native20ft components and explicit40ft multiplier; no prematureline/invoicerounding"
+    },
+    {
+      "id": "BMCT-NORMAL-foreign-20-road",
+      "laden": 3,
+      "empty": 2,
+      "sizeFeet": 20,
+      "mode": "road",
+      "status": "foreign",
+      "expectedUnroundedINR": "35208.28",
+      "basis": "Printed native20ft components and explicit40ft multiplier; no prematureline/invoicerounding"
+    },
+    {
+      "id": "BMCT-NORMAL-foreign-20-ICDRail",
+      "laden": 3,
+      "empty": 2,
+      "sizeFeet": 20,
+      "mode": "ICDRail",
+      "status": "foreign",
+      "expectedUnroundedINR": "46525.13",
+      "basis": "Printed native20ft components and explicit40ft multiplier; no prematureline/invoicerounding"
+    },
+    {
+      "id": "BMCT-NORMAL-foreign-40-shipYardOnly",
+      "laden": 3,
+      "empty": 2,
+      "sizeFeet": 40,
+      "mode": "shipYardOnly",
+      "status": "foreign",
+      "expectedUnroundedINR": "45267.645",
+      "basis": "Printed native20ft components and explicit40ft multiplier; no prematureline/invoicerounding"
+    },
+    {
+      "id": "BMCT-NORMAL-foreign-40-road",
+      "laden": 3,
+      "empty": 2,
+      "sizeFeet": 40,
+      "mode": "road",
+      "status": "foreign",
+      "expectedUnroundedINR": "52812.420",
+      "basis": "Printed native20ft components and explicit40ft multiplier; no prematureline/invoicerounding"
+    },
+    {
+      "id": "BMCT-NORMAL-foreign-40-ICDRail",
+      "laden": 3,
+      "empty": 2,
+      "sizeFeet": 40,
+      "mode": "ICDRail",
+      "status": "foreign",
+      "expectedUnroundedINR": "69787.695",
+      "basis": "Printed native20ft components and explicit40ft multiplier; no prematureline/invoicerounding"
+    },
+    {
+      "id": "BMCT-NORMAL-coastal-20-shipYardOnly",
+      "laden": 3,
+      "empty": 2,
+      "sizeFeet": 20,
+      "mode": "shipYardOnly",
+      "status": "coastal",
+      "expectedUnroundedINR": "18107.16",
+      "basis": "Printed native20ft components and explicit40ft multiplier; no prematureline/invoicerounding"
+    },
+    {
+      "id": "BMCT-NORMAL-coastal-20-road",
+      "laden": 3,
+      "empty": 2,
+      "sizeFeet": 20,
+      "mode": "road",
+      "status": "coastal",
+      "expectedUnroundedINR": "23137.01",
+      "basis": "Printed native20ft components and explicit40ft multiplier; no prematureline/invoicerounding"
+    },
+    {
+      "id": "BMCT-NORMAL-coastal-20-ICDRail",
+      "laden": 3,
+      "empty": 2,
+      "sizeFeet": 20,
+      "mode": "ICDRail",
+      "status": "coastal",
+      "expectedUnroundedINR": "34453.86",
+      "basis": "Printed native20ft components and explicit40ft multiplier; no prematureline/invoicerounding"
+    },
+    {
+      "id": "BMCT-NORMAL-coastal-40-shipYardOnly",
+      "laden": 3,
+      "empty": 2,
+      "sizeFeet": 40,
+      "mode": "shipYardOnly",
+      "status": "coastal",
+      "expectedUnroundedINR": "27160.740",
+      "basis": "Printed native20ft components and explicit40ft multiplier; no prematureline/invoicerounding"
+    },
+    {
+      "id": "BMCT-NORMAL-coastal-40-road",
+      "laden": 3,
+      "empty": 2,
+      "sizeFeet": 40,
+      "mode": "road",
+      "status": "coastal",
+      "expectedUnroundedINR": "34705.515",
+      "basis": "Printed native20ft components and explicit40ft multiplier; no prematureline/invoicerounding"
+    },
+    {
+      "id": "BMCT-NORMAL-coastal-40-ICDRail",
+      "laden": 3,
+      "empty": 2,
+      "sizeFeet": 40,
+      "mode": "ICDRail",
+      "status": "coastal",
+      "expectedUnroundedINR": "51680.790",
+      "basis": "Printed native20ft components and explicit40ft multiplier; no prematureline/invoicerounding"
+    },
+    {
+      "id": "NSIGT-NORMAL-foreign-20-shipYardOnly",
+      "laden": 3,
+      "empty": 2,
+      "sizeFeet": 20,
+      "mode": "shipYardOnly",
+      "status": "foreign",
+      "expectedUnroundedINR": "22832.97",
+      "basis": "Printed native20ft components and explicit40ft multiplier; no prematureline/invoicerounding"
+    },
+    {
+      "id": "NSIGT-NORMAL-foreign-20-road",
+      "laden": 3,
+      "empty": 2,
+      "sizeFeet": 20,
+      "mode": "road",
+      "status": "foreign",
+      "expectedUnroundedINR": "26638.42",
+      "basis": "Printed native20ft components and explicit40ft multiplier; no prematureline/invoicerounding"
+    },
+    {
+      "id": "NSIGT-NORMAL-foreign-20-ICDRail",
+      "laden": 3,
+      "empty": 2,
+      "sizeFeet": 20,
+      "mode": "ICDRail",
+      "status": "foreign",
+      "expectedUnroundedINR": "35200.67",
+      "basis": "Printed native20ft components and explicit40ft multiplier; no prematureline/invoicerounding"
+    },
+    {
+      "id": "NSIGT-NORMAL-foreign-40-shipYardOnly",
+      "laden": 3,
+      "empty": 2,
+      "sizeFeet": 40,
+      "mode": "shipYardOnly",
+      "status": "foreign",
+      "expectedUnroundedINR": "34249.455",
+      "basis": "Printed native20ft components and explicit40ft multiplier; no prematureline/invoicerounding"
+    },
+    {
+      "id": "NSIGT-NORMAL-foreign-40-road",
+      "laden": 3,
+      "empty": 2,
+      "sizeFeet": 40,
+      "mode": "road",
+      "status": "foreign",
+      "expectedUnroundedINR": "39957.630",
+      "basis": "Printed native20ft components and explicit40ft multiplier; no prematureline/invoicerounding"
+    },
+    {
+      "id": "NSIGT-NORMAL-foreign-40-ICDRail",
+      "laden": 3,
+      "empty": 2,
+      "sizeFeet": 40,
+      "mode": "ICDRail",
+      "status": "foreign",
+      "expectedUnroundedINR": "52801.005",
+      "basis": "Printed native20ft components and explicit40ft multiplier; no prematureline/invoicerounding"
+    },
+    {
+      "id": "NSIGT-NORMAL-coastal-20-shipYardOnly",
+      "laden": 3,
+      "empty": 2,
+      "sizeFeet": 20,
+      "mode": "shipYardOnly",
+      "status": "coastal",
+      "expectedUnroundedINR": "13699.75",
+      "basis": "Printed native20ft components and explicit40ft multiplier; no prematureline/invoicerounding"
+    },
+    {
+      "id": "NSIGT-NORMAL-coastal-20-road",
+      "laden": 3,
+      "empty": 2,
+      "sizeFeet": 20,
+      "mode": "road",
+      "status": "coastal",
+      "expectedUnroundedINR": "17505.20",
+      "basis": "Printed native20ft components and explicit40ft multiplier; no prematureline/invoicerounding"
+    },
+    {
+      "id": "NSIGT-NORMAL-coastal-20-ICDRail",
+      "laden": 3,
+      "empty": 2,
+      "sizeFeet": 20,
+      "mode": "ICDRail",
+      "status": "coastal",
+      "expectedUnroundedINR": "26067.45",
+      "basis": "Printed native20ft components and explicit40ft multiplier; no prematureline/invoicerounding"
+    },
+    {
+      "id": "NSIGT-NORMAL-coastal-40-shipYardOnly",
+      "laden": 3,
+      "empty": 2,
+      "sizeFeet": 40,
+      "mode": "shipYardOnly",
+      "status": "coastal",
+      "expectedUnroundedINR": "20549.625",
+      "basis": "Printed native20ft components and explicit40ft multiplier; no prematureline/invoicerounding"
+    },
+    {
+      "id": "NSIGT-NORMAL-coastal-40-road",
+      "laden": 3,
+      "empty": 2,
+      "sizeFeet": 40,
+      "mode": "road",
+      "status": "coastal",
+      "expectedUnroundedINR": "26257.800",
+      "basis": "Printed native20ft components and explicit40ft multiplier; no prematureline/invoicerounding"
+    },
+    {
+      "id": "NSIGT-NORMAL-coastal-40-ICDRail",
+      "laden": 3,
+      "empty": 2,
+      "sizeFeet": 40,
+      "mode": "ICDRail",
+      "status": "coastal",
+      "expectedUnroundedINR": "39101.175",
+      "basis": "Printed native20ft components and explicit40ft multiplier; no prematureline/invoicerounding"
+    },
+    {
+      "id": "MUC-FIRST-DAY",
+      "date": "2024-10-28",
+      "containers": 1,
+      "traffic": "foreignEXIM",
+      "expectedPublishedCeilingExGSTINR": "170"
+    },
+    {
+      "id": "MUC-LAST-DAY",
+      "date": "2027-09-30",
+      "containers": 1,
+      "traffic": "foreignEXIM",
+      "expectedPublishedCeilingExGSTINR": "170"
+    },
+    {
+      "id": "MUC-BEFORE-PERIOD",
+      "date": "2024-10-27",
+      "containers": 1,
+      "traffic": "foreignEXIM",
+      "expectedDisposition": "Needs the prior dated authority; this packet does not authorize either170orzero"
+    },
+    {
+      "id": "MUC-AFTER-PERIOD",
+      "date": "2027-10-01",
+      "containers": 1,
+      "traffic": "foreignEXIM",
+      "expectedDisposition": "Needs a later dated authority; do not silently continue or assumezero"
+    },
+    {
+      "id": "MUC-COASTAL-EXEMPT",
+      "date": "2026-10-18",
+      "containers": 10,
+      "traffic": "coastal",
+      "expectedINR": "0",
+      "reason": "Explicit exclusion"
+    },
+    {
+      "id": "MUC-TRANSSHIPMENT-EXEMPT",
+      "date": "2026-10-18",
+      "containers": 10,
+      "traffic": "transshipment",
+      "expectedINR": "0",
+      "reason": "Explicit exclusion"
+    },
+    {
+      "id": "MUC-40FT-NOT-TEU",
+      "date": "2026-10-18",
+      "containers": 1,
+      "TEUs": 2,
+      "traffic": "foreignEXIM",
+      "expectedPublishedCeilingExGSTINR": "170"
+    },
+    {
+      "id": "MUC-UNKNOWN-TRAFFIC",
+      "date": "2026-10-18",
+      "containers": 10,
+      "expectedDisposition": "Ask cargo traffic classification only, not vessel GRT or berthdates"
+    },
+    {
+      "id": "MUC-UNKNOWN-GST",
+      "date": "2026-10-18",
+      "containers": 10,
+      "traffic": "foreignEXIM",
+      "taxInclusiveRequested": true,
+      "expectedDisposition": "Provide verified1700exGSTand exacttaxauthoritygap; do notinvent18percent"
+    },
+    {
+      "id": "MUC-LOWER-RATE-AUTHORIZATION",
+      "date": "2026-10-18",
+      "containers": 10,
+      "traffic": "foreignEXIM",
+      "authorizedMUCINR": "140",
+      "authorizationVerified": true,
+      "expectedExGSTINR": "1650",
+      "reason": "140MUC+fixed25fund percontainer; nofunddiscount"
+    }
+  ],
+  "noPaidCalls": true,
+  "researchLimitations": [
+    "JNPA current SOR is not a consolidated complete tax/FX/invoice authority.",
+    "Current NSFT berth charge ownership not located beyond historical explicit JNPA SOP, current container-only operator tariff and current general JNPA rate. Customs custodianship is not proof of who invoices berth.",
+    "No numerical current GST rate for MUC established; original Ministry Annex I and signed NLDSL letter establish ex-GST ceiling only.",
+    "No claim of exhaustive source-branch approval or live acceptance."
+  ]
+}

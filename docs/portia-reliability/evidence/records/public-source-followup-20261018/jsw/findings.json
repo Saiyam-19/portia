@@ -1,0 +1,126 @@
+{
+  "research_date_utc": "2026-10-18",
+  "scope": "JSW JNPT Liquid Terminal operative original tariff recovery without contact",
+  "status": "unresolved_current_operative_pricing",
+  "current_tariff_original_recovered": false,
+  "no_external_messages": true,
+  "paid_inference_calls": 0,
+  "application_changed": false,
+  "new_confirmed_findings": [
+    {
+      "fact": "Official WordPress media API is public and readable. Search JNPT returns eight items; three new downloadable PDF candidates are audited financial statements, not tariffs. Search tariff returns two Jaigarh documents only.",
+      "sources": [
+        "https://www.jswinfrastructure.in/wp-json/wp/v2/media?search=JNPT&per_page=100",
+        "https://www.jswinfrastructure.in/wp-json/wp/v2/media?search=tariff&per_page=100"
+      ]
+    },
+    {
+      "fact": "Public terminal API says last modified 28 September 2026; no tariff field/link in returned public content/ACF. Eighteen attached items, all images, no PDF.",
+      "sources": [
+        "https://www.jswinfrastructure.in/wp-json/wp/v2/terminals/1781",
+        "https://www.jswinfrastructure.in/wp-json/wp/v2/media?parent=1781&per_page=100"
+      ]
+    },
+    {
+      "fact": "Wayback availability API returned empty archived_snapshots for December2025 original on group.jsw.in and www.jsw.in, June2025 original on www.jsw.in, and old group terminal landing page. This is not proof archives elsewhere do not exist.",
+      "sources": [
+        "https://archive.org/wayback/available?url=https://group.jsw.in/sites/default/files/assets/infrastructure/JSW-JNPT-Liquid-Terminal-Private-Limited-tariff-w-e-f-Dec-5-2025.pdf",
+        "https://archive.org/wayback/available?url=https://www.jsw.in/sites/default/files/assets/infrastructure/JSW-JNPT-Liquid-Terminal-Private-Limited-tariff-w-e-f-Dec-5-2025.pdf",
+        "https://archive.org/wayback/available?url=https://www.jsw.in/sites/default/files/assets/infrastructure/JSW-JNPT-Liquid-Terminal-Private-Limited-tariff-w-e-f-01-06-2025.pdf",
+        "https://archive.org/wayback/available?url=https://group.jsw.in/infrastructure/jsw-jnpt-liquid-terminal-private-limited"
+      ]
+    }
+  ],
+  "downloaded_pdf_classifications": [
+    {
+      "id": "jnpt-private",
+      "physical_page_1_visual_review": "Independent auditors report for year ended 31 March 2026; 49 physical pages; not tariff.",
+      "api_media_id": 3372,
+      "api_upload_date": "2026-07-20T13:39:35"
+    },
+    {
+      "id": "jnpt-private-ltd",
+      "physical_page_1_visual_review": "Independent auditors report for year ended 31 March 2025; 42 physical pages; not tariff.",
+      "api_media_id": 547,
+      "api_upload_date": "2025-12-04T09:29:45"
+    },
+    {
+      "id": "jnpt-private-ltd-1",
+      "physical_page_1_visual_review": "Independent auditors report for period 13 March 2024 to 31 March 2024; 32 physical pages; not tariff.",
+      "api_media_id": 569,
+      "api_upload_date": "2025-12-04T09:45:46"
+    }
+  ],
+  "cached_search_evidence": {
+    "url": "https://group.jsw.in/sites/default/files/assets/infrastructure/JSW-JNPT-Liquid-Terminal-Private-Limited-tariff-w-e-f-Dec-5-2025.pdf",
+    "search_extraction_observed": "Title explicitly Effective from 5th December 2025, with named cargo handling and infrastructure tables. It is a source retrieval gap, not tariff absence.",
+    "limitation": "Original bytes not recovered; applicability/supersession and complete table fidelity not independently established. Do not activate cached rates as current."
+  },
+  "failed_routes": [
+    "group.jsw.in DNS resolution failed even outside sandbox; www.jsw.in and jswinfrastructure.in December file paths404",
+    "Public JSW Group WordPress REST endpoints returned rest_no_route404",
+    "S3 public listing403; no alternate authenticated listing attempted",
+    "Wayback CDX request25secondtimeout"
+  ],
+  "searches": "Exact December filename, 2026 JNPT tariff, public S3 indexing, third-party official-copy mirrors; no operative successor original located in this bounded pass.",
+  "remaining": "Obtain December2025 original or later dated operative operator schedule. Current JNPA marine components remain separately governed; historical2024 private rate expiry remains unchanged.",
+  "processes": {
+    "started_long_running": [],
+    "stopped": [],
+    "shared_listeners_preserved": [
+      3000,
+      3210,
+      3211,
+      5174,
+      5198,
+      9749
+    ],
+    "ephemeral_curl_session_10847": "Completed timeout exit28; no running process retained",
+    "ps_default_sandbox": "Denied; parent already inspected processes before delegation; listener inspection before and after unchanged"
+  },
+  "html_pricing_followup": {
+    "trigger": "User accepts verified public tariff/pricing pages; PDFs are not a requirement.",
+    "acceptance_rule": "Any authoritative HTML table, public official calculator output, or attributable dated price publication can establish a charge if facility, service, units, effective interval and limitations are clear. File format alone is not a blocker.",
+    "result": "No independently current JJLTPL HTML pricing table located in this bounded additional pass. Cached December2025 source remains published pricing evidence with current applicability and complete conditions unverified.",
+    "pages": [
+      {
+        "url": "https://www.jnport.gov.in/page/tariff-calculator/Q3R5NXVXUjJsRXd3R2tjMGJYRlhndz09",
+        "verified": "Live page fetched. Its terminal select has only option129 JNPA. It does not publish a JJLTPL cargo option in HTML. No calculator form submitted.",
+        "local": "jnpa-calculator.html",
+        "sha256": "92cff390d5ca0f7c9ebb12bf4b91426f458ad79872b2c35bf7f5d1031efccfc2"
+      },
+      {
+        "url": "https://www.jsw.in/infrastructure/jsw-jnpt-liquid-terminal-private-limited",
+        "verified": "Web-extracted historical operator HTML exposes a tariff download labelled effective1June2025; no numerical tariff HTML table. URL resolves in web cache to group.jsw.in, direct legacy host DNS fails.",
+        "status": "published historical operator landing page, not verified live current prices"
+      },
+      {
+        "url": "https://www.gac.com/hot-port-news/additional-liquid-cargo-berths",
+        "verified": "HTML cites JJLTPL trade notice7October2024 and links above operator landing page; does not publish rate numbers.",
+        "status": "dated operating announcement, not tariff table"
+      },
+      {
+        "url": "https://www.afloat-india.com/charges",
+        "verified": "Search result pricing page explicitly says all displayed tariff rates, demurrage days and ocean surcharges are dummy demonstration figures; also container-oriented rather than JJLTPL liquids.",
+        "status": "excluded, not tariff evidence"
+      },
+      {
+        "url": "https://www.jmbaximarineservices.com/circulars",
+        "verified": "Search of JJLTPL/JSW JNPT circulars found operational notices but no current JJLTPL charge table.",
+        "status": "bounded search, no proof of absence"
+      }
+    ],
+    "published_candidate_rates": {
+      "provenance": "Search extraction attributed to operator source effective5December2025",
+      "source_url": "https://group.jsw.in/sites/default/files/assets/infrastructure/JSW-JNPT-Liquid-Terminal-Private-Limited-tariff-w-e-f-Dec-5-2025.pdf",
+      "items": [
+        "Cargo handling INR252/MT EXIM including coastal POL/crude oil",
+        "Cargo handling INR151.20/MT coastal except POL/crude oil",
+        "Infrastructure rows SKO, LDO, HSD and FO INR100/MT each"
+      ],
+      "status": "published candidates, not verified current October2026 operative rates",
+      "not_activated": true
+    },
+    "false_equivalence": "Secondary articles describing INR252/tonne concession royalty are not corroboration of customer charges: royalty is the operator-to-authority payment, a distinct charge."
+  }
+}

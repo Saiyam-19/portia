@@ -1,0 +1,8 @@
+{
+  "allSourceChecksumsMatch": true,
+  "sourceCount": 30,
+  "reviewedCandidateDelta": [
+    "data/reviewed-tariffs/coverage-gaps.json"
+  ],
+  "deltaReason": "Coverage metadata updated to describe assessed-weight and port-stay requirements; reviewed runtime/test source unchanged."
+}

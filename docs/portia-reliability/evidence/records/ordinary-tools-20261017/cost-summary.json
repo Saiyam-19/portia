@@ -1,0 +1,81 @@
+{
+  "scope": "All ordinary-tools-20261017 attempts, repairs and retries; excludes earlier tasks",
+  "dispatches": 149,
+  "providerReportedKnownUSD": "0.079065615",
+  "unknownUsageCalls": [
+    {
+      "id": "008",
+      "event": "stream-error",
+      "status": 200,
+      "reserve": "0.0101186",
+      "generationId": null
+    },
+    {
+      "id": "016",
+      "event": "provider-error",
+      "status": 404,
+      "reserve": "0.0101258",
+      "generationId": null
+    },
+    {
+      "id": "017",
+      "event": "provider-error",
+      "status": 404,
+      "reserve": "0.010124600000000001",
+      "generationId": null
+    },
+    {
+      "id": "018",
+      "event": "provider-error",
+      "status": 404,
+      "reserve": "0.010175199999999999",
+      "generationId": null
+    },
+    {
+      "id": "019",
+      "event": "provider-error",
+      "status": 404,
+      "reserve": "0.010145399999999999",
+      "generationId": null
+    },
+    {
+      "id": "020",
+      "event": "provider-error",
+      "status": 404,
+      "reserve": "0.0101344",
+      "generationId": null
+    },
+    {
+      "id": "021",
+      "event": "provider-error",
+      "status": 404,
+      "reserve": "0.010147199999999999",
+      "generationId": null
+    },
+    {
+      "id": "135",
+      "event": "transport-error",
+      "status": null,
+      "reserve": "0.0103714",
+      "generationId": null
+    }
+  ],
+  "unknownUsageCount": 8,
+  "conservativeUnpricedReserveUSD": "0.081342600",
+  "knownPlusReserveUSD": "0.160408215",
+  "approvedCapUSD": "1.50",
+  "withinConservativeCap": true,
+  "pending": [],
+  "note": "Unknown usage is not zero. Reservations are conservative guards, not billed amounts.",
+  "coreFrozenBatch": {
+    "calls": "084\u2013106",
+    "count": 23,
+    "providerReportedUSD": "0.017161175"
+  },
+  "models": [
+    "openai/gpt-6-luna"
+  ],
+  "reasoning": [
+    "none"
+  ]
+}

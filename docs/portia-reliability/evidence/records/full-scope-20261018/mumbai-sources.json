@@ -1,0 +1,1996 @@
+{
+  "version": 1,
+  "researcher": "mumbai_tariff_sources",
+  "asOfLocalDate": "2026-10-18",
+  "timezone": "Asia/Calcutta",
+  "paidApiSpendUSD": "0",
+  "runtimeEdits": false,
+  "sources": [
+    {
+      "file": "bpcl-2026-27.pdf",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/Rates_fo_the_period_26-27.pdf",
+      "retrievedAt": "2026-10-17T20:48:20.783031+00:00",
+      "status": 200,
+      "contentType": "application/pdf",
+      "bytes": 489240,
+      "sha256": "15d65a40550837e967566a7801861868b71dc51fac106503592233819c6adcea",
+      "localPath": "output/full-scope-20261018/sources/mumbai/bpcl-2026-27.pdf",
+      "pdfPages": 8
+    },
+    {
+      "file": "bpcl-liquid-terminal.html",
+      "url": "https://www.jnport.gov.in/page/liquid-terminal/WnNzalhmU0NET0xXZ3FIaDREbmpOQT09",
+      "retrievedAt": "2026-10-17T20:48:20.809331+00:00",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "bytes": 83015,
+      "sha256": "f3aee42fd32d414181a1c2d9960b66929d13fb5399a1b4a9fe0130f2fd1e8524",
+      "localPath": "output/full-scope-20261018/sources/mumbai/bpcl-liquid-terminal.html"
+    },
+    {
+      "file": "ictpl-regulatory-index.html",
+      "url": "https://www.abmp.gov.in/tarifforders/details/port-wise/6?folder=20&view_all=1",
+      "retrievedAt": "2026-10-17T20:48:20.824005+00:00",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "bytes": 44118,
+      "sha256": "c104cd1c196d68cf2697bec1e900f32f81a1fcfcae44bd7779f63f0d4259a076",
+      "localPath": "output/full-scope-20261018/sources/mumbai/ictpl-regulatory-index.html"
+    },
+    {
+      "file": "bpcl-2021-approved-sor.pdf",
+      "url": "https://www.abmp.gov.in/uploads/tariff_orders_master/order_6a45102f0f8dc.pdf",
+      "retrievedAt": "2026-10-17T20:48:20.860144+00:00",
+      "status": 200,
+      "contentType": "application/pdf",
+      "bytes": 1165342,
+      "sha256": "580fff5ed9128a7ce1aff6888c8b5ea3671a1bdda58964a16b63ddab1576d4fe",
+      "localPath": "output/full-scope-20261018/sources/mumbai/bpcl-2021-approved-sor.pdf",
+      "pdfPages": 33
+    },
+    {
+      "file": "circulars-2026.html",
+      "url": "https://www.mumbaiport.gov.in/show_content.php?lang=1&level=2&lid=1133&ls_id=1432",
+      "retrievedAt": "2026-10-17T20:48:50.228035+00:00",
+      "bytes": 165111,
+      "sha256": "52a164f28c733484ecf527a2838bed909c033f3dc5dfec10fe1312b56a9d8aee",
+      "status": 200,
+      "localPath": "output/full-scope-20261018/sources/mumbai/circulars-2026.html"
+    },
+    {
+      "file": "standardized-sor-template-2026.pdf",
+      "url": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1786714893.pdf",
+      "retrievedAt": "2026-10-17T20:48:50.230011+00:00",
+      "bytes": 388506,
+      "sha256": "040dded475f0349abe275d6917478dc27b34bd7c4749e7f8779667d7a688e7b9",
+      "status": 200,
+      "localPath": "output/full-scope-20261018/sources/mumbai/standardized-sor-template-2026.pdf",
+      "pdfPages": 1
+    },
+    {
+      "file": "board-resolutions-february2026.pdf",
+      "url": "https://mumbaiport.gov.in/WriteReadData/RTF1984/1771322000.pdf",
+      "retrievedAt": "2026-10-17T20:48:50.230360+00:00",
+      "bytes": 235079,
+      "sha256": "2de1bbd1add0d812060ab059cbb32c09ebc84426bb6a74e7cf60c2865d1673fb",
+      "status": 200,
+      "localPath": "output/full-scope-20261018/sources/mumbai/board-resolutions-february2026.pdf",
+      "pdfPages": 9
+    },
+    {
+      "file": "mumbai-sor-may2026.pdf",
+      "url": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1778833452.pdf",
+      "retrievedAt": "2026-10-17T20:48:50.231837+00:00",
+      "bytes": 1448349,
+      "sha256": "bcef570f3e41b1eb94772c38052f3701a981bd3b4d22059134ddcc1fe44bc244",
+      "status": 200,
+      "localPath": "output/full-scope-20261018/sources/mumbai/mumbai-sor-may2026.pdf",
+      "pdfPages": 61
+    },
+    {
+      "file": "mumbai-berth-amendment-may2026.pdf",
+      "url": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1778833405.pdf",
+      "retrievedAt": "2026-10-17T20:48:50.720108+00:00",
+      "bytes": 894113,
+      "sha256": "c64752669611dc4581ff6fc591a9073c17a7986c1a9e18c1fd606aec8a43354c",
+      "status": 200,
+      "localPath": "output/full-scope-20261018/sources/mumbai/mumbai-berth-amendment-may2026.pdf",
+      "pdfPages": 3
+    },
+    {
+      "file": "mumbai-cruise-rationalisation-2026.pdf",
+      "url": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1779878454.pdf",
+      "retrievedAt": "2026-10-17T20:48:50.818464+00:00",
+      "bytes": 424626,
+      "sha256": "d84918447738dbf47ca4ecd934f8d9234c0574dfbef586498cd2a9f0728a1df6",
+      "status": 200,
+      "localPath": "output/full-scope-20261018/sources/mumbai/mumbai-cruise-rationalisation-2026.pdf",
+      "pdfPages": 2
+    },
+    {
+      "file": "circulars-2025.html",
+      "url": "https://www.mumbaiport.gov.in/show_content.php?lang=1&level=2&lid=1068&ls_id=1343",
+      "retrievedAt": "2026-10-17T20:48:50.889424+00:00",
+      "bytes": 169718,
+      "sha256": "1f5dbe838d405fb10c987ea7c505ec01114073c5a8e9664555aa623bd71e79d8",
+      "status": 200,
+      "localPath": "output/full-scope-20261018/sources/mumbai/circulars-2025.html"
+    },
+    {
+      "file": "ictpl-oct-non-roro-commencement-dec2025.pdf",
+      "url": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1766570808.pdf",
+      "retrievedAt": "2026-10-17T20:49:28.418566+00:00",
+      "bytes": 737360,
+      "sha256": "82dc434fc11ae8b1f98ced963e86c019e0463f32b8d373a244f1ae8cd89b3e85",
+      "status": 200,
+      "localPath": "output/full-scope-20261018/sources/mumbai/ictpl-oct-non-roro-commencement-dec2025.pdf",
+      "pdfPages": 2
+    },
+    {
+      "file": "ictpl-oct-non-roro-sop-dec2025.pdf",
+      "url": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1767279378.pdf",
+      "retrievedAt": "2026-10-17T20:49:28.420050+00:00",
+      "bytes": 3022057,
+      "sha256": "9c691fa9b2394c7358acd1fa71c2a6f3174ae5b650c793b8bc158df4dd43971f",
+      "status": 200,
+      "localPath": "output/full-scope-20261018/sources/mumbai/ictpl-oct-non-roro-sop-dec2025.pdf",
+      "pdfPages": 4
+    },
+    {
+      "file": "ictpl-oct-roro-wharfage-dec2025.pdf",
+      "url": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1766751047.pdf",
+      "retrievedAt": "2026-10-17T20:49:28.420486+00:00",
+      "bytes": 349188,
+      "sha256": "5984805f6b5de646294cc06d5427c0f2f9b1022afaffd7a5a15656c77cbae0d1",
+      "status": 200,
+      "localPath": "output/full-scope-20261018/sources/mumbai/ictpl-oct-roro-wharfage-dec2025.pdf",
+      "pdfPages": 1
+    },
+    {
+      "file": "cruise-priority-september2026.pdf",
+      "url": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1790742492.pdf",
+      "retrievedAt": "2026-10-17T20:51:21.342298+00:00",
+      "bytes": 144850,
+      "sha256": "76d6e7173db30f80ab573c375e62ebaab980740bce6ad46e6efae267341ff258",
+      "status": 200,
+      "localPath": "output/full-scope-20261018/sources/mumbai/cruise-priority-september2026.pdf",
+      "pdfPages": 3
+    },
+    {
+      "file": "mumbai-home.html",
+      "url": "https://www.mumbaiport.gov.in/",
+      "retrievedAt": "2026-10-17T20:51:21.342745+00:00",
+      "bytes": 205194,
+      "sha256": "44e55d0bd8278b9ed67cb971b18c3fc922465136e80536d43b443b5e33207e78",
+      "status": 200,
+      "localPath": "output/full-scope-20261018/sources/mumbai/mumbai-home.html"
+    },
+    {
+      "file": "mumbai-tariff-index.html",
+      "url": "https://www.mumbaiport.gov.in/show_content.php?lang=1&level=1&ls_id=1225&lid=997",
+      "retrievedAt": "2026-10-17T20:51:21.344118+00:00",
+      "bytes": 131357,
+      "sha256": "a7f24b8c208db731910d889702b3cd2fc22133e39118ec5c32f323929803b6a3",
+      "status": 200,
+      "localPath": "output/full-scope-20261018/sources/mumbai/mumbai-tariff-index.html",
+      "scopeNote": "Estate-only index; not operational tariff authority."
+    },
+    {
+      "file": "standardized-sor-implementation-2026.pdf",
+      "url": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1787043422.pdf",
+      "retrievedAt": "2026-10-17T20:54:10.349728+00:00",
+      "status": 200,
+      "bytes": 327273,
+      "sha256": "33723a86edba27f826d218057b70a3000913fa67fa050dfb8d3758aaabdee9a1",
+      "localPath": "output/full-scope-20261018/sources/mumbai/standardized-sor-implementation-2026.pdf",
+      "pdfPages": 1
+    },
+    {
+      "file": "mumbai-operational-tariffs-index.html",
+      "url": "https://www.mumbaiport.gov.in/show_content.php?lang=1&level=0&ls_id=14&lid=14",
+      "retrievedAt": "2026-10-17T20:54:29.043386+00:00",
+      "status": 200,
+      "bytes": 168565,
+      "sha256": "4e74cd72594bf9e40a8b1b97745cac015735c2432ea62c848b69cbf11a39d01c",
+      "localPath": "output/full-scope-20261018/sources/mumbai/mumbai-operational-tariffs-index.html"
+    },
+    {
+      "file": "bpcl-regulatory-index.html",
+      "url": "https://www.abmp.gov.in/tarifforders/details/port-wise/4?folder=6&view_all=1",
+      "retrievedAt": "2026-10-17T20:55:35.134418+00:00",
+      "status": 200,
+      "bytes": 51249,
+      "sha256": "be732133327263e1d4a21a8e7a0fb346969db60fb6616b4da2edfb7d64597cf9",
+      "localPath": "output/full-scope-20261018/sources/mumbai/bpcl-regulatory-index.html"
+    },
+    {
+      "file": "mumbai-cruise-circulars-index.html",
+      "url": "https://www.mumbaiport.gov.in/show_content.php?lang=1&level=2&lid=971&ls_id=1181",
+      "retrievedAt": "2026-10-17T20:55:35.136201+00:00",
+      "status": 200,
+      "bytes": 132929,
+      "sha256": "e1440d94d03ea906c56fe278b0a339521e218cd4cf0d62f40539ddff9ec9b007",
+      "localPath": "output/full-scope-20261018/sources/mumbai/mumbai-cruise-circulars-index.html"
+    },
+    {
+      "file": "mumbai-cruise-extension-2025.pdf",
+      "url": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1762231645.pdf",
+      "retrievedAt": "2026-10-17T20:55:35.136467+00:00",
+      "status": 200,
+      "bytes": 422272,
+      "sha256": "375b6bfd683d9ecfad4945ad2f58a7fb2efa569c0c9324bfee7f28b93e6b4bb8",
+      "localPath": "output/full-scope-20261018/sources/mumbai/mumbai-cruise-extension-2025.pdf",
+      "pdfPages": 2
+    },
+    {
+      "file": "mumbai-circulars-compendium-2024.pdf",
+      "url": "https://mumbaiport.gov.in/WriteReadData/RTF1984/1732608475.pdf",
+      "retrievedAt": "2026-10-17T20:55:35.136667+00:00",
+      "status": 200,
+      "bytes": 131222,
+      "sha256": "77d187a77c1686e244c7a8dcb0a2d111917eb56fbbbfc72fc1c3d9379d5d4556",
+      "localPath": "output/full-scope-20261018/sources/mumbai/mumbai-circulars-compendium-2024.pdf",
+      "pdfPages": 10
+    },
+    {
+      "file": "mumbai-cruise-2023.pdf",
+      "url": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1707284711.pdf",
+      "retrievedAt": "2026-10-17T20:55:58.603920+00:00",
+      "status": 200,
+      "bytes": 196390,
+      "sha256": "37b985e1fe5b693e80582c6037f72a8cc46479d455363b30c719562ecd4ae934",
+      "localPath": "output/full-scope-20261018/sources/mumbai/mumbai-cruise-2023.pdf",
+      "pdfPages": 1
+    },
+    {
+      "file": "mumbai-cruise-2024.pdf",
+      "url": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1754457149.pdf",
+      "retrievedAt": "2026-10-17T20:55:58.604294+00:00",
+      "status": 200,
+      "bytes": 423648,
+      "sha256": "d5e05f6c08959ba1eefd195e50cee9d853d985f18a5ff376aa80590aeb28307c",
+      "localPath": "output/full-scope-20261018/sources/mumbai/mumbai-cruise-2024.pdf",
+      "pdfPages": 2
+    },
+    {
+      "file": "mumbai-cruise-oct2022.pdf",
+      "url": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1707284696.pdf",
+      "retrievedAt": "2026-10-17T20:55:58.607565+00:00",
+      "status": 200,
+      "bytes": 728798,
+      "sha256": "16ed7644a2e77c8a8651ff28e43ea42f49c08634c7858cad7deec203f39cca1c",
+      "localPath": "output/full-scope-20261018/sources/mumbai/mumbai-cruise-oct2022.pdf",
+      "pdfPages": 1
+    },
+    {
+      "file": "mumbai-cruise-2019.pdf",
+      "url": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1707284372.pdf",
+      "retrievedAt": "2026-10-17T20:56:35.470005+00:00",
+      "status": 200,
+      "bytes": 214170,
+      "sha256": "7d07abb1138e750622e222324e64cbdc75c7f3b21f0ffa212fc231f0a321bdaa",
+      "localPath": "output/full-scope-20261018/sources/mumbai/mumbai-cruise-2019.pdf",
+      "pdfPages": 2
+    },
+    {
+      "file": "mumbai-cruise-2020.pdf",
+      "url": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1707284191.pdf",
+      "retrievedAt": "2026-10-17T20:56:35.471707+00:00",
+      "status": 200,
+      "bytes": 877256,
+      "sha256": "36bf9cefbcf80e2029880e98f5cc691b7010b00a1d1e1d6583c086e28a7b4017",
+      "localPath": "output/full-scope-20261018/sources/mumbai/mumbai-cruise-2020.pdf",
+      "pdfPages": 2
+    },
+    {
+      "file": "mumbai-cruise-2021.pdf",
+      "url": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1707284204.pdf",
+      "retrievedAt": "2026-10-17T20:58:03.610790+00:00",
+      "status": 200,
+      "bytes": 715878,
+      "sha256": "b33f8c32b23ea7e91a9612f599f8eaccdfdc6e41b843ea3ae08903f6204cc975",
+      "localPath": "output/full-scope-20261018/sources/mumbai/mumbai-cruise-2021.pdf",
+      "pdfPages": 2
+    },
+    {
+      "file": "mumbai-cruise-sep2022.pdf",
+      "url": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1707284227.pdf",
+      "retrievedAt": "2026-10-17T20:58:03.612458+00:00",
+      "status": 200,
+      "bytes": 1318416,
+      "sha256": "0994ab90e6ba492ec79313566f1ba6cf1af46d8153a01dadeb77eb7db2feb9f7",
+      "localPath": "output/full-scope-20261018/sources/mumbai/mumbai-cruise-sep2022.pdf",
+      "pdfPages": 2
+    },
+    {
+      "file": "mumbai-accounts-2024-25.pdf",
+      "url": "https://mumbaiport.gov.in/WriteReadData/RTF1984/1768915939.pdf",
+      "retrievedAt": "2026-10-17T20:58:03.612788+00:00",
+      "status": 200,
+      "bytes": 13077116,
+      "sha256": "76e58f127b0bbd578b72946c6a150a364ce1672a52ae1e4f49fd846c57fc38a3",
+      "localPath": "output/full-scope-20261018/sources/mumbai/mumbai-accounts-2024-25.pdf",
+      "pdfPages": 97
+    },
+    {
+      "file": "draft-migration-tariff-guidelines-2025.pdf",
+      "url": "https://shipmin.gov.in/sites/default/files/Migration%20of%20Tariff%20Guidelines%202025_0.pdf",
+      "retrievedAt": "2026-10-17T20:58:03.612960+00:00",
+      "status": 200,
+      "bytes": 3075535,
+      "sha256": "a94899a66d585c7d709679a99877415dfa3d3d8d44109f3301b191a522624051",
+      "localPath": "output/full-scope-20261018/sources/mumbai/draft-migration-tariff-guidelines-2025.pdf",
+      "pdfPages": 42,
+      "authorityUse": "Draft consultation only; never operative tariff authority."
+    },
+    {
+      "file": "abmp-portwise.html",
+      "url": "https://www.abmp.gov.in/tarifforders/port-wise",
+      "retrievedAt": "2026-10-17T21:00:47.818111+00:00",
+      "status": 200,
+      "bytes": 30142,
+      "sha256": "3995d08d470566552edb4121ea58f11aa2eaf3e9e01e7ca9e7881feb3cf1e73f",
+      "localPath": "output/full-scope-20261018/sources/mumbai/abmp-portwise.html"
+    },
+    {
+      "file": "chennai-2025-sor-cruise-corroboration.pdf",
+      "url": "https://chennaiport.gov.in/api/static/default/inner_content/Indexed%20SOR%20270625.pdf",
+      "retrievedAt": "2026-10-17T21:00:47.818459+00:00",
+      "error": "curl: (60) SSL: no alternative certificate subject name matches target host name 'chennaiport.gov.in'\nMore details here: https://curl.se/docs/sslcerts.html\n\ncurl failed to verify the legitimacy of the server and therefore could not\nestablish a secure connection to it. To learn more about this situation and\nhow to fix it, please visit the web page mentioned above.\n",
+      "localPath": null,
+      "authorityUse": "Supplementary search-index corroboration only; direct bytes unavailable."
+    },
+    {
+      "file": "cochin-cruise-2024-corroboration.pdf",
+      "url": "https://www.cochinport.gov.in/sites/default/files/inline-files/Trade%20Notice%2005_2024Cruise.pdf",
+      "retrievedAt": "2026-10-17T21:00:47.818706+00:00",
+      "status": 200,
+      "bytes": 813340,
+      "sha256": "393ea5af5f86a986ca0ae5c6340b252934cd9d6103d9268530d442d4d614dc62",
+      "localPath": "output/full-scope-20261018/sources/mumbai/cochin-cruise-2024-corroboration.pdf",
+      "pdfPages": 1
+    },
+    {
+      "file": "ictpl-current-facility-page.html",
+      "url": "https://www.mumbaiport.gov.in/show_content.php?lang=1&level=2&ls_id=1095&lid=146",
+      "retrievedAt": "2026-10-17T21:19:08.489024+00:00",
+      "status": 200,
+      "bytes": 128509,
+      "sha256": "5fbcb10088cb3d99a85523c01d1561711a9c4d3e06eb5a630ef32de066cd1b06",
+      "localPath": "output/full-scope-20261018/sources/mumbai/ictpl-current-facility-page.html"
+    },
+    {
+      "file": "ictpl-approved-sop-full-original.pdf",
+      "url": "https://www.mumbaiport.gov.in/showfile.php?lang=1&level=1&lid=950&ls_id=1114",
+      "retrievedAt": "2026-10-17T21:19:08.490845+00:00",
+      "status": 200,
+      "bytes": 188107,
+      "sha256": "6352aea9b8d409a6e65954ccf8cee89806bd512042f363d9d8d01c406fa035aa",
+      "localPath": "output/full-scope-20261018/sources/mumbai/ictpl-approved-sop-full-original.pdf",
+      "usablePdf": false,
+      "format": "Truncated mixed HTML/PDF HTTP body retained as evidence; recovered source separately listed."
+    },
+    {
+      "file": "jnpa-terminal-sor-current-index.html",
+      "url": "https://www.jnport.gov.in/page/terminal-sor/RHBVd096Y3Y3MXVISlRWU24ySE53Zz09",
+      "retrievedAt": "2026-10-17T21:18:42.247186+00:00",
+      "retrievalTimestampBasis": "local completed-download modification time",
+      "status": 200,
+      "bytes": 75841,
+      "sha256": "7d0aa5ce4bb73023c481ef3343aa2e80b496c79312c13b3f84d2d7d07b25aab3",
+      "localPath": "output/full-scope-20261018/sources/mumbai/jnpa-terminal-sor-current-index.html"
+    },
+    {
+      "file": "ictpl-approved-sop-full-response.bin",
+      "url": "https://www.mumbaiport.gov.in/showfile.php?lang=1&level=1&lid=950&ls_id=1114",
+      "retrievedAt": "2026-10-17T21:19:35.123748+00:00",
+      "retrievalTimestampBasis": "Completed full-response file time",
+      "bytes": 188135,
+      "sha256": "77fe694cd6135d8caa16d59cf7f9c82d57222b2ddb7e4be6798c5f801a93054b",
+      "provenance": "Full original HTTP body",
+      "localPath": "output/full-scope-20261018/sources/mumbai/ictpl-approved-sop-full-response.bin"
+    },
+    {
+      "file": "ictpl-approved-sop-recovered.pdf",
+      "url": "https://www.mumbaiport.gov.in/showfile.php?lang=1&level=1&lid=950&ls_id=1114",
+      "retrievedAt": "2026-10-17T21:19:35.123748+00:00",
+      "retrievalTimestampBasis": "Completed full-response file time",
+      "bytes": 188106,
+      "sha256": "b772eb44242a2af68edbe58bde109bddaa09194c75c2c08f6449fda52341778f",
+      "provenance": "Exact unmodified PDF byte slice; seeictpl-sop-extraction.json",
+      "localPath": "output/full-scope-20261018/sources/mumbai/ictpl-approved-sop-recovered.pdf",
+      "pdfPages": 6
+    }
+  ],
+  "sourceDecisions": [
+    {
+      "facility": "mumbai",
+      "status": "current-publication-verified-for-clear-branches",
+      "evidence": "Homepage names May 2026 updated SOR as current; fresh SOR/amendment hashes match retained bytes. August circulars are drafts seeking comments, not operative replacements.",
+      "limitations": [
+        "No assertion of bespoke contract prices.",
+        "Full 61-page services and exceptions not fully implemented or independently accepted by this research.",
+        "New later operative notice requires refresh."
+      ]
+    },
+    {
+      "facility": "mumbai-cruise-terminal",
+      "status": "current-special-structure-verified",
+      "effectiveFrom": "2026-04-01",
+      "effectiveThrough": "2027-03-31",
+      "open": [
+        "Rebate base/counting entity/year and retrospective versus prospective application.",
+        "Private terminal additions and full service inclusions.",
+        "Part-hour treatment beyond12h."
+      ],
+      "resolvedInterpretation": "Do not add standard berth hire, port dues, pilotage or passenger fee to the first-12-hour special cruise scheme; continued-source-chain inference, not explicit wording repeated in2026."
+    },
+    {
+      "facility": "ictpl",
+      "status": "current-operating-and-wharfage-instructions-verified-berth-price-open",
+      "facts": [
+        "Non-RoRo operations recommenced; Dec23 2025 circular extends berthing SOP until further advice.",
+        "Non-RoRo wharfage payable to MbPA; RoRo change effective Jan15 2026.",
+        "Official regulator index latest retained tariff extension is2020 throughMar2021; no current130% berth-rule extension established.",
+        "FY2024-25 accounts corroborate130%berthhire/100%wharfage practice during that year, without settling later base-row/renewal."
+      ]
+    },
+    {
+      "facility": "bpcl-liquid-cargo-jetty",
+      "status": "2026-published-component-estimates-recommended-with-documented-unit-continuity",
+      "effectiveFrom": "2026-05-01",
+      "facts": [
+        "2026 notice uses0.39% annualindexation and says revisedrates applicable May1 onwards.",
+        "2021 AnnexIV has identifiable units/conditions, but \u00a714.2 explicitly lapses after3years unlessextended.",
+        "2026 rate sheet contains no units exceptUSD water description and no fullconditions."
+      ],
+      "open": [
+        "Full invoice conditions and special event application beyond the exact ordinary component scope.",
+        "Genuine blank/ambiguous rows and fractional-unit treatment."
+      ],
+      "supersedingAddendum": "bpclReassessmentAddendum"
+    },
+    {
+      "facility": "bpcl-cargo-jetty",
+      "status": "legacy-generic-identity-unresolved",
+      "decision": "Preserve legacy identifier. Route explicit BPCL-IOCL Liquid Cargo Jetty / JNPA LB01/LB02 to known liquid facility. Generic BPCL cargo label alone remains unresolved; do not claim two verified physical facilities or silently merge history."
+    }
+  ],
+  "rules": [
+    {
+      "id": "mumbai-cargo-pilotage-towage",
+      "source": "mumbai-sor-may2026.pdf",
+      "pages": [
+        9,
+        10,
+        12,
+        13
+      ],
+      "clauses": [
+        "2.1(A)",
+        "2.1 notes1-10",
+        "General Notes2.1/2.2"
+      ],
+      "effectiveFrom": "2026-05-01",
+      "priceBasis": "published ceiling component; excludes tax/FX/finalinvoice rounding",
+      "minimumGRT": "1000",
+      "rateColumns": [
+        "rateThrough30000",
+        "baseForFirst30000",
+        "rateAbove30000Through60000",
+        "baseForFirst60000",
+        "rateAbove60000"
+      ],
+      "rates": {
+        "docks": {
+          "USD": [
+            "0.6322",
+            "18966",
+            "0.5058",
+            "34140",
+            "0.4425"
+          ],
+          "INR": [
+            "17.2897",
+            "518691",
+            "13.8318",
+            "933645",
+            "12.1028"
+          ]
+        },
+        "streamWithoutTugs": {
+          "USD": [
+            "0.1144",
+            "3432",
+            "0.0916",
+            "6180",
+            "0.0801"
+          ],
+          "INR": [
+            "3.1259",
+            "93777",
+            "2.5007",
+            "168798",
+            "2.1881"
+          ]
+        },
+        "jawaharDweepPirPau": {
+          "USD": [
+            "1.1399",
+            "34197",
+            "0.9119",
+            "61554",
+            "0.7979"
+          ],
+          "INR": [
+            "31.1811",
+            "935433",
+            "24.9449",
+            "1683780",
+            "21.8268"
+          ]
+        },
+        "shiftingWithoutTugs": {
+          "USD": [
+            "0.1570",
+            "4710",
+            "0.1256",
+            "8478",
+            "0.1099"
+          ],
+          "INR": [
+            "4.3431",
+            "130293",
+            "3.4745",
+            "234528",
+            "3.0402"
+          ]
+        }
+      },
+      "fullCycleIncludes": [
+        "one inward movement",
+        "one outward movement",
+        "required adequate tugs/launches for applicable dock or JD/PP branch",
+        "port-convenience shifts"
+      ],
+      "legMultiplier": "0.5; each leg uses own coastal/foreign status",
+      "requirements": [
+        "certifiedGRT",
+        "cargo-vessel category",
+        "actualmovementlocation",
+        "inward/outward service status",
+        "movementcount/scope",
+        "selfpropelled/coldmove state",
+        "normal port convenience versus requestedshifting"
+      ],
+      "additionalRules": [
+        "Cold/deadship movement double rate plus additionaltug hire; do not infer normal selfpropulsion if absent.",
+        "Stream rates exclude tugs; assistance invokes section2.12.",
+        "Userrequested shifting needs own applicablemovement; do not confusewith bothlegs.",
+        "Cargovessel table excludes miscellaneous/cruise specialclasses.",
+        "General-note exceptions apply for licensed-master direct coastal movements, tug-plus-barge aggregate tonnage, and out-of-pilot-station interception.",
+        "OCT-to-stream port-convenience shifting followed by stream-to-OCT agent-account shifting must not both be waived."
+      ]
+    },
+    {
+      "id": "mumbai-ordinary-port-dues",
+      "source": "mumbai-sor-may2026.pdf",
+      "pages": [
+        20,
+        21
+      ],
+      "clause": "2.16 rows1-2 and notes",
+      "effectiveFrom": "2026-05-01",
+      "selection": "whole-GRT rate selected by vesselgroup; not progressive",
+      "rates": [
+        {
+          "minimumGRT": "10",
+          "maximumExclusiveGRT": "3000",
+          "USDperGRT": "0.2718",
+          "INRperGRT": "7.4379"
+        },
+        {
+          "minimumGRT": "3000",
+          "USDperGRT": "0.3850",
+          "INRperGRT": "10.5366"
+        }
+      ],
+      "frequency": "eachordinaryentry",
+      "requirements": [
+        "certifiedtariffGRT",
+        "foreign/coastalstatus",
+        "vesselclass",
+        "normalcargo/passengeroperationsversusballast/nooperations",
+        "entry/priorpaid/reentryfacts"
+      ],
+      "excludedFromSimpleBranch": [
+        "fishingboat",
+        "pleasureyacht",
+        "naval/government",
+        "telegraph",
+        "inland/monthly or specifiedhalfyearlyclasses",
+        "ballast/no cargo/passenger",
+        "distress/tow",
+        "JNPAcrossentry/18%/82%/priorfullpayment",
+        "forcedreentrysamevoyage"
+      ],
+      "specialTonnage": "Segregated-ballastoiltankers use reducedGRT from certificate Remarks for portdues only."
+    },
+    {
+      "id": "mumbai-ordinary-anchorage",
+      "source": "mumbai-sor-may2026.pdf",
+      "pages": [
+        18,
+        19
+      ],
+      "clause": "2.15(A)",
+      "effectiveFrom": "2026-05-01",
+      "unit": "GRT per hour or part",
+      "bands": {
+        "A-G-TA1-NewExplosiveKaranja": {
+          "through30days": {
+            "USD": "0.0055",
+            "INR": "0.0867"
+          },
+          "after30days": {
+            "USD": "0.0137",
+            "INR": "0.2165"
+          }
+        },
+        "L-M-NewPirPauAndSpecifiedOffshorePoints-PLA": {
+          "through30days": {
+            "USD": "0.0043",
+            "INR": "0.0670"
+          },
+          "after30days": {
+            "USD": "0.0137",
+            "INR": "0.2165"
+          }
+        }
+      },
+      "requirements": [
+        "confirmedanchorpoint",
+        "anchordrop/departureintervals",
+        "all intervening berth/drydock intervals",
+        "foreign/coastalstatus",
+        "notexempt",
+        "notLASH/dumbbarge specials"
+      ],
+      "notes": [
+        "Excludeactualtimeawayatberth/drydockbutretaincumulativeanchoragecontinuity.",
+        "Noanchoragefeeoutsideportlimits, forIndianNavy/CoastGuard, orlicensedwaterconveyanceunder2.11.",
+        "Do not applygenericforeignberthratetoanchorage."
+      ]
+    },
+    {
+      "id": "mumbai-cruise-published-base",
+      "source": "mumbai-cruise-rationalisation-2026.pdf",
+      "pages": [
+        1,
+        2
+      ],
+      "effectiveFrom": "2026-04-01",
+      "effectiveThrough": "2027-03-31",
+      "first12HoursUSDperGRT": "0.085",
+      "headTaxUSDperPassenger": "6",
+      "excessUSDperGRTperHour": "0.0175",
+      "rebateBands": [
+        {
+          "maxAnnualCalls": 10,
+          "percent": "0"
+        },
+        {
+          "minAnnualCalls": 11,
+          "maxAnnualCalls": 35,
+          "percent": "10"
+        },
+        {
+          "minAnnualCalls": 36,
+          "maxAnnualCalls": 70,
+          "percent": "15"
+        },
+        {
+          "minAnnualCalls": 71,
+          "percent": "20"
+        }
+      ],
+      "safeScope": "Explicit published base/head-tax component without rebate for known no-rebate case; not fullinvoice",
+      "blockedForCompleteBill": [
+        "rebatebase/countingentity/year/retrospectivehandling",
+        "hourfractionrounding",
+        "privateadditions"
+      ],
+      "first12HoursInclusions": {
+        "ordinaryBerthHire": "included",
+        "portDues": "included",
+        "pilotage": "included",
+        "passengerFee": "included",
+        "interpretation": "Continuation of the published2020scheme through the explicit2021,2022,2023,2024,2025,2026 chain."
+      },
+      "remainingAmbiguities": [
+        "Annual rebate entity/year/base and retrospective application.",
+        "Excess part-hour treatment.",
+        "Private operator services and charges outside the special scheme.",
+        "Taxes and finalsettlement require applicable supplyfacts."
+      ]
+    },
+    {
+      "id": "mumbai-cruise-priority",
+      "source": "cruise-priority-september2026.pdf",
+      "pages": [
+        1,
+        2,
+        3
+      ],
+      "clauses": [
+        "Sep29 2026 SOP(a-e)",
+        "Oct17 2024 attachedcircular(a-b)"
+      ],
+      "facts": [
+        "Atleast30daysadvanceberthintimationavoidspriority/ousting/shiftingfee forberthingcruisevessel.",
+        "Subsequentshiftingrequestedforshipconvenienceremainschargeable.",
+        "Without30daysnoticeprioritymayapplywherecruiseberthingoverlookssuitableseniorreadyvesselatBPS/BPX;ousting/shiftingchargesalsoasapplicable."
+      ]
+    },
+    {
+      "id": "ictpl-wharfage-owner",
+      "sources": [
+        {
+          "file": "ictpl-oct-non-roro-commencement-dec2025.pdf",
+          "pages": [
+            1,
+            2
+          ]
+        },
+        {
+          "file": "ictpl-oct-roro-wharfage-dec2025.pdf",
+          "pages": [
+            1
+          ]
+        }
+      ],
+      "nonRoRoFrom": "2025-12-23",
+      "roRoFrom": "2026-01-15",
+      "owner": "Mumbai Port Authority only",
+      "notAuthorized": "Doesnotconfirmcurrent130%berthmultiplierorallcargoeligibility."
+    }
+  ],
+  "independentOracleCases": [
+    {
+      "id": "MUM-PIL-DOCKS-999-USD",
+      "rule": "mumbai-cargo-pilotage-towage",
+      "grt": "999",
+      "location": "docks",
+      "currency": "USD",
+      "legs": "both-same-status",
+      "expectedUnrounded": "632.2000",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PIL-DOCKS-999-INR",
+      "rule": "mumbai-cargo-pilotage-towage",
+      "grt": "999",
+      "location": "docks",
+      "currency": "INR",
+      "legs": "both-same-status",
+      "expectedUnrounded": "17289.7000",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PIL-DOCKS-1000-USD",
+      "rule": "mumbai-cargo-pilotage-towage",
+      "grt": "1000",
+      "location": "docks",
+      "currency": "USD",
+      "legs": "both-same-status",
+      "expectedUnrounded": "632.2000",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PIL-DOCKS-1000-INR",
+      "rule": "mumbai-cargo-pilotage-towage",
+      "grt": "1000",
+      "location": "docks",
+      "currency": "INR",
+      "legs": "both-same-status",
+      "expectedUnrounded": "17289.7000",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PIL-DOCKS-29999-USD",
+      "rule": "mumbai-cargo-pilotage-towage",
+      "grt": "29999",
+      "location": "docks",
+      "currency": "USD",
+      "legs": "both-same-status",
+      "expectedUnrounded": "18965.3678",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PIL-DOCKS-29999-INR",
+      "rule": "mumbai-cargo-pilotage-towage",
+      "grt": "29999",
+      "location": "docks",
+      "currency": "INR",
+      "legs": "both-same-status",
+      "expectedUnrounded": "518673.7103",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PIL-DOCKS-30000-USD",
+      "rule": "mumbai-cargo-pilotage-towage",
+      "grt": "30000",
+      "location": "docks",
+      "currency": "USD",
+      "legs": "both-same-status",
+      "expectedUnrounded": "18966.0000",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PIL-DOCKS-30000-INR",
+      "rule": "mumbai-cargo-pilotage-towage",
+      "grt": "30000",
+      "location": "docks",
+      "currency": "INR",
+      "legs": "both-same-status",
+      "expectedUnrounded": "518691.0000",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PIL-DOCKS-30001-USD",
+      "rule": "mumbai-cargo-pilotage-towage",
+      "grt": "30001",
+      "location": "docks",
+      "currency": "USD",
+      "legs": "both-same-status",
+      "expectedUnrounded": "18966.5058",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PIL-DOCKS-30001-INR",
+      "rule": "mumbai-cargo-pilotage-towage",
+      "grt": "30001",
+      "location": "docks",
+      "currency": "INR",
+      "legs": "both-same-status",
+      "expectedUnrounded": "518704.8318",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PIL-DOCKS-40000-USD",
+      "rule": "mumbai-cargo-pilotage-towage",
+      "grt": "40000",
+      "location": "docks",
+      "currency": "USD",
+      "legs": "both-same-status",
+      "expectedUnrounded": "24024.0000",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PIL-DOCKS-40000-INR",
+      "rule": "mumbai-cargo-pilotage-towage",
+      "grt": "40000",
+      "location": "docks",
+      "currency": "INR",
+      "legs": "both-same-status",
+      "expectedUnrounded": "657009.0000",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PIL-DOCKS-59999-USD",
+      "rule": "mumbai-cargo-pilotage-towage",
+      "grt": "59999",
+      "location": "docks",
+      "currency": "USD",
+      "legs": "both-same-status",
+      "expectedUnrounded": "34139.4942",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PIL-DOCKS-59999-INR",
+      "rule": "mumbai-cargo-pilotage-towage",
+      "grt": "59999",
+      "location": "docks",
+      "currency": "INR",
+      "legs": "both-same-status",
+      "expectedUnrounded": "933631.1682",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PIL-DOCKS-60000-USD",
+      "rule": "mumbai-cargo-pilotage-towage",
+      "grt": "60000",
+      "location": "docks",
+      "currency": "USD",
+      "legs": "both-same-status",
+      "expectedUnrounded": "34140.0000",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PIL-DOCKS-60000-INR",
+      "rule": "mumbai-cargo-pilotage-towage",
+      "grt": "60000",
+      "location": "docks",
+      "currency": "INR",
+      "legs": "both-same-status",
+      "expectedUnrounded": "933645.0000",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PIL-DOCKS-60001-USD",
+      "rule": "mumbai-cargo-pilotage-towage",
+      "grt": "60001",
+      "location": "docks",
+      "currency": "USD",
+      "legs": "both-same-status",
+      "expectedUnrounded": "34140.4425",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PIL-DOCKS-60001-INR",
+      "rule": "mumbai-cargo-pilotage-towage",
+      "grt": "60001",
+      "location": "docks",
+      "currency": "INR",
+      "legs": "both-same-status",
+      "expectedUnrounded": "933657.1028",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PIL-DOCKS-70000-USD",
+      "rule": "mumbai-cargo-pilotage-towage",
+      "grt": "70000",
+      "location": "docks",
+      "currency": "USD",
+      "legs": "both-same-status",
+      "expectedUnrounded": "38565.0000",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PIL-DOCKS-70000-INR",
+      "rule": "mumbai-cargo-pilotage-towage",
+      "grt": "70000",
+      "location": "docks",
+      "currency": "INR",
+      "legs": "both-same-status",
+      "expectedUnrounded": "1054673.0000",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PD-10-USD",
+      "rule": "mumbai-ordinary-port-dues",
+      "grt": "10",
+      "currency": "USD",
+      "cargoOperation": true,
+      "ordinarySingleEntry": true,
+      "expectedUnrounded": "2.7180",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PD-10-INR",
+      "rule": "mumbai-ordinary-port-dues",
+      "grt": "10",
+      "currency": "INR",
+      "cargoOperation": true,
+      "ordinarySingleEntry": true,
+      "expectedUnrounded": "74.3790",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PD-2999-USD",
+      "rule": "mumbai-ordinary-port-dues",
+      "grt": "2999",
+      "currency": "USD",
+      "cargoOperation": true,
+      "ordinarySingleEntry": true,
+      "expectedUnrounded": "815.1282",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PD-2999-INR",
+      "rule": "mumbai-ordinary-port-dues",
+      "grt": "2999",
+      "currency": "INR",
+      "cargoOperation": true,
+      "ordinarySingleEntry": true,
+      "expectedUnrounded": "22306.2621",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PD-3000-USD",
+      "rule": "mumbai-ordinary-port-dues",
+      "grt": "3000",
+      "currency": "USD",
+      "cargoOperation": true,
+      "ordinarySingleEntry": true,
+      "expectedUnrounded": "1155.0000",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PD-3000-INR",
+      "rule": "mumbai-ordinary-port-dues",
+      "grt": "3000",
+      "currency": "INR",
+      "cargoOperation": true,
+      "ordinarySingleEntry": true,
+      "expectedUnrounded": "31609.8000",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PD-3001-USD",
+      "rule": "mumbai-ordinary-port-dues",
+      "grt": "3001",
+      "currency": "USD",
+      "cargoOperation": true,
+      "ordinarySingleEntry": true,
+      "expectedUnrounded": "1155.3850",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PD-3001-INR",
+      "rule": "mumbai-ordinary-port-dues",
+      "grt": "3001",
+      "currency": "INR",
+      "cargoOperation": true,
+      "ordinarySingleEntry": true,
+      "expectedUnrounded": "31620.3366",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PD-10000-USD",
+      "rule": "mumbai-ordinary-port-dues",
+      "grt": "10000",
+      "currency": "USD",
+      "cargoOperation": true,
+      "ordinarySingleEntry": true,
+      "expectedUnrounded": "3850.0000",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-PD-10000-INR",
+      "rule": "mumbai-ordinary-port-dues",
+      "grt": "10000",
+      "currency": "INR",
+      "cargoOperation": true,
+      "ordinarySingleEntry": true,
+      "expectedUnrounded": "105366.0000",
+      "taxIncluded": false
+    },
+    {
+      "id": "MUM-CRUISE-BASE-12",
+      "rule": "mumbai-cruise-published-base",
+      "grt": "10000",
+      "passengers": 100,
+      "hours": "12",
+      "rebatePercent": "0",
+      "expectedUSD": "1450.000",
+      "completeInvoice": false
+    },
+    {
+      "id": "MUM-CRUISE-BASE-18",
+      "rule": "mumbai-cruise-published-base",
+      "grt": "10000",
+      "passengers": 100,
+      "hours": "18",
+      "rebatePercent": "0",
+      "expectedUSD": "2500.0000",
+      "completeInvoice": false
+    }
+  ],
+  "officialContactsAndUnsentQuestions": [
+    {
+      "owner": "Mumbai Port Authority Traffic Manager",
+      "email": "tmoffice@mumbaiport.gov.in",
+      "phone": "+91-22-66564429",
+      "source": "cruise-priority-september2026.pdf p1; ictpl-oct-non-roro-commencement-dec2025.pdf p1",
+      "questions": [
+        "Please supply the current ICTPL/OCT berth-hire instrument, exact Mumbai base-row and conditions applicable on18October2026, and any postFY2024-25 changes to the130%practice.",
+        "Please clarify the current cruise annual-rebate counting entity/year, chargebase and retrospective/prospective application, excesspart-hour rule, and any local/private ancillary schedule outside the continued basic scheme."
+      ]
+    },
+    {
+      "owner": "BPCL Liquid Cargo Jetty operations",
+      "phone": "+91-22-27240835 / +91-22-27240366 / +91-22-27240367",
+      "source": "bpcl-2026-27.pdf cover",
+      "questions": [
+        "Please supply currentfullSOR/generalconditionsorcontinuationofTAMP/59/2019-BPCLAnnexIVbeyondits3yearterm, includingunits, minimumquantities, rounding,taxes,delayrebates andoverstayconditions.",
+        "Please identify anyseparatefacility officiallycalledBPCLCargoJettyversusBPCL-IOCLLB01/LB02atJNPA."
+      ]
+    }
+  ],
+  "neededFromUserNow": [],
+  "externalMessagesSent": false,
+  "completeFiveFacilityPricing": false,
+  "correctionLog": [
+    {
+      "at": "2026-10-17T21:02:40.287225+00:00",
+      "field": "Cruise first-12-hour standard-charge inclusion",
+      "previous": "Unresolved using only2026extension andMaySOR.",
+      "new": "Resolved as explicit continuation inference: no added ordinary berth hire, port dues, pilotage or passenger fees for first12hours.",
+      "sources": [
+        "mumbai-cruise-2020.pdf p1",
+        "mumbai-cruise-2021.pdf p1",
+        "mumbai-cruise-sep2022.pdf p1",
+        "mumbai-cruise-oct2022.pdf",
+        "mumbai-cruise-2023.pdf",
+        "mumbai-cruise-2024.pdf",
+        "mumbai-cruise-extension-2025.pdf",
+        "mumbai-cruise-rationalisation-2026.pdf"
+      ],
+      "numericRulesChanged": false
+    },
+    {
+      "at": "2026-10-17T21:02:40.287225+00:00",
+      "field": "ICTPL corroborating practice",
+      "previous": "Corroboration only throughFY2023-24 from prior research.",
+      "new": "FY2024-25 official accounts corroborate130%berthhire/100%wharfage during reportingyear; stillnotcurrentbase-row/renewal authority.",
+      "sources": [
+        "mumbai-accounts-2024-25.pdf p39 printed33"
+      ],
+      "numericRulesChanged": false
+    },
+    {
+      "at": "2026-10-17T21:22:35.387658+00:00",
+      "field": "BPCL blanket quotation block",
+      "previous": "Current rate numbers verified but allcomponent arithmetic blocked pendingformalconditionsextension.",
+      "new": "Narrowed:2026freshpublication providescurrentrateauthority; ordinaryexact-matchunits/currenciescanbe carriedforward as documentedindexationinterpretation. Realexceptionsremainclosed.",
+      "reason": "Positive official currentindex links signed2026rates. Rate-onlyindexation is stronger than absence-of-amendments reasoning; no claimeveryoldtermrenewed.",
+      "existing32OraclesChanged": false
+    }
+  ],
+  "numericOracleIntegrity": {
+    "sha256": "c2618ad194d6926b1e77cbb518e13181960c9252024f9a3e6b9a330130a0a5de",
+    "count": 32,
+    "unchangedAfterDeeperResearch": true
+  },
+  "researchAddendum": {
+    "finishedAt": "2026-10-17T21:24:22.655985+00:00",
+    "governmentArchiveSearch": "ABMP port-wise and2021year-wise listings; official MbPA operational index,2025/2026circulars andcruise2019-2026archive; MoPSW nationaltariff drafts andcurrent scheme; JNPA official2026rates andfacility descriptions.",
+    "policyFinding": "Migration of Tariff Guidelines2025_0 is a consultation draft percover, not evidence of completedmigration orautomaticextension.",
+    "neededFromUserNow": [],
+    "inquiryStatus": "Unsent drafts only. User domain interpretation is not required.",
+    "processes": "No long-running processes started; all download/extraction children exited; shared listeners preserved."
+  },
+  "validation": {
+    "sourceFilesHashVerified": 39,
+    "directSourceFailures": [
+      "chennai-2025-sor-cruise-corroboration.pdf"
+    ],
+    "noPaidInference": true,
+    "noRuntimeEdits": true,
+    "noExternalMessages": true,
+    "reassessmentOraclesVerified": 27,
+    "originalOracleHashUnchanged": "c2618ad194d6926b1e77cbb518e13181960c9252024f9a3e6b9a330130a0a5de",
+    "rawTruncatedBodiesNotUsedAsPdf": [
+      "ictpl-approved-sop-full-original.pdf"
+    ],
+    "reassessmentRuntimeEdits": false
+  },
+  "bpclReassessmentAddendum": {
+    "asOfLocalDate": "2026-10-18",
+    "decision": "Accept the2026 signed operator rate publication as current authority for its indexed prices. Do not require separate extension of an old approval merely to use newly published2026 rates. For exact corresponding ordinary components, use2021 AnnexIV unit/currency definitions under explicitly documented pure-indexation continuity interpretation.",
+    "interpretationNotLiteralFact": "The2026 cover calls the attachment revised indexed SOR but does not expressly name or reattach2021 AnnexIV. Unit/currency carry-forward is therefore a reasoned interpretation of a rate-only indexation notice, not a fabricated statement that2026 itself prints units or renews everyoldterm.",
+    "status": "recommended-executable-published-component-estimates",
+    "authoritySources": [
+      "bpcl-2026-27.pdf cover andPDF2-8",
+      "jnpa-terminal-sor-current-index.html updated16Oct2026",
+      "bpcl-2021-approved-sor.pdf AnnexIV PDF21-25 for exact matching definitions"
+    ],
+    "supportedScope": [
+      "Normal named-cargo wharfage with exact identified cargo, traffic direction/status and quantity in tariffMT.",
+      "Actual requested ancillary services with exact corresponding2021 unit/currency and2026rate.",
+      "Unrounded pre-tax component totals; disclose published-tariff estimate and source chain."
+    ],
+    "notRequiredFromUser": [
+      "Proof that no amendments exist.",
+      "Renewal letter for each current2026 rate.",
+      "Tariff interpretation or selection of an oldAnnexIV clause."
+    ],
+    "stillNecessaryOperationalFacts": [
+      "Actual cargo name and import/export direction.",
+      "Applicable cargo/vessel coastal classification; POL need not receive60%discount.",
+      "Actual quantity/unit and services used."
+    ],
+    "remainingRealGaps": [
+      "CBFS coastal export material4195 rate is blank.",
+      "No source-backed aggregation/penalty/contract-minimum/GST/FX full-invoice approval inferred.",
+      "Fractional measurement and part-hour conventions require their own interpretation; initial oracles use exact whole tariffunits.",
+      "Unknown commodity or otherMPCBchemical bucket cannot be selected merely because cargo is liquid.",
+      "Ambiguous abbreviations are not expanded into a different commodity."
+    ],
+    "currencyDecision": "All listed wharfage and ancillary rates use corresponding INR units fromAnnexIV except foreign fresh water explicitly markedUSD in2026; never interpret foreigncolumn asUSDbyscope.",
+    "doNotDoubleIndex": true,
+    "doNotDoubleCoastalDiscount": true,
+    "cargoRateGroups": [
+      {
+        "cargoLabels": [
+          "SKO",
+          "LDO"
+        ],
+        "foreignINRperMT": "67.95",
+        "coastalINRperMT": "67.95",
+        "currentPdfPages": [
+          2,
+          3
+        ],
+        "unitSource": "BPCL2021 AnnexIV ChapterII table heading, PDF24",
+        "blockedCombination": null
+      },
+      {
+        "cargoLabels": [
+          "HSD",
+          "FO",
+          "CBFS",
+          "HF HSD",
+          "AHE",
+          "BASE OIL"
+        ],
+        "foreignINRperMT": "106.59",
+        "coastalINRperMT": "106.59",
+        "currentPdfPages": [
+          3,
+          4
+        ],
+        "unitSource": "BPCL2021 AnnexIV ChapterII table heading, PDF24",
+        "blockedCombination": "CBFS coastal export: material4195 is blank on the2026 original."
+      },
+      {
+        "cargoLabels": [
+          "NAPHTHA",
+          "MS"
+        ],
+        "foreignINRperMT": "167.64",
+        "coastalINRperMT": "167.64",
+        "currentPdfPages": [
+          3
+        ],
+        "unitSource": "BPCL2021 AnnexIV ChapterII table heading, PDF24",
+        "blockedCombination": null
+      },
+      {
+        "cargoLabels": [
+          "CRUDE"
+        ],
+        "foreignINRperMT": "92.67",
+        "coastalINRperMT": "92.67",
+        "currentPdfPages": [
+          3
+        ],
+        "unitSource": "BPCL2021 AnnexIV ChapterII table heading, PDF24",
+        "blockedCombination": null
+      },
+      {
+        "cargoLabels": [
+          "LPG"
+        ],
+        "foreignINRperMT": "227.02",
+        "coastalINRperMT": "227.02",
+        "currentPdfPages": [
+          3,
+          4
+        ],
+        "unitSource": "BPCL2021 AnnexIV ChapterII table heading, PDF24",
+        "blockedCombination": null
+      },
+      {
+        "cargoLabels": [
+          "AFS",
+          "ATF",
+          "REFINERY INTERMEDIATE C5 (PX FEED STOCK)"
+        ],
+        "foreignINRperMT": "210.05",
+        "coastalINRperMT": "210.05",
+        "currentPdfPages": [
+          4
+        ],
+        "unitSource": "BPCL2021 AnnexIV ChapterII table heading, PDF24",
+        "blockedCombination": null
+      },
+      {
+        "cargoLabels": [
+          "BUTYL ACRYLATE",
+          "MIX. XYLENE",
+          "ORTHO XYLENE",
+          "STYRENE MONOMER",
+          "PARA XYLENE",
+          "PHOSPHORIC ACID",
+          "ACETIC ACID",
+          "CRUDE GLYCOL",
+          "MEG",
+          "LAB",
+          "META XYLENE"
+        ],
+        "foreignINRperMT": "210.05",
+        "coastalINRperMT": "126.02",
+        "currentPdfPages": [
+          4,
+          5
+        ],
+        "unitSource": "BPCL2021 AnnexIV ChapterII table heading, PDF24",
+        "blockedCombination": null
+      },
+      {
+        "cargoLabels": [
+          "AMMONIA",
+          "ANILINE",
+          "BIO DIESEL",
+          "CAUSTIC SODA",
+          "IPA",
+          "VAM",
+          "N.BUTANOL",
+          "MMA",
+          "PHENOL",
+          "TOLUENE",
+          "ACETONE",
+          "METHANOL",
+          "ETHANOL",
+          "SULPHURIC ACID",
+          "METHYLENE CHLORIDE",
+          "VINYL ACETATE",
+          "BUTYL ACETATE"
+        ],
+        "foreignINRperMT": "259.50",
+        "coastalINRperMT": "155.70",
+        "currentPdfPages": [
+          5,
+          6,
+          7
+        ],
+        "unitSource": "BPCL2021 AnnexIV ChapterII table heading, PDF24",
+        "blockedCombination": null
+      },
+      {
+        "cargoLabels": [
+          "OTHER A/B/C CHEMICALS ON MPCB APPROVED LIST"
+        ],
+        "foreignINRperMT": "285.45",
+        "coastalINRperMT": "171.27",
+        "currentPdfPages": [
+          7
+        ],
+        "unitSource": "BPCL2021 AnnexIV ChapterII table heading, PDF24",
+        "blockedCombination": null
+      },
+      {
+        "cargoLabels": [
+          "EDIBLE OIL"
+        ],
+        "foreignINRperMT": "111.20",
+        "coastalINRperMT": "66.73",
+        "currentPdfPages": [
+          7,
+          8
+        ],
+        "unitSource": "BPCL2021 AnnexIV ChapterII table heading, PDF24",
+        "blockedCombination": null
+      },
+      {
+        "cargoLabels": [
+          "MOLASSES"
+        ],
+        "foreignINRperMT": "86.48",
+        "coastalINRperMT": "51.89",
+        "currentPdfPages": [
+          8
+        ],
+        "unitSource": "BPCL2021 AnnexIV ChapterII table heading, PDF24",
+        "blockedCombination": null
+      }
+    ],
+    "ancillaryRates": [
+      {
+        "service": "water",
+        "unit": "MT",
+        "foreignRate": "7.71",
+        "foreignCurrency": "USD",
+        "coastalRate": "186.72",
+        "coastalCurrency": "INR",
+        "unitSourceClause": "3.10",
+        "currentMaterialCodes": [
+          "4047",
+          "4046"
+        ],
+        "actualServicePredicate": "Fresh water supplied to vessel.",
+        "currentPdfPages": [
+          2
+        ],
+        "unitSourcePdfPages": [
+          25
+        ]
+      },
+      {
+        "service": "liquid-nitrogen",
+        "unit": "MT",
+        "foreignRate": "64440.86",
+        "foreignCurrency": "INR",
+        "coastalRate": "38664.52",
+        "coastalCurrency": "INR",
+        "unitSourceClause": "3.7",
+        "currentMaterialCodes": [
+          "4093",
+          "4094"
+        ],
+        "actualServicePredicate": "Liquid nitrogen purchased for the stated pigging operation.",
+        "currentPdfPages": [
+          2
+        ],
+        "unitSourcePdfPages": [
+          25
+        ]
+      },
+      {
+        "service": "foam-pigging",
+        "unit": "operation",
+        "foreignRate": "38664.52",
+        "foreignCurrency": "INR",
+        "coastalRate": "23198.72",
+        "coastalCurrency": "INR",
+        "unitSourceClause": "3.6",
+        "currentMaterialCodes": [
+          "4095",
+          "4096"
+        ],
+        "actualServicePredicate": "Foam pig used with BPCL-IOCL pipeline.",
+        "currentPdfPages": [
+          2
+        ],
+        "unitSourcePdfPages": [
+          25
+        ]
+      },
+      {
+        "service": "hard-pigging",
+        "unit": "operation",
+        "foreignRate": "57996.76",
+        "foreignCurrency": "INR",
+        "coastalRate": "34798.07",
+        "coastalCurrency": "INR",
+        "unitSourceClause": "3.5",
+        "currentMaterialCodes": [
+          "4097",
+          "4098"
+        ],
+        "actualServicePredicate": "Hard pig600mmNB used with BPCL-IOCL pipeline.",
+        "currentPdfPages": [
+          2
+        ],
+        "unitSourcePdfPages": [
+          25
+        ]
+      },
+      {
+        "service": "compressor",
+        "unit": "hour",
+        "foreignRate": "8055.10",
+        "foreignCurrency": "INR",
+        "coastalRate": "4833.08",
+        "coastalCurrency": "INR",
+        "unitSourceClause": "3.4",
+        "currentMaterialCodes": [
+          "4099",
+          "4100"
+        ],
+        "actualServicePredicate": "BPCL-IOCL compressor used for pipeline blowing/pigging; exact whole hours in initial scope.",
+        "currentPdfPages": [
+          2
+        ],
+        "unitSourcePdfPages": [
+          25
+        ]
+      },
+      {
+        "service": "vaporizer",
+        "unit": "operation",
+        "foreignRate": "24165.31",
+        "foreignCurrency": "INR",
+        "coastalRate": "14499.21",
+        "coastalCurrency": "INR",
+        "unitSourceClause": "3.8",
+        "currentMaterialCodes": [
+          "4101",
+          "4102"
+        ],
+        "actualServicePredicate": "BPCL-IOCL nitrogen vaporizer used.",
+        "currentPdfPages": [
+          2
+        ],
+        "unitSourcePdfPages": [
+          25
+        ]
+      },
+      {
+        "service": "loading-arm",
+        "unit": "MT",
+        "foreignRate": "14.66",
+        "foreignCurrency": "INR",
+        "coastalRate": "8.78",
+        "coastalCurrency": "INR",
+        "unitSourceClause": "3.2",
+        "currentMaterialCodes": [
+          "4104",
+          "4105",
+          "4492"
+        ],
+        "actualServicePredicate": "Loading arm actually used for petroleum cargo; LPG foreign code4492 shares rate.",
+        "currentPdfPages": [
+          2
+        ],
+        "unitSourcePdfPages": [
+          25
+        ]
+      },
+      {
+        "service": "pipeline",
+        "unit": "MT",
+        "foreignRate": "80.54",
+        "foreignCurrency": "INR",
+        "coastalRate": "48.33",
+        "coastalCurrency": "INR",
+        "unitSourceClause": "3.3",
+        "currentMaterialCodes": [
+          "4106",
+          "4107",
+          "4493"
+        ],
+        "actualServicePredicate": "BPCL-IOCL cross-country pipeline actually used; LPG foreign code4493 shares rate.",
+        "currentPdfPages": [
+          2
+        ],
+        "unitSourcePdfPages": [
+          25
+        ]
+      },
+      {
+        "service": "wharf-management",
+        "unit": "MT",
+        "foreignRate": "13.21",
+        "foreignCurrency": "INR",
+        "coastalRate": "7.91",
+        "coastalCurrency": "INR",
+        "unitSourceClause": "3.1",
+        "currentMaterialCodes": [
+          "4108",
+          "4109"
+        ],
+        "actualServicePredicate": "Specified wharf management/loading-arm or intermediate-pipeline facility used.",
+        "currentPdfPages": [
+          2
+        ],
+        "unitSourcePdfPages": [
+          25
+        ]
+      },
+      {
+        "service": "ldo-bunkering",
+        "unit": "MT",
+        "foreignRate": "68.54",
+        "foreignCurrency": "INR",
+        "coastalRate": "38.58",
+        "coastalCurrency": "INR",
+        "unitSourceClause": "3.9",
+        "currentMaterialCodes": [
+          "4204",
+          "4205"
+        ],
+        "actualServicePredicate": "LDO bunkering service; select service-status column, not description/code alone.",
+        "currentPdfPages": [
+          2
+        ],
+        "unitSourcePdfPages": [
+          25
+        ]
+      },
+      {
+        "service": "sludge-truck",
+        "unit": "truck20kl",
+        "foreignRate": "1250.81",
+        "foreignCurrency": "INR",
+        "coastalRate": "1250.81",
+        "coastalCurrency": "INR",
+        "unitSourceClause": "3.12",
+        "currentMaterialCodes": [
+          "4538"
+        ],
+        "actualServicePredicate": "Entry of20kl truck for sludge removal; other truck capacity interpretation outside initial scope.",
+        "currentPdfPages": [
+          2
+        ],
+        "unitSourcePdfPages": [
+          25
+        ]
+      },
+      {
+        "service": "fire-engine",
+        "unit": "hour",
+        "foreignRate": "7379.78",
+        "foreignCurrency": "INR",
+        "coastalRate": "7379.78",
+        "coastalCurrency": "INR",
+        "unitSourceClause": "3.13",
+        "currentMaterialCodes": [
+          "4539"
+        ],
+        "actualServicePredicate": "Fire engine actually used for pipeline cleaning; exact whole hours in initial scope.",
+        "currentPdfPages": [
+          2
+        ],
+        "unitSourcePdfPages": [
+          25
+        ]
+      },
+      {
+        "service": "lubricant-paint-barrel-loading",
+        "unit": "barrel",
+        "foreignRate": "25.01",
+        "foreignCurrency": "INR",
+        "coastalRate": "25.01",
+        "coastalCurrency": "INR",
+        "unitSourceClause": "3.14",
+        "currentMaterialCodes": [
+          "4540"
+        ],
+        "actualServicePredicate": "Loading of lubricant or paint barrels; whole barrel count.",
+        "currentPdfPages": [
+          2
+        ],
+        "unitSourcePdfPages": [
+          25
+        ]
+      }
+    ],
+    "excludedOverstay": {
+      "currentForeignINRperHour": "64286.56",
+      "currentCoastalINRperHour": "38573.35",
+      "reason": "Penalty needs actual fault and triggering interval; initial ordinary component approval does not guess these."
+    },
+    "newIndependentOracles": [
+      {
+        "id": "BPCL26-CARGO-01",
+        "cargoLabel": "SKO",
+        "quantityMT": "1000",
+        "cargoTraffic": "foreign",
+        "movement": "import",
+        "currency": "INR",
+        "rate": "67.95",
+        "expectedComponent": "67950.00",
+        "taxIncluded": false,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-CARGO-02",
+        "cargoLabel": "LDO",
+        "quantityMT": "1000",
+        "cargoTraffic": "coastal",
+        "movement": "import",
+        "currency": "INR",
+        "rate": "67.95",
+        "expectedComponent": "67950.00",
+        "taxIncluded": false,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-CARGO-03",
+        "cargoLabel": "HSD",
+        "quantityMT": "250",
+        "cargoTraffic": "foreign",
+        "movement": "import",
+        "currency": "INR",
+        "rate": "106.59",
+        "expectedComponent": "26647.50",
+        "taxIncluded": false,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-CARGO-04",
+        "cargoLabel": "CBFS",
+        "quantityMT": "100",
+        "cargoTraffic": "foreign",
+        "movement": "import",
+        "currency": "INR",
+        "rate": "106.59",
+        "expectedComponent": "10659.00",
+        "taxIncluded": false,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-CARGO-05",
+        "cargoLabel": "NAPHTHA",
+        "quantityMT": "10",
+        "cargoTraffic": "coastal",
+        "movement": "import",
+        "currency": "INR",
+        "rate": "167.64",
+        "expectedComponent": "1676.40",
+        "taxIncluded": false,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-CARGO-06",
+        "cargoLabel": "CRUDE",
+        "quantityMT": "1000",
+        "cargoTraffic": "foreign",
+        "movement": "import",
+        "currency": "INR",
+        "rate": "92.67",
+        "expectedComponent": "92670.00",
+        "taxIncluded": false,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-CARGO-07",
+        "cargoLabel": "LPG",
+        "quantityMT": "1000",
+        "cargoTraffic": "coastal",
+        "movement": "import",
+        "currency": "INR",
+        "rate": "227.02",
+        "expectedComponent": "227020.00",
+        "taxIncluded": false,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-CARGO-08",
+        "cargoLabel": "ATF",
+        "quantityMT": "100",
+        "cargoTraffic": "foreign",
+        "movement": "import",
+        "currency": "INR",
+        "rate": "210.05",
+        "expectedComponent": "21005.00",
+        "taxIncluded": false,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-CARGO-09",
+        "cargoLabel": "BUTYL ACRYLATE",
+        "quantityMT": "100",
+        "cargoTraffic": "coastal",
+        "movement": "import",
+        "currency": "INR",
+        "rate": "126.02",
+        "expectedComponent": "12602.00",
+        "taxIncluded": false,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-CARGO-10",
+        "cargoLabel": "AMMONIA",
+        "quantityMT": "10",
+        "cargoTraffic": "foreign",
+        "movement": "import",
+        "currency": "INR",
+        "rate": "259.50",
+        "expectedComponent": "2595.00",
+        "taxIncluded": false,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-CARGO-11",
+        "cargoLabel": "METHANOL",
+        "quantityMT": "20",
+        "cargoTraffic": "coastal",
+        "movement": "import",
+        "currency": "INR",
+        "rate": "155.70",
+        "expectedComponent": "3114.00",
+        "taxIncluded": false,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-CARGO-12",
+        "cargoLabel": "EDIBLE OIL",
+        "quantityMT": "1000",
+        "cargoTraffic": "coastal",
+        "movement": "import",
+        "currency": "INR",
+        "rate": "66.73",
+        "expectedComponent": "66730.00",
+        "taxIncluded": false,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-CARGO-13",
+        "cargoLabel": "MOLASSES",
+        "quantityMT": "1000",
+        "cargoTraffic": "foreign",
+        "movement": "import",
+        "currency": "INR",
+        "rate": "86.48",
+        "expectedComponent": "86480.00",
+        "taxIncluded": false,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-SERVICE-01",
+        "service": "water",
+        "quantity": "100",
+        "unit": "MT",
+        "vesselService": "foreign",
+        "currency": "USD",
+        "rate": "7.71",
+        "expectedComponent": "771.00",
+        "taxIncluded": false,
+        "actualServicePredicateSatisfied": true,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-SERVICE-02",
+        "service": "liquid-nitrogen",
+        "quantity": "100",
+        "unit": "MT",
+        "vesselService": "foreign",
+        "currency": "INR",
+        "rate": "64440.86",
+        "expectedComponent": "6444086.00",
+        "taxIncluded": false,
+        "actualServicePredicateSatisfied": true,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-SERVICE-03",
+        "service": "foam-pigging",
+        "quantity": "2",
+        "unit": "operation",
+        "vesselService": "foreign",
+        "currency": "INR",
+        "rate": "38664.52",
+        "expectedComponent": "77329.04",
+        "taxIncluded": false,
+        "actualServicePredicateSatisfied": true,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-SERVICE-04",
+        "service": "hard-pigging",
+        "quantity": "2",
+        "unit": "operation",
+        "vesselService": "foreign",
+        "currency": "INR",
+        "rate": "57996.76",
+        "expectedComponent": "115993.52",
+        "taxIncluded": false,
+        "actualServicePredicateSatisfied": true,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-SERVICE-05",
+        "service": "compressor",
+        "quantity": "2",
+        "unit": "hour",
+        "vesselService": "foreign",
+        "currency": "INR",
+        "rate": "8055.10",
+        "expectedComponent": "16110.20",
+        "taxIncluded": false,
+        "actualServicePredicateSatisfied": true,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-SERVICE-06",
+        "service": "vaporizer",
+        "quantity": "2",
+        "unit": "operation",
+        "vesselService": "foreign",
+        "currency": "INR",
+        "rate": "24165.31",
+        "expectedComponent": "48330.62",
+        "taxIncluded": false,
+        "actualServicePredicateSatisfied": true,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-SERVICE-07",
+        "service": "loading-arm",
+        "quantity": "100",
+        "unit": "MT",
+        "vesselService": "foreign",
+        "currency": "INR",
+        "rate": "14.66",
+        "expectedComponent": "1466.00",
+        "taxIncluded": false,
+        "actualServicePredicateSatisfied": true,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-SERVICE-08",
+        "service": "pipeline",
+        "quantity": "100",
+        "unit": "MT",
+        "vesselService": "foreign",
+        "currency": "INR",
+        "rate": "80.54",
+        "expectedComponent": "8054.00",
+        "taxIncluded": false,
+        "actualServicePredicateSatisfied": true,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-SERVICE-09",
+        "service": "wharf-management",
+        "quantity": "100",
+        "unit": "MT",
+        "vesselService": "foreign",
+        "currency": "INR",
+        "rate": "13.21",
+        "expectedComponent": "1321.00",
+        "taxIncluded": false,
+        "actualServicePredicateSatisfied": true,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-SERVICE-10",
+        "service": "ldo-bunkering",
+        "quantity": "100",
+        "unit": "MT",
+        "vesselService": "foreign",
+        "currency": "INR",
+        "rate": "68.54",
+        "expectedComponent": "6854.00",
+        "taxIncluded": false,
+        "actualServicePredicateSatisfied": true,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-SERVICE-11",
+        "service": "sludge-truck",
+        "quantity": "2",
+        "unit": "truck20kl",
+        "vesselService": "foreign",
+        "currency": "INR",
+        "rate": "1250.81",
+        "expectedComponent": "2501.62",
+        "taxIncluded": false,
+        "actualServicePredicateSatisfied": true,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-SERVICE-12",
+        "service": "fire-engine",
+        "quantity": "2",
+        "unit": "hour",
+        "vesselService": "foreign",
+        "currency": "INR",
+        "rate": "7379.78",
+        "expectedComponent": "14759.56",
+        "taxIncluded": false,
+        "actualServicePredicateSatisfied": true,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-SERVICE-13",
+        "service": "lubricant-paint-barrel-loading",
+        "quantity": "2",
+        "unit": "barrel",
+        "vesselService": "foreign",
+        "currency": "INR",
+        "rate": "25.01",
+        "expectedComponent": "50.02",
+        "taxIncluded": false,
+        "actualServicePredicateSatisfied": true,
+        "basis": "2026 rate plus2021 exact corresponding unit under pure-indexation continuity interpretation"
+      },
+      {
+        "id": "BPCL26-BLANK-CBFS-COASTAL-EXPORT",
+        "cargoLabel": "CBFS",
+        "cargoTraffic": "coastal",
+        "movement": "export",
+        "quantityMT": "100",
+        "expectedDisposition": "source-gap-no-amount",
+        "reason": "2026 original material4195 has a blank rate; do not copy4194 or assumezero."
+      }
+    ],
+    "newIndependentOracleSha256": "7fa5c7de440499619d6ba6d6516b06571f88819d25a9e92604ed3f18f7cef785",
+    "ictplReassessment": {
+      "newEvidence": [
+        "Current official facility page says RoRo/car carriers andsteel cargo; approach trestle fromIndiraDock.",
+        "Full approvedSOP PDF2 section5.2 recalls Board arrangement operational untilreorganization; PDF3 section5.3(c) records130%berthhire practice.",
+        "2025adoption/continuation andFY2024-25accounts corroboratecontinuingoperations/practice."
+      ],
+      "decision": "Do not demand impossible proof ofnoamendments, anddo notdescribe130%asfictional. Still no unambiguous currentnormal cargo base-row mapping found; physicaltrestlelocationalone isnot a tariffclause. Keepcurrentdetailedmonetary130%quotation unresolved ratherthan choosingPrincesversusIndira orspecialvesselrate automatically.",
+      "existingCertainScope": "CurrentMbPAwharfageownership andpublishedoperation/berth-allocationrules;historical130%explanation."
+    },
+    "effectiveFrom": "2026-05-01",
+    "effectiveThrough": null,
+    "effectiveThroughMeaning": "No expiry date supplied by the2026notice; not an evergreen applicability guarantee."
+  }
+}
