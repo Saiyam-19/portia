@@ -1,0 +1,6 @@
+# Preserve downloaded tariff/source artifacts byte-for-byte.
+*.pdf binary
+*.gz binary
+*.png binary
+*.jpg binary
+*.jpeg binary
