@@ -1,0 +1,29 @@
+{
+  "publisher": "GAC Hot Port News",
+  "checkedOn": "2026-10-18",
+  "captureKind": "browser-transcription",
+  "url": "https://www.gac.com/hot-port-news/revised-vessel-charges",
+  "title": "Revised vessel charges",
+  "visible_publication_date": "2023-11-20",
+  "location": "Redi, India",
+  "effective_text": "applicable with immediate effect",
+  "rates": {
+    "anchorage": {
+      "inr": 18,
+      "unit": "GRT per 24 hours or part thereof",
+      "gst": "extra"
+    },
+    "pilotage": {
+      "inr": 12,
+      "unit": "GRT",
+      "gst": "extra"
+    },
+    "port_services": {
+      "inr": 12,
+      "unit": "GRT",
+      "gst": "extra"
+    },
+    "launch": "free"
+  },
+  "verification": "Earlier article's four prices and units match the 11 May 2024 article. Same publisher, so corroborates publication continuity but is not independent corroboration or proof of October 2026 validity."
+}
