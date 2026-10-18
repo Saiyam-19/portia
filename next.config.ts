@@ -3,6 +3,11 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   serverExternalPackages: ["just-bash"],
   devIndicators: { position: 'bottom-right' },
+  // Keep local research, lab state and environment files out of deployable
+  // traces. Required tariff evidence lives under data/reviewed-tariffs.
+  outputFileTracingExcludes: {
+    '/*': ['./output/**/*', './.local/**/*', './.git/**/*', './.vercel/**/*', './.env*', './backend/.env*', './docs/portia-reliability/evidence/**/*'],
+  },
   outputFileTracingIncludes: {
     '/api/memory': ['./node_modules/just-bash/dist/**/*'],
     '/api/chat': ['./data/ports/**/*', './data/reviewed-tariffs/**/*', './node_modules/just-bash/dist/**/*'],

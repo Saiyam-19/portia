@@ -14,7 +14,7 @@
 /coverage
 
 # next.js
-/.next/
+/.next*/
 /out/
 
 # production
@@ -45,3 +45,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Disposable runs; durable source evidence belongs in data/ and docs/.
+/output/
+__pycache__/
+.venv/

@@ -7,9 +7,11 @@ const eslintConfig = defineConfig([
   ...nextTs,
   // Override default ignores of eslint-config-next.
   globalIgnores([
-    "prototypes/**",
+    ".local/**",
+    "output/**",
+    "docs/portia-reliability/evidence/**",
     // Default ignores of eslint-config-next:
-    ".next/**",
+    ".next*/**",
     "out/**",
     "build/**",
     "next-env.d.ts",

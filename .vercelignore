@@ -1,5 +1,6 @@
 backend/
 .local/
+output/
 .env*
 .git
 .claude/
@@ -8,4 +9,4 @@ backend/
 delivery-checklist.html
 scripts/
 tests/
-prototypes/
+docs/portia-reliability/evidence/
