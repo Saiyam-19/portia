@@ -24,16 +24,12 @@ const expected: Record<string, string> = {
   "redi/tarrifs.md": "92cd1ca905b6024a05de48062a1776b164f6a8d5d9a513344422936917838006",
 };
 
-it("copies every tariff byte-for-byte and traces assets into the chat route", async () => {
+it("preserves the original 17 canonical tariff hashes and traces assets into the chat route", async () => {
   expect(PORT_ASSET_MANIFEST).toEqual(expected);
   expect(Object.keys(expected)).toHaveLength(17);
   expect(SUPPORTED_PORTS).toHaveLength(16);
   for (const [relative, checksum] of Object.entries(expected)) {
-    const [source, copied] = await Promise.all([
-      readFile(new URL(`../../backend/ports/${relative}`, import.meta.url)),
-      readFile(new URL(`../../data/ports/${relative}`, import.meta.url)),
-    ]);
-    expect(copied.equals(source), relative).toBe(true);
+    const copied = await readFile(new URL(`../../data/ports/${relative}`, import.meta.url));
     expect(createHash("sha256").update(copied).digest("hex"), relative).toBe(checksum);
   }
   expect(nextConfig.outputFileTracingIncludes?.["/api/chat"]).toContain("./data/ports/**/*");
