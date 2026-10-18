@@ -1,0 +1,143 @@
+{
+  "checkedProcessGroups": 18,
+  "allExited": true,
+  "noRespawnObserved": true,
+  "persistentServicesStarted": 0,
+  "unrelatedProcessesTerminated": 0,
+  "preservedExpectedListeners": {
+    "5276": 5198,
+    "54057": 5174,
+    "97012": 3210,
+    "97585": 3000,
+    "47194": 9749
+  },
+  "preservedAlso": "Convex site port3211; OS/app services; app-managed MCP/CUA helpers; private release/UI material",
+  "checks": [
+    {
+      "check": "baseline-tests-process.json",
+      "pid": 77797,
+      "pgid": 77797,
+      "reportedExitCode": 0,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "build-webpack-network-process.json",
+      "pid": 87604,
+      "pgid": 87604,
+      "reportedExitCode": 0,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "build-webpack-process.json",
+      "pid": 86987,
+      "pgid": 86987,
+      "reportedExitCode": 1,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "cancellation-reproducer-process.json",
+      "pid": 89783,
+      "pgid": 89783,
+      "reportedExitCode": 0,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "final-build-process.json",
+      "pid": 89718,
+      "pgid": 89718,
+      "reportedExitCode": 0,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "final-lint-process.json",
+      "pid": 86496,
+      "pgid": 86496,
+      "reportedExitCode": 0,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "final-test-lint-process.json",
+      "pid": 93245,
+      "pgid": 93245,
+      "reportedExitCode": 0,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "final-test-types-process.json",
+      "pid": 93244,
+      "pgid": 93244,
+      "reportedExitCode": 0,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "final-tests-process.json",
+      "pid": 86495,
+      "pgid": 86495,
+      "reportedExitCode": 1,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "final-types-process.json",
+      "pid": 86494,
+      "pgid": 86494,
+      "reportedExitCode": 0,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "frozen-lint-process.json",
+      "pid": 90088,
+      "pgid": 90088,
+      "reportedExitCode": 0,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "frozen-tests-process.json",
+      "pid": 90085,
+      "pgid": 90085,
+      "reportedExitCode": 0,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "frozen-types-process.json",
+      "pid": 90437,
+      "pgid": 90437,
+      "reportedExitCode": 0,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "historical-currency-regression-process.json",
+      "pid": 92877,
+      "pgid": 92877,
+      "reportedExitCode": 0,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "interim-types-process.json",
+      "pid": 82961,
+      "pgid": 82961,
+      "reportedExitCode": 2,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "retained-tests-process.json",
+      "pid": 82960,
+      "pgid": 82960,
+      "reportedExitCode": 1,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "tooling-lint-process.json",
+      "pid": 88478,
+      "pgid": 88478,
+      "reportedExitCode": 0,
+      "remainingGroupMembers": []
+    },
+    {
+      "check": "verified-tests-process.json",
+      "pid": 88475,
+      "pgid": 88475,
+      "reportedExitCode": 0,
+      "remainingGroupMembers": []
+    }
+  ]
+}

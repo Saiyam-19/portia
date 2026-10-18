@@ -1,0 +1,20 @@
+{
+  "task": "repository-cleanup-20261018",
+  "purpose": "historical-currency-regression",
+  "command": [
+    "/opt/homebrew/opt/node@22/bin/node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/migration/conversation-integrity.test.ts",
+    "--maxWorkers=1"
+  ],
+  "cwd": "/Users/saiyamchaplot/Documents/portia-main",
+  "startedUtc": "2026-10-18T13:05:40.695823+00:00",
+  "ports": [],
+  "parentPid": 92832,
+  "pid": 92877,
+  "pgid": 92877,
+  "exitCode": 0,
+  "finishedUtc": "2026-10-18T13:05:41.572931+00:00",
+  "processGroupStillExists": false
+}

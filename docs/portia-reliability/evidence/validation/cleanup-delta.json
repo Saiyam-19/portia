@@ -1,0 +1,1298 @@
+[
+  {
+    "path": "tsconfig.tsbuildinfo",
+    "status": "modified",
+    "before": "174030dfd6b71397f639e1b909bcd65288810b78dfaa48e0d40b268d3a5e1754",
+    "after": "109a26aa26317fca8200cfa5cec9493e650f1cbd87776b260d25ddf68ad38ce5"
+  },
+  {
+    "path": "README.md",
+    "status": "modified",
+    "before": "dc2feea78fb63b8a8a9c87629467e02426f76847246a82f59bb9b76d84a58eda",
+    "after": "bf4eb9a34c68519118867767e2b19487dddff374324ebd8a764d13b921854e7b"
+  },
+  {
+    "path": ".cbmignore",
+    "status": "modified",
+    "before": "bb1aab93e16b03e75fb29bb798052af9c1cce836bc2d79c3a6b9e27f08ed2879",
+    "after": "32589309d428183793acdf39405dc2ddf45784939b2df6bdb668d677469fd1ab"
+  },
+  {
+    "path": ".gitignore",
+    "status": "modified",
+    "before": "0fc0a44d203fbfc99498200c309b4825dfc247a0f537bf9d96d6ffbb5f8c3eaa",
+    "after": "dc1ae5dbd674cc76d78bd6634ffd347e2ae19c62da33f305f25b350e36b60aeb"
+  },
+  {
+    "path": "package.json",
+    "status": "modified",
+    "before": "d94a25576bdb476389de5cfcd1b333a3fbe4a6c8b4926fe959194fbe83d89994",
+    "after": "8d7af33a9005459d46c228cca470ee8a9b1000d9f25a979b92df3795dbd1f466"
+  },
+  {
+    "path": "tsconfig.json",
+    "status": "modified",
+    "before": "fdc302e2a817dbe20b027ccdaac8bf1468c38df54a8730e14c15c648d5a9b96d",
+    "after": "416a0d182f0f73c822e2f4be5abbef39b33a7b7029285e92f789baaaf80dfd29"
+  },
+  {
+    "path": ".vercelignore",
+    "status": "modified",
+    "before": "851fee8646fc5254af1cf53e5fa2611cc9e45446d456c1bf25a3c505212f86ca",
+    "after": "ad6334f4ff43bd6e8e737a4dd0e58c0fa26ecf7fdb183f73938b7910a8a83e54"
+  },
+  {
+    "path": "eslint.config.mjs",
+    "status": "modified",
+    "before": "afd99a9d2e7bbf5497e437e0271a433fc3d2af11eb643a15cd0caa38ec80fc39",
+    "after": "3990d00eab3b704e6ffead335cfbe3eabaeac1c3fef8b163d64e88b4cb494b1a"
+  },
+  {
+    "path": "next.config.ts",
+    "status": "modified",
+    "before": "5475db26956802e5eb6ab5c515c1b6febbaad44c38a1c19b07e99f7208b746e1",
+    "after": "08ba898090e09c7d334359f43705c334406cae8c8c555079a456a239f6da1fcc"
+  },
+  {
+    "path": "tests/legacy/domain-agent.ts",
+    "status": "removed",
+    "before": "81231c837eefbbd12f1629acfdaa167c96a702d8998acdfbdf9a1b6263315b4d",
+    "after": null
+  },
+  {
+    "path": "tests/legacy/evidence/conversation-publication.test.ts.txt",
+    "status": "removed",
+    "before": "4a48f689c696c59c3c8358104f6ad0dd62e14e717ff9511badcbf07f920442c5",
+    "after": null
+  },
+  {
+    "path": "tests/legacy/evidence/quotation-publication.test.ts.txt",
+    "status": "removed",
+    "before": "85a78080b8107748429a5bf461675be3a1b6864b2b80cecbbd32c5f2033727ab",
+    "after": null
+  },
+  {
+    "path": "tests/legacy/evidence/official-berth-publication.test.ts.txt",
+    "status": "removed",
+    "before": "c93811d574d069de52e73db00d7e9dd94e90b8f911400f16174394871a1e46d6",
+    "after": null
+  },
+  {
+    "path": "tests/legacy/migration/conversation-rules.ts",
+    "status": "removed",
+    "before": "da9d46bc617bde4a816d302793ba66e24e359ddf5b824bb596060cbec6c591ee",
+    "after": null
+  },
+  {
+    "path": "tests/legacy/migration/reviewed-report.ts",
+    "status": "removed",
+    "before": "20fd85051ac37bc28e524b9eb359f3fbc237f16d52afabbe50f6d9937751a280",
+    "after": null
+  },
+  {
+    "path": "tests/legacy/migration/conversation-model.ts",
+    "status": "removed",
+    "before": "5032e07d18cec3038509e0b9525f052d77c81f2d6c89dc9f643cbad072f7469d",
+    "after": null
+  },
+  {
+    "path": "tests/legacy/migration/supplied-quotation.ts",
+    "status": "removed",
+    "before": "cbb67468cc9b8153164725d98fc094fbb4a820031de11b9b2094580633ef23ce",
+    "after": null
+  },
+  {
+    "path": "tests/legacy/migration/flat-interpretation.ts",
+    "status": "removed",
+    "before": "7a7d54b64dc8a1121708593a480bcc8cb10af6bb5c7b25c88a78bc68585d9d3e",
+    "after": null
+  },
+  {
+    "path": "tests/legacy/migration/conversation-session.ts",
+    "status": "removed",
+    "before": "7ba6ae0cee2bc14ec20c5559ac27750a9e39954a49a5d0eab4a156731f3199c7",
+    "after": null
+  },
+  {
+    "path": "tests/legacy/migration/arithmetic-tools.ts",
+    "status": "removed",
+    "before": "b8aa9b8f198414aec215a47faf3613f01fe1ae070a4a8d43e809cedbbde5bc0e",
+    "after": null
+  },
+  {
+    "path": "tests/legacy/migration/official-berth.ts",
+    "status": "removed",
+    "before": "494ca75f7b28d09c5c175e7d394fe3cc6e5fa0fefec7277412a8b7d20f65d1ce",
+    "after": null
+  },
+  {
+    "path": "tests/legacy/migration/request-evidence.ts",
+    "status": "removed",
+    "before": "eee82d7d53d0627ad52395826b91266693deb8db6d00c992a478faf89950ae27",
+    "after": null
+  },
+  {
+    "path": "tests/legacy/migration/fact-contract.ts",
+    "status": "removed",
+    "before": "b704a29b60ae54317b274959d2c58ea3116b97599fe84f3ca093930d8009d7be",
+    "after": null
+  },
+  {
+    "path": "tests/legacy/migration/reviewed-components.ts",
+    "status": "removed",
+    "before": "b23316b262ce620e4d514a906871e5d555ec4d9749b09ad5875e607dd8ad8db0",
+    "after": null
+  },
+  {
+    "path": "tests/legacy/migration/guarded-main-model.ts",
+    "status": "removed",
+    "before": "5dd18ae32398fa15f45da080149334962149ce680b54b5e798bac3dcd3767dd8",
+    "after": null
+  },
+  {
+    "path": "tests/audit/cancel-stream.audit.ts",
+    "status": "modified",
+    "before": "c5f9ba047b9b5e7a56944a163d9b448eda6c2fc9b3c091caaa4bd4bc3710ec53",
+    "after": "e438caeddb06ea6251a15961e89f3578c201423c5a5bfc50de6741e17431eeab"
+  },
+  {
+    "path": "tests/audit/agent-and-routes.audit.ts",
+    "status": "modified",
+    "before": "dfb2f60edbd12f06c0522f7450016f34e86a82683f52a3d2e35f9c716699548c",
+    "after": "d918bc1fe8e3287c1637a15b099de31f059af039e785e6c0e017812126365f0c"
+  },
+  {
+    "path": "tests/audit/cancellation-matrix.audit.ts",
+    "status": "modified",
+    "before": "26651962eac2bfecbd4df1a8eb7f023f6d3c03d2ffc6f45180dac34902fc7ed5",
+    "after": "dc4f02631e004e380fbe22490a47833852c2ad0c0b9229db460a0c61347466fc"
+  },
+  {
+    "path": "tests/migration/independent-calculations.test.ts",
+    "status": "removed",
+    "before": "0dd139227b5a1003026b2b3daffdf3d1a06be89d174abbf496934771c2c69aa7",
+    "after": null
+  },
+  {
+    "path": "tests/migration/request-context-regressions.test.ts",
+    "status": "removed",
+    "before": "fbc62cf21e3d2c41983bfef7cfd8f372b9624d8aede89998695ab84ee84f86cc",
+    "after": null
+  },
+  {
+    "path": "tests/migration/conversation-first-output.test.ts",
+    "status": "removed",
+    "before": "864b0bad5151f3b4c0afb8efb5c571db89a8966a11a72e2e23992589600b81bd",
+    "after": null
+  },
+  {
+    "path": "tests/migration/port-assets.test.ts",
+    "status": "modified",
+    "before": "8f84896ff91fed8c4551a16f0e79b90b054240d781d0c821fdecfc8842839bc8",
+    "after": "94cddabc1a13c2509aceea5f6631768ba8b14416ddf918b6137ffa27acf56bca"
+  },
+  {
+    "path": "tests/migration/official-flat-flow.test.ts",
+    "status": "removed",
+    "before": "97fbe38c53c88d1c2db636d2c041b77be4ef525c71bd21bce7a15905c224312a",
+    "after": null
+  },
+  {
+    "path": "tests/migration/context-operation-boundaries.test.ts",
+    "status": "modified",
+    "before": "a6b5da67a0c80b19ff164ff4df0155fb27e19d5d172b7f16d928c7627955704c",
+    "after": "0b6e049b96b0afe21fd65f317bad4110ae3e04f316eedda900ed943fee4b208f"
+  },
+  {
+    "path": "tests/migration/conversation-auxiliary.test.ts",
+    "status": "modified",
+    "before": "51ddeb1bdde1c78daae241f0bbeda83655322e8c9df36fc3e90a5fe389075fd6",
+    "after": "1e43c221408467c2a2ab86a49510434b3c27fd20abcbdf0921790868a2556f41"
+  },
+  {
+    "path": "tests/migration/call-context.test.ts",
+    "status": "modified",
+    "before": "4f83e8015cba0d367c291aa7550d506a582e6e0cd8ee183f605c0199ff5115c8",
+    "after": "90e34187fd47caf874b835bad28ef29df3c22bd012daed4601872d9858b315e8"
+  },
+  {
+    "path": "tests/migration/official-berth-input-regressions.test.ts",
+    "status": "removed",
+    "before": "e21acae1a51322f561608a737b007a6ef072d67ed1139026900aa47db3ff5f20",
+    "after": null
+  },
+  {
+    "path": "tests/migration/mumbai-captured-flow.test.ts",
+    "status": "removed",
+    "before": "0f76f84bfbde7498f3b7da677e03ddd78ccfa89c0164eead8c56ff99038f93ab",
+    "after": null
+  },
+  {
+    "path": "tests/migration/interpretation-wire.test.ts",
+    "status": "removed",
+    "before": "a34cc84750c8ec8ecc6a0595343d1c3b0e1992c4674660b4bab47f46751b349e",
+    "after": null
+  },
+  {
+    "path": "tests/migration/tariff-acceptance-budget.test.ts",
+    "status": "removed",
+    "before": "393154f96eaa085f4c0b36898bc9149b6b7473d565a65947aa010661b06be2e8",
+    "after": null
+  },
+  {
+    "path": "tests/migration/request-evidence.test.ts",
+    "status": "removed",
+    "before": "f0bcb255cd35dfe7d470b085d92bf8366049097669bd0a659ad4942fa579915f",
+    "after": null
+  },
+  {
+    "path": "tests/migration/context-recovery.test.ts",
+    "status": "removed",
+    "before": "a9a777751e66bead44c1df87037ce5c83973667de3c1334a0a4f849739732045",
+    "after": null
+  },
+  {
+    "path": "tests/migration/interpretation-settings.test.ts",
+    "status": "removed",
+    "before": "7ccb3ccdb5b5da55980271602d0afac7cfdc165253fb6410f72f0b07c7e3889c",
+    "after": null
+  },
+  {
+    "path": "tests/migration/domain-agent.test.ts",
+    "status": "modified",
+    "before": "68a08c89e417edc50a0e177d9d995a0eec86d8aea54d261975ca3605769040c0",
+    "after": "1e628d49f0f74e8458862525199d22b0c41fe4bbb0a634b08577e9c24949cbd0"
+  },
+  {
+    "path": "tests/migration/final-reviewed-components.test.ts",
+    "status": "removed",
+    "before": "96a7e1192cf4803dc6b1160fe58d0c790fb7aa96272662df1853d35e24eb2966",
+    "after": null
+  },
+  {
+    "path": "tests/migration/free-model-captured.test.ts",
+    "status": "removed",
+    "before": "c7a962c2dd40c8304c3d6bc32dd91d859b67246ee009050d2cca93ed2c09f701",
+    "after": null
+  },
+  {
+    "path": "tests/migration/conversation-integrity.test.ts",
+    "status": "modified",
+    "before": "4ca2c6df07c62409555642a2a2a096efe0b4b417d173579432389ac175a7ba9f",
+    "after": "9d15942b44e652ede08d5e9b296b1d56e4fb674e726d2e0f10675aefbb8a6ebf"
+  },
+  {
+    "path": "tests/migration/comparison-lookup.test.ts",
+    "status": "modified",
+    "before": "acb4d3e8547ef4145f3ec77803c5c133223b1dfd5d854bd8f22ec3d1757e9df5",
+    "after": "c6d9492e3833e38df120157242fbbbf50428fe446267530f51c9497dc3c08d2d"
+  },
+  {
+    "path": "tests/migration/specialist-timeout.test.ts",
+    "status": "modified",
+    "before": "dbf78f11e401e175f89a5ed90603b4a4b51368d9e664dc9b4ed2bab668362a28",
+    "after": "f8721b72d7947266a7b9356beeba3e82e22ed714bfc38bfb81c83d348267d6c1"
+  },
+  {
+    "path": "tests/migration/reviewed-report.test.ts",
+    "status": "removed",
+    "before": "be9f1d9d4988ac0f151f13be4f088c0f4f5c4a178cbe0d79a65f18e7fddbfe28",
+    "after": null
+  },
+  {
+    "path": "tests/migration/context-review-regressions.test.ts",
+    "status": "removed",
+    "before": "4e597f1c9dd1b4bd555dcec0a5a1a341e0ff498898f122b83c88de2408cec147",
+    "after": null
+  },
+  {
+    "path": "tests/migration/reviewed-components.test.ts",
+    "status": "removed",
+    "before": "ed78e03ea672b2f5ff018ab30803e8f93cf76f591b93950f91974c8f3f890f11",
+    "after": null
+  },
+  {
+    "path": "tests/migration/official-berth.test.ts",
+    "status": "removed",
+    "before": "61b6a92173bbcade368134ca1d765424bd200c7781779781512bde89968a1668",
+    "after": null
+  },
+  {
+    "path": "tests/migration/guarded-main-model.test.ts",
+    "status": "removed",
+    "before": "b7f64ad0482ec2b11b03e8ab56c04a78ceadf47e2aa02c9e76527e6407a77740",
+    "after": null
+  },
+  {
+    "path": "tests/migration/supplied-quote-flow.test.ts",
+    "status": "removed",
+    "before": "2bb23e9b4e97d83f41662f722334f7a0f76bb938bf4a1e51dcc6fc70eb8c25cf",
+    "after": null
+  },
+  {
+    "path": "tests/migration/conversation-harness.ts",
+    "status": "removed",
+    "before": "7f2e6a0a78d9bbb6311308bd32b415bdeeb1fd8690e18c0b9822a3e93eb7b1de",
+    "after": null
+  },
+  {
+    "path": "tests/migration/supplied-quote-rules.test.ts",
+    "status": "removed",
+    "before": "c22cf59c5747d2c421d336b85015dc5b81254f16cb09634b11b260955c2d813d",
+    "after": null
+  },
+  {
+    "path": "tests/migration/bounded-screen-guard.test.mts",
+    "status": "removed",
+    "before": "71f4f2743122354cc83bbbc026ad831f252029e6b053ca3f4670a6528bc000f5",
+    "after": null
+  },
+  {
+    "path": "tests/migration/conversation.test.ts",
+    "status": "modified",
+    "before": "0266e5539552c098598aea18f052c64a8bd47c173be06d3fce00c3187054af5c",
+    "after": "e4fd07075c6e61310aa2c00ba0fbb5acd3bfb767cb40e71605d8971adbe54ef7"
+  },
+  {
+    "path": "tests/migration/conversation-fixtures.ts",
+    "status": "removed",
+    "before": "967e2b66f1872121a583a41cbd36bfa48ec98ebc211307738a7958e9c443d8f1",
+    "after": null
+  },
+  {
+    "path": "tests/migration/reviewed-explanations.test.ts",
+    "status": "removed",
+    "before": "07d7793cd3d734a1eca39d406df4fa5df7d93b714d558d2866c8585b2707f2d1",
+    "after": null
+  },
+  {
+    "path": "tests/migration/quotation-punctuation.test.ts",
+    "status": "removed",
+    "before": "5b0ab822d6c664554e8bd41af0ecad2972364ff55e7091e019e7363d67459313",
+    "after": null
+  },
+  {
+    "path": "tests/migration/pass1/semantic-regressions.test.ts",
+    "status": "modified",
+    "before": "f8da5bbafc28d48bc7538449012903bd83c942dd0d103c0da8ba2bf1e586687c",
+    "after": "98423871b3c10c778fc6e2f888217b820a0448fc76c80910b1a0f94fdf670232"
+  },
+  {
+    "path": "tests/migration/pass1/authority-routing.test.ts",
+    "status": "removed",
+    "before": "44f392ea022d4c3ee8cb6e72a6bc481410f5d56978673e627fbd9c20d4309d23",
+    "after": null
+  },
+  {
+    "path": "tests/migration/pass1/model-repair.test.ts",
+    "status": "removed",
+    "before": "ace1bc28ccb4e1dd6848955e20daca897429a01d32d97766cec43f04c94b2daf",
+    "after": null
+  },
+  {
+    "path": "tests/migration/pass1/golden.ts",
+    "status": "modified",
+    "before": "8cc5724ac2b5a861118d79c41d48ee5a60a252ea1c6fd7f8adc313478d76120d",
+    "after": "4bd65b38c031bc78155dfc5b2e41c62ceda70cb04eea302b3d17f63bb9103abc"
+  },
+  {
+    "path": "tests/migration/pass1/inputs.json",
+    "status": "modified",
+    "before": "52b1162c8ba5a54e9903028565f46da4c0100cf2b79adf2263a90143b58b1832",
+    "after": "ef1737b7c6530c18a2ad20911dba07177dfe683e03ed6cd3dac1d3257f503623"
+  },
+  {
+    "path": "tests/migration/pass1/golden.test.ts",
+    "status": "removed",
+    "before": "535cf8600e7753a34c89abae4c517b0a1192a3fc642999aaa8053881a6f27401",
+    "after": null
+  },
+  {
+    "path": "tests/migration/pass1/dispatch-snapshot.test.ts",
+    "status": "removed",
+    "before": "3e684fc28d86b0d38393b07d3593b57493c30d15fc0de8665420a9cb655f8cd5",
+    "after": null
+  },
+  {
+    "path": "tests/migration/pass3/catalog-identity.test.ts",
+    "status": "removed",
+    "before": "3fc4123b923dc3f9cb675016d8175623791ccacf33bc7fa16c020a10bb6884d3",
+    "after": null
+  },
+  {
+    "path": "tests/migration/pass3/semantic-enums.test.ts",
+    "status": "removed",
+    "before": "6d794830220fda26cfb13ae9fcc70cbd51ead70ee7a04c46b59166203201f2c7",
+    "after": null
+  },
+  {
+    "path": "tests/migration/pass3/semantic-safety.test.ts",
+    "status": "removed",
+    "before": "de113efaa2644805b37731082b39438968854b03f0725256501b4ed4964be820",
+    "after": null
+  },
+  {
+    "path": "tests/migration/pass3/recovery.test.ts",
+    "status": "removed",
+    "before": "f8c9b17f4b1b0060380c7c06551f612a0f9225ef53bbd75c994825ef66a20c09",
+    "after": null
+  },
+  {
+    "path": "tests/migration/pass3/replay.test.ts",
+    "status": "removed",
+    "before": "bf940433f1d5c69893612341146ce9d5fe7dd923d948f8fe88f84e19875eca5c",
+    "after": null
+  },
+  {
+    "path": "tests/migration/pass3/numbered-items.test.ts",
+    "status": "removed",
+    "before": "1ffb2eefa819cae08819834ae75bae9f91e313f30a019ec784d8d1c67387105d",
+    "after": null
+  },
+  {
+    "path": "tests/migration/pass2/flat-facts.test.ts",
+    "status": "removed",
+    "before": "8a66be3c5e2d8d74f8c6fb554050d011fb5baf1ec648f2f6ad49a85d05bbf7c7",
+    "after": null
+  },
+  {
+    "path": "tests/migration/pass2/fixtures.ts",
+    "status": "removed",
+    "before": "178d151af8e0d6116105baee665530caf77fa0a51f1309c5dccd958fae8797a8",
+    "after": null
+  },
+  {
+    "path": "tests/migration/pass2/corrections.test.ts",
+    "status": "modified",
+    "before": "6bab6dff239a176e3d0d83dfef512b7aecfa5cd8cb2315c7c68313d5d9ab4b91",
+    "after": "6732a60141fd3299fc60840f1413774d0f43606e3ab377e3881ea0a6c5caa178"
+  },
+  {
+    "path": "tests/migration/pass2/cue-regressions.test.ts",
+    "status": "removed",
+    "before": "d18b68fa07a3c464363083b797424e5af39d9bfe18aac5238b6ef62842e2dd54",
+    "after": null
+  },
+  {
+    "path": "tests/migration/pass2/budget.test.ts",
+    "status": "removed",
+    "before": "558cc0aed7a4beab0a65dea20c66e977b5cfe20d108cf79802b7a968a5fe7645",
+    "after": null
+  },
+  {
+    "path": "tests/migration/pass2/grounding-arithmetic.test.ts",
+    "status": "removed",
+    "before": "91de93d11cd9ffe2c642b425d48cdfffb2532cc59a5c2d9faeaf7b2f2d22bd95",
+    "after": null
+  },
+  {
+    "path": "tests/migration/pass2/headless-smoke.test.ts",
+    "status": "removed",
+    "before": "4203c79944f60ad2bbb672d7e35e6432b8a6cbbfd7a6a4b55fffc914e728f51a",
+    "after": null
+  },
+  {
+    "path": "tests/migration/pass2/replay.test.ts",
+    "status": "removed",
+    "before": "af904fa6b121b0c4057f075ddfebda4ef4108b14ea5647ae73b72da1a21c6df8",
+    "after": null
+  },
+  {
+    "path": "tests/migration/pass2/tariff-gap.test.ts",
+    "status": "removed",
+    "before": "ae3007075e320ed670404f52a7266dcd0a96854f181decca08f77ae843cddef1",
+    "after": null
+  },
+  {
+    "path": "tests/migration/pass2/payload-audit.test.ts",
+    "status": "removed",
+    "before": "98ee1a41a814985aab05755aa494b8c8ae54fc926c7eda3d20a8923de97dd7b8",
+    "after": null
+  },
+  {
+    "path": "tests/migration/pass2/enums-repair.test.ts",
+    "status": "removed",
+    "before": "66df76435dec43b116109f8f4880b6b6f0ad5ee9f3b9d9d2064628e1def9693d",
+    "after": null
+  },
+  {
+    "path": "tests/migration/fixtures/mumbai-captured-interpretation.json",
+    "status": "removed",
+    "before": "1a6debe237bbd7f1b4afc92cfe7525460dfc796ec05d0e9f6262255282355776",
+    "after": null
+  },
+  {
+    "path": "backend/auth.py",
+    "status": "removed",
+    "before": "7e8120f614b4856f43f0c959ab83c5572f8954c239240dd4b74e9945d6f4846e",
+    "after": null
+  },
+  {
+    "path": "backend/logging_config.py",
+    "status": "removed",
+    "before": "39e18902aa611486891a30a8e7b656f4fbc2973657609cc850e830e86d1c35d2",
+    "after": null
+  },
+  {
+    "path": "backend/models.py",
+    "status": "removed",
+    "before": "f73da868634c6d41080e32774e6d1d9414b9f54dc62519ba9a5b32edb03c0617",
+    "after": null
+  },
+  {
+    "path": "backend/requirements.txt",
+    "status": "removed",
+    "before": "ee8ee3b5dfeb6e4b5fa35b31fe713cfc7614d711b742b297a92848c6d3f50776",
+    "after": null
+  },
+  {
+    "path": "backend/Dockerfile",
+    "status": "removed",
+    "before": "2980c112593178228e08abf67cffdba3db7785fd30224216857dbf4f6196d7c2",
+    "after": null
+  },
+  {
+    "path": "backend/database.py",
+    "status": "removed",
+    "before": "304c85075830d66ed68d138451b64c6be6da9f9ba26ac956ecb118654468d7a7",
+    "after": null
+  },
+  {
+    "path": "backend/pyproject.toml",
+    "status": "removed",
+    "before": "6734b21a689577f932967fab94ebbdc9ab82b53c48ccf91f6cab7fa8321bc13e",
+    "after": null
+  },
+  {
+    "path": "backend/test_runtime.py",
+    "status": "removed",
+    "before": "b4560289ec33e79ea5e6903643775e54913e5e7d98d8d8e68d029aa0ce2f00af",
+    "after": null
+  },
+  {
+    "path": "backend/test_vesselapi.py",
+    "status": "removed",
+    "before": "a3c999498124020f66fcaceb488443996179d29ba739e41ac32933a304a88658",
+    "after": null
+  },
+  {
+    "path": "backend/.dockerignore",
+    "status": "removed",
+    "before": "d50d995cd7459c54476a252ed65aba65ffdbe09dbd30bfa73465636aa480732d",
+    "after": null
+  },
+  {
+    "path": "backend/.gitignore",
+    "status": "removed",
+    "before": "6abcbec88989029ff3ff1ebbfaf78dc64a112b54626d3595bb3c809f45e60363",
+    "after": null
+  },
+  {
+    "path": "backend/calculator.py",
+    "status": "removed",
+    "before": "3e962fa6185cbc3a4a7e2ae6c183aaac6109593425f00fc21c3c29a5ca4d7251",
+    "after": null
+  },
+  {
+    "path": "backend/agent.py",
+    "status": "removed",
+    "before": "017f41daab78a7fd6a7d3e2852be81195af939edba8e493d54dd0d8e977cf25b",
+    "after": null
+  },
+  {
+    "path": "backend/.python-version",
+    "status": "removed",
+    "before": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
+    "after": null
+  },
+  {
+    "path": "backend/fly.toml",
+    "status": "removed",
+    "before": "9f9cbe7c34d3fbd50521d4eecb418c73508f4a5b9d1bb6fb876cc735d59bdd66",
+    "after": null
+  },
+  {
+    "path": "backend/.env.example",
+    "status": "removed",
+    "before": "c7a396e24ebd80144f020610758a57d981a90232bb48227a8f0b654bc774b142",
+    "after": null
+  },
+  {
+    "path": "backend/poetry.lock",
+    "status": "removed",
+    "before": "5f83d66468ecfbeedb9815d24af6342e6a3f5e752c1b217a878a2f35fab74d12",
+    "after": null
+  },
+  {
+    "path": "backend/main.py",
+    "status": "removed",
+    "before": "e58fe8c5d8b191a57a74eeff114adb91c80a347d93b55962e81e9beabf165a16",
+    "after": null
+  },
+  {
+    "path": "backend/.vercelignore",
+    "status": "removed",
+    "before": "295a4b3eb667c178d8c324c00c2d7478d3cc5734e447615c2112004756f8af86",
+    "after": null
+  },
+  {
+    "path": "backend/test_model_selection.py",
+    "status": "removed",
+    "before": "324da31fc08a193edb296c8c44d674b0ac892718e0c8cad6a582de778356dcf7",
+    "after": null
+  },
+  {
+    "path": "backend/ports/jawahar-nehru-port-authority-jnpa/JNPA SOR.md",
+    "status": "removed",
+    "before": "876e034b52c1631ad8452391287e0cc022d533cbb912b4c41eca070d8346e603",
+    "after": null
+  },
+  {
+    "path": "backend/ports/mumbai/tariffs.md",
+    "status": "removed",
+    "before": "bdd2d7f21783ab40e9c73aab9ba31bf113a57fe75162cfb8413a1d3cd54e611f",
+    "after": null
+  },
+  {
+    "path": "backend/ports/jsw-jnpt-liquid-terminal/JSW JNPT Liquid Terminal Private Limited SOR.md",
+    "status": "removed",
+    "before": "03302a18228a543677ca05ef777d7e5444d0584aa3931a044e384f25a9f19b2c",
+    "after": null
+  },
+  {
+    "path": "backend/ports/jaigarh/jaigarh-tarrif.md",
+    "status": "removed",
+    "before": "8c4124c1ef6b6f7590d98f4e0067a320e32a5721a391b4261e7775c1ea54e0fe",
+    "after": null
+  },
+  {
+    "path": "backend/ports/bpcl-liquid-cargo-jetty/BPCL Liquid Cargo Jetty SOR.md",
+    "status": "removed",
+    "before": "d912279df5d2c65dec94e8d18c20c3490ff796971086142dbd7f4aed81aa58b5",
+    "after": null
+  },
+  {
+    "path": "backend/ports/bpcl-liquid-cargo-jetty/Lighterage.md",
+    "status": "removed",
+    "before": "ba0a6d9723f3163d019f430cea6e631f67a94cddeaad10d323507056e9222cd4",
+    "after": null
+  },
+  {
+    "path": "backend/ports/mumbai-cruise-terminal/tarrifs.md",
+    "status": "removed",
+    "before": "15499f3ed840a5767e9a1574789f4b3c20c8f9512187aafbd828c95b76f07ab6",
+    "after": null
+  },
+  {
+    "path": "backend/ports/nhava-sheva-international-container-terminal/NHAVA SHEVA INTERNATIONAL CONTAINER TERMINAL PRIVATE LIMITED SOR.md",
+    "status": "removed",
+    "before": "83ca6b9ef2e55dfe46e5b82d567e7763b161cfa25438d98a2a607bc8e93564ae",
+    "after": null
+  },
+  {
+    "path": "backend/ports/bpcl-cargo-jetty/tarrifs.md",
+    "status": "removed",
+    "before": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "after": null
+  },
+  {
+    "path": "backend/ports/ranpar-finolex/tarrifs.md",
+    "status": "removed",
+    "before": "7d5828bb7f40ec67140c6bd897e7fc697c429335942f57da8f84da68a50332e7",
+    "after": null
+  },
+  {
+    "path": "backend/ports/redi/tarrifs.md",
+    "status": "removed",
+    "before": "92cd1ca905b6024a05de48062a1776b164f6a8d5d9a513344422936917838006",
+    "after": null
+  },
+  {
+    "path": "backend/ports/nhava-sheva-freeport-terminal/Nhava Sheva Freeport Terminal Pvt Ltd SOR.md",
+    "status": "removed",
+    "before": "6ee4dd9ed667958e15587d89154647f8d9ece4d65b2dc185b67b1f3ad865083b",
+    "after": null
+  },
+  {
+    "path": "backend/ports/konkan-lng-ltd/tarrifs.md",
+    "status": "removed",
+    "before": "afdcb2f108b9b26e58ff525fa5c5a609c3ddeb3c1d9233d6f14c198f29fb7b2e",
+    "after": null
+  },
+  {
+    "path": "backend/ports/gateway-terminals-india-pvt-ltd/tarrifs.md",
+    "status": "removed",
+    "before": "e1dbf88a9f0acbb995f24a23ba2a2c16c20df38dcc92fb8dfecc88b0d57c4a59",
+    "after": null
+  },
+  {
+    "path": "backend/ports/mumbai-container-terminal/tarrifs.md",
+    "status": "removed",
+    "before": "b56dddefc1d4dfedb6040edd33cf5df3bd3aef6187ace14c211fad9f748e4957",
+    "after": null
+  },
+  {
+    "path": "backend/ports/nhava-sheva-gateway-terminal/NHAVA SHEVA (INDIA) GATEWAY TERMINAL PRIVATE LIMITED SOR.md",
+    "status": "removed",
+    "before": "3ef0b57bfb2cf41004f9bf863c952187091e13ca6cdced875a2e42e5d4a44127",
+    "after": null
+  },
+  {
+    "path": "backend/ports/ictpl/tarrifs.md",
+    "status": "removed",
+    "before": "7ca136466f49d534dcb2fcc3c4e6e3ac33bf3a04959105fe227c298edfb2804f",
+    "after": null
+  },
+  {
+    "path": "docs/portia-implementation-status.json",
+    "status": "removed",
+    "before": "d14d410e1a6a40b1e07d2b774612c40bd7eb2a6abcf469640d2979f5b61b14e0",
+    "after": null
+  },
+  {
+    "path": "docs/PORTIA_PASS3_INTERPRETER_FLOWS.md",
+    "status": "removed",
+    "before": "552e48c2e2af7d29f0d4af604bbbf71366493e41d6af378dd699cdbf80480bf8",
+    "after": null
+  },
+  {
+    "path": "docs/PORTIA_PASS1_REPORT_2026-10-16.txt",
+    "status": "removed",
+    "before": "bae998421c9bc033858711afc21ddd801a137b8032cb265d52aff7f01552edec",
+    "after": null
+  },
+  {
+    "path": "docs/architecture.md",
+    "status": "modified",
+    "before": "cc47c9c8835599c5aa79219a08dd2d3a2931f3a32ce31d29cb84303cf25b4900",
+    "after": "70dbd33c45a857f98975ad165cade630bd1d60f834c5eb65efc67cd693318b72"
+  },
+  {
+    "path": "docs/PORTIA_PASS3_REPORT_2026-10-17.md",
+    "status": "removed",
+    "before": "43441aa19ceed9410f94f949b225587ad36f410efc9a2596eeab3f23a023026e",
+    "after": null
+  },
+  {
+    "path": "docs/PORTIA_PASS2_REPORT_2026-10-16.md",
+    "status": "removed",
+    "before": "e9ddb2f25dac8e12a93616323b94910997655014fb2f44dfbad9a765535be492",
+    "after": null
+  },
+  {
+    "path": "docs/audit-remediation-2026-10-14.md",
+    "status": "removed",
+    "before": "9e41970c874221e491d2eb998a04b464a15443cbb747458f355001db630f52fa",
+    "after": null
+  },
+  {
+    "path": "docs/portia-coverage.md",
+    "status": "modified",
+    "before": "7660a25e40c15b7643bb42046d586654d99da3344f63f0e6e4a86a8b1cd8f465",
+    "after": "debf38753869709791d494b6450117077ae9c4991831f3a5349cc5978af42e77"
+  },
+  {
+    "path": "docs/CLAUDE_HANDOFF_2026-10-16.txt",
+    "status": "removed",
+    "before": "aed921448fd22fe1d9c0fbe41e7fd56a65bbfcd33b40749fe7c58c73d4799fe3",
+    "after": null
+  },
+  {
+    "path": "docs/PORTIA_PASS3_BASELINE_TEST_DECISIONS.md",
+    "status": "removed",
+    "before": "61a633bd06788fd84e5285243551bbf41fc53da184680e12eab1ec3f578bde48",
+    "after": null
+  },
+  {
+    "path": "docs/portia-implementation-checklist.html",
+    "status": "removed",
+    "before": "4d038cb72d34c8d94a46afca2a95aac93d87ecd7ad699b7737a37af60bd77e7a",
+    "after": null
+  },
+  {
+    "path": "docs/audit-fix-checklist.html",
+    "status": "removed",
+    "before": "ec83b35e9be4efb72a6b243ac44f1fcee6c43929f95b8758791cbd2fde9bf893",
+    "after": null
+  },
+  {
+    "path": "docs/memory-integration.md",
+    "status": "modified",
+    "before": "05c334a4792499a19e4ddd7031b041d9de39bc1e69b4a2627662e94da2c9b3a7",
+    "after": "104617968697133cbd17c5b2f0f4ddcb3754266918cdaa8fde3a52b0336d65ac"
+  },
+  {
+    "path": "docs/audit-2026-10-14.md",
+    "status": "removed",
+    "before": "656be098710049da805c84ea92daa285ae571de25dbba24d77366ef1330926b1",
+    "after": null
+  },
+  {
+    "path": "docs/portia-reliability/stage-3a-r1-orchestrator-review.md",
+    "status": "removed",
+    "before": "963bfbd450f6216720b142ea468a42b12d30fcea9aa27de18f78a5763633c995",
+    "after": null
+  },
+  {
+    "path": "docs/portia-reliability/2026-10-18-mumbai-source-completion.md",
+    "status": "modified",
+    "before": "d60e333a69249e4946b84cad6c7e7b15c0911716c5f39e7d50a5f6763aef815d",
+    "after": "28c6456519b763a608be083a985374a7ecacbc9673ab3e0ea8e4a35b2976e94b"
+  },
+  {
+    "path": "docs/portia-reliability/actual-tariff-repair-r1-20261015.md",
+    "status": "removed",
+    "before": "f935374f793f3d95c811668a4d9ba233d3684622b6c6bd29ba28f85d3898fa01",
+    "after": null
+  },
+  {
+    "path": "docs/portia-reliability/contracts.md",
+    "status": "modified",
+    "before": "efd02f4570a1281539fd94bca474af4d4a29ca08e54607aebc39b55add7ea884",
+    "after": "5ce934583a9229488ec8727fd97ba3a9245b92a0ffaef6700a927688b3934e11"
+  },
+  {
+    "path": "docs/portia-reliability/stage-3a-orchestrator-review.md",
+    "status": "removed",
+    "before": "8d6c75e34b64d60e2c6f46a76faa93fe32b2166ecc0163ac86ee5efe4eb140cf",
+    "after": null
+  },
+  {
+    "path": "docs/portia-reliability/stage-3a-r3-review.md",
+    "status": "removed",
+    "before": "95046e017961c6abb18794ad9ec3235e6cce48d9f7d5c873a6fabce20472e8fe",
+    "after": null
+  },
+  {
+    "path": "docs/portia-reliability/quotation-repair-r1-20261015.md",
+    "status": "removed",
+    "before": "543859c09451744a5f7910b19e15045278c1859cc1900a1049697aa3c4811347",
+    "after": null
+  },
+  {
+    "path": "docs/portia-reliability/stage-3a-r2-orchestrator-review.md",
+    "status": "removed",
+    "before": "c111cf02d0f1353da01809abdd657d088cd7d767975c4fe41eeb9718d43dc420",
+    "after": null
+  },
+  {
+    "path": "docs/portia-reliability/official-source-review.md",
+    "status": "modified",
+    "before": "99b75c491a2c8699bfd3a36d00d6befc3e70bfd0d5b0f34ce4c62d1f09a89779",
+    "after": "7f0b88bb0bd2534629dc391348b9775c74294697bcecad225526be1920475439"
+  },
+  {
+    "path": "docs/portia-reliability/2026-10-18-western-source-completion.md",
+    "status": "modified",
+    "before": "506a50425b0d1ca84a9e02f81ced0f8e0129387b69215612d5078a773143ff78",
+    "after": "a496e98be6d201710c778ee0e9624638b43172a02f9e6928f2a90fc360023540"
+  },
+  {
+    "path": "docs/portia-reliability/stages-0-2-review.md",
+    "status": "removed",
+    "before": "425d1b18cb806cea045138b48f9e9a93de8698f90eb650fda285755f79f180c6",
+    "after": null
+  },
+  {
+    "path": "docs/portia-reliability/2026-10-18-jnpa-source-completion.md",
+    "status": "modified",
+    "before": "f7ba43f3c8960c7eab5a9b42922e175fcfda86055ddfa92bc547e0d1dc9163df",
+    "after": "8ebdd2e4e8dbc793dea0ce8c1b0293e80b901774069ca53f2fcba8f797a86108"
+  },
+  {
+    "path": "docs/portia-reliability/stage-3a-r3-orchestrator-review.md",
+    "status": "removed",
+    "before": "ddeffbe027a3177f3f422d2ea64c52b63e128c0f30e6342e9301a4d19a0a6cbc",
+    "after": null
+  },
+  {
+    "path": "docs/portia-reliability/2026-10-18-tariff-integration.md",
+    "status": "modified",
+    "before": "6cf49f877bc5216a4d2195d5525a38652cc69ea374a45e5d4f15ae07070babc3",
+    "after": "c4066d61383d1f17753ed9d86133299732e429c230f4837946b378cf9609a419"
+  },
+  {
+    "path": "docs/portia-reliability/shared-architecture-contract.md",
+    "status": "removed",
+    "before": "be3e0c1b0502d3194df95661b680c5409495176ee529b2d67b9a74c54117943f",
+    "after": null
+  },
+  {
+    "path": "docs/portia-reliability/stage-3a-review.md",
+    "status": "removed",
+    "before": "08c2165dc494bb11922cbc5d417add591c0dae6904fbe2f3392f825d060c9c37",
+    "after": null
+  },
+  {
+    "path": "docs/portia-reliability/2026-10-15-delivery-reset-superseded.md",
+    "status": "removed",
+    "before": "b1450e57598f897dbfd51f7d33fc92fef2c2f2337457e2a9c7b1ecd352ecc19e",
+    "after": null
+  },
+  {
+    "path": "docs/portia-reliability/invariants-and-capabilities.md",
+    "status": "modified",
+    "before": "9789d5466beeca1df5ee9e38078d265ca2c9db9e8189626f5f28ce44e52056c0",
+    "after": "26fdf7387907f94542727a5e4f22a7066a4b245b6d80dd8392c17f9f863be45d"
+  },
+  {
+    "path": "docs/portia-reliability/stage-3a-r2-review.md",
+    "status": "removed",
+    "before": "fe5d2889e89df1ca1631e4f73d2629ff77c38a0a16bdeddfb9277b5ea13395dc",
+    "after": null
+  },
+  {
+    "path": "docs/portia-reliability/actual-tariff-flow-20261015.md",
+    "status": "removed",
+    "before": "c78563f02253fa0049897fa7aa9f08bf2359c02447e987b60dd3ef05ace5cb96",
+    "after": null
+  },
+  {
+    "path": "docs/portia-reliability/quotation-flow-20261015.md",
+    "status": "removed",
+    "before": "ce71c855d11a8579025677982f1265c84f58c2e8d001158d57940bf1acf60491",
+    "after": null
+  },
+  {
+    "path": "docs/portia-reliability/stages-0-2-orchestrator-review.md",
+    "status": "removed",
+    "before": "100ddb9ea0aba96ebdc48d68de4e76641bab41e68eee725b8d92c92b09d916a7",
+    "after": null
+  },
+  {
+    "path": "docs/portia-reliability/actual-tariff-orchestrator-review-20261015.md",
+    "status": "removed",
+    "before": "e52ebc84704b7929bd57d41d101a9449df5ff67204412f2340ba888c51dc96cb",
+    "after": null
+  },
+  {
+    "path": "docs/portia-reliability/stage-3a-r1-review.md",
+    "status": "removed",
+    "before": "52c3954ddc5c93608bf05985c228cc1d07fab8a22f7df3c431d260aac5efd4b2",
+    "after": null
+  },
+  {
+    "path": "docs/portia-reliability/2026-10-18-public-tariff-pages.md",
+    "status": "modified",
+    "before": "fed9c912b1d3d78707d45f034e410fdbc0cb9aa995ebee86ad1ab69aac9e77d0",
+    "after": "dc151d0973dbdb31b187cb447cc4c83a5b44d9bb8bf8c90059fbc6ddadf601f3"
+  },
+  {
+    "path": "docs/portia-reliability/shared-integration-r6-20261016.md",
+    "status": "removed",
+    "before": "91e737f7ccb511026c76aa0ea5258d5d6a79eaa0f323137fadf7a509b3129f32",
+    "after": null
+  },
+  {
+    "path": "docs/portia-reliability/2026-10-18-source-requests.md",
+    "status": "modified",
+    "before": "244f5fbbd51c492bfff57499f0f6f7c86a87f2c6001843911727b7828ebdd7b2",
+    "after": "1c57c9321e30afee9d8267345f7c0c988c98c8260aa759b6d14f85e3dc71d9eb"
+  },
+  {
+    "path": "docs/portia-reliability/quotation-flow-orchestrator-review-20261015.md",
+    "status": "removed",
+    "before": "a6fff0466220da9c66db5173e3a1745514d640d8ef47428a3c8059f6abdc0631",
+    "after": null
+  },
+  {
+    "path": "docs/portia-reliability/2026-10-18-test-evidence-audit.md",
+    "status": "modified",
+    "before": "c62f9c20008ceb640d569c7867f7cf6049bde9828419b14e985cd6aa1211adf5",
+    "after": "cdc94b50fc65ed576cfd8319c81c7755df7ca38bece978208460ed172ee53dad"
+  },
+  {
+    "path": "docs/superpowers/plans/2026-10-15-portia-shared-architecture.md",
+    "status": "removed",
+    "before": "46676a0ae7ff3a719731e48b9683a04d2785db84f1e4fe22bddeba91ace1ca2e",
+    "after": null
+  },
+  {
+    "path": "docs/superpowers/plans/2026-10-17-portia-functional-finish.md",
+    "status": "removed",
+    "before": "01c2e6c3fc8b40913fcf395da9a41a28ba9a6160ea30409bd471f645c2f37c71",
+    "after": null
+  },
+  {
+    "path": "docs/superpowers/plans/2026-10-17-evidence-first-chat-recovery.md",
+    "status": "removed",
+    "before": "e2ed23b7784a8ed9e8c56fb79a2896049d22c1700d43a72afdd1287e7d1269dc",
+    "after": null
+  },
+  {
+    "path": "docs/superpowers/plans/2026-10-17-portia-six-case-screen.md",
+    "status": "removed",
+    "before": "47ea9fba4c923abcf6b0b761b01ffe8d6814f123a4b67ce40845793ae221379c",
+    "after": null
+  },
+  {
+    "path": "docs/superpowers/plans/2026-10-18-full-portia-completion.md",
+    "status": "removed",
+    "before": "3e83b04b55c5c567c5bb7698d1844566be602aff7f920d4de524e912ca2ef40b",
+    "after": null
+  },
+  {
+    "path": "docs/superpowers/plans/2026-10-15-actual-tariff-demo.md",
+    "status": "removed",
+    "before": "f5f93ec842d490270173fc3316790ac01f72e2d5cc07e3295da4beb3e4fe5c1e",
+    "after": null
+  },
+  {
+    "path": "docs/superpowers/plans/2026-10-17-ordinary-tools.md",
+    "status": "removed",
+    "before": "2e0a6903ead8c3ff960e3dec224159cb1004e8b374ec741c6292108e7f2be310",
+    "after": null
+  },
+  {
+    "path": "docs/superpowers/plans/2026-10-14-grounded-agent-recovery.md",
+    "status": "removed",
+    "before": "c4f5ec53138df435bc6fe2cb0a6e377ab64a84f025954dc6bfdc2c7a1311597e",
+    "after": null
+  },
+  {
+    "path": "docs/superpowers/plans/2026-10-14-portia-full-scope-reliability.md",
+    "status": "removed",
+    "before": "ef3a190a3310089d2a4952fe0934171c34ad92b7501ca1cabae04a55b85266bc",
+    "after": null
+  },
+  {
+    "path": "docs/superpowers/plans/2026-10-14-audit-remediation.md",
+    "status": "removed",
+    "before": "7ae63d335da7922fea53d569e0c4bd219f0cef92501b05caa04379a67cc1e672",
+    "after": null
+  },
+  {
+    "path": "docs/superpowers/plans/2026-10-14-agent-reliability.md",
+    "status": "removed",
+    "before": "520980bbc8b56002a060edf71d7ed2aaa457a9a52c7bf4527249e5c96b5c8e7d",
+    "after": null
+  },
+  {
+    "path": "docs/superpowers/plans/2026-10-15-portia-delivery-reset.md",
+    "status": "removed",
+    "before": "5ed9dd54a9c51bcdc88a8d881cf6b767f41cbc6aaf0ef7ecf0c13ae53756210e",
+    "after": null
+  },
+  {
+    "path": "supabase/schema.sql",
+    "status": "removed",
+    "before": "8ffc72395a6b3d272f0b41487379068f754d1751ad7ac4697c70c95a37fcc921",
+    "after": null
+  },
+  {
+    "path": "prototypes/memory-persistence/README.md",
+    "status": "removed",
+    "before": "e1228a8023e48e87d237a862aefddd8c1982bb524ec7308c50746935636f89d4",
+    "after": null
+  },
+  {
+    "path": "prototypes/memory-persistence/.gitignore",
+    "status": "removed",
+    "before": "e8dbf80f63bb92662f099fe6c39756373399947af400f8709f4d4bfbec12b4b8",
+    "after": null
+  },
+  {
+    "path": "prototypes/memory-persistence/package-lock.json",
+    "status": "removed",
+    "before": "b694b0b110986cd7a79803bc9f36253b5b962e3d6a6b1e95c8bbad76e74b746a",
+    "after": null
+  },
+  {
+    "path": "prototypes/memory-persistence/package.json",
+    "status": "removed",
+    "before": "c9aac1b47afe4a3306db324e9e04305bdd9dbf891b487d1f0419275e372df0a6",
+    "after": null
+  },
+  {
+    "path": "prototypes/memory-persistence/convex.json",
+    "status": "removed",
+    "before": "fb9e9c070c7e86f79b2bd46222300f9a42c52c9714dbb94ff668fc8608241243",
+    "after": null
+  },
+  {
+    "path": "prototypes/memory-persistence/tsconfig.json",
+    "status": "removed",
+    "before": "f5d0c99c6fa49840f77ff274a1094f92ba3285a18d7e12ada9655825ae39f477",
+    "after": null
+  },
+  {
+    "path": "prototypes/memory-persistence/ACCEPTANCE.md",
+    "status": "removed",
+    "before": "ada573e72892aa3381b8d9902a3ddae8babbe7ebed64ca6d7d6298ff9f9a5f9d",
+    "after": null
+  },
+  {
+    "path": "prototypes/memory-persistence/tests/runtime.test.ts",
+    "status": "removed",
+    "before": "c4c5437ab11d2193fa5646b83f7c324fcdd2d75fb97c57c75a8c8a535f8c7e79",
+    "after": null
+  },
+  {
+    "path": "prototypes/memory-persistence/convex/schema.ts",
+    "status": "removed",
+    "before": "04a666628dee579a693924e8ac7a03d815b019ee014815bcb793a165a7fe2dbf",
+    "after": null
+  },
+  {
+    "path": "prototypes/memory-persistence/convex/auth.config.ts",
+    "status": "removed",
+    "before": "002ceedd0f271b39e378684e5740258d28b944f85d74b7e714725c4c8d0eb6d6",
+    "after": null
+  },
+  {
+    "path": "prototypes/memory-persistence/convex/validators.ts",
+    "status": "removed",
+    "before": "fd761860610efb1f8c3e2753b853e6a126116d3e7236d3795cf39337afbcfc6f",
+    "after": null
+  },
+  {
+    "path": "prototypes/memory-persistence/convex/memory.ts",
+    "status": "removed",
+    "before": "7cbfa15bdf386f3599def1a439f34f362f48a5282fcd96796eed3d6ab3db71cb",
+    "after": null
+  },
+  {
+    "path": "prototypes/memory-persistence/scripts/integration.ts",
+    "status": "removed",
+    "before": "e7af7815539f99075d59e8a73b95dce3340b71b736798a5dd2641659f7eb7d1a",
+    "after": null
+  },
+  {
+    "path": "prototypes/memory-persistence/scripts/client-process.ts",
+    "status": "removed",
+    "before": "76ee927e920e6551bf0a63dc53756859e9f78618b7d107c367cb798cd937a5e1",
+    "after": null
+  },
+  {
+    "path": "prototypes/memory-persistence/src/runtime.ts",
+    "status": "removed",
+    "before": "d9773861097b5d2108328f1799e479574b65fda5a8a3ec5a884a90531f2ec695",
+    "after": null
+  },
+  {
+    "path": "prototypes/memory-persistence/src/client.ts",
+    "status": "removed",
+    "before": "18be9a5435e5c53ea7578588cd9d4b63aadfe1600ad23e4fe60d556722cf8368",
+    "after": null
+  },
+  {
+    "path": "scripts/memory-chat-lab.mts",
+    "status": "modified",
+    "before": "0a6e48fefc6819f66bb5bb4310d3385873a976f21e7e5a0c34aa2ffdcb76180b",
+    "after": "29e17b10184c933b9818289fe41b32663661ac4045692ca610b11c4accd61b12"
+  },
+  {
+    "path": "scripts/audit/tariff-journey.mts",
+    "status": "removed",
+    "before": "d28c458c2a854a84fd3c79c358ed35d8eed6cda6cca101475bca372b42baaa77",
+    "after": null
+  },
+  {
+    "path": "scripts/audit/pass3-headless.ts",
+    "status": "removed",
+    "before": "973b3bf89f03c641aecada2d2af2f1388a9ff1858c2899fc2219d50072e6ba51",
+    "after": null
+  },
+  {
+    "path": "scripts/audit/bounded-screen-guard.mts",
+    "status": "removed",
+    "before": "19f2f13065f38416eb89e5dd60844ea8de5327e65f97f7d3ede417d53b63a508",
+    "after": null
+  },
+  {
+    "path": "scripts/audit/shared-architecture-live.mts",
+    "status": "removed",
+    "before": "86f194fa666f7607e08f9cd164a5b85c476e21103c8c3b39a8b04d3aed1c1bf6",
+    "after": null
+  },
+  {
+    "path": "scripts/audit/pass2-run.py",
+    "status": "removed",
+    "before": "eba604d7a8a07d45a440c5caf6d02438708dedc5e8a01dfa2edcc2d51acc285d",
+    "after": null
+  },
+  {
+    "path": "scripts/audit/local-api.mjs",
+    "status": "modified",
+    "before": "c32346f726202f8b7c8cdd9f63408299ebdac06018ab5b76e6d473a0a65b7887",
+    "after": "ce23d92553ce26b08693c765d61c4b0f8f08bf8bf533db160f70c4b1fa4ad567"
+  },
+  {
+    "path": "scripts/audit/pass2-budget.ts",
+    "status": "removed",
+    "before": "3d7be33c0a175bea56fb4502e90f7a3e8caeac78490c5d2537f4f5d342722af3",
+    "after": null
+  },
+  {
+    "path": "scripts/audit/pass2-headless.ts",
+    "status": "removed",
+    "before": "9697d1abc6e65f505246e57effcfa4a35428b7340994dec005f1c5eb4fcdc6a9",
+    "after": null
+  },
+  {
+    "path": "scripts/audit/tariff-provider.cjs",
+    "status": "removed",
+    "before": "08ad8a67487082369b2bbdb729e801b65c93d822e8e008106dadcb2be71b0686",
+    "after": null
+  },
+  {
+    "path": "scripts/audit/shared-live-provider.cjs",
+    "status": "removed",
+    "before": "f3b9f07eca3ecb87102a2ee6ad5d398076a373cb45f4b770441a93d95b3842b7",
+    "after": null
+  },
+  {
+    "path": "scripts/audit/pass3-run.py",
+    "status": "removed",
+    "before": "b6be78e18297c8bd917203d8a94d7336dfad164bd18dfe96111cf78f4310f1cf",
+    "after": null
+  },
+  {
+    "path": "scripts/audit/shared-architecture-mock.cjs",
+    "status": "removed",
+    "before": "d93a03abb21284085e0f4e0629b8717cb5e69fd2e45930f503a96d3e85672a24",
+    "after": null
+  },
+  {
+    "path": "scripts/audit/quotation-journey.mts",
+    "status": "removed",
+    "before": "6091b5c9b9d784901a6d80d334659b0f58effcb5f65a78f25d5ce7268327e912",
+    "after": null
+  },
+  {
+    "path": "scripts/audit/provider-cancellation.mjs",
+    "status": "modified",
+    "before": "7affbb6ebe85e5787732940617bebc5bc92eb4b92102dead5f4122db24401015",
+    "after": "54221cf11b6aad57ef49773512aab86350d1c93e17f9a9d4e0875f64912b42f7"
+  },
+  {
+    "path": "scripts/audit/quotation-provider.cjs",
+    "status": "removed",
+    "before": "6fc7173df24669e94d5b78b237762c03c2db63f6d8149713cb1c9e37b8b8be6b",
+    "after": null
+  },
+  {
+    "path": "src/lib/migration/request-semantics.ts",
+    "status": "modified",
+    "before": "0462707c90bc5e6109a4ae51a6a77e9a87e1486f39688c1392033cdd92f31529",
+    "after": "a8ff529744776ba0f340b63046272249d389e65101f6f0306ce6b617514c9230"
+  },
+  {
+    "path": "src/lib/migration/call-context.ts",
+    "status": "modified",
+    "before": "23599c663bc96f47caf25809559091cd6a4f0bcc3007d662a25cf510eaaf01ca",
+    "after": "12131cb2673cfef2c47c27e1755b6f79d4b29f1ab92a4ed5c9c0fe01ac3aba39"
+  },
+  {
+    "path": "src/lib/migration/conversation.ts",
+    "status": "modified",
+    "before": "58c39d6462f3251cfa5d52292a2aac1bb8d0d36e90b592043740b56b2b7da169",
+    "after": "2caf969f12360dff55648ea8ac2e3e2bf48b46bbcd2d51ade3b0c6e5f0e20c70"
+  },
+  {
+    "path": "src/lib/migration/agent-policy.ts",
+    "status": "modified",
+    "before": "0712b83bb3f3d153af42f7f48af96e0a4f5a75b8181685bf64796570e523832b",
+    "after": "daa7f016269272e4b5bdec3d1b928ff3598b843872f1c1ff0c771e2bf8930552"
+  }
+]

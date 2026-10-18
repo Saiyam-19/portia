@@ -1,0 +1,85 @@
+{
+  "date": "2026-10-18",
+  "baseHead": "2a77ead22c5a8dc365b58806f38accd4f959b2bd",
+  "workingTree": "dirty, unstaged; hashes in validation/tested-files.json",
+  "node": "22.23.2",
+  "typecheck": "PASS",
+  "lint": {
+    "errors": 0,
+    "warnings": 6,
+    "existingWarnings": "4 generated Convex disable directives; 2 existing login navigation warnings"
+  },
+  "build": {
+    "status": "PASS",
+    "buildId": "lImfVLViTu6tY4h1ap4hg",
+    "bundler": "webpack",
+    "node": "22.23.2",
+    "routes": [
+      {
+        "route": "/api/chat",
+        "tracedFiles": 1651,
+        "canonicalDataFiles": 79,
+        "missingRequiredAssets": [],
+        "forbiddenArtifacts": []
+      },
+      {
+        "route": "/api/migration/chat",
+        "tracedFiles": 1651,
+        "canonicalDataFiles": 79,
+        "missingRequiredAssets": [],
+        "forbiddenArtifacts": []
+      }
+    ]
+  },
+  "sourceIntegrity": {
+    "canonicalDataFilesUnchanged": 79,
+    "originalTariffCopiesVerifiedBeforeDeletion": 17,
+    "evidenceIndexEntriesVerified": 368,
+    "budgetLedgerRowsUnchanged": 1106,
+    "dispatchesUnchanged": 553,
+    "privateEnvironmentAndUnrelatedUiInstructions": "unchanged",
+    "sourcePacketsScannedForPrivateEnvironmentSecrets": true
+  },
+  "tooling": {
+    "nativeTypeScriptSyntax": "PASS for lab and browser journey",
+    "retiredFreeMode": "rejected before creating lab/lock/run directory",
+    "providerCancellation": "four synthetic adapter orders passed, zero unhandled rejections"
+  },
+  "notRun": [
+    "live paid inference",
+    "lab browser acceptance",
+    "production deployment",
+    "independent unseen-conversation evaluation"
+  ],
+  "newInferenceCalls": 0,
+  "newPersistentServices": 0,
+  "stagedOrCommitted": false,
+  "processCleanup": {
+    "status": "PASS",
+    "checkedGroups": 18,
+    "allExited": true,
+    "unrelatedProcessesTerminated": 0,
+    "expectedExistingListenersPreserved": true
+  },
+  "lastFullSuite": {
+    "testFiles": 72,
+    "passed": 802,
+    "expectedFailures": 1,
+    "knownFailure": "Mixed arithmetic and unavailable vessel lookup can omit lookup fallback in final publication; not counted as a passing product requirement."
+  },
+  "currentVerifiedSuite": {
+    "testFiles": 72,
+    "passed": 802,
+    "expectedFailures": 2,
+    "method": "Full suite with one expected failure, followed by focused rerun of the only subsequently changed test file (14 passing plus one additional expected failure). Production code unchanged after the full-suite run."
+  },
+  "knownProductFailures": [
+    "Mixed arithmetic and unavailable vessel lookup loses the lookup fallback in final publication.",
+    "Historical EUR minimum imported onto USD quotation can be calculated as USD without currency clarification."
+  ],
+  "unusedScaffoldAssets": {
+    "removed": 5,
+    "referencesInRuntimeTestsScripts": 0,
+    "note": "Removed after build; this affects unused static files only. No serving code changed."
+  }
+}

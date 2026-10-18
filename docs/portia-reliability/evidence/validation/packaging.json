@@ -1,0 +1,21 @@
+{
+  "buildId": "lImfVLViTu6tY4h1ap4hg",
+  "bundler": "webpack",
+  "node": "22.23.2",
+  "routes": [
+    {
+      "route": "/api/chat",
+      "tracedFiles": 1651,
+      "canonicalDataFiles": 79,
+      "missingRequiredAssets": [],
+      "forbiddenArtifacts": []
+    },
+    {
+      "route": "/api/migration/chat",
+      "tracedFiles": 1651,
+      "canonicalDataFiles": 79,
+      "missingRequiredAssets": [],
+      "forbiddenArtifacts": []
+    }
+  ]
+}

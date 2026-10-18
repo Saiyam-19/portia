@@ -1,0 +1,814 @@
+{
+  "version": 1,
+  "date": "2026-10-18",
+  "sourceRecovery": "Private temporary source-before.tar.gz captured dirty/untracked code before deletion. Tracked old implementations also remain at HEAD. Generated run traffic is intentionally not archived wholesale.",
+  "removedFiles": 16401,
+  "removedLogicalBytes": 2707317046,
+  "groups": [
+    {
+      "path": "output",
+      "files": 5502,
+      "logicalBytes": 593699177,
+      "reason": "Completed captures, snapshots and logs; required evidence retained and hash-verified"
+    },
+    {
+      "path": ".next",
+      "files": 777,
+      "logicalBytes": 942634279,
+      "reason": "Reproducible inactive Next build/cache"
+    },
+    {
+      "path": ".next-inference-pass1",
+      "files": 226,
+      "logicalBytes": 319323309,
+      "reason": "Reproducible inactive experiment build"
+    },
+    {
+      "path": "prototypes",
+      "files": 16,
+      "logicalBytes": 127266,
+      "reason": "Superseded format-1 memory prototype; active memory uses src/lib/memory + convex"
+    },
+    {
+      "path": "supabase",
+      "files": 1,
+      "logicalBytes": 2766,
+      "reason": "Retired serving schema, recoverable from HEAD"
+    },
+    {
+      "path": ".local/actual-tariff-repair-r1-20261015",
+      "files": 3,
+      "logicalBytes": 3910460,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/shared-architecture-forced-r5-20261015",
+      "files": 0,
+      "logicalBytes": 0,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-7HFkro",
+      "files": 22,
+      "logicalBytes": 5210736,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-ZGyXT5",
+      "files": 22,
+      "logicalBytes": 5108196,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-khpQTI",
+      "files": 21,
+      "logicalBytes": 5148464,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-dtaRNr",
+      "files": 21,
+      "logicalBytes": 5089946,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/shared-architecture-entry-20261015T093231Z",
+      "files": 5,
+      "logicalBytes": 11622139,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-bTtvTA",
+      "files": 22,
+      "logicalBytes": 5282081,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-kneKxl",
+      "files": 25,
+      "logicalBytes": 7585604,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-AdUFme",
+      "files": 22,
+      "logicalBytes": 5098939,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/interruption-20261013",
+      "files": 16,
+      "logicalBytes": 150475,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/ab-inference-lab.json",
+      "files": 1,
+      "logicalBytes": 271,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-QMlD8g",
+      "files": 22,
+      "logicalBytes": 5165622,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/memory-chat-lab.json",
+      "files": 1,
+      "logicalBytes": 268,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/reliability-stage3a-r2-20261015",
+      "files": 4,
+      "logicalBytes": 2225763,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/reliability-stage3a-r3-20261015",
+      "files": 5,
+      "logicalBytes": 2322056,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-xiQhd7",
+      "files": 22,
+      "logicalBytes": 5137471,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/verify_live.py",
+      "files": 1,
+      "logicalBytes": 6720,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/ab-run-avGf7d",
+      "files": 30,
+      "logicalBytes": 8853695,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-kawMGK",
+      "files": 30,
+      "logicalBytes": 7489217,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/simplification-20261017",
+      "files": 37,
+      "logicalBytes": 143788167,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/shared-conversation-mock.json",
+      "files": 1,
+      "logicalBytes": 6490,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-OCtGjJ",
+      "files": 22,
+      "logicalBytes": 5089148,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/shared-memory-chat-lab.mjs",
+      "files": 1,
+      "logicalBytes": 17909,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/performance-20261013",
+      "files": 24,
+      "logicalBytes": 217869,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-SB3g4G",
+      "files": 21,
+      "logicalBytes": 5622933,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/shared-live-r2-lab.mjs",
+      "files": 1,
+      "logicalBytes": 18387,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/performance-phase2-20261013",
+      "files": 23,
+      "logicalBytes": 183475,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/audit-20261014",
+      "files": 131,
+      "logicalBytes": 757351,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-IqKnDh",
+      "files": 22,
+      "logicalBytes": 5092171,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-jIwdbC",
+      "files": 22,
+      "logicalBytes": 5326026,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/actual-tariff-20261015",
+      "files": 3,
+      "logicalBytes": 1033963,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/shared-r6-journey.mjs",
+      "files": 1,
+      "logicalBytes": 11118,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-uZ3GxN",
+      "files": 22,
+      "logicalBytes": 5282793,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-SXWefS",
+      "files": 21,
+      "logicalBytes": 5090747,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/full-acceptance-20261016",
+      "files": 125,
+      "logicalBytes": 15750,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/shared-live-r2-journey.mjs",
+      "files": 1,
+      "logicalBytes": 6974,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/shared-conversation-fixtures.cjs",
+      "files": 1,
+      "logicalBytes": 122784,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/shared-architecture-live.mjs",
+      "files": 1,
+      "logicalBytes": 118729,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-LB85Dx",
+      "files": 22,
+      "logicalBytes": 5750598,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/shared-quotation-journey.mjs",
+      "files": 1,
+      "logicalBytes": 9332,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-0FFbBk",
+      "files": 21,
+      "logicalBytes": 5143257,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/free-model-evaluation-20261014",
+      "files": 1,
+      "logicalBytes": 132,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-FKNnwZ",
+      "files": 19,
+      "logicalBytes": 5044122,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/shared-architecture-live-r2-20261015",
+      "files": 3,
+      "logicalBytes": 263,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-X7kqHm",
+      "files": 21,
+      "logicalBytes": 5129212,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-7FR5yG",
+      "files": 22,
+      "logicalBytes": 5648238,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-WNQFPW",
+      "files": 38,
+      "logicalBytes": 7493771,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-0ng59H",
+      "files": 36,
+      "logicalBytes": 7093769,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/audit-fixes-20261014",
+      "files": 22,
+      "logicalBytes": 684860,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-Iq8nQk",
+      "files": 22,
+      "logicalBytes": 5261542,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/shared-r6-lab.mjs",
+      "files": 1,
+      "logicalBytes": 18378,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/reliability-gate-20261014",
+      "files": 11,
+      "logicalBytes": 2035502,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/quotation-flow-20261015",
+      "files": 3,
+      "logicalBytes": 2406451,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/shared-architecture-gemma-r3-20261015",
+      "files": 3,
+      "logicalBytes": 23,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/reliability-stage3a-20261015",
+      "files": 4,
+      "logicalBytes": 2049700,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-l542kl",
+      "files": 22,
+      "logicalBytes": 5077694,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/shared-forced-r5-lab.mjs",
+      "files": 1,
+      "logicalBytes": 18378,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/ordinary-tools-lab.mjs",
+      "files": 1,
+      "logicalBytes": 18391,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/shared-architecture-nvidia-r4-20261015",
+      "files": 3,
+      "logicalBytes": 200,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-agrlM2",
+      "files": 25,
+      "logicalBytes": 7366246,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-P3mrw2",
+      "files": 22,
+      "logicalBytes": 5167125,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-Zp8hec",
+      "files": 21,
+      "logicalBytes": 5121679,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-fKqApF",
+      "files": 22,
+      "logicalBytes": 5119105,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/ab-run-Y0G9uO",
+      "files": 21,
+      "logicalBytes": 5213794,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/ab-run-3bqTAc",
+      "files": 21,
+      "logicalBytes": 5217431,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-VCj47h",
+      "files": 21,
+      "logicalBytes": 5405581,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-wxVejm",
+      "files": 30,
+      "logicalBytes": 7973220,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-0Yr4Aa",
+      "files": 22,
+      "logicalBytes": 5335240,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/shared-gemma-r3-journey.mjs",
+      "files": 1,
+      "logicalBytes": 6974,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/ab-run-jwtE31",
+      "files": 21,
+      "logicalBytes": 5206125,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-jtQa4m",
+      "files": 22,
+      "logicalBytes": 5383835,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-mLkF1u",
+      "files": 22,
+      "logicalBytes": 5439034,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/shared-architecture-resumed-flow-20261015",
+      "files": 4,
+      "logicalBytes": 683,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/ab-run-4coyRc",
+      "files": 21,
+      "logicalBytes": 5205608,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/shared-gemma-r3-lab.mjs",
+      "files": 1,
+      "logicalBytes": 18378,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-jeD4Uo",
+      "files": 21,
+      "logicalBytes": 5053588,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/shared-architecture-live-20261015",
+      "files": 2,
+      "logicalBytes": 23,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/reliability-stage3a-r1-20261015",
+      "files": 3,
+      "logicalBytes": 2121939,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-pP4k78",
+      "files": 2,
+      "logicalBytes": 106767,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/narrow-chat-lab.mjs",
+      "files": 1,
+      "logicalBytes": 18391,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/run-Db7YKB",
+      "files": 40,
+      "logicalBytes": 8570444,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": ".local/quotation-repair-r1-20261015",
+      "files": 3,
+      "logicalBytes": 1029290,
+      "reason": "Completed inactive local lab or experiment artifact"
+    },
+    {
+      "path": "backend/auth.py",
+      "files": 1,
+      "logicalBytes": 2748,
+      "reason": "Retired Python backend or duplicate tariff copy"
+    },
+    {
+      "path": "backend/logging_config.py",
+      "files": 1,
+      "logicalBytes": 813,
+      "reason": "Retired Python backend or duplicate tariff copy"
+    },
+    {
+      "path": "backend/models.py",
+      "files": 1,
+      "logicalBytes": 2669,
+      "reason": "Retired Python backend or duplicate tariff copy"
+    },
+    {
+      "path": "backend/requirements.txt",
+      "files": 1,
+      "logicalBytes": 228,
+      "reason": "Retired Python backend or duplicate tariff copy"
+    },
+    {
+      "path": "backend/Dockerfile",
+      "files": 1,
+      "logicalBytes": 273,
+      "reason": "Retired Python backend or duplicate tariff copy"
+    },
+    {
+      "path": "backend/database.py",
+      "files": 1,
+      "logicalBytes": 316,
+      "reason": "Retired Python backend or duplicate tariff copy"
+    },
+    {
+      "path": "backend/pyproject.toml",
+      "files": 1,
+      "logicalBytes": 747,
+      "reason": "Retired Python backend or duplicate tariff copy"
+    },
+    {
+      "path": "backend/test_runtime.py",
+      "files": 1,
+      "logicalBytes": 6442,
+      "reason": "Retired Python backend or duplicate tariff copy"
+    },
+    {
+      "path": "backend/__pycache__",
+      "files": 10,
+      "logicalBytes": 98031,
+      "reason": "Retired Python backend or duplicate tariff copy"
+    },
+    {
+      "path": "backend/test_vesselapi.py",
+      "files": 1,
+      "logicalBytes": 1347,
+      "reason": "Retired Python backend or duplicate tariff copy"
+    },
+    {
+      "path": "backend/.dockerignore",
+      "files": 1,
+      "logicalBytes": 47,
+      "reason": "Retired Python backend or duplicate tariff copy"
+    },
+    {
+      "path": "backend/.gitignore",
+      "files": 1,
+      "logicalBytes": 134,
+      "reason": "Retired Python backend or duplicate tariff copy"
+    },
+    {
+      "path": "backend/calculator.py",
+      "files": 1,
+      "logicalBytes": 3003,
+      "reason": "Retired Python backend or duplicate tariff copy"
+    },
+    {
+      "path": "backend/.venv",
+      "files": 8059,
+      "logicalBytes": 119629698,
+      "reason": "Retired Python backend or duplicate tariff copy"
+    },
+    {
+      "path": "backend/agent.py",
+      "files": 1,
+      "logicalBytes": 20379,
+      "reason": "Retired Python backend or duplicate tariff copy"
+    },
+    {
+      "path": "backend/.python-version",
+      "files": 1,
+      "logicalBytes": 5,
+      "reason": "Retired Python backend or duplicate tariff copy"
+    },
+    {
+      "path": "backend/fly.toml",
+      "files": 1,
+      "logicalBytes": 587,
+      "reason": "Retired Python backend or duplicate tariff copy"
+    },
+    {
+      "path": "backend/.env.example",
+      "files": 1,
+      "logicalBytes": 490,
+      "reason": "Retired Python backend or duplicate tariff copy"
+    },
+    {
+      "path": "backend/poetry.lock",
+      "files": 1,
+      "logicalBytes": 314476,
+      "reason": "Retired Python backend or duplicate tariff copy"
+    },
+    {
+      "path": "backend/main.py",
+      "files": 1,
+      "logicalBytes": 12946,
+      "reason": "Retired Python backend or duplicate tariff copy"
+    },
+    {
+      "path": "backend/.vercelignore",
+      "files": 1,
+      "logicalBytes": 63,
+      "reason": "Retired Python backend or duplicate tariff copy"
+    },
+    {
+      "path": "backend/ports",
+      "files": 17,
+      "logicalBytes": 388242,
+      "reason": "Retired Python backend or duplicate tariff copy"
+    },
+    {
+      "path": "backend/test_model_selection.py",
+      "files": 1,
+      "logicalBytes": 6136,
+      "reason": "Retired Python backend or duplicate tariff copy"
+    },
+    {
+      "path": "superseded documents (explicit allowlist)",
+      "files": 42,
+      "logicalBytes": 363020,
+      "reason": "Completed obsolete interpreter/tariff experiment narrative; not current instructions"
+    }
+  ],
+  "preservedLocal": [
+    "commit-planning-20261012",
+    "evidence",
+    "model-selector-before",
+    "prod-acceptance-20261013",
+    "production-release",
+    "secrets",
+    "ui-refactor"
+  ],
+  "tariffParity": [
+    {
+      "source": "backend/ports/jawahar-nehru-port-authority-jnpa/JNPA SOR.md",
+      "canonical": "data/ports/jawahar-nehru-port-authority-jnpa/JNPA SOR.md",
+      "sha256": "876e034b52c1631ad8452391287e0cc022d533cbb912b4c41eca070d8346e603"
+    },
+    {
+      "source": "backend/ports/mumbai/tariffs.md",
+      "canonical": "data/ports/mumbai/tariffs.md",
+      "sha256": "bdd2d7f21783ab40e9c73aab9ba31bf113a57fe75162cfb8413a1d3cd54e611f"
+    },
+    {
+      "source": "backend/ports/jsw-jnpt-liquid-terminal/JSW JNPT Liquid Terminal Private Limited SOR.md",
+      "canonical": "data/ports/jsw-jnpt-liquid-terminal/JSW JNPT Liquid Terminal Private Limited SOR.md",
+      "sha256": "03302a18228a543677ca05ef777d7e5444d0584aa3931a044e384f25a9f19b2c"
+    },
+    {
+      "source": "backend/ports/jaigarh/jaigarh-tarrif.md",
+      "canonical": "data/ports/jaigarh/jaigarh-tarrif.md",
+      "sha256": "8c4124c1ef6b6f7590d98f4e0067a320e32a5721a391b4261e7775c1ea54e0fe"
+    },
+    {
+      "source": "backend/ports/bpcl-liquid-cargo-jetty/BPCL Liquid Cargo Jetty SOR.md",
+      "canonical": "data/ports/bpcl-liquid-cargo-jetty/BPCL Liquid Cargo Jetty SOR.md",
+      "sha256": "d912279df5d2c65dec94e8d18c20c3490ff796971086142dbd7f4aed81aa58b5"
+    },
+    {
+      "source": "backend/ports/bpcl-liquid-cargo-jetty/Lighterage.md",
+      "canonical": "data/ports/bpcl-liquid-cargo-jetty/Lighterage.md",
+      "sha256": "ba0a6d9723f3163d019f430cea6e631f67a94cddeaad10d323507056e9222cd4"
+    },
+    {
+      "source": "backend/ports/mumbai-cruise-terminal/tarrifs.md",
+      "canonical": "data/ports/mumbai-cruise-terminal/tarrifs.md",
+      "sha256": "15499f3ed840a5767e9a1574789f4b3c20c8f9512187aafbd828c95b76f07ab6"
+    },
+    {
+      "source": "backend/ports/nhava-sheva-international-container-terminal/NHAVA SHEVA INTERNATIONAL CONTAINER TERMINAL PRIVATE LIMITED SOR.md",
+      "canonical": "data/ports/nhava-sheva-international-container-terminal/NHAVA SHEVA INTERNATIONAL CONTAINER TERMINAL PRIVATE LIMITED SOR.md",
+      "sha256": "83ca6b9ef2e55dfe46e5b82d567e7763b161cfa25438d98a2a607bc8e93564ae"
+    },
+    {
+      "source": "backend/ports/bpcl-cargo-jetty/tarrifs.md",
+      "canonical": "data/ports/bpcl-cargo-jetty/tarrifs.md",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "backend/ports/ranpar-finolex/tarrifs.md",
+      "canonical": "data/ports/ranpar-finolex/tarrifs.md",
+      "sha256": "7d5828bb7f40ec67140c6bd897e7fc697c429335942f57da8f84da68a50332e7"
+    },
+    {
+      "source": "backend/ports/redi/tarrifs.md",
+      "canonical": "data/ports/redi/tarrifs.md",
+      "sha256": "92cd1ca905b6024a05de48062a1776b164f6a8d5d9a513344422936917838006"
+    },
+    {
+      "source": "backend/ports/nhava-sheva-freeport-terminal/Nhava Sheva Freeport Terminal Pvt Ltd SOR.md",
+      "canonical": "data/ports/nhava-sheva-freeport-terminal/Nhava Sheva Freeport Terminal Pvt Ltd SOR.md",
+      "sha256": "6ee4dd9ed667958e15587d89154647f8d9ece4d65b2dc185b67b1f3ad865083b"
+    },
+    {
+      "source": "backend/ports/konkan-lng-ltd/tarrifs.md",
+      "canonical": "data/ports/konkan-lng-ltd/tarrifs.md",
+      "sha256": "afdcb2f108b9b26e58ff525fa5c5a609c3ddeb3c1d9233d6f14c198f29fb7b2e"
+    },
+    {
+      "source": "backend/ports/gateway-terminals-india-pvt-ltd/tarrifs.md",
+      "canonical": "data/ports/gateway-terminals-india-pvt-ltd/tarrifs.md",
+      "sha256": "e1dbf88a9f0acbb995f24a23ba2a2c16c20df38dcc92fb8dfecc88b0d57c4a59"
+    },
+    {
+      "source": "backend/ports/mumbai-container-terminal/tarrifs.md",
+      "canonical": "data/ports/mumbai-container-terminal/tarrifs.md",
+      "sha256": "b56dddefc1d4dfedb6040edd33cf5df3bd3aef6187ace14c211fad9f748e4957"
+    },
+    {
+      "source": "backend/ports/nhava-sheva-gateway-terminal/NHAVA SHEVA (INDIA) GATEWAY TERMINAL PRIVATE LIMITED SOR.md",
+      "canonical": "data/ports/nhava-sheva-gateway-terminal/NHAVA SHEVA (INDIA) GATEWAY TERMINAL PRIVATE LIMITED SOR.md",
+      "sha256": "3ef0b57bfb2cf41004f9bf863c952187091e13ca6cdced875a2e42e5d4a44127"
+    },
+    {
+      "source": "backend/ports/ictpl/tarrifs.md",
+      "canonical": "data/ports/ictpl/tarrifs.md",
+      "sha256": "7ca136466f49d534dcb2fcc3c4e6e3ac33bf3a04959105fe227c298edfb2804f"
+    }
+  ],
+  "verificationArtifactsRemoved": {
+    "files": 230,
+    "logicalBytes": 317935170
+  },
+  "note": "Totals count removal operations; .next may appear twice because verification rebuilt and then removed it. Initial-baseline removal and final verification cache removal are separate.",
+  "unusedScaffoldAssetsRemoved": [
+    {
+      "path": "public/file.svg",
+      "bytes": 391,
+      "sha256": "2b67812c325c199a02536cdbeea0c593a72f707d323b72ee3e08dbab06753bd4",
+      "reason": "Unused Next scaffold asset: no runtime/test/script references; Git preserves original"
+    },
+    {
+      "path": "public/globe.svg",
+      "bytes": 1035,
+      "sha256": "b614b9bf183925957661ac851498fe1d8029fd43a62fbfed86f9e2624a57e7cf",
+      "reason": "Unused Next scaffold asset: no runtime/test/script references; Git preserves original"
+    },
+    {
+      "path": "public/next.svg",
+      "bytes": 1375,
+      "sha256": "55995dfad6ecb4945a1e856ddca03c5e16aa5bf13fd21b4df6a74ae79357bcfc",
+      "reason": "Unused Next scaffold asset: no runtime/test/script references; Git preserves original"
+    },
+    {
+      "path": "public/vercel.svg",
+      "bytes": 128,
+      "sha256": "f081337b2fee635b455b63275406a3e7f39d6a014e25ad90dab5a67e62a12ac4",
+      "reason": "Unused Next scaffold asset: no runtime/test/script references; Git preserves original"
+    },
+    {
+      "path": "public/window.svg",
+      "bytes": 385,
+      "sha256": "644768c4aaeb4767bce293344eeb0c125fb804a94d801440424072202d85e3a1",
+      "reason": "Unused Next scaffold asset: no runtime/test/script references; Git preserves original"
+    }
+  ]
+}

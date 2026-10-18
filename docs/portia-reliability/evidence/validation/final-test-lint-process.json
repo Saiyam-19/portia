@@ -1,0 +1,18 @@
+{
+  "task": "repository-cleanup-20261018",
+  "purpose": "final-test-lint",
+  "command": [
+    "/opt/homebrew/opt/node@22/bin/node",
+    "node_modules/eslint/bin/eslint.js",
+    "tests/migration/conversation-integrity.test.ts"
+  ],
+  "cwd": "/Users/saiyamchaplot/Documents/portia-main",
+  "startedUtc": "2026-10-18T13:06:13.967093+00:00",
+  "ports": [],
+  "parentPid": 93243,
+  "pid": 93245,
+  "pgid": 93245,
+  "exitCode": 0,
+  "finishedUtc": "2026-10-18T13:06:15.688464+00:00",
+  "processGroupStillExists": false
+}
