@@ -1,0 +1,20 @@
+
+/private/var/folders/f5/bd7rzwsj7wx13_wfcn7zp4340000gn/T/portia-commits-20261018-jq7_u8l0/committed-snapshot/convex/_generated/api.js
+  1:1  warning  Unused eslint-disable directive (no problems were reported)
+
+/private/var/folders/f5/bd7rzwsj7wx13_wfcn7zp4340000gn/T/portia-commits-20261018-jq7_u8l0/committed-snapshot/convex/_generated/dataModel.d.ts
+  1:1  warning  Unused eslint-disable directive (no problems were reported)
+
+/private/var/folders/f5/bd7rzwsj7wx13_wfcn7zp4340000gn/T/portia-commits-20261018-jq7_u8l0/committed-snapshot/convex/_generated/server.d.ts
+  1:1  warning  Unused eslint-disable directive (no problems were reported)
+
+/private/var/folders/f5/bd7rzwsj7wx13_wfcn7zp4340000gn/T/portia-commits-20261018-jq7_u8l0/committed-snapshot/convex/_generated/server.js
+  1:1  warning  Unused eslint-disable directive (no problems were reported)
+
+/private/var/folders/f5/bd7rzwsj7wx13_wfcn7zp4340000gn/T/portia-commits-20261018-jq7_u8l0/committed-snapshot/src/components/auth/login-form.tsx
+  40:16  warning  Do not use `window.location.assign()` to navigate to internal Next.js pages. Use `redirect()` in the render phase, or `useRouter().push()` in Client Components' event handlers instead. See: https://nextjs.org/docs/messages/no-location-assign-relative-destination  @next/next/no-location-assign-relative-destination
+  45:16  warning  Do not use `window.location.assign()` to navigate to internal Next.js pages. Use `redirect()` in the render phase, or `useRouter().push()` in Client Components' event handlers instead. See: https://nextjs.org/docs/messages/no-location-assign-relative-destination  @next/next/no-location-assign-relative-destination
+
+✖ 6 problems (0 errors, 6 warnings)
+  0 errors and 4 warnings potentially fixable with the `--fix` option.
+

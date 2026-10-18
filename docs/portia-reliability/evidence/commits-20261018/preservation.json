@@ -1,0 +1,26 @@
+{
+  "verifiedCommit": "9ae7ea323535baeb08a5cbc849311d0242525cb9",
+  "canonicalSourceFilesUnchanged": 79,
+  "sourceMappingsRecovered": 368,
+  "assetTraces": {
+    "chat": {
+      "canonicalAssets": 79,
+      "forbiddenPaths": []
+    },
+    "migration/chat": {
+      "canonicalAssets": 79,
+      "forbiddenPaths": []
+    }
+  },
+  "providerLedgerEvents": {
+    "dispatch": 553,
+    "complete": 515,
+    "stream-error": 31,
+    "provider-error": 6,
+    "transport-error": 1
+  },
+  "providerLedgerSha256": "8aba4746ed0bc94a8bdc4b1807f4048d4453f2c9181aa0b5888b6e0e031857e5",
+  "buildId": "XPMOOUK22hvwmM15lUOtk",
+  "unrelatedFilesUnchanged": true,
+  "privateConfigsUnchanged": true
+}
