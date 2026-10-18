@@ -41,3 +41,33 @@ export async function loadPortTariffBundle(slug: string): Promise<string> {
   }));
   return documents.filter(Boolean).join("\n\n");
 }
+
+// Identity-only mappings reviewed against the bundled headings/definitions and
+// docs/portia-reliability/official-source-review.md. These grant no tariff authority.
+export const PORT_ALIASES: Readonly<Record<string, readonly string[]>> = {
+  "bpcl-cargo-jetty": ["BPCL Cargo Jetty"],
+  "bpcl-liquid-cargo-jetty": ["BPCL Liquid Cargo Jetty"],
+  "gateway-terminals-india-pvt-ltd": ["GTI", "Gateway Terminals India", "Gateway Terminal India", "Gateway Terminals India (GTI)", "Gateway Terminals India Private Limited", "Gateway Terminals India Pvt Ltd"],
+  ictpl: ["ICTPL", "Indira Container Terminal"],
+  jaigarh: ["Jaigarh", "JSW Jaigarh", "JSW Jaigarh Port Limited", "JSW Jaigarh Port Ltd"],
+  "jawahar-nehru-port-authority-jnpa": ["JNPA", "JNPT", "Jawaharlal Nehru Port", "Jawahar Nehru Port", "Jawaharlal Nehru Port Authority", "Jawahar Nehru Port Authority"],
+  "jsw-jnpt-liquid-terminal": ["JSW JNPT Liquid Terminal", "JSW JNPT Liquid Terminal Private Limited", "JJLTPL"],
+  "konkan-lng-ltd": ["Konkan LNG", "KLL"],
+  mumbai: ["Mumbai", "Mumbai Port", "Mumbai Port Authority", "MbPA", "MBPT", "Mumbai docks", "Mumbai Port docks", "MbPA docks"],
+  "mumbai-container-terminal": ["BMCT", "Bharat Mumbai Container Terminal", "Bharat Mumbai Container Terminals", "PSA Mumbai"],
+  "mumbai-cruise-terminal": ["Mumbai Cruise Terminal"],
+  "nhava-sheva-freeport-terminal": ["NSFT", "NSFTPL", "Nhava Sheva Freeport Terminal", "Nhava Sheva Freeport Terminal Pvt Ltd", "Nhava Sheva Freeport Terminal Private Limited"],
+  "nhava-sheva-gateway-terminal": ["NSIGT", "Nhava Sheva India Gateway Terminal", "Nhava Sheva Gateway Terminal", "Nhava Sheva (India) Gateway Terminal", "Nhava Sheva (India) Gateway Terminal Private Limited"],
+  "nhava-sheva-international-container-terminal": ["NSICT", "Nhava Sheva International Container Terminal", "Nhava Sheva International Container Terminal Private Limited"],
+  "ranpar-finolex": ["Ranpar", "Ranpar Finolex", "Finolex", "Finolex jetty", "Finolex terminal", "Finolex EDC jetty", "Finolex chemical jetty", "Finolex chemical EDC jetty", "Ranpar/Finolex chemical EDC jetty", "Finolex coal jetty", "Ranpar/Finolex coal jetty"],
+  redi: ["Redi"],
+};
+
+
+export const AMBIGUOUS_PORT_NAMES: Readonly<Record<string, readonly string[]>> = {
+  Gateway: ["gateway-terminals-india-pvt-ltd", "nhava-sheva-gateway-terminal"],
+  "Nhava Sheva": ["jawahar-nehru-port-authority-jnpa", "nhava-sheva-freeport-terminal", "nhava-sheva-gateway-terminal", "nhava-sheva-international-container-terminal"],
+  "Mumbai Container Terminal": ["mumbai-container-terminal", "ictpl"],
+  BPCL: ["bpcl-cargo-jetty", "bpcl-liquid-cargo-jetty"],
+  Adani: ["nhava-sheva-freeport-terminal"], // Even one catalog candidate does not identify an operator's terminal.
+};

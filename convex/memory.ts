@@ -36,6 +36,7 @@ export const enqueue = internalMutation({
     enabled();
     const run=args.runId?await memoryRun(ctx,args.ownerId,args.runId,args.runFence):undefined;
     if(args.operation.kind==="remember" && (!run || args.operation.source!==run.conversationId)) return memoryError("RUN_REQUIRED");
+    if(run) return memoryError("APPROVAL_REQUIRED");
     if(args.operation.kind==="delete_source") return memoryError("INVALID_OPERATION");
     return enqueueMemory(ctx,args.ownerId,args.requestId,args.expectedEpoch,args.operation,run);
   },

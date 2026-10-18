@@ -15,4 +15,3 @@ export function migrationServerConfig() {
   return { convexUrl, convexSiteUrl, serverSecret, siteUrl };
 }
 export function migrationPreviewEnabled(): boolean { try { migrationServerConfig(); return true; } catch { return false; } }
-export function migrationTestModelActive(): boolean { return process.env.MIGRATION_TEST_MODE === "true" && Boolean(process.env.MIGRATION_MODEL_OVERRIDE); }

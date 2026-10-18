@@ -8,6 +8,8 @@ import {
   vFormValues,
   vFinishReason,
   vModelAlias,
+  vAuthorization,
+  vQuoteApproval,
   vRunStatus,
 } from "./validators";
 
@@ -46,6 +48,8 @@ export default defineSchema({
     creationRequestId: v.optional(v.string()),
     creationPayloadHash: v.optional(v.string()),
     initialIntent: v.optional(v.object({requestId:v.string(),question:v.string(),modelAlias:vModelAlias})),
+    quoteApprovals: v.optional(v.array(vQuoteApproval)),
+    comparisonApprovals: v.optional(v.array(v.string())),
     lastError: v.optional(v.string()),
     updatedAt: v.number(),
   })
@@ -67,6 +71,8 @@ export default defineSchema({
     promptOrder: v.optional(v.number()),
     promptStepOrder: v.optional(v.number()),
     memoryEpoch: v.optional(v.number()),
+    authorization: v.optional(vAuthorization),
+    authorizationDeclined: v.optional(v.boolean()),
     checkpointStep: v.optional(v.number()),
     checkpointHash: v.optional(v.string()),
     checkpointHasText: v.optional(v.boolean()),
@@ -93,6 +99,7 @@ export default defineSchema({
     status: vFormStatus,
     values: v.optional(vFormValues),
     note: v.optional(v.string()),
+    authorization: v.optional(vAuthorization),
     createdAt: v.number(),
     resolvedAt: v.optional(v.number()),
   })

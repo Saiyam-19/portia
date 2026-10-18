@@ -7,9 +7,14 @@ import { api, components, internal } from '../../convex/_generated/api';
 import schema from '../../convex/schema';
 import type {Id} from '../../convex/_generated/dataModel';
 import {ChatMemoryRuntime} from '../../src/lib/memory/runtime';
-import {MAX_PENDING_MEMORY_OPERATIONS} from '../../convex/lib/memoryLifecycle';
+import {enqueueMemory,MAX_PENDING_MEMORY_OPERATIONS} from '../../convex/lib/memoryLifecycle';
 const modules = import.meta.glob('../../convex/**/*.ts');
 function setup() { const t=convexTest(schema,modules);agentTest.register(t);betterAuthTest.register(t);return t; }
+// Exercise the trusted queue machinery directly. The agent-facing mutation now
+// requires exact approval; these fixtures intentionally isolate lifecycle limits.
+async function seed(t:ReturnType<typeof setup>,args:{ownerId:string;runId:Id<"migrationRuns">;runFence:number;requestId:string;expectedEpoch:number;operation:import("../../src/lib/memory/contracts").MemoryOperation}) {
+ return t.run(async ctx=>enqueueMemory(ctx,args.ownerId,args.requestId,args.expectedEpoch,args.operation,(await ctx.db.get(args.runId))!));
+}
 async function account(t:ReturnType<typeof setup>) {
   const now=Date.now();
   const user=await t.mutation(components.betterAuth.adapter.create,{input:{model:'user',data:{name:'Audit',email:'audit@example.com',emailVerified:false,createdAt:now,updatedAt:now}}});
@@ -60,7 +65,7 @@ async function drain(t:ReturnType<typeof setup>,ownerId:string){
 
 it.each(['true','false'])('admits an effective source deletion at queue96, fences old writer and eventually purges (enabled=%s)',async enabled=>{
   const t=setup(),a=await account(t),run=await claim(t,a.ownerId,'source');
-  await t.mutation(internal.memory.enqueue,{ownerId:a.ownerId,runId:run.runId,runFence:run.fence,requestId:'secret',expectedEpoch:0,operation:{kind:'remember',key:'private',value:'DELETE_ME',source:run.conversationId}});
+  await seed(t,{ownerId:a.ownerId,runId:run.runId,runFence:run.fence,requestId:'secret',expectedEpoch:0,operation:{kind:'remember',key:'private',value:'DELETE_ME',source:run.conversationId}});
   for(let i=0;i<95;i++)await t.mutation(internal.memory.enqueue,{ownerId:a.ownerId,requestId:'barrier-'+i,expectedEpoch:i,operation:{kind:'forget',key:'absent_'+i}});
   const stale=(await t.mutation(internal.memory.claim,{ownerId:a.ownerId}))!;
   vi.stubEnv('PORTIA_MEMORY_ENABLED',enabled);
@@ -76,9 +81,9 @@ it.each(['true','false'])('admits an effective source deletion at queue96, fence
 
 it.each([false,true])('detects source overwritten in projection, including queued-only provenance (applied=%s)',async applied=>{
   const t=setup(),a=await account(t),first=await claim(t,a.ownerId,'first'),second=await claim(t,a.ownerId,'second');
-  await t.mutation(internal.memory.enqueue,{ownerId:a.ownerId,runId:first.runId,runFence:first.fence,requestId:'first-fact',expectedEpoch:0,operation:{kind:'remember',key:'shared',value:'old private',source:first.conversationId}});
+  await seed(t,{ownerId:a.ownerId,runId:first.runId,runFence:first.fence,requestId:'first-fact',expectedEpoch:0,operation:{kind:'remember',key:'shared',value:'old private',source:first.conversationId}});
   if(applied)await drain(t,a.ownerId);
-  await t.mutation(internal.memory.enqueue,{ownerId:a.ownerId,runId:second.runId,runFence:second.fence,requestId:'replacement',expectedEpoch:0,operation:{kind:'remember',key:'shared',value:'new retained',source:second.conversationId}});
+  await seed(t,{ownerId:a.ownerId,runId:second.runId,runFence:second.fence,requestId:'replacement',expectedEpoch:0,operation:{kind:'remember',key:'shared',value:'new retained',source:second.conversationId}});
   await a.client.mutation(api.migration.deleteConversation,{conversationId:first.conversationId});
   expect(await t.mutation(internal.memory.open,{ownerId:a.ownerId})).toMatchObject({epoch:1,blocked:true,image:null});
   await drain(t,a.ownerId);
@@ -88,8 +93,8 @@ it.each([false,true])('detects source overwritten in projection, including queue
 it('rejects externally supplied source deletion and retains ordinary queue quotas',async()=>{
   const t=setup(),a=await account(t),run=await claim(t,a.ownerId,'quota');
   await expect(t.mutation(internal.memory.enqueue,{ownerId:a.ownerId,requestId:'forged',expectedEpoch:0,operation:{kind:'delete_source',source:run.conversationId}})).rejects.toThrow('INVALID_OPERATION');
-  for(let i=0;i<32;i++)await t.mutation(internal.memory.enqueue,{ownerId:a.ownerId,runId:run.runId,runFence:run.fence,requestId:'r'+i,expectedEpoch:0,operation:{kind:'remember',key:'key'+i,value:'value',source:run.conversationId}});
-  await expect(t.mutation(internal.memory.enqueue,{ownerId:a.ownerId,runId:run.runId,runFence:run.fence,requestId:'overflow',expectedEpoch:0,operation:{kind:'remember',key:'extra',value:'value',source:run.conversationId}})).rejects.toThrow('MEMORY_BUSY');
+  for(let i=0;i<32;i++)await seed(t,{ownerId:a.ownerId,runId:run.runId,runFence:run.fence,requestId:'r'+i,expectedEpoch:0,operation:{kind:'remember',key:'key'+i,value:'value',source:run.conversationId}});
+  await expect(seed(t,{ownerId:a.ownerId,runId:run.runId,runFence:run.fence,requestId:'overflow',expectedEpoch:0,operation:{kind:'remember',key:'extra',value:'value',source:run.conversationId}})).rejects.toThrow('MEMORY_BUSY');
 });
 
 it('keeps worst-case trusted deletion admission within640 queued operations',async()=>{
@@ -114,13 +119,13 @@ it('keeps worst-case trusted deletion admission within640 queued operations',asy
 
 it('retains deletion admission and ordinary quotas across partial drains and refilling',async()=>{
   const t=setup(),a=await account(t),source=await claim(t,a.ownerId,'partial-source');
-  await t.mutation(internal.memory.enqueue,{ownerId:a.ownerId,runId:source.runId,runFence:source.fence,requestId:'private',expectedEpoch:0,operation:{kind:'remember',key:'private',value:'OLD_SNAPSHOT',source:source.conversationId}});
+  await seed(t,{ownerId:a.ownerId,runId:source.runId,runFence:source.fence,requestId:'private',expectedEpoch:0,operation:{kind:'remember',key:'private',value:'OLD_SNAPSHOT',source:source.conversationId}});
   for(let i=0;i<95;i++)await t.mutation(internal.memory.enqueue,{ownerId:a.ownerId,requestId:'old'+i,expectedEpoch:i,operation:{kind:'forget',key:'absent'+i}});
   const job=(await t.mutation(internal.memory.claim,{ownerId:a.ownerId}))!;
   const runtime=await ChatMemoryRuntime.restore(job.image);await runtime.apply(job.operations);
   await t.mutation(internal.memory.publish,{ownerId:a.ownerId,token:job.token,fence:job.fence,epoch:job.epoch,baseRevision:job.baseRevision,through:job.through,image:await runtime.snapshot()});
   const other=await claim(t,a.ownerId,'partial-other');
-  await expect(t.mutation(internal.memory.enqueue,{ownerId:a.ownerId,runId:other.runId,runFence:other.fence,requestId:'blocked',expectedEpoch:95,operation:{kind:'remember',key:'new',value:'value',source:other.conversationId}})).rejects.toThrow('MEMORY_BUSY');
+  await expect(seed(t,{ownerId:a.ownerId,runId:other.runId,runFence:other.fence,requestId:'blocked',expectedEpoch:95,operation:{kind:'remember',key:'new',value:'value',source:other.conversationId}})).rejects.toThrow('MEMORY_BUSY');
   for(let i=0;i<16;i++)await t.mutation(internal.memory.enqueue,{ownerId:a.ownerId,requestId:'refill'+i,expectedEpoch:95+i,operation:{kind:'forget',key:'missing'+i}});
   await a.client.mutation(api.migration.deleteConversation,{conversationId:source.conversationId});
   expect(await t.mutation(internal.memory.open,{ownerId:a.ownerId})).toMatchObject({blocked:true,image:null});

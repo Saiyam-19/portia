@@ -22,6 +22,22 @@ import {
 } from "./_generated/server";
 import { authComponent } from "./auth";
 import {
+  APPROVE,
+  REJECT,
+  AUTHORITY_TTL_MS,
+  MAX_REVIEW_CHARS,
+  approvalForm,
+  canonical,
+  type AuthorityPacket,
+} from "../src/lib/authority/contract";
+import {
+  authorityLedgerUpdates,
+  checkedPacket,
+  enqueueAuthorizedMemory,
+  validateAuthorityBase,
+  validateQuoteReceipts,
+} from "./lib/authority";
+import {
   isMigrationDevEnabled,
   isAllowedEmail,
   requireMigrationDevEnabled,
@@ -34,6 +50,8 @@ import {
   vFormValues,
   vFinishReason,
   vModelAlias,
+  vAuthorization,
+  vQuoteApproval,
   vRunStatus,
 } from "./validators";
 
@@ -54,6 +72,8 @@ const claimResultValidator = v.object({
   fence: v.number(),
   revision: v.number(),
   replayed: v.boolean(),
+  authorizationExecution: v.optional(v.boolean()),
+  authorizationDeclined: v.optional(v.boolean()),
 });
 
 const conversationValidator = v.object({
@@ -172,10 +192,10 @@ function validateFormDefinition(form: {
     required: boolean;
     hint?: string;
   }>;
-}): void {
+}, maxDescription = 500): void {
   requireBoundedText(form.toolCallId, "toolCallId", 200);
   requireBoundedText(form.title, "title", 120);
-  if (form.description && form.description.length > 500) {
+  if (form.description && form.description.length > maxDescription) {
     fail("INVALID_FORM", "Form description is too long.");
   }
   if (form.fields.length < 1 || form.fields.length > MAX_FORM_FIELDS) {
@@ -210,7 +230,22 @@ function canonicalJson(value: unknown): string {
   return JSON.stringify(value);
 }
 
-const PRIVATE_CONVERSATION_TOOLS = new Set(["interpret_request", "execute_conversation", "complete_auxiliary"]);
+function checkedApprovalProposal(payload: string, form: NonNullable<Parameters<typeof validateFormDefinition>[0]>): AuthorityPacket {
+  const packet = checkedPacket(payload);
+  let expected;
+  try {
+    expected = approvalForm(packet, form.toolCallId);
+  } catch {
+    fail("INVALID_AUTHORIZATION", "The complete approval review is too large; split the operations.");
+  }
+  if (canonical(expected) !== canonical(form)) {
+    fail("AUTHORIZATION_DISPLAY_MISMATCH", "The displayed review differs from the private exact-operation packet.");
+  }
+  return packet;
+}
+
+const PRIVATE_CONVERSATION_TOOLS = new Set(["interpret_request", "execute_conversation", "complete_auxiliary", "port_information", "manage_quote", "compare_quotes"]);
+const RETIRED_TOOLS = new Set(["interpret_request", "execute_conversation", "complete_auxiliary", "consult_port_agent", "calculate_supplied_quote"]);
 const ALLOWED_MAIN_TOOLS = new Set([
   ...PRIVATE_CONVERSATION_TOOLS,
   "consult_port_agent",
@@ -226,6 +261,7 @@ const ALLOWED_MAIN_TOOLS = new Set([
 
 function validateToolHistory(
   messages: Array<{ role: string; content: unknown }>,
+  historical = false,
 ): { unresolvedAsk: { toolCallId: string; input: unknown } | null } {
   const calls = new Map<string, { toolName: string; input: unknown; position: number }>();
   const results = new Map<string, { toolName: string; position: number }>();
@@ -253,6 +289,7 @@ function validateToolHistory(
         continue;
       }
       if (candidate.type === "tool-call") {
+        if (!historical && typeof candidate.toolName === "string" && RETIRED_TOOLS.has(candidate.toolName)) fail("RETIRED_TOOL", "Retired orchestration cannot write new messages.");
         if (typeof candidate.toolName !== "string" || !ALLOWED_MAIN_TOOLS.has(candidate.toolName)) {
           fail("UNEXPECTED_TOOL", "Unexpected tool call in migration output.");
         }
@@ -413,7 +450,15 @@ export const deleteConversation = mutation({
     const conversation = await requireConversation(ctx, args.conversationId, ownerId);
     if (conversation.activeRunId) {
       const run = await ctx.db.get(conversation.activeRunId);
-      if (run) await ctx.db.patch(run._id, { status: "cancelled", updatedAt: Date.now() });
+      if (run) await ctx.db.patch(run._id, { status: "cancelled", authorization: undefined, authorizationDeclined: undefined, updatedAt: Date.now() });
+    }
+    if (conversation.pendingFormId) {
+      const form = await ctx.db.get(conversation.pendingFormId);
+      if (form) {
+        const waitingRun = await ctx.db.get(form.runId);
+        if (waitingRun) await ctx.db.patch(waitingRun._id, { status: "cancelled", authorization: undefined, authorizationDeclined: undefined, updatedAt: Date.now() });
+        await ctx.db.delete(form._id);
+      }
     }
     await deleteConversationMemory(ctx, ownerId, conversation._id);
     // Removing the owner-scoped root revokes reads and all future fenced writes immediately.
@@ -726,7 +771,30 @@ export const resolveFormAndClaim = internalMutation({
       if (prior.payloadHash !== args.payloadHash) {
         fail("IDEMPOTENCY_CONFLICT", "Request ID was already used for different input.");
       }
+      if (prior.conversationId !== args.conversationId) {
+        fail("FORM_MISMATCH", "The replay belongs to another conversation.");
+      }
       const replayConversation = await requireConversation(ctx, prior.conversationId, args.ownerId);
+      let linkedAuthorizationForm = false;
+      if (prior.authorization || prior.authorizationDeclined) {
+        const sourceForm = await ctx.db
+          .query("migrationForms")
+          .withIndex("by_conversation_and_tool_call_id", (q) =>
+            q.eq("conversationId", replayConversation._id).eq("toolCallId", args.toolCallId),
+          )
+          .unique();
+        linkedAuthorizationForm = Boolean(
+          sourceForm?.authorization &&
+          sourceForm.ownerId === args.ownerId &&
+          sourceForm.resolvedAt === prior.startedAt &&
+          (!prior.authorization || sourceForm.authorization.payload === prior.authorization.payload),
+        );
+        if (!linkedAuthorizationForm) fail("FORM_MISMATCH", "The replay does not match the approved form.");
+      }
+      const live = prior.status === "active" && prior.leaseExpiresAt > Date.now() &&
+        replayConversation.activeRunId === prior._id && replayConversation.state === "running" &&
+        (!prior.authorization || prior.authorization.expiresAt > Date.now()) &&
+        await runMemoryCurrent(ctx, prior);
       return {
         conversationId: replayConversation._id,
         runId: prior._id,
@@ -735,6 +803,8 @@ export const resolveFormAndClaim = internalMutation({
         fence: prior.fence,
         revision: replayConversation.revision,
         replayed: true,
+        ...(live && prior.authorization && linkedAuthorizationForm ? { authorizationExecution: true } : {}),
+        ...(live && prior.authorizationDeclined && linkedAuthorizationForm ? { authorizationDeclined: true } : {}),
       };
     }
 
@@ -746,13 +816,31 @@ export const resolveFormAndClaim = internalMutation({
       fail("NO_PENDING_FORM", "No pending form is available.");
     }
     const form = await ctx.db.get(conversation.pendingFormId);
-    if (!form || form.ownerId !== args.ownerId || form.toolCallId !== args.toolCallId) {
+    if (!form || form.ownerId !== args.ownerId || form.conversationId !== conversation._id || form.toolCallId !== args.toolCallId) {
       fail("FORM_MISMATCH", "Pending form does not match this response.");
     }
     if (form.status !== "pending") fail("FORM_CONSUMED", "Form was already resolved.");
+    const waitingRun = await ctx.db.get(form.runId);
+    if (!waitingRun || waitingRun.ownerId !== args.ownerId || waitingRun.conversationId !== conversation._id || waitingRun.status !== "waiting" || waitingRun.fence !== form.fence) {
+      fail("STALE_AUTHORIZATION", "The form lost its waiting run fence.");
+    }
     validateFormResponse(form, args.values, args.cancelled);
     if (args.note && args.note.length > MAX_VALUE_CHARS) {
       fail("INVALID_FORM_RESPONSE", "Form note is too long.");
+    }
+    let packet: AuthorityPacket | undefined;
+    const blankNote = !(args.note ?? "").trim();
+    const approved = Boolean(form.authorization && !args.cancelled && blankNote && args.values.decision === APPROVE);
+    const declined = Boolean(form.authorization && blankNote && (args.cancelled || args.values.decision === REJECT));
+    if (form.authorization && approved) {
+      if (form.authorization.expiresAt <= Date.now()) fail("AUTHORIZATION_EXPIRED", "The exact-operation review expired; request a fresh review.");
+      packet = checkedApprovalProposal(form.authorization.payload, {
+        toolCallId: form.toolCallId,
+        title: form.title,
+        description: form.description,
+        fields: form.fields,
+      });
+      await validateAuthorityBase(ctx, conversation, packet);
     }
     await assertUserRunCapacity(ctx, args.ownerId);
     await consumeBudget(ctx, args.ownerId, "run");
@@ -782,10 +870,7 @@ export const resolveFormAndClaim = internalMutation({
       note: args.note,
       resolvedAt: now,
     });
-    const waitingRun = await ctx.db.get(form.runId);
-    if (waitingRun?.status === "waiting") {
-      await ctx.db.patch(waitingRun._id, { status: "completed", updatedAt: now });
-    }
+    await ctx.db.patch(waitingRun._id, { status: "completed", updatedAt: now });
 
     const fence = conversation.nextFence;
     const revision = conversation.revision + 1;
@@ -804,9 +889,14 @@ export const resolveFormAndClaim = internalMutation({
       promptOrder: saved.messages[0].order,
       promptStepOrder: saved.messages[0].stepOrder,
       memoryEpoch: memoryEnabled() ? (await ensureMemory(ctx, args.ownerId)).epoch : undefined,
+      ...(approved ? { authorization: form.authorization } : {}),
+      ...(declined ? { authorizationDeclined: true } : {}),
       startedAt: now,
       updatedAt: now,
     });
+    if (approved && packet) {
+      await enqueueAuthorizedMemory(ctx, args.ownerId, conversation._id, form._id, runId, packet);
+    }
     await ctx.db.patch(conversation._id, {
       revision,
       nextFence: fence + 1,
@@ -825,6 +915,8 @@ export const resolveFormAndClaim = internalMutation({
       fence,
       revision,
       replayed: false,
+      ...(approved ? { authorizationExecution: true } : {}),
+      ...(declined ? { authorizationDeclined: true } : {}),
     };
   },
 });
@@ -838,6 +930,12 @@ export const getRunContext = internalQuery({
     promptMessageId: v.string(),
     revision: v.number(),
     messages: v.array(vMessage),
+    authorization: v.optional(vAuthorization),
+    authorizationDeclined: v.optional(v.boolean()),
+    authorityContext: v.object({
+      quotes: v.array(vQuoteApproval),
+      comparisons: v.array(v.string()),
+    }),
   }),
   handler: async (ctx, args) => {
     requireMigrationDevEnabled();
@@ -864,7 +962,7 @@ export const getRunContext = internalQuery({
     if (messages.reduce((total, message) => total + JSON.stringify(message).length, 0) > MAX_CONTEXT_CHARS) {
       fail("CONTEXT_LIMIT", `Conversation exceeds ${MAX_CONTEXT_CHARS} serialized context characters.`);
     }
-    if (messages.length > 0 && validateToolHistory(messages).unresolvedAsk) {
+    if (messages.length > 0 && validateToolHistory(messages, true).unresolvedAsk) {
       fail("CONTEXT_INVALID", "Conversation contains an unresolved historical form.");
     }
     return {
@@ -874,6 +972,12 @@ export const getRunContext = internalQuery({
       promptMessageId: run.promptMessageId,
       revision: conversation.revision,
       messages,
+      ...(run.authorization ? { authorization: run.authorization } : {}),
+      ...(run.authorizationDeclined ? { authorizationDeclined: true } : {}),
+      authorityContext: {
+        quotes: conversation.quoteApprovals ?? [],
+        comparisons: conversation.comparisonApprovals ?? [],
+      },
     };
   },
 });
@@ -904,6 +1008,21 @@ export const checkpointRun = internalMutation({
     const run = await ctx.db.get(args.runId);
     if (!run || run.ownerId !== args.ownerId) fail("NOT_FOUND", "Run not found.");
     await assertRunMemory(ctx, run);
+    if (run.status !== "active" || run.fence !== args.fence) {
+      fail("STALE_RUN", "Stale run cannot persist a checkpoint.");
+    }
+    if (run.leaseExpiresAt <= Date.now()) fail("DEADLINE", "Run lease expired.");
+    const conversation = await requireConversation(ctx, run.conversationId, args.ownerId);
+    if (conversation.activeRunId !== run._id || conversation.state !== "running") {
+      fail("STALE_RUN", "Run lost its conversation fence.");
+    }
+    if (run.authorization) fail("AUTHORIZATION_ATOMIC", "Approved operations must persist once, atomically at completion; intermediate checkpoints are forbidden.");
+    await validateQuoteReceipts(
+      args.responseMessages,
+      conversation._id,
+      undefined,
+      false,
+    );
     if (run.checkpointStep !== undefined) {
       if (args.stepNumber === run.checkpointStep) {
         if (run.checkpointHash !== args.payloadHash) {
@@ -916,14 +1035,6 @@ export const checkpointRun = internalMutation({
       }
     } else if (args.stepNumber !== 0) {
       fail("CHECKPOINT_GAP", "First checkpoint must be step zero.");
-    }
-    if (run.status !== "active" || run.fence !== args.fence) {
-      fail("STALE_RUN", "Stale run cannot persist a checkpoint.");
-    }
-    if (run.leaseExpiresAt <= Date.now()) fail("DEADLINE", "Run lease expired.");
-    const conversation = await requireConversation(ctx, run.conversationId, args.ownerId);
-    if (conversation.activeRunId !== run._id || conversation.state !== "running") {
-      fail("STALE_RUN", "Run lost its conversation fence.");
     }
     await saveMessages(ctx, components.agent, {
       threadId: conversation.agentThreadId,
@@ -976,6 +1087,7 @@ export const completeRun = internalMutation({
     responseMessages: v.array(vMessage),
     form: v.union(vFormInput, v.null()),
     finishReason: v.optional(vFinishReason),
+    authorizationProposal: v.optional(v.string()),
   },
   returns: v.object({ state: vConversationState, revision: v.number() }),
   handler: async (ctx, args): Promise<{ state: "waiting" | "idle"; revision: number }> => {
@@ -983,7 +1095,12 @@ export const completeRun = internalMutation({
     if (args.responseMessages.length > 12) {
       fail("INVALID_OUTPUT", "Generated message count is out of bounds.");
     }
-    if (args.form) validateFormDefinition(args.form);
+    let proposalPacket: AuthorityPacket | undefined;
+    if (args.authorizationProposal !== undefined) {
+      if (!args.form) fail("INVALID_AUTHORIZATION", "An exact-operation proposal requires its complete review form.");
+      validateFormDefinition(args.form, MAX_REVIEW_CHARS);
+      proposalPacket = checkedApprovalProposal(args.authorizationProposal, args.form);
+    } else if (args.form) validateFormDefinition(args.form);
     validateCompletionMessages(args.responseMessages, args.form);
     const finalHasText = args.responseMessages.some(
       (message) => message.role === "assistant" && (extractText(message) ?? "").trim().length > 0,
@@ -998,6 +1115,20 @@ export const completeRun = internalMutation({
     const conversation = await requireConversation(ctx, run.conversationId, args.ownerId);
     if (conversation.activeRunId !== run._id || conversation.state !== "running") {
       fail("STALE_RUN", "Run lost its conversation fence.");
+    }
+    let executionPacket: AuthorityPacket | undefined;
+    if (run.authorization) {
+      if (args.authorizationProposal !== undefined || args.form) {
+        fail("INVALID_AUTHORIZATION", "An approved execution cannot open or replace another review frame.");
+      }
+      if (run.authorization.expiresAt <= Date.now()) {
+        fail("AUTHORIZATION_EXPIRED", "The exact-operation approval expired before execution.");
+      }
+      executionPacket = checkedPacket(run.authorization.payload);
+      await validateQuoteReceipts(args.responseMessages, conversation._id, executionPacket, true);
+    } else {
+      await validateQuoteReceipts(args.responseMessages, conversation._id);
+      if (proposalPacket) await validateAuthorityBase(ctx, conversation, proposalPacket);
     }
     const terminalHasText = args.responseMessages.length > 0 ? finalHasText : Boolean(run.checkpointHasText);
     const terminalFinishReason = args.finishReason ?? run.checkpointFinishReason;
@@ -1033,6 +1164,7 @@ export const completeRun = internalMutation({
         description: args.form.description,
         fields: args.form.fields,
         status: "pending",
+        ...(proposalPacket ? { authorization: { payload: args.authorizationProposal!, expiresAt: now + AUTHORITY_TTL_MS } } : {}),
         createdAt: now,
       });
       await ctx.db.patch(run._id, { status: "waiting", updatedAt: now });
@@ -1046,11 +1178,13 @@ export const completeRun = internalMutation({
       return { state: "waiting", revision };
     }
 
+    const ledger = executionPacket ? await authorityLedgerUpdates(conversation, executionPacket) : undefined;
     await ctx.db.patch(run._id, { status: "completed", updatedAt: now });
     await ctx.db.patch(conversation._id, {
       revision,
       state: "idle",
       activeRunId: undefined,
+      ...(ledger ?? {}),
       updatedAt: now,
     });
     return { state: "idle", revision };

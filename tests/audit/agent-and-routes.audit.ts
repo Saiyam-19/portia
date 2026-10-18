@@ -1,7 +1,5 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { MockLanguageModelV4 } from 'ai/test';
-import type { LanguageModelV4GenerateResult } from '@ai-sdk/provider';
-import { createMigrationMainAgent } from '../../src/lib/migration/domain-agent';
 import { withSafeModelErrors } from '../../src/lib/migration/safe-model';
 import { responseErrorMessage } from '../../src/lib/migration/response-errors';
 import { POST as chat } from '../../src/app/api/migration/chat/route';
@@ -10,23 +8,10 @@ import { MemorySession } from '../../src/lib/memory/session';
 import { MigrationTokenManager } from '../../src/lib/migration/bridge';
 
 const site = 'http://127.0.0.1:3022';
-const usage = { inputTokens: { total: 1, noCache: 1, cacheRead: undefined, cacheWrite: undefined }, outputTokens: { total: 1, text: 1, reasoning: undefined } };
-const generated = (content: LanguageModelV4GenerateResult['content'], finish: 'stop'|'tool-calls' = 'stop'): LanguageModelV4GenerateResult => ({ content, usage, finishReason: { unified: finish, raw: undefined }, warnings: [] });
 beforeEach(() => {
   for (const [key,value] of Object.entries({PORTIA_ENABLED:'true',PORTIA_CONVEX_DEPLOYMENT:'brilliant-whale-380',NEXT_PUBLIC_CONVEX_URL:'https://brilliant-whale-380.convex.cloud',NEXT_PUBLIC_CONVEX_SITE_URL:'https://brilliant-whale-380.convex.site',PORTIA_SERVER_SECRET:'x'.repeat(32),SITE_URL:site})) vi.stubEnv(key,value);
 });
 afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); vi.restoreAllMocks(); vi.useRealTimers(); });
-
-it('rejects four legacy dispatches before any unbound specialist work', async () => {
-  let calls = 0;
-  const main = new MockLanguageModelV4({ doGenerate: [
-    generated(Array.from({ length: 4 }, (_, i) => ({type:'tool-call' as const,toolCallId:'consult-'+i,toolName:'consult_port_agent',input:JSON.stringify({port_name:'mumbai',query:'Explain the schedule'})})), 'tool-calls'),
-    generated([{type:'text',text:'Completed'}]),
-  ] });
-  const specialist = new MockLanguageModelV4({ doGenerate: generated([{type:'text',text:'Synthetic tariff summary'}]) });
-  await expect(createMigrationMainAgent({ interpretationFormat: "legacy", alias:'model-1', mainModel:main, specialistModelFactory:() => { calls++; return specialist; } }).generate({prompt:'Compare four calls'})).rejects.toMatchObject({name:'PortiaInterpretationError'});
-  expect(calls).toBe(0);expect(main.doGenerateCalls).toHaveLength(1);
-});
 
 it.each(['ECONNRESET','ENOTFOUND','UND_ERR_SOCKET'])('preserves %s classification across sanitization', async code => {
   const model = withSafeModelErrors(new MockLanguageModelV4({doGenerate:async()=>{throw Object.assign(new Error('private source'),{code});}}));

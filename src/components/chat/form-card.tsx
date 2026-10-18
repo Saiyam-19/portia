@@ -62,7 +62,7 @@ export default function FormCard({ formCard, disabled = false, onSubmit, onCance
     <form aria-labelledby={`${id}-title`} onSubmit={event => { event.preventDefault(); if (canSubmit && !disabled) {setValidationError('');onSubmit(values, note)} }} className="overflow-hidden rounded-2xl border border-border bg-card">
       <div className="flex items-center gap-2.5 px-5 pt-5"><ClipboardList className="size-4 text-brand" aria-hidden="true" /><h3 id={`${id}-title`} className="text-sm font-medium">{formCard.title}</h3></div>
       <fieldset disabled={disabled} className="space-y-5 p-5">
-        {formCard.description && <p className="text-sm text-muted-foreground">{formCard.description}</p>}
+        {formCard.description && <p className="whitespace-pre-wrap break-words text-sm text-muted-foreground">{formCard.description}</p>}
         {formCard.fields.map(field => <Field key={field.name} field={field} value={Object.hasOwn(values, field.name) ? values[field.name] : ''} onChange={value => setValues(previous => ({ ...previous, [field.name]: value }))} />)}
         <div className="space-y-2"><Label htmlFor={`${id}-note`} className="text-xs font-medium">Additional context <span className="font-normal text-muted-foreground">(optional)</span></Label><Textarea id={`${id}-note`} value={note} onChange={event => {setNote(event.target.value);setValidationError('')}} placeholder="Add context or ask a question…" rows={2} maxLength={FORM_VALUE_MAX_CHARS} /></div>
         {(lengthError||noteTooLong||validationError)&&<p role="alert" className="text-sm text-destructive">{validationError||`${lengthError?.label??'Additional context'} must be ${FORM_VALUE_MAX_CHARS.toLocaleString('en-US')} characters or fewer.`}</p>}

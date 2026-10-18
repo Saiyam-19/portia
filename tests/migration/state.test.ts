@@ -295,6 +295,18 @@ describe("migration Convex state machine", () => {
     })).rejects.toThrow(/unexpected tool/i);
   });
 
+  it.each(["cancelled", "expired", "wrong-fence", "lost-root"] as const)("checkpoint replay rejects %s runs",async kind=>{
+    const t=setup(),run=await claim(t);
+    const args={ownerId:ownerA,runId:run.runId,fence:run.fence,stepNumber:0,payloadHash:"same-checkpoint",responseMessages:[{role:"assistant" as const,content:"Checkpoint"}]};
+    await t.mutation(internal.migration.checkpointRun,args);
+    expect((await t.mutation(internal.migration.checkpointRun,args)).replayed).toBe(true);
+    if(kind==="cancelled")await t.mutation(internal.migration.cancelRun,{ownerId:ownerA,runId:run.runId});
+    if(kind==="expired")await t.run(async ctx=>{await ctx.db.patch(run.runId,{leaseExpiresAt:Date.now()-1});});
+    if(kind==="wrong-fence")args.fence++;
+    if(kind==="lost-root")await t.run(async ctx=>{await ctx.db.patch(run.conversationId,{activeRunId:undefined,state:"idle"});});
+    await expect(t.mutation(internal.migration.checkpointRun,args)).rejects.toThrow();
+  });
+
   it("checkpoints closed tool history once and completes without duplicating messages", async () => {
     const t = setup();
     const run = await claim(t);
@@ -484,7 +496,7 @@ describe("migration Convex state machine", () => {
           content: [{
             type: "tool-call",
             toolCallId: "calc-final",
-            toolName: "consult_port_agent",
+            toolName: "port_information",
             input: { port_name: "mumbai", query: "calculate" },
           }],
         },
@@ -493,7 +505,7 @@ describe("migration Convex state machine", () => {
           content: [{
             type: "tool-result",
             toolCallId: "calc-final",
-            toolName: "consult_port_agent",
+            toolName: "port_information",
             output: { type: "text", value: "tool output without final answer" },
           }],
         },

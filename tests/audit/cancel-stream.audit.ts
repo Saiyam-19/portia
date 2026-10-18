@@ -17,7 +17,7 @@ it('aborts a pending provider body without an unhandled result rejection', async
       started();
     }}),
   }) }));
-  const result = await createMigrationMainAgent({ interpretationFormat: "legacy",alias:'model-1',mainModel:model}).stream({prompt:'Pending',abortSignal:outer.signal});
+  const result = await createMigrationMainAgent({alias:'model-1',mainModel:model}).stream({prompt:'Pending',abortSignal:outer.signal});
   const reader=publicChatStream(result.stream,{abortSignal:outer.signal,result,onFailure:()=>{}}).getReader();
   const parts: string[]=[];
   const consume=(async()=>{while(true){const value=await reader.read();if(value.done)break;parts.push(value.value.type);}})();
@@ -38,7 +38,7 @@ it('aborts the actual provider adapter while its response body is pending', asyn
     }}),{headers:{'Content-Type':'text/event-stream'}});
     started();return response;
   }}).chat('synthetic-model');
-  const result=await createMigrationMainAgent({ interpretationFormat: "legacy",alias:'model-1',mainModel:withSafeModelErrors(adapter)}).stream({prompt:'Pending',abortSignal:outer.signal});
+  const result=await createMigrationMainAgent({alias:'model-1',mainModel:withSafeModelErrors(adapter)}).stream({prompt:'Pending',abortSignal:outer.signal});
   const reader=publicChatStream(result.stream,{abortSignal:outer.signal,result,onFailure:()=>{}}).getReader();
   const parts:string[]=[];
   const consume=(async()=>{while(true){const next=await reader.read();if(next.done)break;parts.push(next.value.type);}})();

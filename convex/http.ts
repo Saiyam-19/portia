@@ -7,6 +7,7 @@ import type { Id } from "./_generated/dataModel";
 import { httpAction } from "./_generated/server";
 import { authComponent, createAuth } from "./auth";
 import { readBoundedJsonBody } from "../src/lib/bounded-json-body";
+import { MAX_REVIEW_CHARS } from "../src/lib/authority/contract";
 import {
   isAllowedEmail,
   isMigrationDevEnabled,
@@ -82,9 +83,10 @@ const bridgeRequestSchema = z.discriminatedUnion("op", [
       form: z.object({
         toolCallId: idSchema,
         title: z.string().min(1).max(120),
-        description: z.string().max(500).optional(),
+        description: z.string().max(MAX_REVIEW_CHARS).optional(),
         fields: z.array(formFieldSchema).min(1).max(8),
       }).strict().nullable(),
+      authorizationProposal: z.string().max(48_000).optional(),
     }).strict(),
   }).strict(),
   z.object({

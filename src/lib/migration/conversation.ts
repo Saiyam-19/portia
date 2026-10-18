@@ -33,8 +33,6 @@ const taskSchema = z.object({
   comparisonTaskIds: z.array(key).max(12).optional(),
   comparisonMode: z.enum(["totals","like-for-like"]).optional(),
 }).strict();
-export const auxiliaryCompletionSchema = z.object({ outcomes: z.array(z.object({ taskId: key, status: z.enum(["completed", "unresolved"]), text: z.string().max(2000), receiptIds: z.array(z.string().min(1).max(200)).max(24) }).strict()).min(1).max(24) }).strict();
-export const hasUnboundFinancialClaim = (value: string) => /(?:[$₹€£]|\b(?:INR|USD|EUR|GBP)\b)\s*\d|\b\d+(?:\.\d+)?\s*%|(?:charge|payable|total|cost|rate|discount|rebate|tax)[^.!?\n]{0,60}\d|\d[^.!?\n]{0,60}(?:charge|payable|cost|rate|discount|rebate|tax)|\b(?:GST|tax|berth\s+hire|port\s+dues|rebate|discount|exempt(?:ion)?|waiv(?:er|ed))\b/i.test(value);
 export type ConversationTask = z.infer<typeof taskSchema>;
 export const interpretationSchema = z.object({
   contract: z.literal("facts-v3").optional(),
@@ -47,13 +45,7 @@ export const interpretationSchema = z.object({
   inputIds: z.array(z.string().min(1).max(80)).min(1).max(128),
 }).strict();
 export type Interpretation = z.infer<typeof interpretationSchema>;
-// Wire proposals carry meaning only. Receipt/replay metadata remains server-owned.
-export const interpretationProposalSchema = interpretationSchema.omit({baseHash:true,inputIds:true,contract:true});
-export function interpretationMeaning(proposal: unknown): unknown {
-  if (!proposal || typeof proposal !== "object" || Array.isArray(proposal)) return proposal;
-  // Ignore only legacy code-owned echoes; never coerce or repair semantic fields.
-  return Object.fromEntries(Object.entries(proposal).filter(([key])=>key!=="baseHash"&&key!=="inputIds"));
-}
+
 export type ConversationInput = AuthoredInput & { id: string };
 export type ConversationFact = z.infer<typeof operationSchema> & {
   id: string; revision: number; status: "established" | "conflicting" | "superseded" | "reference" | "rejected";
@@ -160,10 +152,10 @@ export function expandCardinals(raw: string) {
 }
 const anchors: Partial<Record<ConversationField, RegExp>> = {
   coastalLicence: /coastal[\s\S]*licen[cs]e|licen[cs]e[\s\S]*coastal/i, berthAllotted: /allott?ed|allocat|assigned/i,
-  readinessValid: /valid[\s\S]*readiness|readiness[\s\S]*valid/i, favourableConditions: /tide[\s\S]*weather|weather[\s\S]*tide/i,
+  readinessValid: /\bvalid\b[^.!?;\n]*?\breadiness\b|\breadiness\b[^.!?;\n]*?\bvalid\b/i, favourableConditions: /tide[\s\S]*weather|weather[\s\S]*tide/i,
   idleTime: /idling|idle[ -]time/i, shifting: /shift/i, falseReadiness: /false[ -]readiness/i, priority: /priority/i, ousting: /oust/i, penalty: /penalt/i, rebate: /rebate/i,
   directBilling: /direct[\s\S]*bill|bill[\s\S]*direct/i, registeredCustomer: /GST[ -]registered|registered[\s\S]*GST/i, privateCustomer: /private/i,
-  sez: /\bSEZ\b|special[ -]economic[ -]zone/i, taxExemption: /tax[\s\S]*(?:exempt|concession)|(?:exempt|concession)[\s\S]*tax/i, standaloneBill: /standalone|separate[ -]bill|single[ -]bill/i,
+  sez: /\bSEZ\b|special[ -]economic[ -]zone/i, taxExemption: /tax[^.!?;\n]*?(?:exempt|concession)|(?:exempt|concession)[^.!?;\n]*?tax/i, standaloneBill: /standalone|separate[ -]bill|single[ -]bill/i,
   otherAdjustments: /adjustment|discount|surcharge|other[ -](?:charges|extras|fees)|additional[ -](?:charges|fees)/i,
   taxPercent: /\btax(?:es)?\b|\b(?:GST|VAT|CGST|SGST|IGST)\b/i,
   fxRate:/rate|conversion|exchange|\bFX\b/i,
@@ -285,6 +277,7 @@ export function validateOperation(op: Interpretation["operations"][number], inpu
     if(op.field==='tax'&&op.value==='none'&&/\b(?:tax|GST|VAT)\s*(?:is|at|of|:)?\s*[1-9]\d*(?:\.\d+)?\s*%/i.test(raw))throw new Error("Tax none contradicts a supplied percentage.");
     if(booleanFields.has(op.field)){
       const polarity=booleanPolarity(op.field,raw);
+      if(op.field==='taxExemption'&&(!anchors.taxExemption?.test(raw)||op.value==='false'&&polarity!=='negative'))throw new Error('Tax exemption eligibility needs an explicit supporting statement.');
       if(polarity==='conditional'||op.value==='true'&&polarity==='negative')throw new Error("Condition contradicts its polarity cue.");
     }
     return;
@@ -442,7 +435,13 @@ export function reduceInterpretation(previous: ConversationState, unknownProposa
     const clauseStart = Math.max(input.text.lastIndexOf(";", input.text.indexOf(op.evidence.quote)), input.text.lastIndexOf("\n", input.text.indexOf(op.evidence.quote))) + 1;
     const prefix = (input.text.slice(clauseStart, input.text.indexOf(op.evidence.quote) + op.evidence.quote.length) + " " + (input.fieldLabel ?? "")).toLowerCase();
     const named = state.scopes.filter(s => s.kind === "call" && s.label.length > 2 && prefix.includes(s.label.toLowerCase()));
-    if (named.length === 1 && named[0].id !== op.scopeId && !state.scopes.some(s => s.id === op.scopeId && s.parentId === named[0].id)) invalid = true;
+    // A conversion clause may name the side being converted while its FX facts
+    // belong to the separate comparison scope. Quote prices/quantities retain
+    // the normal named-entity binding check.
+    const comparison = proposal.tasks.find(t => t.kind === "comparison" && t.scopeId === op.scopeId);
+    const comparisonFx = ["fxRate", "fxFrom", "fxTo", "fxDate"].includes(op.field) && comparison
+      && named.every(scope => comparison.comparisonTaskIds?.some(id => proposal.tasks.some(t => t.id === id && t.kind === "quote" && t.scopeId === scope.id)));
+    if (!comparisonFx && named.length === 1 && named[0].id !== op.scopeId && !state.scopes.some(s => s.id === op.scopeId && s.parentId === named[0].id)) invalid = true;
     const prior = state.facts.filter(f => f.scopeId === op.scopeId && f.field === op.field && ["established", "conflicting"].includes(f.status));
     const same = prior.find(f => f.value === op.value && f.unit === op.unit);
     let status: ConversationFact["status"] = "established";
@@ -498,10 +497,24 @@ export function reduceInterpretation(previous: ConversationState, unknownProposa
         }
       }
       for (const input of pending) {
-        for (const amount of input.text.matchAll(/(?:USD|INR|EUR|GBP|US\$|[$₹€£])\s*(\d[\d,]*(?:\.\d+)?)/gi)) {
+        // Keep grouping commas inside the amount, not list punctuation after it.
+        for (const amount of input.text.matchAll(/(?:USD|INR|EUR|GBP|US\$|[$₹€£])\s*(\d(?:[\d,]*\d)?(?:\.\d+)?)/gi)) {
           const numeric = new Decimal(amount[1].replaceAll(",", ""));
           const accounted = proposal.operations.some(op => op.evidence.inputId === input.id && ["rate", "minimum", "maximum"].includes(op.field) && op.evidence.quote.includes(amount[0]) && (() => { try { return new Decimal(op.value).eq(numeric); } catch { return false; } })());
-          if (!accounted && !proposal.unresolved.some(i => i.evidence.inputId === input.id && i.evidence.quote.includes(amount[0]))) throw new Error("A monetary term was omitted from the supplied quotation interpretation.");
+          // A supplied conversion such as USD1.10 per EUR1 contains monetary
+          // tokens but is not another quotation line. Bind both tokens to the
+          // exact directional FX clause; a broad evidence quote cannot excuse
+          // an omitted price elsewhere in the message.
+          const conversion = proposal.tasks.filter(t => t.kind === "comparison").some(comparison => {
+            const rate = currentConversationFact(state, comparison.scopeId, "fxRate");
+            const from = currentConversationFact(state, comparison.scopeId, "fxFrom")?.value;
+            const to = currentConversationFact(state, comparison.scopeId, "fxTo")?.value;
+            if (!rate || rate.evidence.inputId !== input.id) return false;
+            return [...input.text.matchAll(/\b(USD|INR|EUR|GBP)\s*(\d+(?:\.\d+)?)\s+per\s+(USD|INR|EUR|GBP)\s*1(?:\.0+)?(?!\d|\.\d)/gi)].some(pair =>
+              pair[1].toUpperCase() === to && pair[3].toUpperCase() === from && new Decimal(pair[2]).eq(rate.value)
+              && amount.index! >= pair.index! && amount.index! + amount[0].length <= pair.index! + pair[0].length);
+          });
+          if (!accounted && !conversion && !proposal.unresolved.some(i => i.evidence.inputId === input.id && i.evidence.quote.includes(amount[0]))) throw new Error("A monetary term was omitted from the supplied quotation interpretation.");
         }
       }
     }

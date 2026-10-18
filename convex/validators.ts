@@ -51,3 +51,12 @@ export const vFormInput = v.object({
   fields: v.array(vFormField),
 });
 export const vFormValues = v.record(v.string(), v.string());
+export const vAuthorization = v.object({
+  payload: v.string(),
+  expiresAt: v.number(),
+});
+export const vQuoteApproval = v.object({
+  quoteId: v.string(),
+  revision: v.number(),
+  digest: v.string(),
+});

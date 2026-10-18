@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ModelMessage } from "ai";
 import { conversationInputs, emptyConversation, currentConversationFact, reduceInterpretation, replayConversation, type Interpretation } from "../../src/lib/migration/conversation";
-import { planConversationAnswer, renderConversationAnswer, verifyConversationAnswer } from "../../src/lib/migration/conversation-rules";
-const binding = { runId: "run", conversationId: "chat", fence: 3, revision: 4 };
 const user = (content: string): ModelMessage => ({ role: "user", content });
 function proposal(messages: ModelMessage[], previous = emptyConversation()) {
   const inputs = conversationInputs(messages); const input = inputs.at(-1)!;
@@ -20,17 +18,17 @@ function supplied() {
   ] as const) p.operations.push({ scopeId, field, operation: "assert", value, unit, evidence: evidence(quote) });
   return { ...draft, messages };
 }
-describe("shared conversation reducer and planner (code-aware proposals)", () => {
-  it("binds supplied quotation, preserves facts on correction and invalidates prior answer", async () => {
-    const d = supplied(); const first = d.apply(); const answer = await planConversationAnswer(first.state, binding);
-    expect(renderConversationAnswer(answer)).toContain("USD 4,000.00");
+describe("historical receipt reducer (code-aware proposals)", () => {
+  it("preserves unrelated facts on correction and changes the receipt hash", async () => {
+    const d = supplied(); const first = d.apply();
+    expect(currentConversationFact(first.state, "call", "gt")?.value).toBe("20000");
     const messages = [...d.messages, user("Correction: GT 10000. Keep the quoted terms and time unchanged.")];
     const next = proposal(messages, first.state);
     next.p.operations = [{ scopeId: "call", field: "gt", value: "10000", unit: "GT", operation: "correct", evidence: next.evidence("GT 10000") }];
     const revised = next.apply().state;
     expect(currentConversationFact(revised, "call", "durationHours")?.value).toBe("20");
-    expect(renderConversationAnswer(await planConversationAnswer(revised, binding))).toContain("USD 2,000.00");
-    expect(await verifyConversationAnswer(answer, revised, binding)).toBe(false);
+    expect(currentConversationFact(revised, "call", "gt")?.value).toBe("10000");
+    expect(revised.hash).not.toBe(first.state.hash);
   });
   it("replays accepted receipts from persisted history without a model call", () => {
     const d = supplied(); const reduced = d.apply();
@@ -39,18 +37,6 @@ describe("shared conversation reducer and planner (code-aware proposals)", () =>
     expect(replayConversation(messages).pending).toHaveLength(0);
     messages[0] = user("Changed evidence");
     expect(() => replayConversation(messages)).toThrow();
-  });
-  it("asks only missing requirements and retains a separately answerable elapsed task", async () => {
-    const d = proposal([user("Unknown port. From 2026-10-12 00:00 UTC to 2026-10-13 12:00 UTC; tell me elapsed time and official berth charge.")]);
-    d.p.tasks = [{ ...d.p.tasks[0], source: "official", ruleScopeIds: [] }, { ...d.p.tasks[0], id: "time", kind: "elapsed", source: "none", charges: [], ruleScopeIds: [] }];
-    d.p.operations = [
-      { scopeId: "call", field: "intervalStart", value: "2026-10-12 00:00 UTC", unit: "timestamp", operation: "assert", evidence: d.evidence("From 2026-10-12 00:00 UTC") },
-      { scopeId: "call", field: "intervalEnd", value: "2026-10-13 12:00 UTC", unit: "timestamp", operation: "assert", evidence: d.evidence("to 2026-10-13 12:00 UTC") },
-    ];
-    const answer = await planConversationAnswer(d.apply().state, binding);
-    expect(answer.items.map(i => i.status)).toEqual(["unresolved", "calculated"]);
-    expect(answer.items[0].pending).toEqual(["the requested port/terminal"]);
-    expect(renderConversationAnswer(answer)).toContain("36 hours");
   });
   it.each(["GT 20000 kg", "GT 20000 DWT", "not GT 20000", "Previous GT 20000"])("rejects dimension/reference laundering: %s", raw => {
     const d = supplied(); d.messages[0] = user(raw); const inputs = conversationInputs(d.messages);
@@ -82,12 +68,6 @@ describe("shared conversation reducer and planner (code-aware proposals)", () =>
     expect(currentConversationFact(state, "call", "gt")?.value).toBe("20000");
     expect(currentConversationFact(state, "second", "gt")?.value).toBe("5000");
     expect(currentConversationFact(state, "second", "durationHours")).toBeUndefined();
-  });
-  it("does not ask vessel particulars for a rule question", async () => {
-    const d = proposal([user("Explain Mumbai berth rules.")]); d.p.tasks = [{ ...d.p.tasks[0], kind: "rule", source: "official", ruleScopeIds: [] }];
-    d.p.operations = [{ scopeId: "call", field: "port", operation: "assert", value: "mumbai", unit: "", evidence: d.evidence("Mumbai") }];
-    const answer = await planConversationAnswer(d.apply().state, binding);
-    expect(answer.items[0].status).toBe("explained"); expect(answer.items[0].pending).toEqual([]); expect(answer.items[0].body).toContain("§2.17");
   });
   it("inherits only vessel particulars into an explicitly linked later call", () => {
     const first = supplied(); const before = first.apply().state;

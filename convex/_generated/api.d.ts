@@ -10,6 +10,7 @@
 
 import type * as auth from "../auth.js";
 import type * as http from "../http.js";
+import type * as lib_authority from "../lib/authority.js";
 import type * as lib_memoryLifecycle from "../lib/memoryLifecycle.js";
 import type * as lib_migrationGate from "../lib/migrationGate.js";
 import type * as memory from "../memory.js";
@@ -27,6 +28,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   http: typeof http;
+  "lib/authority": typeof lib_authority;
   "lib/memoryLifecycle": typeof lib_memoryLifecycle;
   "lib/migrationGate": typeof lib_migrationGate;
   memory: typeof memory;

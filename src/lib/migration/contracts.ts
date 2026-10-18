@@ -1,8 +1,9 @@
 import { z } from "zod";
+import { MAX_REVIEW_CHARS } from "../authority/contract";
 
 export const MAX_CHAT_REQUEST_BYTES = 32_000;
 export const FORM_VALUE_MAX_CHARS = 2_000;
-export const INTERNAL_CONVERSATION_TOOLS = new Set(["interpret_request", "execute_conversation", "complete_auxiliary"]);
+export const INTERNAL_CONVERSATION_TOOLS = new Set(["interpret_request", "execute_conversation", "complete_auxiliary", "port_information", "manage_quote", "compare_quotes"]);
 export const chatRequestByteLength = (value:unknown) => new TextEncoder().encode(JSON.stringify(value)).byteLength;
 
 export const modelAliasSchema = z.enum(["model-1", "model-2"]);
@@ -46,6 +47,7 @@ function validateFieldNames(form: { fields: Array<{ name: string }> }, context: 
 
 export const formInputSchema = baseFormSchema.superRefine(validateFieldNames);
 export const formDefinitionSchema = baseFormSchema.extend({
+  description: z.string().max(MAX_REVIEW_CHARS).optional(),
   toolCallId: z.string().min(1).max(200),
 }).superRefine(validateFieldNames);
 
@@ -89,4 +91,6 @@ export type ClaimResult = {
   fence: number;
   revision: number;
   replayed: boolean;
+  authorizationExecution?: boolean;
+  authorizationDeclined?: boolean;
 };

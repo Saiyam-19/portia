@@ -1,8 +1,8 @@
 import Decimal from "decimal.js";
-import type { FactField } from "./call-context";
+export type FactField = "gt" | "nt" | "dwt" | "loa" | "draught" | "durationHours" | "dateOrder" | "timeZone" |
+  "berthStart" | "berthEnd" | "anchorageArrival" | "cargoCompleted" | "portDeparture" | "intervalStart" | "intervalEnd" | "unassignedTimestamp" | "port";
 
 export type Span = { start: number; end: number };
-export const NUMERIC_LITERAL = "[−-]?\\d(?:[\\d,]*\\d)?(?:\\.\\d+)?";
 const exact = Decimal.clone({ precision: 140, toExpNeg: -200, toExpPos: 200 });
 
 /** Resolve lexical overlap before polarity: a rejected long entity must consume
@@ -66,7 +66,7 @@ const definitions: Array<{ field: FactField; pattern: string }> = [
   { field: "nt", pattern: "net(?: registered)? tonnage|NRT|NT" },
   { field: "dwt", pattern: "deadweight(?: tonnage)?|DWT" },
   { field: "loa", pattern: "length overall|LOA" },
-  { field: "draught", pattern: "draught|draft" },
+  { field: "draught", pattern: "(?:(?:arrival|departure|sailing) )?(?:draught|draft)" },
   { field: "durationHours", pattern: "duration|stay|alongside|occupancy|hours?" },
   { field: "dateOrder", pattern: "date order" },
   { field: "timeZone", pattern: "time ?zone|UTC offset" },
@@ -80,9 +80,6 @@ const definitions: Array<{ field: FactField; pattern: string }> = [
   { field: "port", pattern: "port|terminal" },
 ];
 export const QUANTITY_FIELDS: readonly FactField[] = ["gt", "nt", "dwt", "loa", "draught", "durationHours"];
-export const VESSEL_FIELDS: readonly FactField[] = ["gt", "nt", "dwt", "loa"];
-export const EVENT_CHAIN: readonly FactField[] = ["anchorageArrival", "berthStart", "cargoCompleted", "berthEnd", "portDeparture"];
-export const EVENT_FIELDS: readonly FactField[] = [...EVENT_CHAIN, "intervalStart", "intervalEnd", "unassignedTimestamp"];
 export type FieldMention = Span & { field: FactField; asserted: boolean; reference: boolean };
 
 export function fieldMentions(text: string): FieldMention[] {
@@ -107,11 +104,7 @@ export function classifyFormField(name: string, label?: string): { field?: FactF
   return fields.size === 1 ? { field: [...fields][0], conflicts: [] } : { conflicts: fields.size ? [...fields] : [...rejected] };
 }
 
-export function eventField(prefix: string): FactField | undefined {
-  // The event identity and its assertion polarity are separate. A rejected
-  // berth-end timestamp must not fall back to an unrelated generic event.
-  return fieldMentions(prefix).filter(m => EVENT_FIELDS.includes(m.field)).at(-1)?.field;
-}
+
 
 type Unit = { names: string[]; fields: readonly FactField[]; canonical: string; factor: string };
 const units: readonly Unit[] = [
@@ -237,7 +230,7 @@ function literalAt(text: string, start: number, mentions: readonly FieldMention[
   return { ...number, end: number.end + suffix[0].length, rawUnit: word };
 }
 
-export type QuantityCandidate = Literal & { field: FactField };
+export type QuantityCandidate = Literal & { field: FactField; evidenceStart?: number; evidenceEnd?: number };
 export type NormalizedQuantity = { value: string; unit: string; normalizations: string[] } | { error: string; message: string };
 export function normalizeQuantity(candidate: QuantityCandidate, metadataUnit?: string): NormalizedQuantity {
   const { field, rawNumber, rawUnit } = candidate;
@@ -286,7 +279,7 @@ export function proseQuantities(text: string): QuantityCandidate[] {
     const number = followingNumber(text, mention);
     const literal = number && literalAt(text, number.start, mentions);
     if (!literal) continue;
-    candidates.push({ ...literal, field: mention.field }); owned.push(literal);
+    candidates.push({ ...literal, field: mention.field, evidenceStart: mention.start, evidenceEnd: literal.end }); owned.push(literal);
   }
   // Postfix declarations (500 feet LOA, 30 ft draught, 24 hours).
   for (const atom of atoms) {
@@ -296,7 +289,7 @@ export function proseQuantities(text: string): QuantityCandidate[] {
       && !(followingNumber(text, m) && measureIdentifier(text.slice(m.start, m.end))));
     if (!mention) continue;
     // When the property token is itself the unit, preserve its actual unit.
-    const candidate = { ...literal, field: mention.field };
+    const candidate = { ...literal, field: mention.field, evidenceStart: literal.start, evidenceEnd: Math.max(literal.end, mention.end) };
     candidates.push(candidate); owned.push(candidate);
   }
   // Imperative time assignments also have a typed duration without a repeated
@@ -313,10 +306,3 @@ export function proseQuantities(text: string): QuantityCandidate[] {
 
 /** Arithmetic is a separate task, not an automatic evaluation of an unresolved
  * quantity expression. The operation classifier excludes explicitly negated math. */
-export function hasArithmeticTask(text: string): boolean {
-  const explicit = /\b(?:arithmetic|math)\b|\b(?:calculate|compute|evaluate|what is)\s*[()+−-]*\d/gi;
-  if ([...text.matchAll(explicit)].some(m => isAsserted(text, m.index))) return true;
-  const assigned = proseQuantities(text);
-  return [...text.matchAll(/\d\s*(?:\*\*|[+−*/×÷^-])\s*[+−-]?\d/g)].some(m =>
-    !assigned.some(q => q.start <= m.index && q.end >= m.index + m[0].length));
-}

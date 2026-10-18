@@ -1,3 +1,6 @@
+import { AuthoritySession } from "@/lib/authority/session";
+import { executeAuthorizedOperations } from "@/lib/authority/execute";
+import type { AuthorityContext } from "@/lib/authority/contract";
 import { MemorySession, memoryFeatureEnabled } from "@/lib/memory/session";
 import {
   createUIMessageStream,
@@ -27,8 +30,8 @@ import { migrationPreviewEnabled } from "@/lib/migration/config";
 import { trustedMigrationOrigin } from "@/lib/migration/origin";
 import { publicChatStream } from "@/lib/migration/public-stream";
 import { createMigrationMainAgent } from "@/lib/migration/domain-agent";
-import { ConversationSession } from "@/lib/migration/conversation-session";
-import { renderConversationAnswer, type ConversationAnswer } from "@/lib/migration/conversation-rules";
+import { QuoteSession } from "@/lib/portia/session";
+import { persistedAnswerStream } from "@/lib/portia/publication";
 import { MIGRATION_CHAT_TIMEOUT } from "@/lib/migration/agent-policy";
 import { modelErrorDetails } from "@/lib/migration/error-reporting";
 import { responseErrorMessage } from "@/lib/migration/response-errors";
@@ -48,6 +51,9 @@ type RunContext = {
   promptMessageId: string;
   revision: number;
   messages: ModelMessage[];
+  authorityContext?: AuthorityContext;
+  authorization?: {payload:string;expiresAt:number};
+  authorizationDeclined?: boolean;
 };
 
 function requestHash(value: unknown): string {
@@ -75,6 +81,16 @@ function pendingForm(messages: ReadonlyArray<{ content: unknown }>): FormDefinit
     }
   }
   return null;
+}
+
+function completedResponse(claim: ClaimResult, text: string) {
+  return createUIMessageStreamResponse({
+    stream: createUIMessageStream({execute:({writer})=>{
+      writer.write({type:"start",messageId:claim.runId,messageMetadata:{conversationId:claim.conversationId,runId:claim.runId,revision:claim.revision}});
+      writer.write({type:"text-start",id:claim.runId});writer.write({type:"text-delta",id:claim.runId,delta:text});writer.write({type:"text-end",id:claim.runId});
+      writer.write({type:"finish",finishReason:"stop"});writer.setOutcome({status:"completed"});
+    }}),headers:{"Cache-Control":"no-store","X-Content-Type-Options":"nosniff"},
+  });
 }
 
 async function parseBody(request: Request) {
@@ -108,7 +124,7 @@ export async function POST(request: Request): Promise<Response> {
   let pendingStepForm: FormDefinition | null = null;
   let checkpointFailure: unknown;
   let responseFailure: unknown;
-  let quotationCommitted = false;
+  let publishedText = "";
   const finalizeRun = createRunFinalizer({
     isPersisted: () => persisted,
     abort: (event) => {
@@ -187,7 +203,7 @@ export async function POST(request: Request): Promise<Response> {
           },
         });
 
-    if (claim.replayed) {
+    if (claim.replayed && !claim.authorizationExecution && !claim.authorizationDeclined) {
       manager.stop();
       return Response.json(
         {
@@ -214,20 +230,7 @@ export async function POST(request: Request): Promise<Response> {
       });
       persisted = true;
       await finalizeRun({ kind: "done" });
-      const completedClaim = claim;
-      return createUIMessageStreamResponse({
-        stream: createUIMessageStream({
-          execute: ({ writer }) => {
-            writer.write({ type: "start", messageId: completedClaim.runId, messageMetadata: { conversationId: completedClaim.conversationId, runId: completedClaim.runId, revision: completedClaim.revision } });
-            writer.write({ type: "text-start", id: completedClaim.runId });
-            writer.write({ type: "text-delta", id: completedClaim.runId, delta: text });
-            writer.write({ type: "text-end", id: completedClaim.runId });
-            writer.write({ type: "finish", finishReason: "stop" });
-            writer.setOutcome({ status: "completed" });
-          },
-        }),
-        headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" },
-      });
+      return completedResponse(claim, text);
     }
 
     registerMigrationRun(claim.runId, controller);
@@ -255,15 +258,24 @@ export async function POST(request: Request): Promise<Response> {
         .finally(() => { statusCheckPending = false; });
     }, 2_000);
 
-    const memory = memoryFeatureEnabled() ? new MemorySession(manager, context.conversationId, {runId:claim.runId,runFence:claim.fence}).agent() : undefined;
-    const quoteBinding = { runId: claim.runId, fence: claim.fence, revision: context.revision, conversationId: context.conversationId };
-    const conversation = new ConversationSession(quoteBinding);
+    const memorySession = memoryFeatureEnabled() ? new MemorySession(manager, context.conversationId, {runId:claim.runId,runFence:claim.fence}) : undefined;
+    const memory = memorySession?.agent();
+    const authority = new AuthoritySession(context.authorityContext);
+    const session = new QuoteSession(context.conversationId);
+    session.bindAuthority(authority);
+    if (context.authorization || context.authorizationDeclined) {
+      await session.initialize(context.messages);
+      const approved = context.authorization ? await executeAuthorizedOperations({authorization:context.authorization,session,drainMemory:memorySession ? ()=>memorySession.view() : undefined,signal:AbortSignal.any([controller.signal,request.signal,AbortSignal.timeout(MIGRATION_CHAT_TIMEOUT.totalMs)])}) : {messages:[{role:"assistant" as const,content:"Review rejected. No proposed operations were applied."}],text:"Review rejected. No proposed operations were applied."};
+      controller.signal.throwIfAborted();request.signal.throwIfAborted();
+      await callMigrationBridge(manager,{op:"complete",args:{runId:claim.runId,fence:claim.fence,responseMessages:approved.messages,form:null,finishReason:"stop"}});
+      persisted = true; await finalizeRun({kind:"done"});
+      return completedResponse(claim,approved.text);
+    }
     const agent = createMigrationMainAgent({
-      memory,
+      memory, authority,
       alias: context.modelAlias,
       runId: claim.runId,
-      quoteBinding,
-      conversation,
+      session,
       assertCanContinue: () => {
         if (checkpointFailure) throw checkpointFailure;
       },
@@ -278,22 +290,10 @@ export async function POST(request: Request): Promise<Response> {
       onStepEnd: async (step) => {
         try {
           abortSignal.throwIfAborted();
-          if (quotationCommitted) return;
+          session.observeTools(step.toolResults, step.toolCalls, step.content.filter(part => part.type === "tool-error"));
           const stepMessages = step.response.messages as ModelMessage[];
-          const quoted = step.toolResults.find(item => item.toolName === "execute_conversation");
-          if (quoted && quoted.output && typeof quoted.output === "object" && "ledger" in quoted.output) {
-            if (!await conversation.verify(quoted.output.ledger)) throw new Error("Conversation publication validation failed.");
-            const answer = renderConversationAnswer(quoted.output.ledger as ConversationAnswer);
-            await manager.refresh();
-            abortSignal.throwIfAborted();
-            // Atomic owner/fence/lease/revision/epoch checks in completeRun are
-            // the publication boundary. No monetary text has streamed yet.
-            await callMigrationBridge(manager, {
-              op: "complete", args: { runId: claim!.runId, fence: claim!.fence, form: null, finishReason: "stop",
-                responseMessages: [...stepMessages, { role: "assistant", content: answer }] },
-            });
-            persisted = true; quotationCommitted = true; statusPollingEnabled = false;
-            if (statusTimer) { clearInterval(statusTimer); statusTimer = null; }
+          if (!step.toolCalls.length) {
+            pendingStepMessages = [{ role: "assistant", content: await session.answer(step.text) }];
             return;
           }
           const stepForm = pendingForm(stepMessages);
@@ -301,7 +301,8 @@ export async function POST(request: Request): Promise<Response> {
             if (step.toolCalls.length !== 1 || step.toolCalls[0]?.toolName !== "ask_user_input" || step.toolResults.length !== 0) {
               throw new Error("ask_user_input must be the only unresolved tool in its step.");
             }
-            pendingStepMessages = stepMessages;
+            pendingStepMessages = stepMessages.map(message => message.role === "assistant" && Array.isArray(message.content)
+              ? { ...message, content: message.content.filter(part => part.type !== "text" && part.type !== "reasoning") } : message);
             pendingStepForm = stepForm;
             return;
           }
@@ -312,10 +313,19 @@ export async function POST(request: Request): Promise<Response> {
               fence: claim!.fence,
               stepNumber: step.stepNumber,
               payloadHash: requestHash(stepMessages),
-              responseMessages: stepMessages,
+              responseMessages: stepMessages.map(message => message.role === "assistant" && Array.isArray(message.content) ? { ...message, content: message.content.filter(part => part.type !== "text" && part.type !== "reasoning") } : message),
               finishReason: step.finishReason,
             },
           });
+          const pending = authority.pending();
+          if (pending) {
+            pendingStepForm = pending.form;
+            const {toolCallId,...input} = pending.form;
+            pendingStepMessages = [
+              {role:"assistant",content:session.finalText("")},
+              {role:"assistant",content:[{type:"tool-call",toolName:"ask_user_input",toolCallId,input}]},
+            ];
+          }
         } catch (error) {
           console.warn("portia_checkpoint_rejected", {
             runId: claim!.runId,
@@ -339,7 +349,6 @@ export async function POST(request: Request): Promise<Response> {
           statusTimer = null;
         }
         if (abortSignal.aborted) return;
-        if (quotationCommitted) return;
         try {
           await manager.refresh();
           if (abortSignal.aborted) return;
@@ -350,10 +359,12 @@ export async function POST(request: Request): Promise<Response> {
               fence: claim!.fence,
               responseMessages: pendingStepMessages,
               form: pendingStepForm,
+              ...(authority.pending() ? {authorizationProposal:authority.pending()!.payload} : {}),
               finishReason,
             },
           });
           persisted = true;
+          publishedText = pendingStepForm && !authority.hasPending() ? "" : pendingStepMessages.filter(message => message.role === "assistant").map(message => typeof message.content === "string" ? message.content : "").join("\n");
           console.info("portia_run_completed", {
             runId: claim!.runId,
             modelAlias: context.modelAlias,
@@ -371,7 +382,7 @@ export async function POST(request: Request): Promise<Response> {
     });
 
     const stream = toUIMessageStream({
-      stream: publicChatStream(result.stream, {
+      stream: publicChatStream(persistedAnswerStream(result.stream, { isPersisted: () => persisted, text: () => publishedText, form: () => authority.hasPending() ? pendingStepForm : null, abortSignal }), {
         abortSignal,
         result,
         onFailure: error => { responseFailure = error; },
@@ -402,7 +413,7 @@ export async function POST(request: Request): Promise<Response> {
     await finalizeRun({ kind: "route-error", error });
     const status = error instanceof Error && /Unauthenticated|Authentication/i.test(error.message) ? 401 : 409;
     return Response.json(
-      { error: status === 401 ? "Unauthenticated." : "Unable to start the migration response." },
+      { error: status === 401 ? "Unauthenticated." : claim?.authorizationExecution ? "Approval was accepted, but no quotation result was published. Check Memory for approved memory operations before retrying; those may already have been applied." : "Unable to start the migration response." },
       { status, headers: { "Cache-Control": "no-store" } },
     );
   }
