@@ -1,0 +1,59 @@
+{
+  "checkedOn": "2026-10-18",
+  "effectiveFrom": "2026-05-09",
+  "wharfage": {
+    "cargo": "Iron and steel materials excluding scrap,dross,ores; directlyhandledatOCT",
+    "unit": "INR per tonne",
+    "import": {
+      "foreign": 389,
+      "coastal": 233
+    },
+    "export": {
+      "foreign": 259,
+      "coastal": 156
+    },
+    "convenienceFeeIncluded": "30%",
+    "collection": "MbPA",
+    "sourceStatus": "DirectlyprintedcurrentSOR3.1(A)row13; usableindependentlyofberthcontinuitydecision"
+  },
+  "berth": {
+    "scope": [
+      "RoRo/carcarrier ordinary call",
+      "Non-RoRo vessel admitted for iron/steel cargo underOCTpolicy"
+    ],
+    "exclude": [
+      "Offshore supply vessels",
+      "Cruise/passenger andnaval/coastguard special categories",
+      "Other general cargo without verifiedadmission",
+      "Priority/ousting/layup/penalty/portdelay/readinesscutoff cases unlessseparately evaluated"
+    ],
+    "asOf": "2026-10-18",
+    "basePeriod": "Use current table effective2026-05-09 onward, checked2026-10-18; futureindexation/revision mustberechecked.",
+    "currencyRates": {
+      "foreign": {
+        "currency": "USD",
+        "base": "0.0137",
+        "derived": "0.01781"
+      },
+      "coastal": {
+        "currency": "INR",
+        "base": "0.2165",
+        "derived": "0.28145"
+      }
+    },
+    "multiplier": "1.3",
+    "unit": "per chargeable GRT per started hour",
+    "ordinaryFormula": "max(certifiedGRT,1000) * ceil(chargeableSeconds/3600) * derivedRate",
+    "sourceStatus": "Conditional130% component estimate, requiring explicit assumption; not verified unqualifiedcurrentrate",
+    "doNotAdd": [
+      "Another60% coastal reduction",
+      "Anotherannualindexation to alreadyindexedMbPA rates",
+      "1.3 multiplier to portdues/pilotage/othercharges",
+      "GST orFX unlessseparatelyconfirmed",
+      "Component-level rupeeceil asifcompleteinvoice"
+    ],
+    "essentialAssumption": "Assuming the130%MbPA arrangement remains applicable to this call. PublicSOP also records a100%alternative; actualselectedcharge not conclusivelyestablished.",
+    "formalApprovalLimit": "2018approval and2020extension do notprovide afresh2026renewal; lastformalextension ended31March2021 or earliertrigger.",
+    "dateGuard": "Examples are evaluated for ordinary calls on2026-10-18, against the9May2026table, notbefore9May2026."
+  }
+}
