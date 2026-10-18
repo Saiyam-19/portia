@@ -1,3 +1,5 @@
+> Historical specification/review. Implementation and coverage changed; use [current coverage](../portia-coverage.md) and [cleanup report](2026-10-18-repository-cleanup.md). Old experiment paths are provenance, not runnable instructions.
+
 # Official-source discovery — 14 October 2026
 
 Bounded, read-only research by `source_authority`, followed by parent cross-checks of JNPA/GTI PDFs and DGLL FAQ. No tariff files changed. These are **source candidates and resolution obligations**, not accepted calculation rules or independent numerical oracles. Capture original bytes/hashes, pages, amendments and per-charge interpretations before rule activation. Current/future applicability is evaluated for the user's call date, not this document's date.

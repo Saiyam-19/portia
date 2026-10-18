@@ -89,7 +89,7 @@
         "bpcl"
       ],
       "sourceReferences": [
-        "JNPA 2026 p6 §2.3, pp8–9; BPCL 2021 pp16,23,28; BPCL 2026 pp1–2"
+        "JNPA 2026 p6 \u00a72.3, pp8\u20139; BPCL 2021 pp16,23,28; BPCL 2026 pp1\u20132"
       ],
       "approvedComponents": [
         {
@@ -97,7 +97,7 @@
           "charges": [
             "berth"
           ],
-          "scope": "Reviewed ordinary JNPA hourly-or-part rule explanation, 1 May 2026–30 April 2027.",
+          "scope": "Reviewed ordinary JNPA hourly-or-part rule explanation, 1 May 2026\u201330 April 2027.",
           "requiredInputs": [],
           "limits": "Explanation only: historical licensor linkage does not approve all current contractual conditions or minimum composition."
         }
@@ -130,7 +130,7 @@
         "jnpa"
       ],
       "sourceReferences": [
-        "GTI 2026 p11 note5 and p6 item7; JNPA 2026 p6 §2.3, pp6–9 notes"
+        "GTI 2026 p11 note5 and p6 item7; JNPA 2026 p6 \u00a72.3, pp6\u20139 notes"
       ],
       "approvedComponents": [
         {
@@ -188,7 +188,7 @@
         "bpcl"
       ],
       "sourceReferences": [
-        "ICTPL 2018 approved order pp31,35; ICTPL 2020 extension p3 §7"
+        "ICTPL 2018 approved order pp31,35; ICTPL 2020 extension p3 \u00a77"
       ],
       "approvedComponents": [
         {
@@ -199,6 +199,22 @@
           "scope": "Reviewed historical calendar-day versus explicit hourly berth rule explanation.",
           "requiredInputs": [],
           "limits": "Historical only. The berth multiplier is not an all-charge multiplier; no current ICTPL quotation approved."
+        },
+        {
+          "id": "oct-steel-wharfage-2026",
+          "charges": [
+            "cargo"
+          ],
+          "scope": "Direct OCT iron/steel wharfage from the current published May2026 SOR.",
+          "requiredInputs": [
+            "callDate",
+            "cargoCategory",
+            "cargoHandling",
+            "cargoTraffic",
+            "cargoDirection",
+            "cargoItems"
+          ],
+          "limits": "Excludes scrap, dross, ores and ambiguous ingot/billet classification. Itemized gross weights assessed under \u00a71.2(x); overlapping exact0.5 fractions remain unresolved. Aggregate-only or future-date amounts are reference estimates.30% convenience fee already included; no complete invoice."
         }
       ],
       "gaps": [
@@ -214,7 +230,7 @@
             "*"
           ],
           "cause": "authority-version",
-          "message": "Retained ICTPL orders establish historical rules and an extension only through 31 March 2021 or earlier stated triggers. The operative extension/amendment chain and applicable current MBPA basis are not established."
+          "message": "The ordinary berth comparator is established, but formal tariff renewal and the100%/130% selection remain unconfirmed. A labelled130% scenario and direct current steel wharfage are available; other marine services need their own applicable rules."
         },
         {
           "id": "quoted-sheet",
@@ -224,6 +240,24 @@
           "cause": "document-identity",
           "message": "For interpretation of a particular quoted sheet, its exact charge line, title and effective date are needed; a calendar-day definition alone cannot replace the explicit hourly berth unit."
         }
+      ],
+      "referenceComponents": [
+        {
+          "id": "oct-130-percent-scenario",
+          "charges": [
+            "berth"
+          ],
+          "scope": "Explicit conditional130% estimate using resolved Indira/Ballard comparator.",
+          "limits": "100% alternative and expired formal approval remain unresolved; no definitive price ranking."
+        },
+        {
+          "id": "oct-unassessed-weight-reference",
+          "charges": [
+            "cargo"
+          ],
+          "scope": "Current published steel rate applied to explicitly unassessed aggregate tonnes as a reference only.",
+          "limits": "No inferred item count or per-item assessment; cannot become a definitive quote baseline or comparison."
+        }
       ]
     },
     "jaigarh": {
@@ -231,7 +265,7 @@
         "jaigarh-nsict"
       ],
       "sourceReferences": [
-        "JSW Jaigarh 2026 p1 J-1; pp6–8 identity, exclusions and FX"
+        "JSW Jaigarh 2026 p1 J-1; pp6\u20138 identity, exclusions and FX"
       ],
       "approvedComponents": [
         {
@@ -292,7 +326,7 @@
         "jnpa"
       ],
       "sourceReferences": [
-        "JNPA 2026 pp2–4 §§2.1–2.2; p6 §2.3; p9 note12; approved 2020 p14"
+        "JNPA 2026 pp2\u20134 \u00a7\u00a72.1\u20132.2; p6 \u00a72.3; p9 note12; approved 2020 p14"
       ],
       "approvedComponents": [
         {
@@ -356,7 +390,7 @@
         "jsw"
       ],
       "sourceReferences": [
-        "JSW 2024 p3 general conditions and pp3–4 expired sections; JNPA 2026 pp2,6–9,12"
+        "JSW 2024 p3 general conditions and pp3\u20134 expired sections; JNPA 2026 pp2,6\u20139,12"
       ],
       "approvedComponents": [
         {
@@ -427,7 +461,28 @@
             "*"
           ],
           "cause": "authority-version",
-          "message": "The latest terminal/June 2025 source binary remains a gap for other terminal services. Expired cargo and infrastructure sections cannot price the requested current service."
+          "message": "December2025 operator rates are available as dated references. Current applicability and complete governing conditions remain unconfirmed; unlisted or ambiguous services cannot be substituted from the expired2024 schedule."
+        }
+      ],
+      "referenceComponents": [
+        {
+          "id": "jjltpl-dec2025-reference",
+          "charges": [
+            "cargo",
+            "handling",
+            "infrastructure",
+            "hard-pigging",
+            "foam-pigging",
+            "compressor",
+            "liquid-nitrogen",
+            "gangway",
+            "water",
+            "loading-arm",
+            "idling",
+            "sludge-truck"
+          ],
+          "scope": "Latest published operator schedule located, effective5December2025, with selected exact commodity and actual-usage calculations.",
+          "limits": "Search-index extraction; currentness and first definitions/general-conditions page unverified. Generic catch-all and unpriced negotiated services are not auto-priced."
         }
       ]
     },
@@ -477,7 +532,7 @@
         "coastal-mumbai"
       ],
       "sourceReferences": [
-        "Mumbai SOR pp21–23 §2.17; 9 May 2026 amendment p2 onward; SOR GST p38; CBIC heading9967/FAQ85"
+        "Mumbai SOR pp21\u201323 \u00a72.17; 9 May 2026 amendment p2 onward; SOR GST p38; CBIC heading9967/FAQ85"
       ],
       "approvedComponents": [
         {
@@ -545,7 +600,7 @@
         "containers"
       ],
       "sourceReferences": [
-        "BMCT candidate pp1,3–4; JNPA container-terminal listing; D12 adjudication and predicate addendum"
+        "BMCT candidate pp1,3\u20134; JNPA container-terminal listing; D12 adjudication and predicate addendum"
       ],
       "approvedComponents": [],
       "gaps": [
@@ -576,7 +631,7 @@
         "containers"
       ],
       "sourceReferences": [
-        "Cruise rationalisation 2026 pp1–2; Mumbai SOR p58 §§7.2(D),7.3(A); pp5–6 §1.2"
+        "Cruise rationalisation 2026 pp1\u20132; Mumbai SOR p58 \u00a7\u00a77.2(D),7.3(A); pp5\u20136 \u00a71.2"
       ],
       "approvedComponents": [
         {
@@ -585,7 +640,7 @@
             "berth",
             "other"
           ],
-          "scope": "Reviewed explanation of the special 1 April 2026–31 March 2027 cruise structure and annual-call rebate bands.",
+          "scope": "Reviewed explanation of the special 1 April 2026\u201331 March 2027 cruise structure and annual-call rebate bands.",
           "requiredInputs": [],
           "limits": "Explanation needs no vessel/passenger counts; complete rebate and invoice application is not approved."
         }
@@ -619,7 +674,7 @@
         "containers"
       ],
       "sourceReferences": [
-        "NSFT 2026 pp2–4; p11 note f; D10 adjudication and predicate addendum"
+        "NSFT 2026 pp2\u20134; p11 note f; D10 adjudication and predicate addendum"
       ],
       "approvedComponents": [
         {
@@ -674,7 +729,7 @@
         "containers"
       ],
       "sourceReferences": [
-        "NSIGT 2026 pp3–5 Ch2/§3.1(A); p10 period; D10 calculation references and predicate addendum"
+        "NSIGT 2026 pp3\u20135 Ch2/\u00a73.1(A); p10 period; D10 calculation references and predicate addendum"
       ],
       "approvedComponents": [
         {
@@ -682,7 +737,7 @@
           "charges": [
             "cargo"
           ],
-          "scope": "Reviewed normal 20ft foreign/EXIM ship-yard handling and matching road or applicable ICD rail components, ceiling period 1 April 2026–31 March 2027.",
+          "scope": "Reviewed normal 20ft foreign/EXIM ship-yard handling and matching road or applicable ICD rail components, ceiling period 1 April 2026\u201331 March 2027.",
           "requiredInputs": [
             "containerSize",
             "cargoTraffic",
@@ -744,7 +799,7 @@
         "containers"
       ],
       "sourceReferences": [
-        "NSICT 2026 p1 effective date; p2 §§2.2,2.7,2.10; p3 §1(A); p10 §12 MUC"
+        "NSICT 2026 p1 effective date; p2 \u00a7\u00a72.2,2.7,2.10; p3 \u00a71(A); p10 \u00a712 MUC"
       ],
       "approvedComponents": [
         {
@@ -752,7 +807,7 @@
           "charges": [
             "cargo"
           ],
-          "scope": "Reviewed §1(A) normal foreign/EXIM 20ft handling using the port crane, effective 1 May 2026.",
+          "scope": "Reviewed \u00a71(A) normal foreign/EXIM 20ft handling using the port crane, effective 1 May 2026.",
           "requiredInputs": [
             "containerSize",
             "cargoTraffic",
@@ -820,7 +875,7 @@
             "berth"
           ],
           "cause": "authority-version",
-          "message": "The dated coastal berth schedule for the requested call, including units and minima, is not established by retained evidence. Terminal information and reception/waste tariffs cannot provide the berth price."
+          "message": "A dated GAC berth reference is available from7September2023. Continued current applicability, individual jetty coverage, minima and fractional-hour treatment are unconfirmed; terminal information and waste sheets remain unsuitable as marine price authority."
         },
         {
           "id": "service-tariff",
@@ -832,7 +887,21 @@
             "other"
           ],
           "cause": "authority-version",
-          "message": "The requested facility service needs its dated governing tariff; the retained facility description and waste schedule do not establish all marine/cargo charges."
+          "message": "Dated GAC references cover selected marine services. Cargo, statutory dues and other requested services remain outside that evidence; no complete current invoice is established."
+        }
+      ],
+      "referenceComponents": [
+        {
+          "id": "finolex-gac-2023",
+          "charges": [
+            "berth",
+            "pilotage",
+            "towage",
+            "towage-standby",
+            "mooring"
+          ],
+          "scope": "GAC-reported marine rates effective7September2023; berth uses LOA, never GT.",
+          "limits": "Currentness, jetty-specific applicability and fractional-hour/minimum/tax terms are unconfirmed. Standby uses explicit total port-stay hours, never tug-attendance hours."
         }
       ]
     },
@@ -867,7 +936,20 @@
             "*"
           ],
           "cause": "authority-version",
-          "message": "The operative Redi schedule or authoritative quotation for the requested call date, service/category, unit and effective amendments is not established by retained evidence. Descriptive pages and historical data are not current rate authority."
+          "message": "Dated2023\u201324 marine references exist for anchorage, pilotage, private ship services and launch. Currentness and other service terms remain unconfirmed. No berth, cargo, lighterage or statutory-dues rate is inferred from those references."
+        }
+      ],
+      "referenceComponents": [
+        {
+          "id": "redi-gac-2023-24",
+          "charges": [
+            "anchorage",
+            "pilotage",
+            "port-services",
+            "launch"
+          ],
+          "scope": "Dated GAC rates from20November2023, repeated11May2024.",
+          "limits": "Currentness unconfirmed. Anchorage is not berth hire; private port services are not statutory port dues. Cargo/lighterage terms remain outside this reference."
         }
       ]
     }
