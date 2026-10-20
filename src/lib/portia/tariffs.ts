@@ -13,8 +13,9 @@ import type { TariffInput, TariffResult, TariffApplicability, TariffSource } fro
 export type { TariffInput, TariffResult } from "./tariff-types";
 export { tariffInputSchema } from "./tariff-input";
 import { SUPPORTED_PORTS, PORT_ALIASES, AMBIGUOUS_PORT_NAMES } from "../migration/ports";
+import { resolvePortIdentity } from "../migration/port-identity";
 import coverageGaps from "../../../data/reviewed-tariffs/coverage-gaps.json";
-import { publishedComponents, combineTariffResults, berthPeriodIssue } from "./published-components";
+import { publishedComponents, combineTariffResults, berthPeriodIssue, rulePeriodIssues } from "./published-components";
 import { publicEvidenceComponents } from "./public-evidence";
 import { ancillaryServiceSchema } from "./tariff-input";
 
@@ -95,7 +96,7 @@ async function extendedComponents(input: TariffInput, mode: "quote" | "rule", po
     if(jaigarh&&wanted.includes("port-dues"))statements.push(`JSW Jaigarh J-1 mechanized-bulk port dues are max(GRT × USD${extensions.jaigarh.rate}, USD${extensions.jaigarh.minimum}) per call, with maximum30-day dues validity. The minimum is monetary, not a GRT floor;30days is not tariff expiry. Other operators, renewals, repeat-entry credits and other marine fees are not covered.`);
     const supported=new Set([...(nsft||nsigt||nsict?["handling","container-handling","cargo-handling","cargo"]:[]),...(mumbai||nsigt?["berth"]:[]),...(jaigarh?["port-dues"]:[])]);
     for(const c of wanted)if(!supported.has(c))questions.push(`${c}: outside the reviewed component explanation`);
-    return{...base,status:"explained",sources:sourceLinks(files),body:statements.join("\n\n")+`\n\nSources: ${files.map(f=>`[${f.file}](${f.url})`).join("; ")}. ${source.reference}. Effective ${source.effectiveFrom}; verified ${extensions.verifiedOn}. These are conditional component rules, not a complete bill or a current-call eligibility decision.`,questions};
+    return{...base,status:"explained",sources:sourceLinks(files),body:statements.join("\n\n")+`\n\nSources: ${files.map(f=>`[${f.file}](${f.url})`).join("; ")}. ${source.reference}. Effective ${source.effectiveFrom}; verified ${extensions.verifiedOn}. These are conditional component rules, not a complete bill or a current-call eligibility decision.`,questions,limitations:rulePeriodIssues(input,source.effectiveFrom,through,wanted.includes("berth"))};
   }
   const parseDate = (raw: string) => {
     const stamp = /\d{1,2}:\d{2}/.test(raw) ? raw : `${raw} 00:00 IST`;
@@ -265,12 +266,7 @@ async function reviewedExplanation(input: TariffInput, mode: "quote" | "rule", p
     const bytes = await readFile(path.join(process.cwd(), "data/reviewed-tariffs/bounded-explanations-2026", source.file));
     if (createHash("sha256").update(bytes).digest("hex") !== source.sha256) throw new Error("Reviewed explanation source hash changed.");
   }
-  const explicitDate = input.callDate ?? input.berthStart;
-  if (explicitDate) {
-    const date = callDate(input);
-    if (!date) questions.push("The supplied call date could not be resolved; these dated clauses are explanatory only.");
-    else if ((from && date < from) || (through && date > through)) questions.push("The requested call date is outside this packet's stated period; a matching authoritative version is needed before applying it.");
-  }
+  if (from) questions.push(...rulePeriodIssues(input, from, through, input.charges.includes("berth")));
   if (input.terminal) questions.push("This port-level explanation does not establish the supplied berth's specific applicability.");
   return { sourceClass: "official-tariff", status: "explained", applicability: applicability(mode), sources: sourceLinks(sources), questions,
     body: body + `\n\nSources: ${sources.map(source => `[${source.reference}](${source.url})`).join("; ")}. Reviewed ${explanationSources.verifiedOn}; later amendments not verified. Explanation only, not current-call applicability or a complete monetary quote.` };
@@ -302,7 +298,7 @@ async function reviewedComponents(input: TariffInput, mode: "quote" | "rule"): P
       else if (charge === "pilotage" || charge === "towage") statements.push(`Ordinary foreign-going pilotage-cum-towage up to ${rules.pilotage.maximumGt} GRT uses USD ${rules.pilotage.rate}/GRT, minimum USD ${rules.pilotage.minimumVisit}/visit. Inward and outward are each 50% at that leg's status; routine pilot/tug assistance is included. Separate hired-craft services require their own rule. ${rules.pilotage.section}.`);
       else questions.push(`The requested ${charge} explanation requires its applicable reviewed rule.`);
     }
-    return { ...base, sources: sourceLinks(selectedSources), status: statements.length ? "explained" : "unresolved", body: statements.length ? statements.join("\n\n") + `\n\nSources: ${sources}. Verified ${rules.verifiedOn}; later amendments not verified.` : "", questions };
+    return { ...base, sources: sourceLinks(selectedSources), status: statements.length ? "explained" : "unresolved", body: statements.length ? statements.join("\n\n") + `\n\nSources: ${sources}. Verified ${rules.verifiedOn}; later amendments not verified.` : "", questions, limitations: rulePeriodIssues(input, rules.effectiveFrom, rules.effectiveThrough, input.charges.includes("berth")) };
   }
   const date = callDate(input);
   const limitations: string[] = [];
@@ -385,7 +381,7 @@ async function coastalMumbai(input: TariffInput, mode: "quote" | "rule"): Promis
     if (input.terminal && input.terminal !== r.berth || input.vesselCategory && input.vesselCategory !== "general-cargo" || input.service && input.service !== "coastal") {
       return unresolved(["The retained ordinary coastal Indira Dock rule does not establish this berth/category/service. A matching rule is needed."]);
     }
-    return { ...base, status: "explained", questions: [], body: `The retained May 2026 ordinary coastal Indira Dock rule charges INR ${r.ratePerGrtStartedHour} per GRT per commenced hour: any part hour counts as a whole hour. It has a ${r.minimumGrt}-GRT floor and INR ${r.minimumBill} bill minimum. Readiness and operation conditions affect chargeable occupancy. This is a rule explanation, not a vessel quote or confirmation of current October applicability. Rate effective ${r.effectiveFrom}. [MbPA SOR §2.17](${r.sources[0].url}); [May amendment](${r.sources[1].url}).${input.charges.includes("gst") ? `\n\nFor a directly billed ordinary private registered customer with supplier location and place of supply both Maharashtra, no SEZ status or exemption/concession, the retained treatment is CGST ${r.cgstPercent}% plus SGST ${r.sgstPercent}%, SAC ${r.sac}. This conditional explanation does not decide your tax status. [MbPA GST classification p38](${r.sources[2].url}); [CBIC heading9967](${r.sources[3].url}); [intra-state supply FAQ85](${r.sources[4].url}).` : ""} Other berth/category/tax conditions require their applicable rules.` };
+    return { ...base, status: "explained", questions: [], limitations: rulePeriodIssues(input, r.effectiveFrom, r.verifiedThrough, true), body: `The retained May 2026 ordinary coastal Indira Dock rule charges INR ${r.ratePerGrtStartedHour} per GRT per commenced hour: any part hour counts as a whole hour. It has a ${r.minimumGrt}-GRT floor and INR ${r.minimumBill} bill minimum. Readiness and operation conditions affect chargeable occupancy. This is a rule explanation, not a vessel quote or confirmation of current October applicability. Rate effective ${r.effectiveFrom}. [MbPA SOR §2.17](${r.sources[0].url}); [May amendment](${r.sources[1].url}).${input.charges.includes("gst") ? `\n\nFor a directly billed ordinary private registered customer with supplier location and place of supply both Maharashtra, no SEZ status or exemption/concession, the retained treatment is CGST ${r.cgstPercent}% plus SGST ${r.sgstPercent}%, SAC ${r.sac}. This conditional explanation does not decide your tax status. [MbPA GST classification p38](${r.sources[2].url}); [CBIC heading9967](${r.sources[3].url}); [intra-state supply FAQ85](${r.sources[4].url}).` : ""} Other berth/category/tax conditions require their applicable rules.` };
   }
   if (!input.charges.includes("berth")) return unresolved(["The base service and applicable rule for the requested tax/rounding scope are needed."]);
   const includeTax = input.charges.includes("gst"), includeRounding = input.charges.includes("rounding");
@@ -492,9 +488,34 @@ function combinedMumbaiBerth(name: string): string | undefined {
     if ([`${identityKey(parent)} ${identityKey(berth)}`, `${identityKey(berth)} ${identityKey(parent)}`].includes(normalized)) return berth;
   }
 }
-function facilityIdentity(input: TariffInput): { port?: string; terminal?: string; operator?: string; question?: string } {
+type FacilityInput = TariffInput & { facilityId?: string };
+type FacilityIdentity = { port?: string; terminal?: string; operator?: string; question?: string };
+function catalogIdentity(name: string | undefined, allowDescription = false): { id?: string; question?: string } {
+  if (!name?.trim()) return {};
+  const combinedBerth = combinedMumbaiBerth(name);
+  if (combinedBerth || mumbaiBerths.some(berth => identityKey(berth) === identityKey(name))) return { id: "mumbai" };
+  if (finolexJetty(name)) return { id: "ranpar-finolex" };
+  const exact = resolveTariffPort(name);
+  if (exact) return { id: exact };
+  if (!allowDescription) return {};
+  const selection = resolvePortIdentity(name);
+  if (!selection) return {};
+  if (selection.status !== "identified" || selection.candidates.length !== 1) {
+    return { question: `Ambiguous facility identity ${name}; choose the exact booked catalog facility. A model-selected catalog ID cannot override ambiguous raw wording.` };
+  }
+  return { id: selection.candidates[0] };
+}
+function facilityIdentity(input: FacilityInput): FacilityIdentity {
   const combinedBerth = combinedMumbaiBerth(input.port ?? "");
-  const port = combinedBerth ? "mumbai" : resolveTariffPort(input.port ?? "");
+  const portIdentity = catalogIdentity(input.port, !!input.facilityId);
+  if (portIdentity.question) return { question: portIdentity.question };
+  const requested = input.facilityId;
+  if (requested && !SUPPORTED_PORTS.includes(requested)) return { question: `Unknown canonical facility ID ${requested}; choose an ID from the catalog or leave it empty.` };
+  if (requested && !portIdentity.id && input.port) return { question: `The booked port identity ${input.port} cannot be validated against canonical facility ID ${requested}. Preserve the raw wording and ask for the exact booked catalog facility; no tariff has been selected.` };
+  if (requested && portIdentity.id && portIdentity.id !== requested && parentPorts[requested] !== portIdentity.id) {
+    return { question: `Facility identity conflict: canonical facility ID ${requested} does not match port ${input.port}. Confirm the booked port/terminal/operator; no tariff has been selected.` };
+  }
+  const port = requested ?? portIdentity.id ?? (combinedBerth ? "mumbai" : resolveTariffPort(input.port ?? ""));
   if (!port) return {};
   const explicitBerth = combinedBerth ?? combinedMumbaiBerth(input.terminal ?? "") ?? mumbaiBerths.find(berth => identityKey(berth) === identityKey(input.terminal ?? ""));
   const bookedFinolexJetty = port === "ranpar-finolex" ? finolexJetty(input.port ?? "") : undefined;
@@ -510,9 +531,12 @@ function facilityIdentity(input: TariffInput): { port?: string; terminal?: strin
       if (combinedBerth && combinedBerth !== berth) return { question: `Facility identity conflict: port ${input.port}, terminal ${name}. Which booked berth is correct?` };
       continue;
     }
-    const id = resolveTariffPort(name);
+    const fieldIdentity = catalogIdentity(name, !!requested);
+    if (fieldIdentity.question) return { question: fieldIdentity.question };
+    const id = fieldIdentity.id;
     if (id) {
       if (explicitBerth && id !== "mumbai") return { question: `Facility identity conflict: the supplied ${explicitBerth} berth has no established compatibility with ${field} ${name}. Confirm the booked berth and terminal/operator; no tariff has been selected.` };
+      if (requested && id !== requested && parentPorts[requested] !== id) return { question: `Facility identity conflict: canonical facility ID ${requested} does not match ${field} ${name}. Confirm the booked port/terminal/operator; no tariff has been selected.` };
       if (id === selected || parentPorts[selected] === id) continue;
       if (parentPorts[id] === selected) { selected = id; continue; }
       return { question: `Facility identity conflict: port ${input.port}, ${field} ${name}. Which booked port/terminal/operator is correct?` };
@@ -523,8 +547,14 @@ function facilityIdentity(input: TariffInput): { port?: string; terminal?: strin
     if (field === "operator" && identityKey(name) === "jsw" && ["jaigarh", "jsw-jnpt-liquid-terminal"].includes(selected)) continue;
     return { question: `The ${field} ${name} cannot be validated against ${[input.port, field === "operator" ? input.terminal : undefined].filter(Boolean).join(" / ")}; confirm the conflicting or unverified booked identities. No tariff has been selected.` };
   }
+  if (requested && selected !== requested) return { question: `Canonical facility ID ${requested} is not the most specific facility established by the supplied identities. Confirm the exact booked catalog facility; no tariff has been selected.` };
+  if (requested && ![input.port, input.terminal, input.operator].some(value => catalogIdentity(value, true).id === requested)) return { question: `Canonical facility ID ${requested} is not grounded in the supplied booked identity fields. Preserve the raw wording and confirm the exact catalog facility; no tariff has been selected.` };
   const jswJaigarh = selected === "jaigarh" && [input.port, input.terminal, input.operator].some(value => value && identityKey(value).startsWith("jsw jaigarh"));
   return { port: selected, terminal: bookedFinolexJetty ?? (selected === "ranpar-finolex" ? finolexJetty(input.terminal ?? "") : undefined) ?? combinedBerth ?? combinedMumbaiBerth(input.terminal ?? "") ?? input.terminal, operator: jswJaigarh ? "JSW Jaigarh Port Limited" : input.operator };
+}
+
+export function validateFacilityIdentity(input: Pick<FacilityInput, "facilityId" | "port" | "terminal" | "operator">): string | undefined {
+  return facilityIdentity({ ...input, charges: [] }).question;
 }
 
 function invalidQuantities(input: TariffInput): string[] {
@@ -543,9 +573,10 @@ function invalidQuantities(input: TariffInput): string[] {
 }
 
 
-function normalizeService(raw: string): string[] {
+export function normalizeService(raw: string): string[] {
   const name = raw.trim().toLowerCase().replace(/[_-]+/g, " ").replace(/\s+/g, " ");
   if (["pilotage and towage", "pilotage cum towage"].includes(name)) return ["pilotage", "towage"];
+  if (["age pilotage", "age related pilotage", "vessel age pilotage", "vessel age additional pilotage", "age related additional pilotage", "additional pilotage as per vessel age", "additional pilotage as per vessel age in years", "additional pilotage charges as per vessel age", "additional pilotage by vessel age"].includes(name)) return ["age-pilotage"];
   const ancillary = ancillaryServiceSchema.options.find(service => service.replace(/-/g, " ") === name);
   if (ancillary) return [ancillary];
   if (["wharfage", "cargo wharfage"].includes(name)) return ["cargo"];
@@ -558,7 +589,7 @@ function ruleResult(result: TariffResult): TariffResult {
 }
 
 /** Direct business lookup. It never constructs or reads a generic conversation fact table. */
-export async function lookupTariff(input: TariffInput, mode: "quote" | "rule" = "quote"): Promise<TariffResult> {
+export async function lookupTariff(input: FacilityInput, mode: "quote" | "rule" = "quote"): Promise<TariffResult> {
   if (!input.port?.trim()) return unresolved(["Which port or terminal is this call for?"]);
   if (!Array.isArray(input.charges) || !input.charges.length || input.charges.length > 20 || input.charges.some(charge => typeof charge !== "string" || !charge.trim() || charge.length > 80)) return unresolved(["Which service or charges should be calculated or explained?"]);
   const identity = facilityIdentity(input);

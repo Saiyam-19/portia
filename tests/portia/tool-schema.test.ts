@@ -1,7 +1,27 @@
 import { expect, it } from "vitest";
 import { nullableToolSchema } from "../../src/lib/portia/tool-schema";
-import { quoteInputSchema } from "../../src/lib/portia/quotes";
+import { quoteInputSchema, quoteCommandSchema } from "../../src/lib/portia/quotes";
 import { QuoteSession } from "../../src/lib/portia/session";
+it("serializes nested billing alternatives using the provider-supported strict subset", async () => {
+  const schema = await nullableToolSchema(quoteCommandSchema).jsonSchema;
+  const visit = (value: unknown) => {
+    if (!value || typeof value !== "object") return;
+    if (Array.isArray(value)) { value.forEach(visit); return; }
+    const node = value as Record<string, unknown>;
+    expect(node).not.toHaveProperty("oneOf"); expect(node).not.toHaveProperty("const");
+    if (node.properties) { expect(node.additionalProperties).toBe(false); expect(node.required).toEqual(Object.keys(node.properties)); }
+    Object.values(node).forEach(visit);
+  };
+  visit(schema);
+});
+it.each(["flat", "time", "gt-time", "movement", "tonne", "quantity"])("retains %s discrimination and nullable partial facts after wire normalization", async kind => {
+  const billing = { kind, price: "2", ...(kind === "flat" ? { basis: "user-stated-flat" } : {}), ...(["time", "gt-time"].includes(kind) ? { periodHours: null, commenced: false, duration: { hours: "0", minutes: null } } : {}), ...(["movement", "tonne", "quantity"].includes(kind) ? { quantity: "0", perQuantity: null } : {}), ...(kind === "quantity" ? { quantityLabel: "jobs" } : {}) };
+  const parsed = await nullableToolSchema(quoteCommandSchema).validate!({ action: "create", pricing: "supplied", lines: [{ name: "service", currency: "USD", billing }] });
+  expect(parsed.success).toBe(true);
+  if (parsed.success) expect(parsed.value.lines?.[0].billing).toMatchObject({ kind, price: "2" });
+  const mixed = await nullableToolSchema(quoteCommandSchema).validate!({ action: "create", pricing: "supplied", lines: [{ name: "service", currency: "USD", billing: { ...billing, unsupportedBillingDimension: "19" } }] });
+  expect(mixed.success).toBe(false);
+});
 it("strict optional fields accept null without inventing values or dropping explicit false", async () => {
   const schema = nullableToolSchema(quoteInputSchema);
   const json = await schema.jsonSchema;

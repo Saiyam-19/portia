@@ -11,7 +11,7 @@ const valid = { pricing: "official", call: { port: "JSW Jaigarh Port Limited", c
 const invalid = { ...valid, call: { ...valid.call, terminal: "J-1" } };
 const usage = { inputTokens: { total: 1, noCache: 1, cacheRead: undefined, cacheWrite: undefined }, outputTokens: { total: 1, text: 1, reasoning: undefined } };
 const step = (content: LanguageModelV4GenerateResult["content"], stop = false): LanguageModelV4GenerateResult => ({ content, finishReason: { unified: stop ? "stop" : "tool-calls", raw: undefined }, usage, warnings: [] });
-const call = (input: unknown, id: string) => step([{ type: "tool-call", toolName: "manage_quote", toolCallId: id, input: JSON.stringify(input) }]);
+const call = (input: unknown, id: string) => step([{ type: "tool-call", toolName: "manage_quote", toolCallId: id, input: JSON.stringify({ action: "create", ...input as object }) }]);
 const done = step([{ type: "text", text: "Done." }], true);
 function streaming(sequence: LanguageModelV4GenerateResult[]) {
   let index = 0;

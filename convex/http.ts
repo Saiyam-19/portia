@@ -87,6 +87,7 @@ const bridgeRequestSchema = z.discriminatedUnion("op", [
         fields: z.array(formFieldSchema).min(1).max(8),
       }).strict().nullable(),
       authorizationProposal: z.string().max(48_000).optional(),
+      authorizationContinuation: z.array(z.object({payload:z.string().max(48_000),toolCallId:idSchema,title:z.string().max(120),description:z.string().max(MAX_REVIEW_CHARS).optional(),fields:z.array(formFieldSchema).min(1).max(8),reviewGroup:z.string().max(80)}).strict()).max(15).optional(),
     }).strict(),
   }).strict(),
   z.object({

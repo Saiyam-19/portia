@@ -52,6 +52,24 @@ export function berthPeriodIssue(input: TariffInput, from: string, through?: str
   }
 }
 
+/** Explanation requests need no invented date or vessel intake. If the human
+ * supplies an event/interval, the explanation must state its temporal limits. */
+export function rulePeriodIssues(input: TariffInput, from: string, through?: string, occupancy = false): string[] {
+  const dates = occupancy ? [["berth start", input.berthStart ?? input.callDate], ["berth end", input.berthEnd]] : [["service date", input.callDate ?? input.berthStart]];
+  const issues: string[] = [];
+  for (const [label, raw] of dates) {
+    if (!raw) continue;
+    const day = dateOf(raw, input);
+    if (!day) issues.push(`The supplied ${label} is ambiguous or invalid; temporal applicability is not established.`);
+    else if (day < from || through && day > through) issues.push(`The retained evidence period ${from}${through ? ` through ${through}` : " onward"} does not cover the requested ${label} (${day}). This source does not establish the rate for that date; a matching dated source is needed.`);
+  }
+  if (occupancy && (input.berthStart || input.callDate) && !issues.length) {
+    const issue = berthPeriodIssue(input, from, through);
+    if (issue) issues.push(issue);
+  }
+  return [...new Set(issues)];
+}
+
 const amountText = (currency: string, value: string) => {
   const [whole, fraction] = new D(value).toFixed(Math.max(2, new D(value).decimalPlaces())).split(".");
   return `${currency} ${whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}.${fraction}`;
@@ -81,7 +99,10 @@ export class Components {
     this.sources.set(file, { url: source.url, sha256: source.sha256, reference: existing && existing !== reference ? `${existing}; ${reference}` : reference });
   }
   period(from: string, through?: string, occupancy = false) {
-    if (this.mode === "rule") return true;
+    if (this.mode === "rule") {
+      const issues = rulePeriodIssues(this.input, from, through, occupancy);
+      this.blocked.push(...issues); return !issues.length;
+    }
     if (occupancy) {
       const issue = berthPeriodIssue(this.input, from, through);
       if (issue) { this.questions.push(issue); return false; }
@@ -172,7 +193,7 @@ function pilotage(c: Components, mumbai: boolean) {
   // start. JNPA's commencement note assigns inward and outward legs separately.
   // Both the supplied call date and occupancy interval must fit this packet;
   // a crossing needs the applicable leg rates, never one new full-cycle rate.
-  if (c.mode === "rule" || !c.period("2026-05-01", mumbai ? undefined : "2027-04-30") || !c.period("2026-05-01", mumbai ? undefined : "2027-04-30", true)) return;
+  if (!c.period("2026-05-01", mumbai ? undefined : "2027-04-30") || !c.period("2026-05-01", mumbai ? undefined : "2027-04-30", true) || c.mode === "rule") return;
   const gt = c.number("gt", "Gross tonnage (GT/GRT)", true, true), status = c.status();
   if (!gt || !status) return;
   if (c.input.movements !== "2") { c.questions.push("Does this include one inward and one outward movement, both at the stated coastal/foreign status?"); return; }
@@ -202,7 +223,7 @@ function operatorBerth(c: Components, bmct: boolean) {
   c.source(bmct ? "bmct-2026-04-06-jnpa.pdf" : "nsigt-2026.pdf", `${bmct ? "BMCT" : "NSIGT"} SOR, berth table p3`);
   const berthRates = bmct ? { foreign: packet.jnpa.bmct.berth.foreignRate, coastal: packet.jnpa.bmct.berth.coastalRate } : packet.jnpa.nsigt.berthINRPerGRTStartedHour;
   c.explanations.push(`${bmct ? "BMCT" : "NSIGT"} ordinary berth ceiling is INR ${berthRates.foreign} foreign / ${berthRates.coastal} coastal per GRT per started hour. Use the operator berth charge once; do not add JNPA berth hire. Final upward-rupee rounding belongs to the complete invoice, not each component.`);
-  if (c.mode === "rule" || !c.period(bmct ? packet.jnpa.bmct.effectiveFromConservative : packet.jnpa.nsigt.effectiveFrom, rule.effectiveThrough, true)) return;
+  if (!c.period(bmct ? packet.jnpa.bmct.effectiveFromConservative : packet.jnpa.nsigt.effectiveFrom, rule.effectiveThrough, true) || c.mode === "rule") return;
   const gt = c.number("gt", "Gross tonnage (GT/GRT)"), status = c.status(), hours = c.hours();
   if (!gt || !status || !hours) return;
   const rate = bmct ? status === "foreign" ? packet.jnpa.bmct.berth.foreignRate : packet.jnpa.bmct.berth.coastalRate : packet.jnpa.nsigt.berthINRPerGRTStartedHour[status];
@@ -228,7 +249,7 @@ function containerHandling(c: Components, port: string) {
     }
   }
   const from = key === "bmct" ? "2026-04-06" : key === "nsigt" ? "2026-04-01" : "2026-05-01";
-  if (c.mode === "rule" || !c.period(from, ["bmct", "nsigt"].includes(key) ? "2027-03-31" : undefined)) return;
+  if (!c.period(from, ["bmct", "nsigt"].includes(key) ? "2027-03-31" : undefined) || c.mode === "rule") return;
   if (key === "gti" && dateOf(c.input.callDate ?? c.input.berthStart, c.input) === "2026-05-01") {
     const event = c.input.callDate ?? c.input.berthStart!;
     if (!/\d{1,2}:\d{2}/.test(event)) { c.questions.push("What is the exact service event time on 1 May 2026, with its zone? GTI's revised tariff starts at 00:01 IST."); return; }
@@ -278,7 +299,7 @@ function containerHandling(c: Components, port: string) {
 function muc(c: Components) {
   c.source("paradip-muc-ministry-order-2024.pdf", "MoPSW 5 Nov 2024 order, Annex I pp2–3"); c.source("nldsl-muc-2024-2027.pdf", "NLDSL 6 Nov 2024 letter, p2");
   c.explanations.push("MUC ceiling INR145 plus fixed INR25 maritime development fund per physical container, excluding GST, from 28 October 2024 through 30 September 2027. Coastal and transshipment containers are exempt. No TEU multiplier or collection-commission discount. Lower MUC requires NLDSL authorization; the fixed fund is unchanged.");
-  if (c.mode === "rule" || !c.period("2024-10-28", "2027-09-30")) return;
+  if (!c.period("2024-10-28", "2027-09-30") || c.mode === "rule") return;
   if (!["exim", "coastal", "transshipment"].includes(c.input.cargoTraffic ?? "")) { c.questions.push("Are the containers EXIM, coastal or transshipment cargo?"); return; }
   let count: DecimalJs | undefined;
   if (c.input.containerCount !== undefined) count = c.number("containerCount", "Physical container count", false, true);
@@ -291,20 +312,49 @@ function muc(c: Components) {
   c.add("muc:physical-container:ceiling", "MUC + maritime development fund", "INR", exempt ? "0" : count.mul(170), exempt ? `${c.input.cargoTraffic} containers explicitly excluded` : `${count} physical containers × (INR145 ceiling + INR25 fixed fund), excluding GST`);
 }
 
+function calendarAnniversary(date: string, years: number): string | undefined {
+  const [year, month, day] = date.split("-").map(Number), target = year + years;
+  const stamp = new Date(Date.UTC(target, month - 1, day));
+  if (stamp.getUTCFullYear() !== target || stamp.getUTCMonth() !== month - 1 || stamp.getUTCDate() !== day) return;
+  return `${target.toString().padStart(4, "0")}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+}
+
+function jaigarhAgePilotage(c: Components, gt: DecimalJs) {
+  const keel = dateOf(c.input.keelLaidDate, c.input), call = dateOf(c.input.callDate, c.input);
+  if (!c.input.keelLaidDate || !keel) { c.questions.push("Provide the unambiguous keel-laid date; build, launch, delivery and registration dates do not establish J-8 vessel age."); return; }
+  if (!c.input.callDate || !call) { c.questions.push("Provide the unambiguous call/service date for the J-8 age assessment."); return; }
+  if (keel > call) { c.questions.push("The keel-laid date is after the call/service date; confirm the vessel dates."); return; }
+  const boundaries = [5, 10, 15, 20, 25].map(years => ({ years, day: calendarAnniversary(keel, years) }));
+  if (boundaries.some(boundary => !boundary.day)) { c.blocked.push("A 29 February keel-laid date needs an explicit anniversary convention before J-8 age can be selected; no average-day year conversion was used."); return; }
+  const overlap = boundaries.find(boundary => boundary.day === call);
+  if (overlap) { c.blocked.push(`J-8 prints overlapping age bands at the exact ${overlap.years}-year keel-laid anniversary; no rate selected.`); return; }
+  const [five, ten, fifteen, twenty, twentyFive] = boundaries.map(boundary => boundary.day!);
+  const rate = call < five ? "0.0" : call < ten ? "0.017744" : call < fifteen ? "0.026616" : call < twenty ? "0.039924" : call < twentyFive ? "0.053232" : "0.0600";
+  c.add("age-pilotage:jaigarh:keel-age", "J-8 additional pilotage by vessel age", "USD", gt.mul(rate), `${gt} GRT × USD${rate}, selected once by calendar anniversaries from keel laid ${keel} to call ${call}`);
+  c.notes.push("J-8 is a single requested USD/GRT component selected by calendar anniversaries from the keel-laid date. No movement multiplier, minimum, cap, coastal discount, tax or currency conversion is inferred.");
+}
+
 function jaigarh(c: Components, charges: string[]) {
-  c.source("jaigarh-2026.pdf", "JSW Jaigarh May 2026 tariff, p1 J-1–J-5");
-  c.explanations.push("JSW Jaigarh J-1 port dues: max(USD0.33/GRT, USD2,000/call), or USD0.45/GRT for LPG/chemical, with 30-day validity. J-2 uses whole-GRT bands, includes one berth/unberth cycle and has a conflicting exact-45,000 endpoint. J-3 mooring: max(USD0.035/GRT, USD200). J-4 environmental base: USD100/150/200 at ≤10,000 / 10,001–30,000 / above30,000 GRT; pollution costs extra. J-5 requested pilot attendance: USD100/hour; fractional-hour treatment unestablished.");
-  c.explanations.push("J-2 USD/GRT for one ordinary berthing/unberthing cycle: through35000, 1.60 for all four cargo categories; 35001–44999, 1.75 for mechanized bulk and 0.90 for nonmechanized bulk/container/LPG-chemical; above45000, 2.10 and 1.10 respectively. These are selected bands, not progressive marginal slabs; exactly45000 remains unresolved because printed bands overlap.");
-  if (c.mode === "rule" || !c.period("2026-05-01")) return;
+  if (charges.some(charge => charge !== "age-pilotage")) {
+    c.source("jaigarh-2026.pdf", "JSW Jaigarh May 2026 tariff, p1 J-1–J-5");
+    c.explanations.push("JSW Jaigarh J-1 port dues: max(USD0.33/GRT, USD2,000/call), or USD0.45/GRT for LPG/chemical, with 30-day validity. J-2 uses whole-GRT bands, includes one berth/unberth cycle and has a conflicting exact-45,000 endpoint. J-3 mooring: max(USD0.035/GRT, USD200). J-4 environmental base: USD100/150/200 at ≤10,000 / 10,001–30,000 / above30,000 GRT; pollution costs extra. J-5 requested pilot attendance: USD100/hour; fractional-hour treatment unestablished.");
+    c.explanations.push("J-2 USD/GRT for one ordinary berthing/unberthing cycle: through35000, 1.60 for all four cargo categories; 35001–44999, 1.75 for mechanized bulk and 0.90 for nonmechanized bulk/container/LPG-chemical; above45000, 2.10 and 1.10 respectively. These are selected bands, not progressive marginal slabs; exactly45000 remains unresolved because printed bands overlap.");
+  }
+  if (charges.includes("age-pilotage")) {
+    c.source("jaigarh-2026.pdf", "JSW Jaigarh May 2026 tariff, p2 J-8");
+    c.explanations.push("J-8 additional pilotage is one USD/GRT component selected from vessel age as per keel laid: 0–5 years 0.0; 5–10 0.017744; 10–15 0.026616; 15–20 0.039924; 20–25 0.053232; 25 or more 0.0600. Exact 5/10/15/20/25-year anniversaries overlap in print and remain unresolved. Age uses calendar anniversaries, never an average-day-year approximation.");
+  }
+  if (!c.period("2026-05-01") || c.mode === "rule") return;
   if (!/^(?:JSW|JSW Jaigarh Port Limited)$/i.test(c.input.operator ?? "")) { c.questions.push("Is this JSW Jaigarh Port, rather than another Jaigarh operator?"); return; }
-  const gt = charges.some(s => s !== "pilot-attendance") ? c.number("gt", "Gross tonnage (GT/GRT)", true, true) : undefined;
   for (const charge of charges) {
     if (charge === "pilot-attendance") {
       const hours = c.number("pilotAttendanceHours", "Master-requested pilot attendance hours", true, true);
       if (hours) c.add("pilot-attendance:requested", "Requested pilot attendance", "USD", hours.mul(100), `${hours} whole hours × USD100`);
       continue;
     }
+    const gt = c.number("gt", "Gross tonnage (GT/GRT)", true, charge !== "age-pilotage");
     if (!gt) continue;
+    if (charge === "age-pilotage") { jaigarhAgePilotage(c, gt); continue; }
     if (charge === "port-dues" || charge === "pilotage" || charge === "towage") {
       const category = c.input.cargoCategory;
       if (!["mechanized-bulk", "nonmechanized-bulk", "container", "lpg-chemical"].includes(category ?? "")) { c.questions.push("Which cargo category: mechanized bulk, nonmechanized bulk, container, or LPG/chemical?"); continue; }
@@ -334,7 +384,7 @@ function kll(c: Components, charges: string[]) {
   c.source("kll-2025.pdf", "KLL 2025 port-charges notice, p1"); c.source("kll-2026.pdf", "KLL November 2026 revision, p1");
   c.explanations.push("Until 31 October 2026: berth USD0.1/GRT capped at INR1m and pilotage USD0.2/GRT capped at INR2m; GST18% follows the caps. The base berth period is 36 hours. Prescribed FX is SBI TT selling on the day before scheduled berthing, or prior bank working day. From 1 November: one uncapped combined berth+pilotage USD0.359/GRT component; new FX event is scheduled berthing day. The revision does not establish old excess-stay/tax continuity.");
   c.explanations.push("The 2025 notice measures berth stay from first line ashore to cast off. Beyond36 hours, vessel-attributable excess triggers USD0.0041/GRT/hour; terminal-only delay does not satisfy that trigger and does not waive the base fee. Mixed delay, cap allocation and post-November continuation of this footnote remain unresolved.");
-  if (c.mode === "rule" || !c.period("2025-10-01", undefined, true)) return;
+  if (!c.period("2025-10-01", undefined, true) || c.mode === "rule") return;
   const gt = c.number("gt", "Gross tonnage (GT/GRT)"); if (!gt || !date) return;
   if (date >= "2026-11-01") {
     c.add("berth-pilotage:kll:combined", "Combined berth + pilotage base", "USD", gt.mul(".359"), `${gt} GRT × USD0.359, once, without cap`);
@@ -366,7 +416,7 @@ function cruise(c: Components) {
   c.explanations.push("Mumbai's cruise scheme through 31 March 2027: first12 hours USD0.085/GRT plus USD6/passenger; excess USD0.0175/GRT/hour. Ordinary berth hire, port dues, pilotage and passenger fee are included in the first12-hour scheme, not added again. Annual-call rebates and fractional excess hours require their own established treatment.");
   c.explanations.push("The ordinary included pilotage service includes its routine tug assistance; do not add ordinary towage a second time. Separately hired craft, cold movements and special operations are not waived by this ordinary component.");
   c.explanations.push("Published annual-call rebate bands: through10 calls none; 11–35 calls10%; 36–70 calls15%; above70 calls20%. The counting entity/year, eligible base and prospective/retrospective application remain unestablished; the calculator does not infer a rebate from a count alone.");
-  if (c.mode === "rule" || !c.period("2026-04-01", "2027-03-31", true)) return;
+  if (!c.period("2026-04-01", "2027-03-31", true) || c.mode === "rule") return;
   if (c.input.vesselCategory && c.input.vesselCategory !== "cruise") { c.blocked.push("The supplied vessel category is not cruise; the cruise scheme cannot price this vessel merely because the terminal is named Mumbai Cruise Terminal."); return; }
   if (c.input.selfPropelled === false) c.blocked.push("The known cold/dead-ship movement needs its applicable special towage treatment; the ordinary cruise base alone does not resolve that requested scope.");
   const gt = c.number("gt", "Gross tonnage (GT/GRT)"), passengers = c.number("passengers", "Passenger count", false, true), hours = c.hours();
@@ -386,6 +436,7 @@ function bpcl(c: Components, services: string[]) {
   c.notes.push("Executive source interpretation: the new rate-only indexation publication carries forward the exact corresponding units/currencies in the approved Annex IV. This does not renew every old penalty or contractual term. No second indexation or coastal discount is applied.");
   c.explanations.push("BPCL's 2026 indexed publication supplies current named-cargo and ancillary-service prices. Exact corresponding INR/MT and service units come from approved Annex IV; foreign fresh water is explicitly USD/MT. The CBFS coastal-export row is blank and cannot be copied from import. Unidentified chemicals cannot be assigned the MPCB catch-all without classification evidence.");
   if (c.mode === "rule") {
+    c.period("2026-05-01");
     if (services.includes("cargo")) c.explanations.push("Cargo handling INR/MT; effective 1 May 2026 onwards, without inferring an expiry from the filename:\n\n| Named cargo | Foreign | Coastal |\n|---|---:|---:|\n" + packet.bpcl.cargoRateGroups.map(r => `| ${r.cargoLabels.join(", ")} | ${r.foreignINRperMT} | ${r.coastalINRperMT} |`).join("\n"));
     for (const service of services.filter(s => s !== "cargo")) {
       const r = packet.bpcl.ancillaryRates.find(row => row.service === service)!;
@@ -428,7 +479,7 @@ export async function publishedComponents(input: TariffInput, mode: Mode): Promi
   if (port === "mumbai" && input.vesselCategory !== "cruise") take(["pilotage", "towage"], () => pilotage(c, true));
   if (port === BMCT || port === NSIGT && input.service === "coastal") take(["berth"], () => operatorBerth(c, port === BMCT));
   if ([BMCT, NSIGT, NSICT, NSFT, GTI].includes(port)) take(["handling", "cargo"], () => containerHandling(c, port));
-  if (port === "jaigarh" && (input.cargoCategory !== "mechanized-bulk" || input.charges.some(s => ["pilotage", "towage", "mooring", "environment", "pilot-attendance"].includes(s)))) take(["port-dues", "pilotage", "towage", "mooring", "environment", "pilot-attendance"], services => jaigarh(c, services));
+  if (port === "jaigarh" && (input.cargoCategory !== "mechanized-bulk" || input.charges.some(s => ["pilotage", "age-pilotage", "towage", "mooring", "environment", "pilot-attendance"].includes(s)))) take(["port-dues", "pilotage", "age-pilotage", "towage", "mooring", "environment", "pilot-attendance"], services => jaigarh(c, services));
   if (port === "konkan-lng-ltd" && input.charges.some(s => s === "berth" || s === "pilotage")) take(["berth", "pilotage", "gst"], services => kll(c, services));
   if (port === "mumbai-cruise-terminal" || port === "mumbai" && input.vesselCategory === "cruise") take(["cruise", "berth", "pilotage", "towage", "port-dues", "passenger-fee"], () => cruise(c));
   if (port === "bpcl-liquid-cargo-jetty") take(["cargo", ...packet.bpcl.ancillaryRates.map(r => r.service)], services => bpcl(c, services));

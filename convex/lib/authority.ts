@@ -9,8 +9,10 @@ import {
   quoteCore,
   type AuthorityPacket,
   type QuoteBinding,
+  type QuoteCore,
 } from "../../src/lib/authority/contract";
 import { enqueueMemory, ensureMemory, hashMemory, memoryEnabled } from "./memoryLifecycle";
+import { hasQuoteDrafts, replayQuoteDrafts, validateDraftBindings } from "../../src/lib/portia/quote-drafts";
 
 const authorityError = (code: string, message: string): never => {
   throw new ConvexError({ code, message });
@@ -34,8 +36,22 @@ export async function validateAuthorityBase(
   ctx: MutationCtx,
   conversation: Doc<"migrationConversations">,
   packet: AuthorityPacket,
+  persistedMessages: Array<{ content: unknown }> = [],
 ): Promise<void> {
+  validateDraftBindings(await replayQuoteDrafts(persistedMessages, conversation._id), packet);
   const currentQuotes = new Map((conversation.quoteApprovals ?? []).map((item) => [item.quoteId, item]));
+  const savedHeads = new Map<string,{binding:QuoteBinding;eligible:boolean}>();
+  for (const receipt of quoteReceipts(persistedMessages)) {
+    if (receipt.version !== 2 || receipt.kind !== "portia-quote" || receipt.conversationId !== conversation._id || typeof receipt.beforeRevision !== "number" || typeof receipt.hash !== "string" || !receipt.quote || typeof receipt.quote !== "object" || Array.isArray(receipt.quote)) continue;
+    const candidate=receipt.quote as QuoteCore;
+    if (candidate.revision!==receipt.beforeRevision+1) continue;
+    const prior=savedHeads.get(candidate.id);
+    if (receipt.beforeRevision>=0 && (!prior || prior.binding.revision!==receipt.beforeRevision)) continue;
+    const unsigned={version:2,kind:"portia-quote",conversationId:conversation._id,beforeRevision:receipt.beforeRevision,quote:candidate};
+    if (await authorityDigest(unsigned)!==receipt.hash) continue;
+    savedHeads.set(candidate.id,{binding:{quoteId:candidate.id,revision:candidate.revision,digest:await authorityDigest(quoteCore(candidate))},eligible:candidate.pricing==="official"&&candidate.call.fxInrPerUsd===undefined});
+  }
+  for(const [id,head] of savedHeads){const approved=currentQuotes.get(id);if(head.eligible&&(!approved||head.binding.revision>approved.revision))currentQuotes.set(id,head.binding);}
   for (const operation of packet.operations) {
     if (operation.kind === "quote") {
       const current = currentQuotes.get(operation.quote.id);
@@ -62,6 +78,7 @@ export async function validateAuthorityBase(
         if (ids.has(binding.quoteId)) authorityError("INVALID_AUTHORIZATION", "A comparison cannot repeat a quotation.");
         ids.add(binding.quoteId);
         const current = currentQuotes.get(binding.quoteId);
+        if (!current) authorityError("STALE_AUTHORIZATION", "A comparison quotation is neither an approved saved quote nor a preceding quotation operation.");
         if (current && !sameBinding(current, binding)) {
           authorityError("STALE_AUTHORIZATION", "A comparison quotation changed after the review was created.");
         }
@@ -155,7 +172,17 @@ export async function validateQuoteReceipts(
   conversationId: Id<"migrationConversations">,
   packet?: AuthorityPacket,
   requireAll = false,
+  persistedMessages: Array<{ content: unknown }> = [],
 ): Promise<void> {
+  try {
+    if (hasQuoteDrafts(messages)) {
+      if (packet) authorityError("AUTHORIZATION_RECEIPT_MISMATCH", "Approved execution cannot substitute an unapproved draft.");
+      await replayQuoteDrafts([...persistedMessages, ...messages], conversationId);
+    }
+    if (packet) validateDraftBindings(await replayQuoteDrafts(persistedMessages, conversationId), packet);
+  } catch {
+    authorityError("INVALID_QUOTE_DRAFT", "The quotation draft has invalid identity, integrity, base or revision.");
+  }
   const receipts = quoteReceipts(messages);
   if (!packet) {
     if (receipts.some(priceSensitive)) {

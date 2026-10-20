@@ -1,21 +1,27 @@
 import { z } from "zod";
+import { SUPPORTED_PORTS } from "../migration/ports";
 
 export const ancillaryServiceSchema = z.enum(["water", "liquid-nitrogen", "foam-pigging", "hard-pigging", "compressor", "vaporizer", "loading-arm", "pipeline", "wharf-management", "ldo-bunkering", "sludge-truck", "fire-engine", "lubricant-paint-barrel-loading", "gangway", "idling", "towage-standby", "port-services", "launch"]);
 
-export const tariffServiceSchema = z.enum(["berth", "anchorage", "infrastructure", "gst", "rounding", "pilotage", "towage", "port-dues", "handling", "cargo", "mooring", "environment", "pilot-attendance", "muc", "cruise", "passenger-fee", "identity", "other", ...ancillaryServiceSchema.options])
-  .describe("Actual requested service. Charging units, part hours, minimum tonnage and minimum bill are aspects of berth, not separate services. Use other for an unlisted service; never substitute a different charge.");
+export const tariffServiceSchema = z.enum(["berth", "anchorage", "infrastructure", "gst", "rounding", "pilotage", "age-pilotage", "towage", "port-dues", "handling", "cargo", "mooring", "environment", "pilot-attendance", "muc", "cruise", "passenger-fee", "identity", "other", ...ancillaryServiceSchema.options])
+  .describe("Actual requested service. age-pilotage is an explicitly requested vessel-age component, separate from ordinary pilotage; never infer it merely because pilotage was requested. Charging units, part hours, minimum tonnage and minimum bill are aspects of berth, not separate services. Use other for an unlisted service; never substitute a different charge.");
 
 const text = z.string().trim().min(1).max(240).optional();
 const quantity = z.string().regex(/^\d+(?:\.\d+)?$/, "Use an unsigned decimal quantity.").max(48).optional();
 const flag = z.boolean().optional();
 
+export const canonicalFacilityIdSchema = z.enum(SUPPORTED_PORTS as [string, ...string[]])
+  .describe("Canonical catalog facility ID. Select only when the explicit booked port/terminal/operator wording contains one unique catalog identity. This ID does not prove tariff applicability and cannot override unknown, ambiguous or conflicting raw identity text.");
+
 /** Business particulars only. No model-supplied tariff rate, citation or authority flag. */
 export const tariffInputSchema = z.object({
+  facilityId: canonicalFacilityIdSchema.optional(),
   port: text.describe("Explicit booked port OR terminal/catalog identity, exactly as supplied. A terminal name may be the port value. Never infer a parent port from geography."),
   terminal: text.describe("Only an explicitly supplied terminal/berth; otherwise null. Preserve even a user-stated conflict; never invent this field."),
   operator: text.describe("Only the explicitly supplied operator; otherwise null. Do not infer from a port name."),
   charges: z.array(z.string().trim().min(1).max(80)).min(1).max(20),
   callDate: text.describe("The actual call/service event date and, whenever supplied, its time and zone together. Preserve the full supplied service timestamp; do not reduce it to a date. Never append explanatory labels such as arrival/inward movement or combine different events."),
+  keelLaidDate: text.describe("The vessel's explicitly supplied keel-laid date. This is not build, launch, delivery or registration date. Required only for an age-based rule such as JSW Jaigarh J-8."),
   berthStart: text,
   berthEnd: text,
   readinessTime: text.describe("Only the vessel's explicitly stated ready-to-sail notification time. Never use this field for a general handling/service event time; that belongs with its date in callDate."),
@@ -27,7 +33,7 @@ export const tariffInputSchema = z.object({
   durationMinutes: quantity,
   portStayHours: quantity.describe("Explicit total vessel stay in port, in hours. Not berth occupancy or tug-attendance/standby-use hours. Needed for the Finolex published standby basis."),
   movements: quantity.describe("Number of actual vessel movements: one inward plus one outward, or one berthing/unberthing cycle, is 2. Preserve the user's stated movement scope."),
-  callDays: quantity,
+  callDays: quantity.describe("Actual total duration of this port call in days, only when supplied by the human. One call does not mean one day. A tariff's validity/renewal period or maximum eligible stay is not the vessel's actual duration. Leave null when unknown; ask if the chosen rule needs it."),
   service: text,
   vesselCategory: text,
   flag: text,

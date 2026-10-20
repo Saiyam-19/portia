@@ -39,7 +39,7 @@ function finolexComponents(c: Components, services: string[]) {
     const row = service === "berth" ? berth : finolex.prices.find(row => row.component === names[service].component)!;
     c.explanations.push(`${row.component}: INR${row.rate} ${row.unit}. Dated GAC report effective 2023-09-07; currentness unconfirmed.`);
   }
-  if (c.mode === "rule") return;
+  if (c.mode === "rule") { for (const service of services) c.period(finolex.reportedEffectiveFrom, undefined, service === "berth"); return; }
   for (const service of services) {
     if (!c.period(finolex.reportedEffectiveFrom, undefined, service === "berth")) continue;
     if (service === "berth") {
@@ -68,7 +68,7 @@ function rediComponents(c: Components, services: string[]) {
   for (const service of services) {
     c.explanations.push(service === "anchorage" ? `Anchorage reference: INR${rates.anchorage.inr}/GRT per 24 hours or part, plus GST. This is not a berth-hire rate.` : service === "launch" ? "Launch service reported free; this does not make other marine services free." : `${service}: INR${amounts[service]}/GRT plus GST, as reported in 2023–24.`);
   }
-  if (c.mode === "rule" || !c.period(redi.visible_publication_date)) return;
+  if (!c.period(redi.visible_publication_date) || c.mode === "rule") return;
   c.ordinary(); if (c.blocked.length) return;
   for (const service of services) {
     if (service === "launch") { c.add("launch:redi:reference", "Redi launch reference", "INR", "0", "Published launch charge: free"); continue; }
@@ -105,7 +105,7 @@ function jswComponents(c: Components, services: string[]) {
     const row = jsw.miscellaneous.find(row => row.row === spec.row)!;
     c.explanations.push(`${row.service_as_published}: ${row.amount_as_published} ${row.unit_as_published}. Actual usage required; unknown time/quantity rounding is not inferred.`);
   }
-  if (c.mode === "rule" || !c.period(jsw.source.effective_from)) return;
+  if (!c.period(jsw.source.effective_from) || c.mode === "rule") return;
   if (c.input.rebate === true || c.input.otherAdjustments === true) { c.blocked.push("The JSW reference excludes unestablished rebates or other contractual adjustments."); return; }
   if (cargoRequested || services.includes("infrastructure")) {
     const rawName = c.input.cargoName;
@@ -183,7 +183,7 @@ function octComponents(c: Components, services: string[]) {
     c.explanations.push(`Direct OCT iron/steel wharfage, excluding scrap, dross and ores: import INR${oct.wharfage.import.foreign}/tonne foreign or INR${oct.wharfage.import.coastal}/tonne coastal; export INR${oct.wharfage.export.foreign}/tonne foreign or INR${oct.wharfage.export.coastal}/tonne coastal. The 30% convenience fee is already included. Collected by MbPA; do not add duplicate private wharfage. Gross weight is assessed per individual item under §1.2(x): fractions below 0.5 become 0.5, above 0.5 become 1; the overlapping exact-0.5 wording remains unresolved. Aggregate-only quantities yield an unassessed reference.`);
     c.notes.push("OCT steel wharfage includes the 30% convenience fee. Direct handling only; no overside reduction, exemption or other special treatment is inferred.");
   }
-  if (c.mode === "rule") return;
+  if (c.mode === "rule") { for (const service of services) c.period(oct.effectiveFrom, undefined, service === "berth"); return; }
   const date = dateOf(c.input.callDate ?? c.input.berthStart, c.input);
   const end = dateOf(c.input.berthEnd, c.input);
   if (date && date > oct.checkedOn || end && end > oct.checkedOn) c.estimate(`The requested service is after the source was checked on ${oct.checkedOn}; this is a future planning reference, not verified future tariff applicability.`, "latest-published-unconfirmed");

@@ -1,5 +1,6 @@
 import "server-only";
 import { migrationServerConfig } from "./config";
+import { AuthTokenError } from "./auth-errors";
 
 const MIN_TOKEN_TTL_SECONDS = 300;
 const REFRESH_INTERVAL_MS = 45_000;
@@ -23,14 +24,15 @@ function decodeTokenClaims(token: string): TokenClaims {
 function assertTokenLifetime(claims: TokenClaims): void {
   const remaining = claims.exp - Math.floor(Date.now() / 1_000);
   if (remaining <= MIN_TOKEN_TTL_SECONDS) {
-    throw new Error("Authentication token lifetime is too short for this run.");
+    throw new AuthTokenError(503, "short-lifetime");
   }
 }
 
 async function requestFreshToken(cookie: string, origin: string): Promise<{ token: string; claims: TokenClaims }> {
   const { convexSiteUrl } = migrationServerConfig();
   const originUrl = new URL(origin);
-  const response = await fetch(`${convexSiteUrl}/api/auth/convex/token`, {
+  let response: Response;
+  try { response = await fetch(`${convexSiteUrl}/api/auth/convex/token`, {
     method: "GET",
     cache: "no-store",
     signal: AbortSignal.timeout(8_000),
@@ -42,13 +44,16 @@ async function requestFreshToken(cookie: string, origin: string): Promise<{ toke
       "x-better-auth-forwarded-host": originUrl.host,
       "x-better-auth-forwarded-proto": originUrl.protocol.replace(":", ""),
     },
-  });
-  if (!response.ok) throw new Error("Authentication refresh failed.");
-  const body = await response.json() as { token?: unknown };
-  if (typeof body.token !== "string") throw new Error("Authentication refresh returned no token.");
-  const claims = decodeTokenClaims(body.token);
+  }); } catch { throw new AuthTokenError(503); }
+  if (!response.ok) throw new AuthTokenError(response.status, undefined, response.headers.get("Retry-After"));
+  let body: { token?: unknown }, claims: TokenClaims;
+  try {
+    body = await response.json() as { token?: unknown };
+    if (typeof body.token !== "string") throw new Error("Invalid token type");
+    claims = decodeTokenClaims(body.token);
+  } catch { throw new AuthTokenError(503, "invalid-response"); }
   assertTokenLifetime(claims);
-  return { token: body.token, claims };
+  return { token: body.token as string, claims };
 }
 
 export class MigrationTokenManager {

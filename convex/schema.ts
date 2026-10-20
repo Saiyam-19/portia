@@ -73,6 +73,8 @@ export default defineSchema({
     memoryEpoch: v.optional(v.number()),
     authorization: v.optional(vAuthorization),
     authorizationDeclined: v.optional(v.boolean()),
+    authorizationResolutionReason: v.optional(v.union(v.literal("approved"),v.literal("rejected"),v.literal("cancelled"),v.literal("note"),v.literal("submitted"))),
+    authorizationContinuation: v.optional(v.array(v.object({payload:v.string(),toolCallId:v.string(),title:v.string(),description:v.optional(v.string()),fields:v.array(vFormField),reviewGroup:v.string()}))),
     checkpointStep: v.optional(v.number()),
     checkpointHash: v.optional(v.string()),
     checkpointHasText: v.optional(v.boolean()),
@@ -99,7 +101,9 @@ export default defineSchema({
     status: vFormStatus,
     values: v.optional(vFormValues),
     note: v.optional(v.string()),
+    resolutionReason: v.optional(v.union(v.literal("approved"),v.literal("rejected"),v.literal("cancelled"),v.literal("note"),v.literal("submitted"))),
     authorization: v.optional(vAuthorization),
+    continuation: v.optional(v.array(v.object({payload:v.string(),toolCallId:v.string(),title:v.string(),description:v.optional(v.string()),fields:v.array(vFormField),reviewGroup:v.string()}))),
     createdAt: v.number(),
     resolvedAt: v.optional(v.number()),
   })

@@ -19,8 +19,9 @@ it.each(['supplied','official','form'] as const)('persists %s results before pub
   const actual=await vi.importActual<typeof import('../../src/lib/migration/domain-agent')>('../../src/lib/migration/domain-agent');let calls=0;
   const model=new MockLanguageModelV4({doStream:async()=>{const first=calls++===0;return {stream:new ReadableStream<LanguageModelV4StreamPart>({start(c){
    c.enqueue({type:'stream-start',warnings:[]});c.enqueue({type:'text-start',id:'draft'});c.enqueue({type:'text-delta',id:'draft',delta:'Invented total USD 999999'});c.enqueue({type:'text-end',id:'draft'});
-   if(first)c.enqueue({type:'tool-call',toolCallId:'tool-1',toolName:kind==='form'?'ask_user_input':'manage_quote',input:JSON.stringify(kind==='form'?{title:'Details',fields:[{name:'port',label:'Port',type:'text',required:true}]}:kind==='official'?coastal:{pricing:'supplied',lines:[{name:'Berth hire',currency:'USD',amount:'720'},{name:'Pilotage',currency:'USD',amount:'240'},{name:'Water supply',currency:'USD',amount:'60'}],terms:{taxPercent:'0'}})});
-   c.enqueue({type:'finish',usage,finishReason:{unified:first?'tool-calls':'stop',raw:undefined}});c.close();
+   if(first)c.enqueue({type:'tool-call',toolCallId:'tool-1',toolName:'manage_quote',input:JSON.stringify(kind==='form'?{action:'create',pricing:'supplied',lines:[{name:'Berth hire',billing:{kind:'flat',price:'720',basis:'user-stated-flat'}}]}:kind==='official'?{action:'create',...coastal}:{action:'create',pricing:'supplied',lines:[{name:'Berth hire',currency:'USD',billing:{kind:'flat',price:'720',basis:'user-stated-flat'}},{name:'Pilotage',currency:'USD',billing:{kind:'flat',price:'240',basis:'user-stated-flat'}},{name:'Water supply',currency:'USD',billing:{kind:'flat',price:'60',basis:'user-stated-flat'}}],terms:{taxPercent:'0'}})});
+   else if(kind==='form')c.enqueue({type:'tool-call',toolCallId:'form-2',toolName:'ask_user_input',input:JSON.stringify({title:'Missing currency',fields:[{name:'currency',label:'Currency',type:'text',required:true}]})});
+   c.enqueue({type:'finish',usage,finishReason:{unified:first||kind==='form'?'tool-calls':'stop',raw:undefined}});c.close();
   }})};}});
   mocks.agent.mockImplementation((options:Parameters<typeof createMigrationMainAgent>[0])=>actual.createMigrationMainAgent({...options,mainModel:model}));
   mocks.bridge.mockImplementation(async(_manager,call)=>{
@@ -32,13 +33,14 @@ it.each(['supplied','official','form'] as const)('persists %s results before pub
   const response=await POST(new Request('https://portia.test/api/chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({kind:'question',question:'Synthetic requested quotation',conversationId:null,expectedRevision:null,requestId:'a122fbae-303b-45a5-90f3-7f112025dc50',modelAlias:'model-1'})}));
   expect(response.status).toBe(200);const reader=response.body!.getReader();let wire='';
   const consume=(async()=>{while(true){const part=await reader.read();if(part.done)break;wire+=new TextDecoder().decode(part.value);}})();
-  await enteredPromise;expect(wire).not.toMatch(/999999|40,876|1,020|portia-quote/);release();await consume;
+  await enteredPromise;expect(wire).not.toMatch(/999999|40,876|1,020|portia-quote|Missing currency/);release();await consume;
   expect(wire).not.toContain('999999');
   const complete=mocks.bridge.mock.calls.find(([,c])=>c.op==='complete')![1];expect(JSON.stringify(complete.args.responseMessages)).not.toContain('999999');
-  if(reject)expect(wire).not.toMatch(/40,876|1,020/);
+  if(reject)expect(wire).not.toMatch(/40,876|1,020|Missing currency/);
   else if(kind==='supplied'){expect(wire).toContain('Confirm exact operations');expect(wire).toContain('Amount: 1020');expect(complete.args.authorizationProposal).toBeDefined();expect(wire).not.toContain('portia-quote');}
   else if(kind!=='form'){expect(wire).toContain('40,876.00');expect(wire).not.toContain('"type":"error"');if(kind==='official')expect(wire).toContain('applicability is unverified');}
-  expect(calls).toBe(kind==='official'?2:1);
+  else {expect(wire).toContain('Missing currency');expect(complete.args.form.toolCallId).toBe('form-2');}
+  expect(calls).toBe(2);
  }
 });
 

@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@ai-sdk/react": "4.0.137",
+    "@noble/hashes": "2.4.0",
     "@convex-dev/agent": "0.7.7",
     "@convex-dev/better-auth": "0.12.5",
     "@openrouter/ai-sdk-provider": "3.1.0",

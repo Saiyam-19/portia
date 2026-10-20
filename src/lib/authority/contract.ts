@@ -1,6 +1,9 @@
 import { z } from "zod";
+import { sha256 } from "@noble/hashes/sha2.js";
+import { bytesToHex, utf8ToBytes } from "@noble/hashes/utils.js";
 
 export const AUTHORITY_VERSION = 1;
+export const AUTHORITY_VERSION_V2 = 2;
 export const AUTHORITY_TTL_MS = 15 * 60_000;
 export const MAX_REVIEW_CHARS = 12_000;
 export const APPROVE = "Approve exactly as shown";
@@ -15,24 +18,35 @@ export const quoteCoreSchema = z.object({
 }).strict();
 const operationBase = { id: z.string().uuid() };
 export const authorityOperationSchema = z.discriminatedUnion("kind", [
-  z.object({ ...operationBase, kind: z.literal("quote"), quote: quoteCoreSchema, before: binding.nullable(), previous: quoteCoreSchema.nullable() }).strict(),
+  z.object({ ...operationBase, kind: z.literal("quote"), quote: quoteCoreSchema, before: binding.nullable(), previous: quoteCoreSchema.nullable(), preview: z.object({ totals: z.array(z.object({ currency: z.string(), amount: z.string() }).strict()).min(1).max(16) }).strict().optional() }).strict(),
   z.object({ ...operationBase, kind: z.literal("comparison"), input: jsonObject, quotes: z.array(binding.extend({ name: z.string().max(120) })).min(2).max(8) }).strict(),
   z.object({ ...operationBase, kind: z.enum(["remember", "forget"]), key: z.string().regex(/^[a-z][a-z0-9_]{0,79}$/), value: z.string().min(1).max(1024).refine(value => value.trim().length > 0 && !value.includes("\0") && new TextEncoder().encode(value).length <= 1024, "Memory value must contain text and fit 1024 UTF-8 bytes.").optional(), previousValue: z.string().max(1024).nullable(), previousValueHash: z.string().regex(/^[a-f0-9]{64}$/).nullable(), memoryEpoch: z.number().int().nonnegative(), memoryRevision: z.number().int().nonnegative() }).strict(),
 ]);
-export const authorityPacketSchema = z.object({ version: z.literal(AUTHORITY_VERSION), operations: z.array(authorityOperationSchema).min(1).max(4) }).strict().superRefine((packet, ctx) => {
+const packetBase = z.object({ operations: z.array(authorityOperationSchema).min(1).max(4) });
+type Operation = z.infer<typeof authorityOperationSchema>;
+function validatePacket(packet: {version:number;operations:Operation[]}, ctx: z.RefinementCtx) {
   const ids = packet.operations.map(op => op.id);
   if (new Set(ids).size !== ids.length) ctx.addIssue({ code: "custom", message: "Duplicate operation IDs." });
   const quoteIds = packet.operations.filter(op => op.kind === "quote").map(op => op.quote.id);
   if (new Set(quoteIds).size !== quoteIds.length) ctx.addIssue({ code: "custom", message: "Review one change per quotation at a time." });
-  if (packet.operations.some(op => op.kind === "quote") && packet.operations.some(op => op.kind === "comparison")) ctx.addIssue({code:"custom",message:"Confirm quote changes and comparisons in separate reviews."});
+  if (packet.version === 1 && packet.operations.some(op => op.kind === "quote") && packet.operations.some(op => op.kind === "comparison")) ctx.addIssue({code:"custom",message:"Confirm quote changes and comparisons in separate reviews."});
   const keys = packet.operations.flatMap(op => op.kind === "remember" || op.kind === "forget" ? [op.key] : []);
   if (new Set(keys).size !== keys.length) ctx.addIssue({ code: "custom", message: "Review one change per memory key at a time." });
   for (const op of packet.operations) {
     if (op.kind === "remember" && (op.value === undefined || (op.previousValue === null) !== (op.previousValueHash === null)) || op.kind === "forget" && (op.value !== undefined || op.previousValue !== null)) ctx.addIssue({ code: "custom", message: "Memory payload does not match its operation." });
     if (op.kind === "quote" && (op.quote.revision !== (op.before?.revision ?? -1) + 1 || (op.before ? op.before.quoteId !== op.quote.id || op.previous?.id !== op.quote.id || op.previous.revision !== op.before.revision : op.previous !== null))) ctx.addIssue({ code: "custom", message: "Quotation revision binding is invalid." });
+    if (packet.version === 2 && op.kind === "comparison") for (const selected of op.quotes) {
+      const dependency = packet.operations.slice(0, packet.operations.indexOf(op)).flatMap(candidate => candidate.kind === "quote" && candidate.quote.id === selected.quoteId ? [candidate] : []).at(-1);
+      if (dependency && (selected.revision !== dependency.quote.revision || selected.digest !== authorityDigestSync(dependency.quote))) ctx.addIssue({ code: "custom", message: "Comparison dependency does not bind the complete preceding quotation." });
+      const forward = packet.operations.slice(packet.operations.indexOf(op) + 1).some(candidate => candidate.kind === "quote" && candidate.quote.id === selected.quoteId);
+      if (forward) ctx.addIssue({ code: "custom", message: "Comparison cannot bind a later quotation operation." });
+    }
   }
-});
-export type AuthorityOperation = z.infer<typeof authorityOperationSchema>;
+}
+export const authorityPacketV1Schema = packetBase.extend({ version: z.literal(AUTHORITY_VERSION) }).strict().superRefine(validatePacket);
+export const authorityPacketV2Schema = packetBase.extend({ version: z.literal(AUTHORITY_VERSION_V2) }).strict().superRefine(validatePacket);
+export const authorityPacketSchema = z.union([authorityPacketV1Schema, authorityPacketV2Schema]);
+export type AuthorityOperation = Operation;
 export type AuthorityPacket = z.infer<typeof authorityPacketSchema>;
 export type QuoteBinding = z.infer<typeof binding>;
 export type QuoteCore = z.infer<typeof quoteCoreSchema>;
@@ -41,6 +55,7 @@ export function canonical(value: unknown): string {
   return Array.isArray(value) ? `[${value.map(canonical).join(",")}]` : value && typeof value === "object"
     ? `{${Object.entries(value).filter(([, item]) => item !== undefined).sort(([a], [b]) => a.localeCompare(b)).map(([key, item]) => `${JSON.stringify(key)}:${canonical(item)}`).join(",")}}` : JSON.stringify(value);
 }
+export function authorityDigestSync(value: unknown): string { return bytesToHex(sha256(utf8ToBytes(canonical(value)))); }
 export async function authorityDigest(value: unknown): Promise<string> {
   const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(canonical(value)));
   return Array.from(new Uint8Array(bytes), b => b.toString(16).padStart(2, "0")).join("");
@@ -81,7 +96,8 @@ export function reviewPacket(packet: AuthorityPacket): string {
         const next = { call: op.quote.call, services: op.quote.services, lines: op.quote.lines, terms: op.quote.terms };
         for (const [key, value] of Object.entries(old)) if (canonical(value) !== canonical(next[key as keyof typeof next])) parts.push(`Previously stored ${key} (review, not authority):\n${describe(value).join("\n")}`);
       }
-      parts.push("Complete terms after approval (omitted rate denominator means 1; omitted tax is excluded; no rounding rule means exact arithmetic):", ...describe({ particulars: op.quote.call, includedServices: op.quote.services, chargeLines: op.quote.lines, terms: op.quote.terms, ...baselineReview(op.quote), ...(op.quote.unresolvedHistory?.length ? { unresolvedHistory: op.quote.unresolvedHistory } : {}) }));
+      parts.push("Complete terms after approval (omitted rate denominator means 1; omitted tax is excluded; no rounding rule means exact arithmetic; specified rounding uses half-up):", ...describe({ particulars: op.quote.call, includedServices: op.quote.services, chargeLines: op.quote.lines, terms: op.quote.terms, ...baselineReview(op.quote), ...(op.quote.unresolvedHistory?.length ? { unresolvedHistory: op.quote.unresolvedHistory } : {}) }));
+      if (op.preview) parts.push("Unapproved calculation preview from the terms above (not an original confirmed quotation):", ...describe(op.preview));
     } else if (op.kind === "comparison") parts.push("Compare these exact saved quotation revisions:", ...op.quotes.map(q => `${visible(q.name)} (revision ${q.revision})`), ...describe(Object.fromEntries(Object.entries(op.input).filter(([key]) => key !== "quoteIds"))));
     else if (op.kind === "remember") parts.push("Save/update cross-chat memory", `Key: ${visible(op.key)}`, `Previously stored value: ${op.previousValue === null ? "none" : visible(op.previousValue)}`, `New value: ${visible(op.value)}`);
     else parts.push("Forget cross-chat memory", `Key: ${visible(op.key)}`, "This also invalidates private working notes; chat history remains.");

@@ -47,11 +47,12 @@ export default function FormCard({ formCard, disabled = false, onSubmit, onCance
   const [validationError,setValidationError]=useState('')
   const id = useId()
   if (formCard.response !== null) {
-    const { cancelled, content } = formCard.response
+    const { cancelled, content, reason } = formCard.response
+    const status = reason ? reason[0].toUpperCase() + reason.slice(1) : cancelled ? 'Cancelled' : 'Submitted'
     return (
       <div className="flex items-start gap-3 rounded-xl bg-muted/60 px-4 py-3 text-xs text-muted-foreground">
         {cancelled ? <XCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" /> : <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-brand" aria-hidden="true" />}
-        <div className="min-w-0"><p className="mb-1 font-medium text-foreground">{formCard.title} · {cancelled ? 'Cancelled' : 'Submitted'}</p><p className="leading-relaxed break-words whitespace-pre-wrap">{content}</p></div>
+        <div className="min-w-0"><p className="mb-1 font-medium text-foreground">{formCard.title} · {status}</p><p className="leading-relaxed break-words whitespace-pre-wrap">{content}</p></div>
       </div>
     )
   }

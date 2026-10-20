@@ -4,6 +4,7 @@ import { trustedMigrationOrigin } from "@/lib/migration/origin";
 import { MemorySession,memoryFeatureEnabled } from "@/lib/memory/session";
 import { migrationPreviewEnabled, migrationServerConfig } from "@/lib/migration/config";
 import { readBoundedJsonBody } from "@/lib/bounded-json-body";
+import { authFailureResponse } from "@/lib/migration/auth-errors";
 export const runtime="nodejs";
 export const maxDuration=60;
 const requestSchema=z.object({kind:z.enum(["forget","clear"]),key:z.string().regex(/^[a-z][a-z0-9_]{0,79}$/).optional(),epoch:z.number().int().nonnegative(),requestId:z.string().uuid()}).strict();
@@ -28,6 +29,7 @@ async function handle(request:Request,write:boolean) {
     }
     return Response.json(await session.view(),{headers:{"Cache-Control":"no-store","Vary":"Cookie"}});
   } catch(error) {
+    const serviceFailure = authFailureResponse(error); if (serviceFailure) return serviceFailure;
     const code=error instanceof Error?error.message:"";
     const status=/Unauthenticated|Authentication|UNAUTHENTICATED/.test(code)?401:/NOT_FOUND/.test(code)?404:409;
     return Response.json({error:status===401?"Sign in to view memory.":status===404?"Conversation not found.":"Memory changed or is temporarily unavailable. Refresh and try again."},{status,headers:{"Cache-Control":"no-store"}});

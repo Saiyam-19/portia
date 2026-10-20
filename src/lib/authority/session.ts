@@ -2,22 +2,44 @@ import { createHash, randomUUID } from "node:crypto";
 import { canonical, comparisonCore, quoteCore, authorityPacketSchema, parsePacket, reviewPacket, approvalForm, type AuthorityOperation, type AuthorityContext, type QuoteCore } from "./contract";
 const digest = (value: unknown) => createHash("sha256").update(canonical(value)).digest("hex");
 export class AuthoritySession {
-  private readonly operations: AuthorityOperation[] = [];
+  private readonly operations: Array<{operation:AuthorityOperation;reviewGroup:string}> = [];
+  private readonly groupOrder: string[] = [];
   readonly formId = `authorization-${randomUUID()}`;
-  constructor(readonly context: AuthorityContext = { quotes: [], comparisons: [] }) {}
+  constructor(readonly context: AuthorityContext = { quotes: [], comparisons: [] }, continuation: Array<{payload:string;reviewGroup:string}> = []) { for(const item of continuation){const packet=parsePacket(item.payload);if(!this.groupOrder.includes(item.reviewGroup))this.groupOrder.push(item.reviewGroup);for(const operation of packet.operations)this.operations.push({operation:structuredClone(operation),reviewGroup:item.reviewGroup});} }
   approvedQuote(quote: QuoteCore) { return this.context.quotes.some(item => item.quoteId === quote.id && item.revision === quote.revision && item.digest === digest(quoteCore(quote))); }
   approvedComparison(op: Extract<AuthorityOperation, {kind:"comparison"}>) { return this.context.comparisons.includes(digest(comparisonCore(op))); }
-  propose(operation: AuthorityOperation) {
-    if (operation.kind === "comparison" && this.operations.some(op => op.kind === "quote") || operation.kind === "quote" && this.operations.some(op => op.kind === "comparison")) throw new Error("Confirm the quotation changes before comparing their new revisions.");
-    const packet = parsePacket(canonical({ version: 1, operations: [...this.operations, structuredClone(operation)] }));
-    reviewPacket(packet); this.operations.push(structuredClone(operation));
-    return { status: "unresolved" as const, approvalRequired: true, body: "This operation is awaiting your confirmation. No quoted price was accepted and no cross-chat memory change was made.", questions: [] as string[] };
+  propose(operation: AuthorityOperation, reviewGroup?: string) {
+    let invalidatedComparisons = 0;
+    let candidate=this.operations.map(item=>({operation:structuredClone(item.operation),reviewGroup:item.reviewGroup}));
+    const same=(item:{operation:AuthorityOperation;reviewGroup:string})=>operation.kind==="quote"?item.operation.kind==="quote"&&item.operation.quote.id===operation.quote.id:operation.kind==="comparison"?item.operation.kind==="comparison"&&canonical(comparisonCore(item.operation))===canonical(comparisonCore(operation)):(item.operation.kind==="remember"||item.operation.kind==="forget")&&item.operation.kind===operation.kind&&item.operation.key===operation.key;
+    const targetGroup=reviewGroup??candidate.find(same)?.reviewGroup??"default";
+    if (operation.kind === "quote") {
+      const at=candidate.findIndex(item=>item.operation.kind==="quote"&&item.operation.quote.id===operation.quote.id);
+      if(at>=0)candidate[at]={operation:structuredClone(operation),reviewGroup:targetGroup};else candidate.push({operation:structuredClone(operation),reviewGroup:targetGroup});
+      candidate=candidate.filter(item=>{if(item.operation.kind!=="comparison"||!item.operation.quotes.some(binding=>binding.quoteId===operation.quote.id))return true;invalidatedComparisons++;return false;});
+    } else if (operation.kind === "comparison") {
+      const at=candidate.findIndex(item=>item.operation.kind==="comparison"&&canonical(comparisonCore(item.operation))===canonical(comparisonCore(operation)));
+      if(at>=0)candidate[at]={operation:structuredClone(operation),reviewGroup:targetGroup};else candidate.push({operation:structuredClone(operation),reviewGroup:targetGroup});
+    } else {
+      const at=candidate.findIndex(item=>(item.operation.kind==="remember"||item.operation.kind==="forget")&&item.operation.kind===operation.kind&&item.operation.key===operation.key);
+      if(at>=0)candidate[at]={operation:structuredClone(operation),reviewGroup:targetGroup};else candidate.push({operation:structuredClone(operation),reviewGroup:targetGroup});
+    }
+    if (candidate.length > 16) throw new Error("Too many staged operations; finish or separate the requested review groups.");
+    const group = candidate.filter(item => item.reviewGroup === targetGroup).map(item => item.operation);
+    const mixed = group.some(op => op.kind === "quote") && group.some(op => op.kind === "comparison");
+    const packet = parsePacket(canonical({ version: mixed ? 2 : 1, operations: group }));
+    reviewPacket(packet); this.operations.splice(0,this.operations.length,...candidate); if(!this.groupOrder.includes(targetGroup))this.groupOrder.push(targetGroup);
+    return { status: "unresolved" as const, approvalRequired: true, stagedForReview: true, invalidatedComparisons, body: `Operation staged for exact review.${invalidatedComparisons ? ` ${invalidatedComparisons} dependent comparison${invalidatedComparisons === 1 ? " was" : "s were"} invalidated and must be prepared again.` : ""} Continue any other requested work before the final review form.`, questions: [] as string[] };
   }
+  withdrawQuote(quoteId:string) { const before=this.operations.length; this.operations.splice(0,this.operations.length,...this.operations.filter(item=>item.operation.kind!=="quote"||item.operation.quote.id!==quoteId).filter(item=>item.operation.kind!=="comparison"||!item.operation.quotes.some(binding=>binding.quoteId===quoteId))); return before-this.operations.length; }
+  pendingQuote(quoteId:string) { const item=[...this.operations].reverse().find(entry=>entry.operation.kind==="quote"&&entry.operation.quote.id===quoteId); return item?.operation.kind==="quote" ? structuredClone(item.operation.quote) : undefined; }
+  pendingOperations() { return this.operations.map(item=>structuredClone(item.operation)); }
   // Only the deterministic server executor calls these after authenticated approval.
   acceptQuote(quote: QuoteCore) { this.context.quotes = [...this.context.quotes.filter(q => q.quoteId !== quote.id), AuthoritySession.binding(quote)]; }
   acceptComparison(op: Extract<AuthorityOperation, {kind:"comparison"}>) { this.context.comparisons.push(digest(comparisonCore(op))); }
-  proposedQuoteCount() { return this.operations.filter(op => op.kind === "quote" && !op.before).length; }
+  proposedQuoteCount() { return this.operations.filter(item => item.operation.kind === "quote" && !item.operation.before).length; }
   hasPending() { return this.operations.length > 0; }
-  pending() { if (!this.operations.length) return; const packet = authorityPacketSchema.parse({ version: 1, operations: this.operations }); return { payload: canonical(packet), form: approvalForm(packet, this.formId) }; }
+  pendingQueue() { const groups=this.groupOrder.filter(group=>this.operations.some(item=>item.reviewGroup===group)); return groups.map((reviewGroup,index)=>{const selected=this.operations.filter(item=>item.reviewGroup===reviewGroup).map(item=>item.operation),mixed=selected.some(op=>op.kind==="quote")&&selected.some(op=>op.kind==="comparison");const packet=authorityPacketSchema.parse({version:mixed?2:1,operations:selected});return {payload:canonical(packet),form:approvalForm(packet,`${this.formId}:${index}`),reviewGroup};}); }
+  pending() { return this.pendingQueue()[0]; }
   static binding(quote: QuoteCore) { return { quoteId: quote.id, revision: quote.revision, digest: digest(quoteCore(quote)) }; }
 }

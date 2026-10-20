@@ -26,7 +26,7 @@ export async function executeAuthorizedOperations(options: {
     let toolName: string, input: object, output: unknown;
     if (op.kind === "quote") {
       toolName = "manage_quote";
-      input = { ...(op.before ? { quoteId: op.quote.id } : {}), name: op.quote.name, pricing: op.quote.pricing, call: op.quote.call, services: op.quote.services, lines: op.quote.lines, terms: op.quote.terms };
+      input = { action: op.before ? "update" : "create", ...(op.before ? { quoteId: op.quote.id } : {}), name: op.quote.name, pricing: op.quote.pricing, call: op.quote.call, services: op.quote.services, lines: op.quote.lines, terms: op.quote.terms };
       output = await options.session.applyApprovedQuote(op);
     } else if (op.kind === "comparison") {
       toolName = "compare_quotes"; input = op.input;

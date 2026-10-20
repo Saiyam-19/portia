@@ -7,6 +7,7 @@ import { api, components, internal } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import schema from "../../convex/schema";
 import { ChatMemoryRuntime } from "../../src/lib/memory/runtime";
+import { AuthoritySession } from "../../src/lib/authority/session";
 import {
   APPROVE,
   REJECT,
@@ -66,13 +67,21 @@ async function resolve(t: Test, run: Awaited<ReturnType<typeof claim>>, proposal
     expectedRevision: proposal.result.revision,
   });
 }
-async function receiptMessages(conversationId: string, candidate = quote, beforeRevision = -1, hashOverride?: string) {
+async function receiptMessages(conversationId: string, candidate = quote, beforeRevision = -1, hashOverride?: string, toolCallId = "execute-quote") {
   const unsigned = { version: 2, kind: "portia-quote", conversationId, beforeRevision, quote: candidate };
   const record = { ...unsigned, hash: hashOverride ?? await authorityDigest(unsigned) };
   return [
-    { role: "assistant" as const, content: [{ type: "tool-call" as const, toolCallId: "execute-quote", toolName: "manage_quote", input: candidate }] },
-    { role: "tool" as const, content: [{ type: "tool-result" as const, toolCallId: "execute-quote", toolName: "manage_quote", output: { type: "json" as const, value: { record } } }] },
+    { role: "assistant" as const, content: [{ type: "tool-call" as const, toolCallId, toolName: "manage_quote", input: candidate }] },
+    { role: "tool" as const, content: [{ type: "tool-result" as const, toolCallId, toolName: "manage_quote", output: { type: "json" as const, value: { record } } }] },
     { role: "assistant" as const, content: "Applied the approved quotation." },
+  ];
+}
+
+function comparisonMessages(conversationId: string, operation: Extract<AuthorityPacket["operations"][number], { kind: "comparison" }>, toolCallId = "execute-comparison") {
+  return [
+    { role: "assistant" as const, content: [{ type: "tool-call" as const, toolCallId, toolName: "compare_quotes", input: operation.input }] },
+    { role: "tool" as const, content: [{ type: "tool-result" as const, toolCallId, toolName: "compare_quotes", output: { type: "json" as const, value: { record: { version: 1, kind: "portia-comparison", conversationId, ...comparisonCore(operation) } } } }] },
+    { role: "assistant" as const, content: "Compared the approved quotation revisions." },
   ];
 }
 async function account(t: Test, email: string) {
@@ -92,6 +101,164 @@ beforeEach(() => {
 afterEach(() => { vi.unstubAllEnvs(); vi.useRealTimers(); });
 
 describe("exact-operation backend authority", () => {
+  it("completes a native official comparison from an ordinary saved quote and its newer approved FX revision", async () => {
+    const t = setup();
+    const ordinaryA: QuoteCore = { id: "official-a", revision: 0, name: "Official A", pricing: "official", call: { gt: "8317" }, services: ["port-dues"], lines: [{ name: "Port dues", currency: "USD", amount: "71.35" }], terms: {} };
+    const ordinaryB: QuoteCore = { id: "official-b", revision: 0, name: "Official B", pricing: "official", call: { gt: "9001" }, services: ["port-dues"], lines: [{ name: "Port dues", currency: "USD", amount: "76.90" }], terms: {} };
+    const initial = await claim(t);
+    const savedA = await receiptMessages(initial.conversationId, ordinaryA, -1, undefined, "ordinary-a");
+    const savedB = await receiptMessages(initial.conversationId, ordinaryB, -1, undefined, "ordinary-b");
+    const ordinaryComplete = await t.mutation(internal.migration.completeRun, {
+      ownerId: owner, runId: initial.runId, fence: initial.fence,
+      responseMessages: [...savedA.slice(0, 2), ...savedB], form: null, finishReason: "stop",
+    });
+
+    const fxQuote: QuoteCore = { ...structuredClone(ordinaryA), revision: 1, call: { ...ordinaryA.call, fxInrPerUsd: "83.75", fxDate: "2026-11-17" } };
+    const ordinaryBinding = { quoteId: ordinaryA.id, revision: 0, digest: await authorityDigest(quoteCore(ordinaryA)) };
+    const fxPacket: AuthorityPacket = { version: 1, operations: [{ id: crypto.randomUUID(), kind: "quote", quote: fxQuote, before: ordinaryBinding, previous: ordinaryA }] };
+    const fxRun = await claim(t, "official-fx", initial.conversationId, ordinaryComplete.revision);
+    const fxProposal = await propose(t, fxRun, fxPacket, "approve-official-fx");
+    const fxGrant = await resolve(t, fxRun, fxProposal, { requestId: "approve-official-fx-response" });
+    const fxComplete = await t.mutation(internal.migration.completeRun, {
+      ownerId: owner, runId: fxGrant.runId, fence: fxGrant.fence,
+      responseMessages: await receiptMessages(initial.conversationId, fxQuote, 0, undefined, "execute-official-fx"), form: null, finishReason: "stop",
+    });
+
+    const fxBinding = { quoteId: fxQuote.id, revision: 1, digest: await authorityDigest(quoteCore(fxQuote)) };
+    const ordinaryBBinding = { quoteId: ordinaryB.id, revision: 0, digest: await authorityDigest(quoteCore(ordinaryB)) };
+    const comparison = { id: crypto.randomUUID(), kind: "comparison" as const, input: { quoteIds: [fxQuote.id, ordinaryB.id], currency: "INR", exchangeRates: [{ from: "USD", to: "INR", rate: "83.75", date: "2026-11-17" }], rounding: null }, quotes: [{ ...fxBinding, name: fxQuote.name }, { ...ordinaryBBinding, name: ordinaryB.name }] };
+    const comparisonPacket: AuthorityPacket = { version: 1, operations: [comparison] };
+    const comparisonRun = await claim(t, "official-comparison", initial.conversationId, fxComplete.revision);
+    const comparisonProposal = await propose(t, comparisonRun, comparisonPacket, "approve-official-comparison");
+    const comparisonGrant = await resolve(t, comparisonRun, comparisonProposal, { requestId: "approve-official-comparison-response" });
+    const comparisonComplete = await t.mutation(internal.migration.completeRun, {
+      ownerId: owner, runId: comparisonGrant.runId, fence: comparisonGrant.fence,
+      responseMessages: comparisonMessages(initial.conversationId, comparison), form: null, finishReason: "stop",
+    });
+
+    expect(comparisonComplete.state).toBe("idle");
+    const conversation = await t.run((ctx) => ctx.db.get(initial.conversationId));
+    expect(conversation?.quoteApprovals).toContainEqual(fxBinding);
+    expect(conversation?.quoteApprovals).not.toContainEqual(ordinaryBinding);
+    expect(conversation?.comparisonApprovals).toContain(await authorityDigest(comparisonCore(comparison)));
+  });
+
+  it("preserves a ready quote through native clarification and reviews it with the completed quote", async () => {
+    const t = setup(), run = await claim(t);
+    const ready = structuredClone(quoteOperation);
+    const readyPacket: AuthorityPacket = { version: 1, operations: [ready] };
+    const readyPayload = canonical(readyPacket), readyForm = approvalForm(readyPacket, "ready-a-review");
+    const clarification = { toolCallId: "clarify-b", title: "Complete quotation B", description: "Provide the remaining quotation value.", fields: [{ name: "price", label: "Quotation B price", type: "text" as const, required: true }] };
+    const waiting = await t.mutation(internal.migration.completeRun, {
+      ownerId: owner, runId: run.runId, fence: run.fence,
+      responseMessages: [{ role: "assistant", content: [{ type: "tool-call", toolName: "ask_user_input", toolCallId: clarification.toolCallId, input: { title: clarification.title, description: clarification.description, fields: clarification.fields } }] }],
+      form: clarification,
+      authorizationContinuation: [{ payload: readyPayload, ...readyForm, reviewGroup: "quotes" }],
+    });
+    const clarified = await t.mutation(internal.migration.resolveFormAndClaim, {
+      ownerId: owner, conversationId: run.conversationId, requestId: "clarification-response", payloadHash: "clarification-response", toolCallId: clarification.toolCallId,
+      values: { price: "73.40" }, cancelled: false, note: "", modelAlias: "model-1", expectedRevision: waiting.revision,
+    });
+    const restored = await t.query(internal.migration.getRunContext, { ownerId: owner, runId: clarified.runId, fence: clarified.fence });
+    expect(restored.authorizationResolutionReason).toBe("submitted");
+    expect(restored.authorizationContinuation?.map((item) => item.payload)).toEqual([readyPayload]);
+
+    const completedB: QuoteCore = { id: "quote-beta", revision: 0, name: "Beta", pricing: "supplied", call: {}, services: [], lines: [{ name: "Towage", currency: "USD", amount: "73.40" }], terms: {} };
+    const completedBOperation = { id: crypto.randomUUID(), kind: "quote" as const, quote: completedB, before: null, previous: null };
+    const authority = new AuthoritySession(restored.authorityContext, restored.authorizationContinuation?.map(({ payload, reviewGroup }) => ({ payload, reviewGroup })));
+    authority.propose(completedBOperation, "quotes");
+    const review = authority.pendingQueue()[0]!;
+    expect(review.reviewGroup).toBe("quotes");
+    expect(JSON.parse(review.payload).operations.map((operation: { quote: { id: string } }) => operation.quote.id)).toEqual([quote.id, completedB.id]);
+    const proposed = await t.mutation(internal.migration.completeRun, {
+      ownerId: owner, runId: clarified.runId, fence: clarified.fence,
+      responseMessages: [{ role: "assistant", content: [{ type: "tool-call", toolName: "ask_user_input", toolCallId: review.form.toolCallId, input: { title: review.form.title, description: review.form.description, fields: review.form.fields } }] }],
+      form: review.form, authorizationProposal: review.payload,
+    });
+    const approved = await resolve(t, clarified, { payload: review.payload, form: review.form, result: proposed }, { requestId: "approve-both-quotes" });
+    const readyReceipts = await receiptMessages(run.conversationId, quote, -1, undefined, "execute-ready-a");
+    const completedBReceipts = await receiptMessages(run.conversationId, completedB, -1, undefined, "execute-completed-b");
+    await t.mutation(internal.migration.completeRun, {
+      ownerId: owner, runId: approved.runId, fence: approved.fence,
+      responseMessages: [...readyReceipts.slice(0, 2), ...completedBReceipts], form: null, finishReason: "stop",
+    });
+    const conversation = await t.run((ctx) => ctx.db.get(run.conversationId));
+    expect(conversation?.quoteApprovals?.map((binding) => binding.quoteId).sort()).toEqual([quote.id, completedB.id].sort());
+  });
+
+  it("commits the first group and persists a visible notice when a successor becomes stale", async () => {
+    const t = setup(), run = await claim(t), first = quotePacket(), successorPacket = memoryPacket();
+    const firstPayload = canonical(first), firstForm = approvalForm(first, "stale-first"), successorPayload = canonical(successorPacket), successorForm = approvalForm(successorPacket, "stale-successor");
+    const proposed = await t.mutation(internal.migration.completeRun, {
+      ownerId: owner, runId: run.runId, fence: run.fence,
+      responseMessages: [{ role: "assistant", content: [{ type: "tool-call", toolName: "ask_user_input", toolCallId: firstForm.toolCallId, input: { title: firstForm.title, description: firstForm.description, fields: firstForm.fields } }] }],
+      form: firstForm, authorizationProposal: firstPayload,
+      authorizationContinuation: [{ payload: successorPayload, ...successorForm, reviewGroup: "memory" }],
+    });
+    const granted = await resolve(t, run, { payload: firstPayload, form: firstForm, result: proposed }, { requestId: "approve-before-successor-stales" });
+    await t.run(async (ctx) => {
+      const namespace = (await ctx.db.query("memoryNamespaces").withIndex("by_owner", (q) => q.eq("ownerId", owner)).unique())!;
+      await ctx.db.patch(namespace._id, { revision: namespace.revision + 1 });
+    });
+    const completed = await t.mutation(internal.migration.completeRun, {
+      ownerId: owner, runId: granted.runId, fence: granted.fence,
+      responseMessages: await receiptMessages(run.conversationId), form: null, finishReason: "stop",
+    });
+    expect(completed.state).toBe("idle");
+    const conversation = await t.run((ctx) => ctx.db.get(run.conversationId));
+    expect(conversation?.quoteApprovals).toContainEqual({ quoteId: quote.id, revision: 0, digest: await authorityDigest(quoteCore(quote)) });
+    expect(conversation?.pendingFormId).toBeUndefined();
+    expect(conversation?.lastError).toMatch(/remaining exact-review work was deferred/i);
+    expect(await t.run(async (ctx) => (await ctx.db.query("memoryOperations").collect()).length)).toBe(0);
+    const followup = await claim(t, "after-stale-successor", run.conversationId, completed.revision);
+    const context = await t.query(internal.migration.getRunContext, { ownerId: owner, runId: followup.runId, fence: followup.fence });
+    expect(JSON.stringify(context.messages)).toContain("Remaining exact-review work was deferred because its saved base changed");
+    expect(context.authorization).toBeUndefined();
+    expect(context.authorizationContinuation).toBeUndefined();
+  });
+
+  it.each([
+    ["note", { decision: APPROVE, note: "Please revise the first quotation." }],
+    ["reject", { decision: REJECT }],
+    ["cancel", { cancelled: true }],
+  ] as const)("%s discards the native review continuation without enqueueing memory", async (_reason, response) => {
+    const t = setup(), run = await claim(t), first = quotePacket(), successorPacket = memoryPacket();
+    const firstPayload = canonical(first), firstForm = approvalForm(first, "declined-first"), successorPayload = canonical(successorPacket), successorForm = approvalForm(successorPacket, "discarded-successor");
+    const proposed = await t.mutation(internal.migration.completeRun, {
+      ownerId: owner, runId: run.runId, fence: run.fence,
+      responseMessages: [{ role: "assistant", content: [{ type: "tool-call", toolName: "ask_user_input", toolCallId: firstForm.toolCallId, input: { title: firstForm.title, description: firstForm.description, fields: firstForm.fields } }] }],
+      form: firstForm, authorizationProposal: firstPayload,
+      authorizationContinuation: [{ payload: successorPayload, ...successorForm, reviewGroup: "memory" }],
+    });
+    const resolved = await resolve(t, run, { payload: firstPayload, form: firstForm, result: proposed }, response);
+    const context = await t.query(internal.migration.getRunContext, { ownerId: owner, runId: resolved.runId, fence: resolved.fence });
+    expect(context.authorization).toBeUndefined();
+    expect(context.authorizationContinuation).toBeUndefined();
+    await t.mutation(internal.migration.completeRun, {
+      ownerId: owner, runId: resolved.runId, fence: resolved.fence,
+      responseMessages: [{ role: "assistant", content: "The review was not applied." }], form: null, finishReason: "stop",
+    });
+    const conversation = await t.run((ctx) => ctx.db.get(run.conversationId));
+    expect(conversation?.pendingFormId).toBeUndefined();
+    expect(conversation?.quoteApprovals ?? []).toEqual([]);
+    expect(await t.run(async (ctx) => (await ctx.db.query("memoryOperations").collect()).length)).toBe(0);
+  });
+
+  it("keeps successor review outside the active grant and advances it only after exact execution",async()=>{
+    const t=setup(),run=await claim(t),first=quotePacket(),second=memoryPacket(),firstPayload=canonical(first),firstForm=approvalForm(first,"group-1"),secondPayload=canonical(second),secondForm=approvalForm(second,"group-2");
+    const proposed=await t.mutation(internal.migration.completeRun,{ownerId:owner,runId:run.runId,fence:run.fence,responseMessages:[{role:"assistant",content:[{type:"tool-call",toolName:"ask_user_input",toolCallId:firstForm.toolCallId,input:{title:firstForm.title,description:firstForm.description,fields:firstForm.fields}}]}],form:firstForm,authorizationProposal:firstPayload,authorizationContinuation:[{payload:secondPayload,...secondForm,reviewGroup:"memory"}]});
+    const granted=await resolve(t,run,{payload:firstPayload,form:firstForm,result:proposed});
+    const active=await t.run(ctx=>ctx.db.get(granted.runId));expect(active?.authorization?.payload).toBe(firstPayload);expect(active?.authorization?.payload).not.toContain("preferred_port");
+    const completed=await t.mutation(internal.migration.completeRun,{ownerId:owner,runId:granted.runId,fence:granted.fence,responseMessages:await receiptMessages(run.conversationId),form:null,finishReason:"stop"});expect(completed.state).toBe("waiting");
+    const successor=await t.run(async ctx=>ctx.db.get((await ctx.db.get(run.conversationId))!.pendingFormId!));expect(successor?.authorization?.payload).toBe(secondPayload);expect(successor?.toolCallId).toBe("group-2");
+    const next=await t.mutation(internal.migration.resolveFormAndClaim,{ownerId:owner,conversationId:run.conversationId,requestId:"group-2-approve",payloadHash:"group-2-approve",toolCallId:"group-2",values:{decision:APPROVE},cancelled:false,note:"",expectedRevision:completed.revision,modelAlias:"model-1"});
+    const context=await t.query(internal.migration.getRunContext,{ownerId:owner,runId:next.runId,fence:next.fence});
+    expect(context.messages.some(message=>Array.isArray(message.content)&&message.content.some(part=>part.type==="tool-call"&&part.toolCallId==="group-2"))).toBe(true);
+    expect(context.messages.some(message=>Array.isArray(message.content)&&message.content.some(part=>part.type==="tool-result"&&part.toolCallId==="group-2"))).toBe(true);
+    expect(JSON.stringify(context.messages)).toContain('"resolutionReason":"approved"');
+    const final=await t.mutation(internal.migration.completeRun,{ownerId:owner,runId:next.runId,fence:next.fence,responseMessages:[{role:"assistant",content:[{type:"tool-call",toolName:"remember_memory",toolCallId:"approved-memory",input:{key:"preferred_port",value:"Mumbai"}}]},{role:"tool",content:[{type:"tool-result",toolName:"remember_memory",toolCallId:"approved-memory",output:{type:"json",value:{saved:true}}}]},{role:"assistant",content:"Requested memory saved."}],form:null,finishReason:"stop"});expect(final.state).toBe("idle");
+    expect(await t.run(async ctx=>(await ctx.db.query("memoryOperations").collect()).some(operation=>operation.status==="pending"))).toBe(true);
+  });
   it("persists an identical complete review privately, executes one exact quote, and records provenance", async () => {
     const t = setup(), run = await claim(t), packet = quotePacket(), proposed = await propose(t, run, packet);
     expect(await authorityDigest(quoteCore(quote))).toBe(QUOTE_CORE_SHA256);
@@ -282,6 +449,7 @@ describe("exact-operation backend authority", () => {
 
   it("cannot mark an approved comparison executed using plain prose",async()=>{
     const t=setup(),run=await claim(t);
+    await t.run(async ctx=>ctx.db.patch(run.conversationId,{quoteApprovals:[{quoteId:"a",revision:0,digest:"a".repeat(64)},{quoteId:"b",revision:0,digest:"b".repeat(64)}]}));
     const packet:AuthorityPacket={version:1,operations:[{id:crypto.randomUUID(),kind:"comparison",input:{quoteIds:["a","b"],currency:"USD"},quotes:[{quoteId:"a",revision:0,digest:"a".repeat(64),name:"A"},{quoteId:"b",revision:0,digest:"b".repeat(64),name:"B"}]}]};
     const proposed=await propose(t,run,packet),approved=await resolve(t,run,proposed);
     await expect(t.mutation(internal.migration.completeRun,{ownerId:owner,runId:approved.runId,fence:approved.fence,responseMessages:[{role:"assistant",content:"Compared successfully."}],form:null,finishReason:"stop"})).rejects.toThrow(/comparison.*receipt/i);

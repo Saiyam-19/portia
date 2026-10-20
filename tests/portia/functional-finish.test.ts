@@ -10,7 +10,7 @@ import Decimal from "decimal.js";
 
 const usage = { inputTokens: { total: 1, noCache: 1, cacheRead: undefined, cacheWrite: undefined }, outputTokens: { total: 1, text: 1, reasoning: undefined } };
 const generated = (content: LanguageModelV4GenerateResult["content"], finish: "stop" | "tool-calls" = "tool-calls"): LanguageModelV4GenerateResult => ({ content, finishReason: { unified: finish, raw: undefined }, usage, warnings: [] });
-const call = (toolName: string, input: unknown, toolCallId = toolName) => ({ type: "tool-call" as const, toolCallId, toolName, input: JSON.stringify(input) });
+const call = (toolName: string, input: unknown, toolCallId = toolName) => ({ type: "tool-call" as const, toolCallId, toolName, input: JSON.stringify(toolName === "manage_quote" ? { action: "create", ...input as object } : input) });
 const done = generated([{ type: "text", text: "Done, your estimate is complete: USD 999999." }], "stop");
 const nsft = { port: "NSFT", charges: ["handling"], callDate: "12 November 2026", service: "foreign", containerSize: "20", ladenContainers: "120", emptyContainers: "80", cargoTraffic: "exim", specialCargo: false, handlingMode: "road" };
 const rule = call("port_information", { mode: "rule", request: { port: "NSFT", charges: ["handling"] } });
@@ -66,11 +66,12 @@ it("out-of-period source coverage is a limitation, not user intake", async () =>
   expect(r.status).toBe("unresolved"); expect(r.questions).toEqual([]); expect(r.limitations?.join(" ")).toContain("2027-04-30"); expect(r.totals).toBeUndefined();
 });
 it("mixed asynchronous quotation and labelled arithmetic preserve dispatch order", async () => {
-  const r = await run("Show quote and two independent calculations", [generated([
-    call("manage_quote", { name: "First quote", pricing: "supplied", lines: [{ name: "Berth", amount: "41", currency: "USD" }], terms: { taxPercent: "0" } }),
+  const r = await run("Show First quote and two independent calculations", [generated([
+    call("manage_quote", { name: "First quote", pricing: "supplied", lines: [{ name: "Berth", currency: "USD", billing: { kind: "flat", price: "41", basis: "user-stated-flat" } }], terms: { taxPercent: "0" } }),
     call("calculate_charges", { label: "A", expression: "7*13" }, "A"),
     call("calculate_charges", { label: "B", expression: "19*23" }, "B"),
   ]), done]);
+  expect(r.result.steps[0].toolResults.find(result => result.toolName === "manage_quote")?.output).toMatchObject({ approvalRequired: true });
   expect(r.text.indexOf("First quote")).toBeLessThan(r.text.indexOf("A: 7*13"));
   expect(r.text).toContain("A: 7*13 = **91**"); expect(r.text).toContain("B: 19*23 = **437**");
 });

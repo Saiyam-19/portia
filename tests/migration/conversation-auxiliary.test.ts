@@ -17,7 +17,7 @@ it.each(["remember","lookup"] as const)("retains independent arithmetic alongsid
  const text=await session.answer(result.text);expect(text).toContain("**5**");
  if(action==="remember"){expect(remember).not.toHaveBeenCalled();expect(text).toContain("awaiting your exact confirmation");}
  else {expect(result.steps.flatMap(s=>s.toolResults).find(r=>r.toolName==="search_vessels")?.output).toMatch(/not configured|unavailable/i);expect(text).toMatch(/lookup.*(?:unavailable|not configured)/i);}
- expect(model.doGenerateCalls).toHaveLength(action==="remember"?2:3);
+ expect(model.doGenerateCalls).toHaveLength(3);
 });
 
 // The final answer must preserve the actual tool outcome, never trust invented prose.

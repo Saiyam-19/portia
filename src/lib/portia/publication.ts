@@ -13,7 +13,7 @@ export function persistedAnswerStream<T extends ToolSet>(source: ReadableStream<
     transform(part, controller) {
       if (part.type === "text-start" || part.type === "text-delta" || part.type === "text-end" || part.type === "reasoning-start" || part.type === "reasoning-delta" || part.type === "reasoning-end") return;
       if (part.type === "tool-input-delta" || part.type === "tool-input-end") return;
-      if ((part.type === "tool-call" || part.type === "tool-result" || part.type === "tool-input-start" || part.type === "tool-error") && BUSINESS_TOOLS.has(part.toolName)) return;
+      if ((part.type === "tool-call" || part.type === "tool-result" || part.type === "tool-input-start" || part.type === "tool-error") && (BUSINESS_TOOLS.has(part.toolName) || part.toolName === "ask_user_input")) return;
       if (part.type === "finish") { finish = part; return; }
       if (part.type === "error" || part.type === "abort") failed = true;
       controller.enqueue(part);

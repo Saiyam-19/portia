@@ -5,6 +5,7 @@ export interface TariffInput {
   operator?: string;
   charges: string[];
   callDate?: string;
+  keelLaidDate?: string;
   berthStart?: string;
   berthEnd?: string;
   readinessTime?: string;

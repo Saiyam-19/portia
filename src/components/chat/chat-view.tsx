@@ -20,7 +20,7 @@ import type { ChatModel } from '@/lib/chat-model'
 import { ArrowDown, Loader2, Trash2 } from 'lucide-react'
 
 export type FormField = { name: string; label: string; type: 'text' | 'number' | 'radio' | 'textarea'; placeholder?: string; options?: string[]; unit?: string; hint?: string; required?: boolean }
-export type FormCard = { toolCallId: string; title: string; description?: string; fields: FormField[]; response: { content: string; cancelled: boolean } | null }
+export type FormCard = { toolCallId: string; title: string; description?: string; fields: FormField[]; response: { content: string; cancelled: boolean; reason?: string } | null }
 export type Segment = { kind: 'text'; content: string } | { kind: 'tool'; id: string; tool: string; label: string; status: 'running' | 'done' | 'error' } | { kind: 'card'; formCard: FormCard }
 type ChatMessage = { id: string; role: 'user' | 'assistant'; segments: Segment[]; streaming?: boolean; interrupted?: boolean }
 type LiveMessage = UIMessage<{ conversationId?: string; runId?: string; revision?: number }>
@@ -145,7 +145,7 @@ export default function ChatView({ conversationId, initialMessage, initialReques
   const formCard = (toolCallId: string): FormCard | null => {
     const form = forms.find(value => value.toolCallId === toolCallId)
     if (!form) return null
-    return { toolCallId, title: form.title, description: form.description ?? undefined, fields: form.fields, response: form.status === 'pending' ? null : { cancelled: form.status === 'cancelled', content: [...Object.entries(form.values ?? {}).filter(([,value]) => value.trim()).map(([key,value]) => `${key}: ${value}`), form.note ? `Note: ${form.note}` : ''].filter(Boolean).join('\n') } }
+    return { toolCallId, title: form.title, description: form.description ?? undefined, fields: form.fields, response: form.status === 'pending' ? null : { cancelled: form.status === 'cancelled', reason: form.resolutionReason ?? undefined, content: [...Object.entries(form.values ?? {}).filter(([,value]) => value.trim()).map(([key,value]) => `${key}: ${value}`), form.note ? `Note: ${form.note}` : ''].filter(Boolean).join('\n') } }
   }
   const items: ChatMessage[] = []
   const seenTools = new Map<string, Extract<Segment, {kind: 'tool'}>>()

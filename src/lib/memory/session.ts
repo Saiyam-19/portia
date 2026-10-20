@@ -10,7 +10,7 @@ import { ChatMemoryRuntime } from "./runtime";
 import type { MemoryClaim, MemoryOperation, MemoryState } from "./contracts";
 
 export const memoryFeatureEnabled = () => process.env.PORTIA_MEMORY_ENABLED === "true";
-export type AgentMemory = { tools: ToolSet; instructions: () => Promise<string>; proposeWrite?: (authority: AuthoritySession, kind: "remember" | "forget", input: {key:string;value?:string}, signal?: AbortSignal) => Promise<unknown> };
+export type AgentMemory = { tools: ToolSet; instructions: () => Promise<string>; readFacts?: (signal?: AbortSignal) => Promise<{ facts: Array<{ key: string; value: string }> }>; proposeWrite?: (authority: AuthoritySession, kind: "remember" | "forget", input: {key:string;value?:string;reviewGroup?:string}, signal?: AbortSignal) => Promise<unknown> };
 const keySchema = z.string().regex(/^[a-z][a-z0-9_]{0,79}$/);
 export class MemorySession {
   private epoch: number | undefined;
@@ -128,9 +128,10 @@ export class MemorySession {
   }
   agent():AgentMemory {
     return {
+      readFacts: signal => this.execute(signal, async () => ({ facts: (await this.view()).facts.map(({ key, value }) => ({ key, value })) })),
       proposeWrite: async(authority,kind,input,signal) => this.execute(signal,async()=>{
         const view = await this.view(), previous = view.facts.find(f => f.key === input.key);
-        return authority.propose({id:randomUUID(),kind,key:input.key,...(kind === "remember" ? {value:input.value} : {}),previousValue:kind === "remember" ? previous?.value ?? null : null,previousValueHash:previous ? await authorityDigest(previous.value) : null,memoryEpoch:view.epoch,memoryRevision:view.revision});
+        return authority.propose({id:randomUUID(),kind,key:input.key,...(kind === "remember" ? {value:input.value} : {}),previousValue:kind === "remember" ? previous?.value ?? null : null,previousValueHash:previous ? await authorityDigest(previous.value) : null,memoryEpoch:view.epoch,memoryRevision:view.revision},input.reviewGroup);
       }),
       instructions:async()=>{
         const view=await this.view();
