@@ -22,13 +22,16 @@ export const knownCurrencyCode = (value: string): boolean => currencyCodeCatalog
 const limit = z.object({ amount: decimal, per: z.enum(["block", "call"]), basis: z.enum(["unit", "line"]).optional().describe("Required when a time line has multiple resources: unit applies the bound to each resource before multiplication; line applies it to the combined line.") }).strict();
 const duration = z.object({ hours: decimal.optional(), minutes: decimal.optional() }).strict()
   .refine(value => value.hours !== undefined || value.minutes !== undefined, "Provide a duration component; explicit zero is retained.");
-export const lineFieldSchema = z.enum(["billing", "price", "currency", "quantity", "quantityLabel", "duration", "periodHours", "commenced", "perQuantity", "resourceQuantity", "resourceLabel", "perResourceQuantity", "percent", "baseLines", "minimum", "maximum", "minimumDurationHours", "statedExtension"]);
+export const lineFieldSchema = z.enum(["billing", "price", "currency", "quantity", "quantityLabel", "duration", "periodHours", "commenced", "perQuantity", "movements", "perMovements", "resourceQuantity", "resourceLabel", "perResourceQuantity", "percent", "baseLines", "minimum", "maximum", "minimumDurationHours", "statedExtension"]);
 export type LineField = z.infer<typeof lineFieldSchema>;
 export const lineSchema = z.object({
+  id: z.string().min(1).max(100).optional(),
+  coverage: z.array(name).min(1).max(16).optional(),
   name, currency: currencySchema.optional().describe("Original uppercase three-letter currency code. Preserve unknown codes for explicit resolution."), amount: decimal.optional(), rate: decimal.optional(),
   amountBasis: z.literal("user-stated-flat").optional(),
   billingScope: z.literal("line").optional().describe("Present on new typed line billing. Omitted historical lines retain legacy call-wide quantity fallback."),
-  unit: z.enum(["amount", "time", "gt-time", "movement", "tonne", "quantity", "percentage"]).optional(),
+  unit: z.enum(["amount", "time", "gt-time", "movement", "tonne", "tonne-movement", "quantity", "percentage"]).optional(),
+  movements: decimal.optional(), perMovements: positive.optional(),
   perQuantity: positive.optional().describe("Rate denominator; e.g. 100 for a price per 100 GT. Defaults to one unit."),
   periodHours: positive.optional(), commenced: z.boolean().optional(),
   quantity: decimal.optional(), quantityLabel: name.optional(), duration: duration.optional(), minimumDurationHours: positive.optional(),
@@ -49,10 +52,13 @@ export const billingSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("gt-time"), ...billingBase, periodHours: positive.optional(), commenced: z.boolean().optional(), duration: duration.optional(), perQuantity: positive.optional().describe("GT denominator only."), resourceQuantity: decimal.optional().describe("Independent resource count, separate from GT."), resourceLabel: name.optional(), perResourceQuantity: positive.optional() }).strict(),
   z.object({ kind: z.literal("movement"), ...billingBase, quantity: decimal.optional(), perQuantity: positive.optional() }).strict(),
   z.object({ kind: z.literal("tonne"), ...billingBase, quantity: decimal.optional(), perQuantity: positive.optional() }).strict(),
+  z.object({ kind: z.literal("tonne-movement"), ...billingBase, quantity: decimal.optional().describe("Original tonnes, not tonnes multiplied by movements."), movements: decimal.optional(), perQuantity: positive.optional(), perMovements: positive.optional() }).strict(),
   z.object({ kind: z.literal("quantity"), ...billingBase, quantity: decimal.optional(), quantityLabel: name, perQuantity: positive.optional() }).strict(),
   z.object({ kind: z.literal("percentage"), percent: decimal.optional().describe("Explicit supplied percentage, including zero; not a precomputed price."), baseLines: z.array(name).min(1).max(16).optional().describe("Exact named charge lines forming the percentage base.") }).strict(),
 ]);
 export const commandLineSchema = z.object({
+  lineId: z.string().min(1).max(100).optional().describe("Returned stable line ID for correction/rename; omit for new lines."),
+  coverage: z.array(name).min(1).max(16).optional().describe("Explicit supplied service coverage, separate from charge label and tax. Do not infer equivalence from similar labels."),
   name, currency: currencySchema.optional().describe("Copy the original uppercase three-letter currency code. Do not substitute a familiar currency for an unknown code."),
   billing: billingSchema.optional().describe("Complete typed billing recipe for a new line or explicit unit/kind replacement. Omit on ordinary price-only correction."),
   price: decimal.optional().describe("Price-only correction for an existing line. Preserves its billing kind, quantities, durations, currency and constraints."),
@@ -96,8 +102,9 @@ export function lineFieldApplies(field: LineField, kind?: string): boolean {
   if (["billing", "price", "currency", "minimum", "maximum"].includes(field)) return field !== "price" || kind !== "percentage";
   if (field === "statedExtension") return kind !== "flat";
   if (["duration", "periodHours", "commenced", "resourceQuantity", "resourceLabel", "perResourceQuantity", "minimumDurationHours"].includes(field)) return kind === "time" || kind === "gt-time";
-  if (field === "perQuantity") return ["gt-time", "movement", "tonne", "quantity"].includes(kind ?? "");
-  if (field === "quantity") return ["movement", "tonne", "quantity"].includes(kind ?? "");
+  if (field === "perQuantity") return ["gt-time", "movement", "tonne", "tonne-movement", "quantity"].includes(kind ?? "");
+  if (field === "quantity") return ["movement", "tonne", "tonne-movement", "quantity"].includes(kind ?? "");
+  if (field === "movements" || field === "perMovements") return kind === "tonne-movement";
   if (field === "quantityLabel") return kind === "quantity";
   return kind === "percentage";
 }
@@ -117,6 +124,8 @@ export function applyLineFieldPatches(previous: QuoteLine | undefined, patch: Co
   return line;
 }
 export const callSchema = tariffInputSchema.omit({ charges: true, durationHours: true, durationMinutes: true }).extend({
+  supplier: name.optional().describe("Supplier/issuer of the quotation, separate from the physical operator."),
+  chargingAuthority: name.optional(),
   facilityId: tariffInputSchema.shape.facilityId.describe("Canonical catalog facility ID selected from the provided catalog only when the raw booked identity fields uniquely ground it. Preserve the original port/terminal/operator wording alongside it. Omit for unknown, ambiguous or conflicting identities."),
   terminal: tariffInputSchema.shape.terminal.describe("Only an explicitly supplied physical terminal/berth; otherwise null. Preserve user-stated conflicts, never invent this field. At JSW Jaigarh, J-1 is a port-dues tariff item, not an established terminal name; do not copy that row label here."),
   reference: z.string().trim().min(1).max(240).optional().describe("SUPPLIED quotations only: exact human-provided quotation, case, file, voyage or other reference identifier. Copy it verbatim; never generate one."),
@@ -134,7 +143,10 @@ export const callSchema = tariffInputSchema.omit({ charges: true, durationHours:
   flag: name.optional().describe("Country name, e.g. India for Indian flag."),
 }).strict();
 export const termsSchema = z.object({
-  taxPercent: decimal.refine(value => new Decimal(value).lte(100)).optional().describe("SUPPLIED quotations only: zero when explicitly excluded. For OFFICIAL pricing this MUST be null, even if the user says no tax or before GST. Official pre-tax scope means omit gst from services; never pass taxPercent, including zero."),
+  taxStatus: z.enum(["unknown", "excluded", "included", "additional", "exempt"]).optional().describe("Supplier tax presentation only; never service coverage. Missing means unknown. Additional requires a rate; included means supplied prices already include tax."),
+  taxPercent: decimal.refine(value => new Decimal(value).lte(100)).optional().describe("Explicit supplier tax rate, including explicit zero. Exclusion is taxStatus, not an invented zero rate. Official pricing never takes a supplied tax rate."),
+  statedTotals: z.array(z.object({currency:currencySchema,amount:decimal}).strict()).min(1).max(16).optional().describe("Original supplier-asserted totals, checked against computed totals. Never fill with model arithmetic."),
+  removeStatedTotals: z.boolean().optional(),
   rounding: z.object({ stage: z.enum(["line", "total"]), decimals: z.number().int().min(0).max(8) }).strict().optional(),
   removeRounding: z.boolean().optional().describe("True only when explicitly removing existing monetary rounding."),
   unresolvedTerms: z.array(z.string().min(1).max(400)).max(16).optional().describe("Only genuinely unresolved material conditions that prevent the requested calculation. Never put explicit exclusions, a confirmed base-only scope, no tax/no conversion, or ordinary confirmed facts here: represent included services and omit excluded ones. Every entry blocks the quotation. Use [] to clear previously mistaken unresolved terms."),
@@ -221,7 +233,7 @@ export const key = (value: string) => value.normalize("NFKC").trim().toLowerCase
 export const safe = (value: string) => value.replace(/\\/g, "\\\\").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
   .replace(/([|`*_[\]#!])/g, "\\$1").replace(/[\n\r]+/g, " ");
 export function quoteMetadata(quote: Pick<Quote, "call">): string {
-  const fields = [["Supplier reference", quote.call.reference], ["Port", quote.call.port], ["Terminal", quote.call.terminal], ["Operator", quote.call.operator], ["Vessel", quote.call.vesselName], ["Context", quote.call.context]];
+  const fields = [["Supplier", quote.call.supplier], ["Supplier reference", quote.call.reference], ["Port", quote.call.port], ["Terminal", quote.call.terminal], ["Operator", quote.call.operator], ["Charging authority", quote.call.chargingAuthority], ["Vessel", quote.call.vesselName], ["Context", quote.call.context]];
   const lines = fields.flatMap(([label, value]) => value ? [`${label}: ${safe(value)}`] : []);
   return lines.length ? lines.join("\n\n") + "\n\n" : "";
 }
@@ -236,14 +248,19 @@ export function callParticulars(quote: Quote) {
   return { ...call, charges: quote.services,
     ...(occupancy ? { durationMinutes: exactValue(addRational(multiplyRational(rational(occupancy.hours ?? "0"), rational("60")), rational(occupancy.minutes ?? "0"))) } : {}) };
 }
-export function calculateSupplied(quote: Quote): QuoteResult {
+export function calculateSupplied(quote: Quote, selectedLineIds?: readonly string[], taxBasis: "as-supplied" | "before-tax" = "as-supplied"): QuoteResult {
   const questions = [...(quote.terms.unresolvedTerms ?? []), ...(quote.unresolvedHistory ?? [])];
   if (quote.call.otherAdjustments) questions.push("The stated adjustment needs its governing supplier terms; it cannot be silently omitted.");
   // Unscoped governing uncertainty cannot coexist with trusted derived effects.
   // Preserve recipes for continuation; only raw stated amounts form a known sum.
   const unscopedUncertainty = questions.length > 0;
-  const taxPercent = unscopedUncertainty ? undefined : quote.terms.taxPercent;
-  const rounding = unscopedUncertainty ? undefined : quote.terms.rounding;
+  const taxPercent = taxBasis === "before-tax" || unscopedUncertainty || ["unknown","excluded","included","exempt"].includes(quote.terms.taxStatus ?? "") ? undefined : quote.terms.taxPercent;
+  if (taxBasis === "before-tax" && quote.terms.taxStatus === "included" && quote.terms.taxPercent === undefined) questions.push("Tax-inclusive prices need the supplied tax rate to derive a before-tax view.");
+  if (taxBasis === "before-tax" && (quote.terms.taxStatus === "unknown" || !quote.terms.taxStatus && quote.terms.taxPercent === undefined)) questions.push("Confirm whether the supplied prices include tax before deriving a before-tax view.");
+  if (quote.terms.taxStatus === "additional" && quote.terms.taxPercent === undefined) questions.push("What additional tax rate applies?");
+  if (quote.terms.taxStatus === "exempt" && quote.terms.taxPercent !== undefined && !sameExact(quote.terms.taxPercent,"0")) questions.push("Exempt tax status conflicts with the supplied nonzero tax rate.");
+  const partialSelection = selectedLineIds !== undefined && selectedLineIds.length !== quote.lines.length;
+  const rounding = unscopedUncertainty || (partialSelection || taxBasis === "before-tax") && quote.terms.rounding?.stage === "total" ? undefined : quote.terms.rounding;
   type CalculatedLine = { name: string; currency: string; amount: string; formula: string };
   const calculated: Array<CalculatedLine | undefined> = new Array(quote.lines.length);
   const states = new Array<number>(quote.lines.length).fill(0);
@@ -312,7 +329,8 @@ export function calculateSupplied(quote: Quote): QuoteResult {
     if (rate !== undefined && line.amountBasis !== undefined) { missing("user-stated flat amount basis cannot apply to a rate."); return finish(); }
     if (!["time", "gt-time"].includes(unit ?? "") && (line.periodHours !== undefined || line.commenced !== undefined || line.duration !== undefined || line.minimumDurationHours !== undefined || line.resourceQuantity !== undefined || line.resourceLabel !== undefined || line.perResourceQuantity !== undefined)) { missing("duration, period and resource fields require time billing."); return finish(); }
     if (unit === "time" && line.perQuantity !== undefined) { missing("a time-only rate cannot have a GT denominator; use perResourceQuantity for an independently counted resource."); return finish(); }
-    if (!["quantity", "movement", "tonne"].includes(unit ?? "") && (line.quantity !== undefined || line.quantityLabel !== undefined)) { missing("line quantity requires quantity, movement or tonne billing."); return finish(); }
+    if (!["quantity", "movement", "tonne", "tonne-movement"].includes(unit ?? "") && (line.quantity !== undefined || line.quantityLabel !== undefined)) { missing("line quantity requires quantity, movement or tonne billing."); return finish(); }
+    if (unit !== "tonne-movement" && (line.movements !== undefined || line.perMovements !== undefined)) { missing("movement factors require tonnes × movements billing."); return finish(); }
     if (unit === "quantity" && (line.quantity === undefined || !line.quantityLabel)) { missing("generic quantity billing needs its independent quantity and unit label."); return finish(); }
     if (["movement", "tonne"].includes(unit ?? "") && line.quantityLabel !== undefined) { missing("movement and tonne billing use their canonical unit labels; quantityLabel is for generic item/job billing."); return finish(); }
     if ([line.minimum?.per, line.maximum?.per].includes("block") && !["time", "gt-time"].includes(unit ?? "")) { missing("monetary bounds per block require time billing."); return finish(); }
@@ -327,6 +345,7 @@ export function calculateSupplied(quote: Quote): QuoteResult {
         if (!line.periodHours || line.commenced === undefined) { missing("what is the billing period, and are part periods charged in full?"); return finish(); }
         if (unit === "gt-time" && !call.gt) { missing("what is the vessel's GT/GRT?"); return finish(); }
         const resourceSpecified = [line.resourceQuantity, line.resourceLabel, line.perResourceQuantity].some(value => value !== undefined);
+        if (resourceSpecified && /^(?:gt|grt|gross[ -]?(?:registered[ -]?)?tonnage|hours?|minutes?|days?)$/i.test(line.resourceLabel?.trim() ?? "")) { missing("resource count must be an independent resource, not a repeated GT or time dimension. Preserve the GT denominator in perQuantity."); return finish(); }
         if (resourceSpecified && (line.resourceQuantity === undefined || !line.resourceLabel)) { missing("resource-time billing needs both the independent resource count and its unit label."); return finish(); }
         const resourceFactor = resourceSpecified ? line.resourceQuantity! : "1";
         const bounds = [line.minimum, line.maximum].filter((bound): bound is NonNullable<typeof bound> => !!bound);
@@ -359,6 +378,11 @@ export function calculateSupplied(quote: Quote): QuoteResult {
         if (unit === "movement" && !new Decimal(quantity).isInteger()) { missing("movement count must be an integer."); return finish(); }
         expression = `(${quantity}/${line.perQuantity ?? "1"})*${rate}`;
         formula = `${quantity} ${unit === "quantity" ? safe(line.quantityLabel!) : `${unit}s`} / ${line.perQuantity ?? "1"} × ${currency} ${rate}`;
+        if (unit === "tonne-movement") {
+          if (line.movements === undefined || !new Decimal(line.movements).isInteger()) { missing("what is the explicit integer movement count for these tonnes?"); return finish(); }
+          expression += `*(${line.movements}/${line.perMovements ?? "1"})`;
+          formula = `${quantity} tonnes / ${line.perQuantity ?? "1"} × ${line.movements} movements / ${line.perMovements ?? "1"} × ${currency} ${rate}`;
+        }
       }
     }
     for (const [which, fn] of [["minimum", "max"], ["maximum", "min"]] as const) {
@@ -384,8 +408,12 @@ export function calculateSupplied(quote: Quote): QuoteResult {
       return undefined;
     }
   };
-  for (let index = 0; index < quote.lines.length; index++) evaluate(index);
-  const lines = calculated.filter((line): line is CalculatedLine => !!line);
+  for (let index = 0; index < quote.lines.length; index++) if (!selectedLineIds || selectedLineIds.includes(quote.lines[index].id!)) evaluate(index);
+  const lines = calculated.filter((line,index): line is CalculatedLine => !!line && (!selectedLineIds || selectedLineIds.includes(quote.lines[index].id!)));
+  if (taxBasis === "before-tax" && quote.terms.taxStatus === "included" && quote.terms.taxPercent !== undefined) for (const line of lines) {
+    line.amount = exactValue(divideRational(rational(line.amount),addRational(rational("1"),divideRational(rational(quote.terms.taxPercent),rational("100")))));
+    line.formula += `; before-tax view divides the supplied inclusive amount by (1 + ${quote.terms.taxPercent}/100)`;
+  }
   if (!quote.lines.length) questions.push("Which supplied quotation lines should be included?");
   const totals = [...new Set(lines.map(line => line.currency))].map(currency => {
     const amounts = lines.filter(line => line.currency === currency).map(line => line.amount);
@@ -394,7 +422,13 @@ export function calculateSupplied(quote: Quote): QuoteResult {
     if (rounding?.stage === "total") total = roundRational(total, rounding.decimals);
     return { currency, amount: exactValue(total), chargeIds: lines.filter(line => line.currency === currency).map(line => key(line.name)).concat(taxPercent !== undefined ? ["supplied-tax"] : []).sort(), lineAmounts: [...amounts, ...(taxPercent !== undefined ? [exactValue(tax)] : [])], basis: "scoped-quote" as const };
   });
-  const adjustments = unscopedUncertainty ? "Derived charges, monetary bounds, tax and rounding are withheld while governing terms remain unresolved. Only the raw listed fixed amounts are summed; retained recipes are not approved." : `${taxPercent === undefined ? "No tax rate supplied; tax is outside this calculation." : new Decimal(taxPercent).eq(0) ? "No tax, as supplied." : `Supplied tax ${taxPercent}% included in each currency total.`} ${rounding ? `Half-up monetary rounding per ${rounding.stage}, ${rounding.decimals} decimals.` : "Exact monetary values; no monetary rounding."}`;
+  if (!partialSelection && taxBasis === "as-supplied") for (const stated of quote.terms.statedTotals ?? []) {
+    const computed = totals.find(total=>total.currency===stated.currency);
+    if (!computed || !sameExact(stated.amount,computed.amount)) questions.push(`Supplier-stated total ${stated.currency} ${stated.amount} does not match the computed total${computed?` ${computed.currency} ${computed.amount}`:""}; correct the supplied facts or state the governing rounding rule.`);
+  }
+  if (new Set(quote.terms.statedTotals?.map(total=>total.currency)).size !== (quote.terms.statedTotals?.length ?? 0)) questions.push("Supplier-stated totals must have one amount per currency.");
+  const taxText = taxBasis === "before-tax" ? "Requested before-tax view; original supplied tax terms unchanged." : taxPercent !== undefined ? `Supplied tax ${taxPercent}% included in each currency total.` : quote.terms.taxStatus === "included" ? "Supplied prices include tax; no further tax added." : quote.terms.taxStatus === "excluded" ? "Tax explicitly excluded from this view; tax payable is not determined here." : quote.terms.taxStatus === "exempt" ? "Supplier states tax exempt." : "Tax status unknown; these amounts do not establish an all-in payable total.";
+  const adjustments = unscopedUncertainty ? "Derived charges, monetary bounds, tax and rounding are withheld while governing terms remain unresolved. Only the raw listed fixed amounts are summed; retained recipes are not approved." : `${taxText} ${rounding ? `Half-up monetary rounding per ${rounding.stage}, ${rounding.decimals} decimals.` : "Exact monetary values; no monetary rounding."}`;
   const body = lines.length ? `**${safe(quote.name)} — user-supplied quotation**\n\n| Charge | Amount |\n|---|---:|\n${lines.map(line => `| ${safe(line.name)} | ${money(line.currency, line.amount)} |`).join("\n")}\n${totals.map(total => `| **${questions.length ? "Identified subtotal" : "Total of supplied lines"}** | **${money(total.currency, total.amount)}** |`).join("\n")}\n\n${lines.map(line => `- **${safe(line.name)}:** ${line.formula}.`).join("\n")}\n\n${adjustments} Unquoted services excluded. These are supplied prices, not official tariff rates.` : "";
   return { status: questions.length || !lines.length ? "unresolved" : "calculated", sourceClass: "user-supplied-quotation", body, questions: [...new Set(questions)], totals, calculation: { lines } };
 }

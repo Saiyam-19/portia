@@ -16,7 +16,9 @@ export function nullableToolSchema<T>(schema: z.ZodType<T>) {
     if (node.properties) {
       result.properties = Object.fromEntries(Object.entries(node.properties).map(([name, child]) => {
         const value = strict(child);
-        return [name, node.required?.includes(name) ? value : { anyOf: [value, { type: "null" }], description: `${String(child.description ?? "")} Null means unknown or unchanged; never invent a value.` }];
+        // Keep each description once. Null semantics are shared in the agent
+        // instructions; repeating them at every optional leaf bloats every call.
+        return [name, node.required?.includes(name) ? value : { anyOf: [value, { type: "null" }] }];
       }));
       result.required = Object.keys(node.properties); result.additionalProperties = false;
     }

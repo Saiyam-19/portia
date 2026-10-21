@@ -37,8 +37,7 @@ it.each(["cap", "clarification", "finish"] as const)("persists and reloads the %
       if (mode === "clarification" && n === 1) c.enqueue({ type: "tool-call", toolCallId: "interval", toolName: "calculate_elapsed_time", input: JSON.stringify({ start: "2026-11-03 10:00", end: "2026-11-03 12:00" }) });
       else if (mode === "clarification" && n === 2) c.enqueue({ type: "tool-call", toolCallId: "question", toolName: "ask_user_input", input: JSON.stringify({ title: "Missing timezone", fields: [{ name: "zone", label: "Timezone", type: "text", required: true }] }) });
       else if (mode === "finish" && n === 1) {
-        const result = activeSession!.completion.context().evidence[0];
-        c.enqueue({ type: "tool-call", toolCallId: "done", toolName: "finish_turn", input: JSON.stringify({ outcomes: [{ id: "math", requestedOutcome: "Calculate 13*7", kind: "calculation", targets: result.targets, evidenceIds: [result.id] }] }) });
+        c.enqueue({ type: "tool-call", toolCallId: "done", toolName: "finish_turn", input: JSON.stringify({}) });
       } else c.enqueue({ type: "tool-call", toolCallId: `math-${n}`, toolName: "calculate_charges", input: JSON.stringify({ label: `Part ${n}`, expression: "13*7" }) });
       c.enqueue({ type: "finish", usage, finishReason: { unified: "tool-calls", raw: undefined } }); c.close();
     } }) };

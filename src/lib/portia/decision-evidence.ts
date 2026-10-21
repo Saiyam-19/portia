@@ -1,4 +1,5 @@
 import type { AuthoritySession } from "../authority/session";
+import { canonical } from "../authority/contract";
 import type { EvidenceRegistration, OutcomeKind } from "./completion";
 import { reportingViewSchema } from "./completion";
 import type { QuoteSession } from "./session";
@@ -35,12 +36,25 @@ export function recordDecisionEvidence(session: QuoteSession, authority: Authori
   const operationId = typeof result.operationId === "string" ? result.operationId : undefined;
   const operation = operationId ? authority?.pendingOperations().find(item => item.id === operationId) : undefined;
   const currency = result.currency ?? (operation?.kind === "comparison" ? operation.input.currency : undefined) ?? input.currency;
+  const executedComparison = operation?.kind === "comparison" ? operation.input : object(result.executedComparison);
+  // Only successful calculation/preparation establishes the dimensions that a
+  // later recomputation can satisfy. Never match on kind/targets alone.
+  const comparisonBinding = kind === "comparison" && Object.keys(executedComparison).length ? canonical({
+    quoteIds: [...quoteIds].sort(), currency,
+    selections: Array.isArray(executedComparison.selections) ? executedComparison.selections.map(value=>{
+      const selection=object(value);return {quoteId:selection.quoteId,lineIds:Array.isArray(selection.lineIds)?[...selection.lineIds].sort():[]};
+    }).sort((left,right)=>String(left.quoteId).localeCompare(String(right.quoteId))) : null,
+    exchangeRates: Array.isArray(executedComparison.exchangeRates) ? [...executedComparison.exchangeRates].sort((left,right)=>canonical(left).localeCompare(canonical(right))) : [],
+    taxBasis:executedComparison.taxBasis??"as-supplied",rounding:executedComparison.rounding??null,scopeEquivalence:executedComparison.scopeEquivalence??null,
+  }) : undefined;
   const reporting = kind === "quotation_read" ? reportingViewSchema.safeParse(input.reporting ?? { stage: "exact" }) : undefined;
   const registration: EvidenceRegistration = {
     toolName, kind, disposition, targets,
     ...(operation?{operationId:operation.id}:{}),questions,
     ...((disposition==="unavailable"||disposition==="failed")&&typeof (failed?result.error:result.body)==="string"?{detail:String(failed?result.error:result.body)}:{}),
     ...(quoteState?{quoteState}:{}),
+    ...(comparisonBinding?{comparisonBinding}:{}),
+    ...(kind==="comparison"&&snapshot!==undefined?{invalidated:()=>snapshot!==session.evidenceState(quoteIds.length?quoteIds:undefined)}:{}),
     ...(kind === "comparison" && typeof currency === "string" ? { comparisonCurrency: currency } : {}),
     ...(reporting?.success ? { reportingView: reporting.data } : {}),
     required: !["quotation_read", "memory_read", "notes_read", "information", "vessel_lookup"].includes(kind) || failed,

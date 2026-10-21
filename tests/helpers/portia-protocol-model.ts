@@ -5,7 +5,6 @@ import type { LanguageModelV4CallOptions, LanguageModelV4GenerateResult, Languag
  * protocol. It does NOT test semantic intent or make model-reliability claims.
  * Decision-loop tests use the unmodified SDK mock and explicit wrong/repair calls. */
 type Settings = NonNullable<ConstructorParameters<typeof SDKMock>[0]>;
-type ResultContext = { evidence: Array<{ id: string; kind: string; targets: string[]; comparisonCurrency?: string; reportingView?: { stage: "exact" | "line" | "total"; decimals?: number }; current: boolean }> };
 function context(options: LanguageModelV4CallOptions, key: string): unknown {
   for (const message of options.prompt) if (message.role === "system") {
     const line = message.content.split("\n").find(line => line.startsWith(key + "="));
@@ -22,9 +21,8 @@ function migrateCall<T extends { toolName: string; input: string }>(part: T, opt
   return { ...part, toolName: pricing === "supplied" ? "supplied_quote" : "official_quote", input: JSON.stringify(input) };
 }
 function finalCall(options: LanguageModelV4CallOptions, text: string, id: number) {
-  const state = context(options, "WORK_RESULTS") as ResultContext | undefined;
-  const evidence = state?.evidence.filter(item => item.current) ?? [];
-  return { type: "tool-call" as const, toolCallId: `fixture-finish-${id}`, toolName: "finish_turn", input: JSON.stringify({ outcomes: evidence.map(item => ({ id: item.id, requestedOutcome: "Fixture operation " + item.id, kind: item.kind, targets: item.targets, ...(item.comparisonCurrency ? { comparisonCurrency: item.comparisonCurrency } : {}), ...(item.reportingView ? { reportingViews: [item.reportingView] } : {}), evidenceIds: [item.id] })), response: text }) };
+  void options;
+  return { type: "tool-call" as const, toolCallId: `fixture-finish-${id}`, toolName: "finish_turn", input: JSON.stringify({ response: text }) };
 }
 function migrateGenerated(result: LanguageModelV4GenerateResult, options: LanguageModelV4CallOptions, id: number): LanguageModelV4GenerateResult {
   const content = result.content.map(part => part.type === "tool-call" ? migrateCall(part, options) : part);

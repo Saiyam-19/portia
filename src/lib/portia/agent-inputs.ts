@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { quoteCommandSchema, termsSchema } from "./quotes";
+import { callSchema, quoteCommandSchema, termsSchema } from "./quotes";
 import { supportRetrySchema } from "../memory/input";
 
 const command = quoteCommandSchema.shape;
@@ -9,10 +9,21 @@ const validateCommand = (input: unknown, context: z.RefinementCtx, implicit: Rec
   if (!result.success) for (const issue of result.error.issues) context.addIssue({ code: "custom", path: issue.path, message: issue.message });
 };
 const write = { action: z.enum(["create", "update"]), quoteId: command.quoteId, name: command.name, reviewGroup: command.reviewGroup, retryOf: command.retryOf };
+// Supplier arithmetic has no dependency on tariff eligibility intake. Preserve
+// original identity/quantity facts without transmitting unrelated tariff rules.
+export const suppliedCallSchema = callSchema.pick({
+  supplier:true, chargingAuthority:true, reference:true, context:true,
+  port:true, terminal:true, operator:true, vesselName:true, gt:true, nt:true,
+  dwt:true, loa:true, draught:true, cargoTonnes:true, movements:true,
+  callDate:true, berthStart:true, berthEnd:true, timeZone:true, dateOrder:true,
+  occupancy:true, anchorageArrival:true, cargoCompleted:true, portDeparture:true,
+  intervalStart:true, intervalEnd:true, service:true, vesselCategory:true,
+  flag:true, cargoName:true, cargoOperation:true, otherAdjustments:true,
+});
 export const suppliedQuoteSchema = z.object({
-  ...write, call: command.call, vesselCategoryEvidence: command.vesselCategoryEvidence, lines: command.lines, removeLines: command.removeLines,
+  ...write, call: suppliedCallSchema.optional(), vesselCategoryEvidence: command.vesselCategoryEvidence, lines: command.lines, removeLines: command.removeLines,
   terms: termsSchema.omit({ unsupportedServices: true }).optional(),
-  clearCallFields: command.clearCallFields, scopeChangeEvidence: command.scopeChangeEvidence,
+  clearCallFields: z.array(suppliedCallSchema.keyof()).min(1).max(20).optional(), scopeChangeEvidence: command.scopeChangeEvidence,
 }).strict().superRefine((input, context) => validateCommand(input, context, { pricing: "supplied" }));
 export const officialQuoteSchema = z.object({
   ...write, call: command.call, services: command.services, vesselCategoryEvidence: command.vesselCategoryEvidence,

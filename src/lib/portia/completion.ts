@@ -45,6 +45,14 @@ export const finishTurnSchema = z.object({
   response: z.string().max(4000).optional().describe("Questions and general conversational explanation, preserved beside verified business results. Financial amounts and tariff claims must come from tools, not this prose."),
 }).strict();
 export type FinishTurnInput = z.infer<typeof finishTurnSchema>;
+/** The model supplies conversation and honest pending intent only. Executed
+ * operations, IDs, targets, revisions and views are derived from tool records. */
+export const finishExecutedSchema = z.object({
+  response: z.string().max(4000).optional().describe("Questions or explanation; amounts and status are rendered by the server."),
+  pending: z.array(z.object({kind:outcomeKindSchema,reason:z.string().trim().min(1).max(400)}).strict()).max(24).optional()
+    .describe("Requested work not attempted by any tool. State why it remains unfinished; never silently drop it."),
+}).strict();
+export type FinishExecutedInput = z.infer<typeof finishExecutedSchema>;
 export type EvidenceRegistration = {
   toolName: string;
   kind: OutcomeKind;
@@ -57,6 +65,9 @@ export type EvidenceRegistration = {
   questions?: string[];
   detail?: string;
   quoteState?: {quoteIds:string[];digest:string};
+  /** Server-only operation dimensions; source revisions remain in quoteState. */
+  comparisonBinding?: string;
+  invalidated?: () => boolean;
   required?: boolean;
   current?: () => boolean;
 };
@@ -69,6 +80,7 @@ const toolsFor: Record<OutcomeKind, string[]> = {
   vessel_lookup: ["search_vessels", "get_vessel"], memory_read: ["recall_memory"], memory_write: ["remember_memory", "forget_memory"],
   notes_read: ["read_scratchpad"], notes_write: ["write_scratchpad"],
 };
+const INVALIDATED_COMPARISON = "An earlier comparison remains unfinished because its source quotations changed. Recompute its selected charges and exact terms before treating that comparison as complete.";
 
 /** Per-run completion evidence. It tracks execution, not semantic understanding
  * of all human intent; it grants no financial or memory authority. */
@@ -82,6 +94,7 @@ export class CompletionSession {
   private accepted?: { response: string; outcomes: Array<Outcome & { disposition: EvidenceDisposition }> };
   private issues: Issue[] = [];
   private attempted = false;
+  private readonly pendingIntent: NonNullable<FinishExecutedInput["pending"]> = [];
 
   constructor(private readonly renderPublication?: (response: string) => string) {}
 
@@ -97,6 +110,36 @@ export class CompletionSession {
   private publicEvidence({ id, toolCallId, toolName, kind, disposition, targets, comparisonCurrency, reportingView, summary }: Evidence) { return { id, toolCallId, toolName, kind, disposition, targets, ...(comparisonCurrency ? { comparisonCurrency } : {}), ...(reportingView ? { reportingView: { ...reportingView } } : {}), ...(summary ? { summary } : {}) }; }
   private signature(evidence: Evidence) { return JSON.stringify([evidence.kind, [...evidence.targets].sort()]); }
   private isCurrent(evidence: Evidence) { try { const latest = evidence.kind === "quotation" && evidence.required && evidence.targets.length ? this.latest.get(this.signature(evidence)) : undefined; return (!latest || latest === evidence.id || evidence.disposition === "failed") && evidence.current?.() !== false; } catch { return false; } }
+  private invalidatedComparisons() {
+    const entries = [...this.evidence.values()];
+    return entries.filter((entry,index) => {
+      if (entry.kind !== "comparison" || entry.disposition === "failed" || this.isCurrent(entry)) return false;
+      let invalidated: boolean;
+      try { invalidated = entry.invalidated?.() ?? ["completed","awaiting_approval"].includes(entry.disposition); }
+      catch { invalidated = true; }
+      if (!invalidated) return false;
+      // A different selection, FX relationship, tax basis or view cannot close
+      // this branch. Source revision changes alone permit exact recomputation.
+      return !entry.comparisonBinding || !entries.slice(index+1).some(next =>
+        next.kind === "comparison" && next.comparisonBinding === entry.comparisonBinding
+        && ["completed","awaiting_approval"].includes(next.disposition) && this.isCurrent(next));
+    });
+  }
+  finishExecuted(input: FinishExecutedInput, callId: string) {
+    for (const pending of input.pending ?? []) if (!this.pendingIntent.some(item=>item.kind===pending.kind && item.reason===pending.reason)) this.pendingIntent.push({...pending});
+    // Each executed result keeps its own binding, even when another result has
+    // the same kind/targets but a different currency, selection or view.
+    const outcomes = [...this.evidence.values()].filter(item => this.isCurrent(item)).map(item => ({
+      id: `work-${item.id.slice(7)}`, requestedOutcome: item.kind, kind: item.kind,
+      targets: [...item.targets], evidenceIds: [item.id],
+      ...(item.comparisonCurrency ? {comparisonCurrency:item.comparisonCurrency} : {}),
+      ...(item.kind === "quotation_read" ? {reportingViews:[item.reportingView ?? {stage:"exact" as const}]} : {}),
+    }));
+    // Older superseded execution rows are historical, not model-declared intent.
+    for (const id of this.outcomes.keys()) if (id.startsWith("work-") && !outcomes.some(row=>row.id===id)) this.outcomes.delete(id);
+    const pendingText = [...this.pendingIntent.map(({reason})=>`Unfinished requested work: ${reason}`),...(this.invalidatedComparisons().length?[INVALIDATED_COMPARISON]:[])].join("\n");
+    return this.finish({outcomes,response:[input.response,pendingText].filter(Boolean).join("\n\n")},callId);
+  }
   finish(input: FinishTurnInput, callId: string) {
     this.attempted = true; this.accepted = undefined;
     const seen = new Set<string>(), issues: Issue[] = [];
@@ -187,6 +230,11 @@ export class CompletionSession {
       const branch={disposition:evidence.disposition,targets:[...evidence.targets],...(evidence.comparisonCurrency?{comparisonCurrency:evidence.comparisonCurrency}:{}),...(evidence.operationId?{operationId:evidence.operationId}:{}),questions:[...evidence.questions??[]],...(evidence.detail!==undefined?{detail:evidence.detail}:{}),...(evidence.reportingView?{reportingView:{...evidence.reportingView}}:{}),...(evidence.quoteState?{quoteState:{quoteIds:[...evidence.quoteState.quoteIds],digest:evidence.quoteState.digest}}:{})};
       return [{kind:evidence.kind,branches:[branch]}];
     });
+    for (const evidence of this.invalidatedComparisons()) outcomes.push({kind:"comparison",branches:[{
+      disposition:"awaiting_input",verificationRequired:true,targets:[...evidence.targets],questions:[],detail:INVALIDATED_COMPARISON,
+      ...(evidence.comparisonCurrency?{comparisonCurrency:evidence.comparisonCurrency}:{}),
+      ...(evidence.quoteState?{quoteState:structuredClone(evidence.quoteState)}:{}),
+    }]});
     // A rejected finish may declare work before any matching tool executes.
     // Keep its typed obligation, never its model-authored financial narrative.
     const resolved = this.candidate ? this.validate(this.candidate.input).resolved : [];
@@ -206,9 +254,15 @@ export class CompletionSession {
         detail: "No matching verified completion was established for this declared request. It remains unfinished; recheck the original request and current tool results before acting.",
       })) });
     }
+    for (const {kind, reason} of this.pendingIntent) outcomes.push({kind,branches:[{disposition:"awaiting_input",verificationRequired:true,targets:[],questions:[reason]}]});
     const result={version:1 as const,outcomes};assertRemainingObligations(result);return result;
   }
   publicationLimitExceeded() { return this.issues.some(issue => issue.code === "publication_too_large"); }
   wasAttempted() { return this.attempted; }
   context() { return { unfinishedOutcomes: [...this.outcomes.values()], evidence: [...this.evidence.values()].map(item => ({ ...this.publicEvidence(item), current: this.isCurrent(item) })), completionIssues: this.issues }; }
+  executionContext() {
+    const work=[...this.evidence.values()].filter(item=>this.isCurrent(item)).map(({toolName,kind,disposition,targets,comparisonCurrency,reportingView})=>({toolName,kind,disposition,targets,comparisonCurrency,reportingView}));
+    const invalidated=this.invalidatedComparisons().map(({toolName,kind,targets,comparisonCurrency})=>({toolName,kind,targets,comparisonCurrency,disposition:"awaiting_input" as const,invalidated:true,detail:INVALIDATED_COMPARISON}));
+    return {work:[...work,...invalidated],pending:this.pendingIntent,issues:this.issues};
+  }
 }

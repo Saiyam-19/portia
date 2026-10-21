@@ -27,7 +27,7 @@ it('serializes current strict tools through the installed provider and executes 
  const bodies: Array<{tools:Array<{function:{name:string;strict?:boolean;parameters:{properties:object;required:string[]}}}>}>=[];
  vi.stubGlobal('fetch',vi.fn(async(_url,init)=>{
   const body=JSON.parse(init.body);bodies.push(body);
-  return Response.json({id:'synthetic-current-tools',object:'chat.completion',created:1,model:body.model,choices:[{index:0,message:{role:'assistant',content:null,tool_calls:[{id:'done',type:'function',function:{name:'finish_turn',arguments:JSON.stringify({outcomes:[],response:'Hello.'})}}]},finish_reason:'tool_calls'}],usage:{prompt_tokens:1,completion_tokens:1,total_tokens:2}});
+  return Response.json({id:'synthetic-current-tools',object:'chat.completion',created:1,model:body.model,choices:[{index:0,message:{role:'assistant',content:null,tool_calls:[{id:'done',type:'function',function:{name:'finish_turn',arguments:JSON.stringify({response:'Hello.'})}}]},finish_reason:'tool_calls'}],usage:{prompt_tokens:1,completion_tokens:1,total_tokens:2}});
  }));
  await createMigrationMainAgent({alias:'model-1'}).generate({prompt:'Hello'});
  expect(bodies).toHaveLength(1);

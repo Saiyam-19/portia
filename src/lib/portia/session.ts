@@ -37,8 +37,9 @@ function billingLine(line: CommandLine, previous?: QuoteLine): QuoteLine {
   if (billing.kind === "flat") return { name: line.name, ...(currency ? { currency } : {}), ...(billing.price !== undefined ? { amount: billing.price } : {}), amountBasis: billing.basis, billingScope: "line", unit: "amount" };
   if (billing.kind === "quantity") return { name: line.name, ...(currency ? { currency } : {}), ...(billing.price !== undefined ? { rate: billing.price } : {}), billingScope: "line", unit: "quantity",
     ...(billing.quantity !== undefined ? { quantity: billing.quantity } : {}), quantityLabel: billing.quantityLabel, ...(billing.perQuantity ? { perQuantity: billing.perQuantity } : {}) };
-  if (billing.kind === "movement" || billing.kind === "tonne") return { name: line.name, ...(currency ? { currency } : {}), ...(billing.price !== undefined ? { rate: billing.price } : {}), billingScope: "line", unit: billing.kind,
-    ...(billing.quantity !== undefined ? { quantity: billing.quantity } : {}), ...(billing.perQuantity ? { perQuantity: billing.perQuantity } : {}) };
+  if (billing.kind === "movement" || billing.kind === "tonne" || billing.kind === "tonne-movement") return { name: line.name, ...(currency ? { currency } : {}), ...(billing.price !== undefined ? { rate: billing.price } : {}), billingScope: "line", unit: billing.kind,
+    ...(billing.quantity !== undefined ? { quantity: billing.quantity } : {}), ...(billing.perQuantity ? { perQuantity: billing.perQuantity } : {}),
+    ...(billing.kind === "tonne-movement" ? {movements:billing.movements,perMovements:billing.perMovements} : {}) };
   if (billing.kind === "percentage") return { name: line.name, ...(currency ? { currency } : {}), billingScope: "line", unit: "percentage",
     ...(billing.percent !== undefined ? { percent: billing.percent } : {}), ...(billing.baseLines ? { baseLines: billing.baseLines } : {}) };
   return { name: line.name, ...(currency ? { currency } : {}), ...(billing.price !== undefined ? { rate: billing.price } : {}), billingScope: "line", unit: billing.kind,
@@ -158,6 +159,8 @@ export const exchangeRateSchema = z.object({
   if (!ratio && !unit) ctx.addIssue({ code: "custom", message: "Supply either the original fromAmount and toAmount together, or one unit rate; never mix them." });
 });
 export const comparisonSchema = z.object({
+  taxBasis: z.enum(["as-supplied","before-tax"]).optional().describe("Requested tax view. Defaults to as-supplied with unknown tax qualified; before-tax requires known tax presentation."),
+  selections: z.array(z.object({quoteId:z.string().min(1).max(100),revision:z.number().int().nonnegative(),lineIds:z.array(z.string().min(1).max(100)).min(1).max(16)}).strict()).min(2).max(8).optional(),
   quoteIds: z.array(z.string().min(1).max(100)).min(2).max(8), currency: currencySchema.optional().describe("Requested uppercase three-letter comparison currency; no replacement or conversion is inferred."),
   exchangeRates: z.array(exchangeRateSchema).max(6).optional(),
   rounding: z.object({ stage: z.enum(["line", "total"]), decimals: z.number().int().min(0).max(8), scope: z.enum(["converted-only", "all-comparison-amounts"]).optional().describe("Defaults to converted-only: preserve amounts already in the comparison currency. Use all-comparison-amounts only when explicitly requested.") }).strict().optional(),
@@ -165,6 +168,11 @@ export const comparisonSchema = z.object({
   reviewGroup: z.string().trim().min(1).max(80).optional(),
   retryOf: z.string().min(1).max(100).optional().describe("Returned errorId, clarificationId or rejected toolCallId for this same comparison. Omit for a new independent comparison."),
 }).strict();
+export const selectedComparisonSchema = comparisonSchema.omit({quoteIds:true}).extend({
+  officialQuoteIds: comparisonSchema.shape.quoteIds.optional().describe("Whole official-tariff scopes only. Supplied quotations require explicit selections instead."),
+}).superRefine((input,ctx)=>{
+  if (!!input.selections === !!input.officialQuoteIds) ctx.addIssue({code:"custom",path:["selections"],message:"Provide explicit supplier line selections OR whole official-quotation IDs."});
+});
 const comparisonScopeProvenanceSchema = z.object({
   conversationId: z.string(), statement: z.string().min(1).max(1000),
   sourceMessageHash: z.string().regex(/^[a-f0-9]{64}$/),
@@ -457,7 +465,7 @@ export class QuoteSession {
         const quote = structuredClone(saved), result = reportQuote(await this.calculate(quote), parsed.data.reporting); abortSignal?.throwIfAborted();
         const body = `**Saved quotation — ${safe(quote.name)}; ID ${safe(quote.id)}; revision ${quote.revision}**\n\n` + quoteMetadata(quote) + renderResult(result) + quoteChanges(quote, result) + quotePreviousChange(this.previousQuotes.get(quote.id), result);
         this.recordAnswer(`${readId}:saved:${quote.id}`, { ...result, quoteId: quote.id, body, questions: [], limitations: [] }, result.questions);
-        results.push({ quoteId: quote.id, revision: quote.revision, name: quote.name, result, body });
+        results.push({ quoteId: quote.id, revision: quote.revision, name: quote.name, lines:quote.lines, terms:quote.terms, call:quote.call, result, body });
       }
       const draftBodies = [];
       for (const draft of pending) {
@@ -549,7 +557,7 @@ export class QuoteSession {
       if (command && input.name && !label) return this.error("The proposed quotation name is not grounded as a complete label in authenticated human input for this target. Keep the name empty or copy the exact supplied label; no quotation was saved.", [["name"]]);
       const pricing = prior?.pricing ?? input.pricing;
       if (command && pricing === "supplied" && input.services) return this.error("Supplied quotation scope consists of named lines, including unpriced requested charges. Canonical services apply only to official tariffs; preserve each supplied charge in lines.", [["services"]]);
-      for (const field of ["reference", "context", "port", "terminal", "operator"] as const) if (command && pricing === "supplied" && input.call?.[field] !== undefined && input.call[field] !== prior?.call[field] && !grounded(input.call[field], this.currentRequest)) {
+      for (const field of ["supplier", "chargingAuthority", "reference", "context", "port", "terminal", "operator"] as const) if (command && pricing === "supplied" && input.call?.[field] !== undefined && input.call[field] !== prior?.call[field] && !grounded(input.call[field], this.currentRequest)) {
         const value = input.call[field]!;
         const earlier = this.authoredFact(input, prior, {
           excerpt: value,
@@ -607,8 +615,12 @@ export class QuoteSession {
       }
       if (input.services) quote.services = [...new Set([...quote.services, ...input.services])];
       if (input.terms) {
+        if (input.terms.removeStatedTotals && input.terms.statedTotals) return this.error("Cannot supply and remove supplier-stated totals together.");
+        if (input.terms.removeStatedTotals && command && !grounded(command.scopeChangeEvidence,this.currentRequest)) return this.error("Removing the supplier-stated total requires the current human correction.");
         const unsupported = [...new Set([...(quote.terms.unsupportedServices ?? []), ...(input.terms.unsupportedServices ?? [])])];
         quote.terms = { ...quote.terms, ...input.terms, ...(unsupported.length ? { unsupportedServices: unsupported } : {}) };
+        if (input.terms.removeStatedTotals) delete quote.terms.statedTotals;
+        delete quote.terms.removeStatedTotals;
       }
       const removals = [...command?.removeServices ?? [], ...command?.removeUnsupportedServices ?? []];
       if (removals.length) {
@@ -636,9 +648,12 @@ export class QuoteSession {
         if (new Set(linePatches.map(line => key(line.name))).size !== linePatches.length) return this.error("Each quoted charge needs a distinct name.");
         for (const [patchIndex, rawPatch] of linePatches.entries()) {
           const patch = rawPatch as CommandLine & QuoteLine;
-          const index = quote.lines.findIndex(line => key(line.name) === key(patch.name));
+          const index = quote.lines.findIndex(line => patch.lineId ? line.id === patch.lineId : key(line.name) === key(patch.name));
+          if (patch.lineId && index < 0) return this.error("The selected line ID does not belong to this quotation. Read its current lines before correcting.");
+          if (quote.lines.some((line,i)=>i!==index && key(line.name)===key(patch.name))) return this.error("A renamed charge would duplicate an existing line label.");
           if (command) {
             const priorLine = index < 0 ? undefined : quote.lines[index], previousKind = storedBillingKind(priorLine);
+            if (patch.coverage?.some(service=>!priorLine?.coverage?.includes(service) && !grounded(service,this.currentRequest) && !this.authoredFact(input,prior,{excerpt:service,asserts:text=>grounded(service,text),contradicts:text=>/\b(?:exclude|remove|not|withdraw)\b/i.test(text)&&grounded(service,text)}))) return this.error("Service coverage must preserve explicit authenticated supplier facts; label similarity cannot establish equivalence.");
             if (patch.clearFields?.length && (!priorLine || !grounded(command.scopeChangeEvidence, this.currentRequest))) return this.error("Withdrawing line facts requires an existing line and a verbatim current human correction.", [["scopeChangeEvidence"], ["lines", String(patchIndex), "clearFields"]]);
             if (patch.price !== undefined && !priorLine) return this.error(`Price-only correction requires an existing named line: ${patch.name}. Provide a complete billing recipe for a new line.`, [["lines", String(patchIndex), "price"], ["lines", String(patchIndex), "billing"]]);
             if (patch.price !== undefined && previousKind === "percentage") return this.error(`${patch.name}: a percentage recipe has no monetary price. Correct billing.percent, retaining its named base lines, or explicitly replace the billing kind.`, [["lines", String(patchIndex), "price"], ["lines", String(patchIndex), "billing"]]);
@@ -669,6 +684,8 @@ export class QuoteSession {
                   if (line.periodHours === undefined && priorLine.periodHours !== undefined) line.periodHours = priorLine.periodHours;
                   if (line.commenced === undefined && priorLine.commenced !== undefined) line.commenced = priorLine.commenced;
                   if (line.quantity === undefined && priorLine.quantity !== undefined) line.quantity = priorLine.quantity;
+                  if (line.movements === undefined && priorLine.movements !== undefined) line.movements = priorLine.movements;
+                  if (line.perMovements === undefined && priorLine.perMovements !== undefined) line.perMovements = priorLine.perMovements;
                   if (line.quantityLabel === undefined && priorLine.quantityLabel !== undefined) line.quantityLabel = priorLine.quantityLabel;
                   if (line.resourceQuantity === undefined && priorLine.resourceQuantity !== undefined) line.resourceQuantity = priorLine.resourceQuantity;
                   if (line.resourceLabel === undefined && priorLine.resourceLabel !== undefined) line.resourceLabel = priorLine.resourceLabel;
@@ -682,6 +699,11 @@ export class QuoteSession {
                 if (priorLine.statedExtension) line.statedExtension = priorLine.statedExtension;
               }
             } else line = priorLine ? structuredClone(priorLine) : billingLine(patch);
+            line.id = priorLine?.id ?? randomUUID();
+            line.name = patch.name;
+            if (priorLine?.coverage) line.coverage = [...priorLine.coverage];
+            if (patch.coverage) line.coverage = [...patch.coverage];
+            if (priorLine && priorLine.name !== line.name) for (const dependent of quote.lines) if (dependent.baseLines) dependent.baseLines = dependent.baseLines.map(base=>key(base)===key(priorLine.name)?line.name:base);
             if (patch.currency) line.currency = patch.currency;
             if (patch.minimum) line.minimum = patch.minimum;
             if (patch.maximum) line.maximum = patch.maximum;
@@ -700,6 +722,7 @@ export class QuoteSession {
             continue;
           }
           const line = index < 0 ? { ...patch } : { ...quote.lines[index], ...patch };
+          line.id = (index < 0 ? undefined : quote.lines[index].id) ?? randomUUID();
           if (patch.amount !== undefined && patch.rate === undefined) { delete line.rate; line.unit = "amount"; }
           if (patch.rate !== undefined && patch.amount === undefined) delete line.amount;
           if (patch.removeMinimum) delete line.minimum;
@@ -947,6 +970,7 @@ export class QuoteSession {
     // Existing approved packets predate scope and used all-amount rounding.
     // New proposals always bind the explicit scope in their exact review.
     if (input.rounding) input.rounding.scope ??= approvedOperation ? "all-comparison-amounts" : "converted-only";
+    if (input.selections) input.taxBasis ??= "as-supplied";
     const { reviewGroup, ...comparisonInput } = input;
     delete comparisonInput.retryOf;
     let scopeProvenance: z.infer<typeof comparisonScopeProvenanceSchema> | undefined;
@@ -979,7 +1003,22 @@ export class QuoteSession {
     if (new Set(input.quoteIds).size !== input.quoteIds.length) return this.error("Select distinct saved quotations.");
     const quotes = input.quoteIds.map(id => this.authority?.pendingQuote(id) as Quote | undefined ?? this.quotes.get(id));
     if (quotes.some(quote => !quote)) return this.unknownTargetError("A selected quotation is not saved in this conversation. Read the intended quotations, then retry with their returned IDs and this errorId in retryOf.", input.quoteIds.filter((_, index) => !quotes[index]));
-    const results = await Promise.all(quotes.map(quote => this.authority?.pendingQuote(quote!.id) ? this.calculateCandidate(quote!) : this.calculate(quote!)));
+    if (input.selections) {
+      if (input.selections.length !== input.quoteIds.length || new Set(input.selections.map(item=>item.quoteId)).size !== input.quoteIds.length || input.selections.some(item=>!input.quoteIds.includes(item.quoteId))) return this.error("Each selected quotation must have exactly one explicit line selection.");
+      for (const selected of input.selections) {
+        const quote=quotes.find(item=>item!.id===selected.quoteId)!;
+        if (quote.pricing !== "supplied") return this.error("Selected-line comparison currently supports supplier quotations only; official tariff scope remains separate.");
+        if (selected.revision !== quote.revision) return this.error("The selected quotation revision is stale. Read its exact current revision before comparing.");
+        if (new Set(selected.lineIds).size !== selected.lineIds.length || selected.lineIds.some(id=>!quote.lines.some(line=>line.id===id))) return this.error("Select distinct existing line IDs from this quotation; an invalid selection never means all lines.");
+      }
+    }
+    if (this.authority && quotes.some(quote=>!this.authority!.pendingQuote(quote!.id) && this.sensitive(quote!) && !this.authority!.approvedQuote(quoteCore(quote!)))) return this.recordAnswer(answerId,{
+      status:"unresolved" as const,availability:"unavailable" as const,
+      body:"A selected saved quotation has no exact-term approval for its current revision. Review its complete terms before calculating or comparing it.",questions:[],
+    });
+    const results = await Promise.all(quotes.map(quote => input.selections
+      ? calculateSupplied(quote!,input.selections.find(selected=>selected.quoteId===quote!.id)!.lineIds,input.taxBasis)
+      : this.authority?.pendingQuote(quote!.id) ? this.calculateCandidate(quote!) : this.calculate(quote!)));
     if (results.some(result => result.sourceClass === "published-reference" || result.status === "estimated" || result.totals?.some(total => total.basis === "reference"))) return this.recordAnswer(answerId, { status: "unresolved" as const, availability: "unavailable" as const, body: "A selected quotation is a dated reference or conditional estimate with unconfirmed current applicability. These amounts cannot support a definitive price ranking; their source limitations remain visible in each saved estimate.", questions: [] });
     const missing = results.flatMap((result, index) => result.questions.map(question => `${quotes[index]!.name}: ${question}`));
     if (missing.length) return needsInput(missing);
@@ -992,7 +1031,10 @@ export class QuoteSession {
     });
     const totals = results.map(result => result.totals!);
     const scope = (rows: NonNullable<QuoteResult["totals"]>) => JSON.stringify(rows.flatMap(row => row.chargeIds.map(id => [row.basis, id])).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b))));
-    const scopes = totals.map(scope), mismatched = scopes.some(value => value !== scopes[0]);
+    const selectedLines = quotes.map(quote=>input.selections ? quote!.lines.filter(line=>input.selections!.find(selected=>selected.quoteId===quote!.id)!.lineIds.includes(line.id!)) : quote!.lines);
+    const scopes = input.selections ? selectedLines.map(lines=>JSON.stringify([...new Set(lines.flatMap(line=>line.coverage??[]).map(key))].sort())) : totals.map(scope);
+    const missingCoverage = !!input.selections && selectedLines.some(lines=>lines.some(line=>!line.coverage?.length));
+    const mismatched = missingCoverage || scopes.some(value => value !== scopes[0]);
     if (mismatched) {
       if (!input.scopeEquivalence) return quotes.every(quote => quote!.pricing === "supplied")
         ? needsInput("The selected quotations cover different services. Provide an explicit supplied-package scope equivalence statement before ranking their prices.")
@@ -1000,7 +1042,7 @@ export class QuoteSession {
       if (quotes.some(quote => quote!.pricing !== "supplied")) return this.error("Scope equivalence can bridge differently named supplied packages only; official/reference scopes must match exactly.");
       if (!exactApproved) {
         const statement = input.scopeEquivalence.statement;
-        const selectedScopes = quotes.map((quote, index) => ({ quoteId: quote!.id, scope: scopes[index] })).sort((a, b) => a.quoteId.localeCompare(b.quoteId));
+        const selectedScopes = quotes.map((quote, index) => ({ quoteId: quote!.id, scope: canonical({coverage:scopes[index],selection:input.selections?.find(selected=>selected.quoteId===quote!.id)??null}) })).sort((a, b) => a.quoteId.localeCompare(b.quoteId));
         const retained = input.retryOf ? this.comparisonScopeContinuations.get(input.retryOf) : undefined;
         const retainedMatches = retained?.statement === statement && canonical(retained.selectedScopes) === canonical(selectedScopes);
         const refusesEquivalence = (text: string) => /\b(?:do not|don't|cannot|can't|must not|not|never|no)\b[^.!?;\n]{0,100}\b(?:equivalent|equivalence|comparable|same scope|compare|comparison|rank|ranking)\b/i.test(text)
@@ -1080,7 +1122,8 @@ export class QuoteSession {
     }
     if (usedRates.size !== rates.size) return this.error("Every supplied FX relationship must be used directly by the selected comparison currency; remove unused or triangulated relationships.");
     if (this.authority && !exactApproved && (input.exchangeRates?.length || input.rounding || input.scopeEquivalence || quotes.some(quote => !!this.authority?.pendingQuote(quote!.id)))) {
-      const operationInput = { ...comparisonInput, currency, selectedScopes: quotes.map((quote,index)=>({quoteId:quote!.id,lineScopes:totals[index].flatMap(total=>total.chargeIds).sort()})) };
+      const operationInput = { ...comparisonInput, currency, selectedScopes: quotes.map((quote,index)=>({quoteId:quote!.id,quotation:quote!.name,revision:quote!.revision,lineScopes:totals[index].flatMap(total=>total.chargeIds).sort(),
+        ...(input.selections?{selectedCharges:selectedLines[index].map(line=>({name:line.name,coverage:line.coverage??[]})),taxStatus:quote!.terms.taxStatus??(quote!.terms.taxPercent!==undefined?"additional":"unknown"),sourceTotals:totals[index].map(({currency,amount})=>({currency,amount}))}:{})})) };
       const operation = { id: randomUUID(), kind: "comparison" as const, input: operationInput, quotes: quotes.map(q => ({ ...AuthoritySession.binding(quoteCore(q!)), name: q!.name })) };
       if (!this.authority.approvedComparison(operation)) return this.recordAnswer(answerId, this.authority.propose(operation, reviewGroup));
     }
@@ -1092,9 +1135,15 @@ export class QuoteSession {
     const roundingText = input.rounding
       ? `Half-up rounding per ${input.rounding.stage} to ${input.rounding.decimals} decimals, applied to ${input.rounding.scope === "all-comparison-amounts" ? "all comparison amounts" : "converted amounts only; original amounts already in the comparison currency remain unchanged"}.`
       : exactRows.some(row => row.row.exactAmount) ? "Exact rational comparison; a non-terminating decimal is shown as a reduced fraction, without monetary rounding." : "Exact comparison; no monetary rounding.";
+    const taxUnknown = quotes.some(quote=>quote!.pricing==="supplied" && (quote!.terms.taxStatus==="unknown" || !quote!.terms.taxStatus && quote!.terms.taxPercent===undefined));
+    const selectedText = input.selections ? "Selected charges: " + quotes.map((quote,index)=>`${safe(quote!.name)} (revision ${quote!.revision}): ${selectedLines[index].map(line=>safe(line.name)).join(", ")}`).join("; ") + ". All other lines excluded. " : "";
+    const taxQualification = input.taxBasis === "before-tax" ? "Before-tax comparison; original tax terms unchanged. No all-in winner is established. " : taxUnknown ? "Tax status unknown for at least one supplier; no all-in winner is established. " : quotes.some(quote=>quote!.terms.taxStatus==="excluded") ? "Tax excluded from at least one supplier view; no all-in winner is established. " : "";
+    const invoiceRoundingQualification = input.selections && quotes.some((quote,index)=>quote!.terms.rounding?.stage==="total" && selectedLines[index].length!==quote!.lines.length) ? "Source invoice-total rounding has not been allocated to a subset; selected components use their exact amounts. " : "";
     const body = `**Saved quotation comparison**\n\n| Quotation | Supplied/source total | ${currency} comparison |\n|---|---:|---:|\n${exactRows.map(({row,value}) => `| ${safe(row.name)} | ${row.sourceTotals ? row.sourceTotals.map(t => money(t.currency, t.amount)).join(" + ") : money(row.sourceCurrency, row.sourceAmount)} | ${exactMoney(value)} |`).join("\n")}\n\n${compareRational(differenceValue, rational("0")) === 0 ? "The totals are equal." : `**${safe(ranked[0].row.name)}** has the lower total; difference from ${safe(ranked.at(-1)!.row.name)}: **${exactMoney(differenceValue)}**.`}\n\n${input.scopeEquivalence ? `Confirmed supplied-package scope equivalence: ${safe(input.scopeEquivalence.statement)}. ` : ""}${fxText} ${roundingText} Compares included services and stated scenarios, not unquoted invoice items or operational suitability.${quotes.some(quote => quote!.pricing === "official") ? " Current tariff applicability remains unverified; conditional source limitations carry through this comparison." : ""}`;
-    this.answers.set(answerId, body); this.answerKinds.set(answerId, "calculated"); this.comparisons.set(answerId, new Set(input.quoteIds));
-    return this.recordAnswer(answerId, { status: "calculated" as const, body, questions: [], converted, difference, ...(exactDifference ? { exactDifference } : {}), currency });
+    const qualifiedBody = [selectedText + taxQualification + invoiceRoundingQualification,body].filter(Boolean).join("\n\n");
+    this.answers.set(answerId, qualifiedBody); this.answerKinds.set(answerId, "calculated"); this.comparisons.set(answerId, new Set(input.quoteIds));
+    return this.recordAnswer(answerId, { status: "calculated" as const, body:qualifiedBody, questions: [], converted, difference, ...(exactDifference ? { exactDifference } : {}), currency,
+      executedComparison:{...comparisonInput,currency,sourceRevisions:quotes.map(quote=>({quoteId:quote!.id,revision:quote!.revision})),taxStatus:quotes.map(quote=>({quoteId:quote!.id,status:quote!.terms.taxStatus??(quote!.terms.taxPercent!==undefined?"additional":"unknown")}))} });
   }
   private evidenceText() {
     if (this.incompleteTools.size > 0 && ![...this.answers.values()].some(answer => answer.trim())) return [...this.auxiliary.values(), "No tool-backed result was completed because the business inputs could not be validated. Confirm the disputed quotation or calculation details before retrying."].join("\n\n");

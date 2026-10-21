@@ -8,11 +8,11 @@ import { MigrationTokenManager } from "../../src/lib/migration/bridge";
 const usage = { inputTokens: { total: 1, noCache: 1, cacheRead: undefined, cacheWrite: undefined }, outputTokens: { total: 1, text: 1, reasoning: undefined } };
 const response = (content: LanguageModelV4GenerateResult["content"], finish: "stop" | "tool-calls"): LanguageModelV4GenerateResult => ({ content, finishReason: { unified: finish, raw: undefined }, usage, warnings: [] });
 const modelCall = (session: QuoteSession, toolName: string, input: unknown, kind: "quotation" | "memory_write") => {
+  void session; void kind;
   let step = 0;
   return new MockLanguageModelV4({ doGenerate: async () => {
     if (step++ === 0) return response([{ type: "tool-call", toolName, toolCallId: "adversarial", input: JSON.stringify(input) }], "tool-calls");
-    const evidence = session.completion.context().evidence.find(item => item.toolCallId === "adversarial")!;
-    return response([{ type: "tool-call", toolName: "finish_turn", toolCallId: `finish-${step}`, input: JSON.stringify({ outcomes: [{ id: "attempt", requestedOutcome: "Attempted unauthorized operation", kind, targets: evidence.targets, evidenceIds: [evidence.id] }] }) }], "tool-calls");
+    return response([{ type: "tool-call", toolName: "finish_turn", toolCallId: `finish-${step}`, input: JSON.stringify({}) }], "tool-calls");
   } });
 };
 afterEach(() => vi.restoreAllMocks());

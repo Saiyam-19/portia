@@ -13,8 +13,7 @@ const usage={inputTokens:{total:1,noCache:1,cacheRead:undefined,cacheWrite:undef
 function finishFromWork(options: LanguageModelV4CallOptions, step: number) {
  const line=options.prompt.flatMap(message=>message.role==='system'?message.content.split('\n'):[]).find(value=>value.startsWith('WORK_RESULTS='));
  if(!line)throw new Error('Missing result evidence');
- const work=JSON.parse(line.slice('WORK_RESULTS='.length)) as {evidence:Array<{id:string;kind:string;targets:string[];comparisonCurrency?:string;current:boolean}>};
- return {type:'tool-call' as const,toolCallId:'fixture-finish-'+step,toolName:'finish_turn',input:JSON.stringify({outcomes:work.evidence.filter(item=>item.current).map((item,index)=>({id:'operation-'+index,requestedOutcome:'Fixture operation '+item.kind,kind:item.kind,targets:item.targets,...(item.comparisonCurrency?{comparisonCurrency:item.comparisonCurrency}:{}),evidenceIds:[item.id]})),response:'Please review the prepared work.'})};
+ return {type:'tool-call' as const,toolCallId:'fixture-finish-'+step,toolName:'finish_turn',input:JSON.stringify({response:'Please review the prepared work.'})};
 }
 const coastal={pricing:'official',vesselCategoryEvidence:'Our vessel is an ordinary general-cargo ship',services:['berth','gst','rounding'],call:{port:'Mumbai',terminal:'Indira Dock',gt:'8000',service:'coastal',flag:'India',vesselCategory:'general-cargo',coastalLicence:true,berthStart:'10 October 2026 08:00 IST',berthEnd:'11 October 2026 03:40 IST',readinessTime:'11 October 2026 03:30 IST',cargoOperation:'discharging',berthAllotted:true,readinessValid:true,favourableConditions:true,idleTime:false,shifting:false,falseReadiness:false,priority:false,ousting:false,penalty:false,rebate:false,directBilling:true,registeredCustomer:true,privateCustomer:true,supplierState:'Maharashtra',supplyState:'Maharashtra',sez:false,taxExemption:false,standaloneBill:true}};
 beforeEach(()=>vi.clearAllMocks());

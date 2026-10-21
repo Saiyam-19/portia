@@ -6,7 +6,6 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { MockLanguageModelV4 } from "ai/test";
 import type { LanguageModelV4StreamPart } from "@ai-sdk/provider";
 import type { createMigrationMainAgent } from "../../src/lib/migration/domain-agent";
-import type { QuoteSession } from "../../src/lib/portia/session";
 import { api, components, internal } from "../../convex/_generated/api";
 import schema from "../../convex/schema";
 import type { Id } from "../../convex/_generated/dataModel";
@@ -66,7 +65,7 @@ it("preserves an accepted question through route, exact review, persistence and 
   const actual = await vi.importActual<typeof import("../../src/lib/migration/domain-agent")>("../../src/lib/migration/domain-agent");
   const question = "What is the certificate price?";
   const privateDraft = "UNVERIFIED_MODEL_PROSE: total RON 999999.";
-  let session: QuoteSession | undefined, step = 0;
+  let step = 0;
   const model = new MockLanguageModelV4({ doStream: async () => {
     const n = step++;
     return { stream: new ReadableStream<LanguageModelV4StreamPart>({ start(controller) {
@@ -78,9 +77,7 @@ it("preserves an accepted question through route, exact review, persistence and 
         controller.enqueue({ type: "tool-call", toolCallId: "fee", toolName: "supplied_quote", input: JSON.stringify({ action: "create", lines: [{ name: "Fee", currency: "CAD", billing: { kind: "flat", price: "20", basis: "user-stated-flat" } }] }) });
         controller.enqueue({ type: "tool-call", toolCallId: "sum", toolName: "calculate_charges", input: JSON.stringify({ label: "sum", expression: "7+8" }) });
       } else {
-        const evidence = session!.completion.context().evidence.filter(item => item.current);
         controller.enqueue({ type: "tool-call", toolCallId: "finish", toolName: "finish_turn", input: JSON.stringify({
-          outcomes: evidence.map((item, index) => ({ id: "outcome-" + index, requestedOutcome: "Complete " + item.kind, kind: item.kind, targets: item.targets, evidenceIds: [item.id] })),
           response: question,
         }) });
       }
@@ -89,7 +86,7 @@ it("preserves an accepted question through route, exact review, persistence and 
     } }) };
   } });
   mocks.agent.mockImplementation((options: Parameters<typeof createMigrationMainAgent>[0]) => {
-    session = options.session; return actual.createMigrationMainAgent({ ...options, mainModel: model });
+    return actual.createMigrationMainAgent({ ...options, mainModel: model });
   });
   const response = await POST(new Request("https://portia.test/api/chat", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({
     kind: "question", requestId: crypto.randomUUID(), conversationId: null, expectedRevision: null, modelAlias: "model-1",

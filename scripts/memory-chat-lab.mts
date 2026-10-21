@@ -9,6 +9,8 @@ import net from "node:net";
 import { fileURLToPath } from "node:url";
 
 const cwd = fileURLToPath(new URL("..", import.meta.url)).replace(/\/$/, "");
+const offline = process.env.PORTIA_OFFLINE_FIXTURES === "true";
+if (offline) assert((globalThis as typeof globalThis & {__portiaOfflineNetwork?:boolean}).__portiaOfflineNetwork, "Offline lab requires its network-denying fixture preload");
 assert(!process.env.PORTIA_FREE_TEST_MODEL?.trim() && !process.env.MIGRATION_MODEL_OVERRIDE?.trim() && !process.env.PORTIA_LIVE_KEY_FILE?.trim() && process.env.PORTIA_QUOTATION_MOCK !== "true", "Retired free/mock model modes are unsupported. No lab was started.");
 const local = path.join(cwd, ".local");
 await mkdir(local, { recursive: true });
@@ -244,8 +246,8 @@ try {
   await writeFile(path.join(runDir,"process-baseline.txt"),execFileSync("ps",["-axo","pid,ppid,pgid,etime,%cpu,%mem,comm"],{encoding:"utf8"}));
   await writeFile(path.join(runDir,"listeners-before.txt"),execFileSync("lsof",["-nP","-iTCP","-sTCP:LISTEN"],{encoding:"utf8"}));
   adminKey=execFileSync(binary,["keygen","admin-key","--instance-name","local-memory-integration","--instance-secret",secret],{encoding:"utf8"}).trim();
-  const existing=process.env.OPENROUTER_API_KEY ? {} : readEnv(process.env.PORTIA_VERIFY_ENV ?? path.join(cwd, ".env.local"));
-  const providerKey=process.env.OPENROUTER_API_KEY ?? existing.OPENROUTER_API_KEY;
+  const existing=offline || process.env.OPENROUTER_API_KEY ? {} : readEnv(process.env.PORTIA_VERIFY_ENV ?? path.join(cwd, ".env.local"));
+  const providerKey=offline ? "offline-fixture-not-a-credential" : process.env.OPENROUTER_API_KEY ?? existing.OPENROUTER_API_KEY;
   if(providerKey)sensitive.add(providerKey);
   assert(providerKey,"Set OPENROUTER_API_KEY or PORTIA_VERIFY_ENV for the requested live-model acceptance run");
   const betterAuthSecret=randomBytes(32).toString("hex");

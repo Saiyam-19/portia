@@ -10,30 +10,30 @@ const usage = { inputTokens: { total: 1, noCache: 1, cacheRead: undefined, cache
 const call = (toolName: string, input: unknown, toolCallId: string): LanguageModelV4GenerateResult => ({ content: [{ type: "tool-call", toolName, toolCallId, input: JSON.stringify(input) }], finishReason: { unified: "tool-calls", raw: undefined }, usage, warnings: [] });
 async function pair() {
   const session = new QuoteSession("decision-pair"); await session.initialize([]);
-  for (const [name, currency, amount] of [["Maple", "CAD", "240"], ["Birch", "USD", "150"]]) await session.update({ name, pricing: "supplied", lines: [{ name: "service", currency, amount }] });
+  for (const [name, currency, amount] of [["Maple", "CAD", "240"], ["Birch", "USD", "150"]]) await session.update({ name, pricing: "supplied", lines: [{ name: "service", currency, amount, coverage:["service"] }] });
   const authority = new AuthoritySession(); for (const quote of session.quotes.values()) authority.acceptQuote(quoteCore(quote));
   return { session, authority, ids: [...session.quotes.keys()] };
 }
 const evidence = (session: QuoteSession, kind: string) => session.completion.context().evidence.filter(item => item.kind === kind && item.current).at(-1)!;
-const finish = (session: QuoteSession, kind: "quotation" | "quotation_read" | "comparison" | "elapsed_time" | "calculation", id = "done") => {
-  const result = evidence(session, kind);
-  return call("finish_turn", { outcomes: [{ id: "requested", requestedOutcome: "Complete the requested result", kind, targets: result.targets, ...(result.comparisonCurrency ? { comparisonCurrency: result.comparisonCurrency } : {}), ...(result.reportingView ? { reportingViews: [result.reportingView] } : {}), evidenceIds: [result.id] }] }, id);
-};
+const finish = (_session: QuoteSession, _kind: string, id = "done") => call("finish_turn", {}, id);
+const selection = (session: QuoteSession, ids: string[]) => ids.every(id=>session.quotes.get(id)?.pricing==="official")
+  ? {officialQuoteIds:ids}
+  : {selections:ids.map(id=>{const quote=session.quotes.get(id)!;return {quoteId:id,revision:quote.revision,lineIds:quote.lines.map(line=>line.id!)};})};
 
-it("recovers from quote-read-as-comparison and prepares the actual inverse-FX comparison in the same loop", async () => {
+it("rejects model-authored completion bindings and prepares the actual inverse-FX comparison", async () => {
   const { session, authority, ids } = await pair(); let step = 0;
   const model = new MockLanguageModelV4({ doGenerate: async options => {
     expect(options.toolChoice?.type).toBe("required");
     const n = step++;
     if (n === 0) return call("read_quotes", { readScope: "current-chat" }, "read");
     if (n === 1) return call("finish_turn", { outcomes: [{ id: "requested", requestedOutcome: "Complete the requested result", kind: "comparison", targets: ids, comparisonCurrency: "USD", evidenceIds: [evidence(session, "quotation_read").id] }] }, "premature");
-    if (n === 2) return call("compare_quotes", { quoteIds: ids, currency: "USD", exchangeRates: [{ from: "USD", to: "CAD", rate: "2" }], rounding: { stage: "total", decimals: 2 } }, "compare");
+    if (n === 2) return call("compare_quotes", { ...selection(session, ids), currency: "USD", exchangeRates: [{ from: "USD", to: "CAD", rate: "2" }], rounding: { stage: "total", decimals: 2 } }, "compare");
     return finish(session, "comparison");
   } });
   const run = await createMigrationMainAgent({ alias: "model-1", mainModel: model, session, authority }).generate({ prompt: "Compare those offers in USD using the supplied relation 1 USD = 2 CAD; round converted totals to cents." });
   expect(model.doGenerateCalls).toHaveLength(4);
-  expect(run.steps[1].toolResults[0].output).toMatchObject({ status: "continue_work", issues: expect.arrayContaining([expect.objectContaining({ code: "wrong_operation" })]) });
-  expect(session.completion.completion()?.outcomes[0].disposition).toBe("awaiting_approval");
+  expect(run.steps[1].content.some(part=>part.type==="tool-error")).toBe(true);
+  expect(session.completion.completion()?.outcomes.at(-1)?.disposition).toBe("awaiting_approval");
   const operation = authority.pendingOperations()[0]; expect(operation.kind).toBe("comparison"); if (operation.kind !== "comparison") throw Error("Missing comparison");
   expect(operation.input.exchangeRates).toEqual([{ from: "USD", to: "CAD", rate: "2" }]);
   const approved = await session.applyApprovedComparison(operation);
@@ -45,13 +45,13 @@ it("repairs an omitted supplied FX fact and retires the obsolete input question"
   const { session, authority, ids } = await pair(); let step = 0;
   const model = new MockLanguageModelV4({ doGenerate: async () => {
     const n = step++;
-    if (n === 0) return call("compare_quotes", { quoteIds: ids, currency: "USD" }, "missing-fx");
-    if (n === 1) return call("compare_quotes", { quoteIds: ids, currency: "USD", exchangeRates: [{ from: "USD", to: "CAD", rate: "2" }], retryOf: "missing-fx" }, "fixed-fx");
+    if (n === 0) return call("compare_quotes", { ...selection(session, ids), currency: "USD" }, "missing-fx");
+    if (n === 1) return call("compare_quotes", { ...selection(session, ids), currency: "USD", exchangeRates: [{ from: "USD", to: "CAD", rate: "2" }], retryOf: "missing-fx" }, "fixed-fx");
     return finish(session, "comparison");
   } });
   await createMigrationMainAgent({ alias: "model-1", mainModel: model, session, authority }).generate({ prompt: "The supplied rate is 1 USD to 2 CAD. Compare the saved quotations in USD." });
   expect(model.doGenerateCalls).toHaveLength(3); expect(session.hasCurrentInputQuestions()).toBe(false);
-  expect(session.completion.completion()?.outcomes[0].disposition).toBe("awaiting_approval");
+  expect(session.completion.completion()?.outcomes.at(-1)?.disposition).toBe("awaiting_approval");
   expect(session.finalText("")).not.toContain("Provide one direct");
 });
 
@@ -69,8 +69,8 @@ it("renders a tool-backed unavailable lookup when finish carries no prose", asyn
     const session = new QuoteSession("lookup-only"); let step = 0;
     const model = new MockLanguageModelV4({ doGenerate: async () => {
       if (step++ === 0) return call("search_vessels", { query: "Maple" }, "lookup");
-      const result = evidence(session, "vessel_lookup");
-      return call("finish_turn", { outcomes: [{ id: "lookup", requestedOutcome: "Look up Maple", kind: "vessel_lookup", targets: result.targets, evidenceIds: [result.id] }] }, "done");
+
+      return call("finish_turn", {}, "done");
     } });
     await createMigrationMainAgent({ alias: "model-1", mainModel: model, session }).generate({ prompt: "Look up Maple." });
     expect(session.completion.completion()?.outcomes[0].disposition).toBe("unavailable");
@@ -82,8 +82,8 @@ it("finishes unavailable cross-chat recall without looping on a feature that is 
   const session = new QuoteSession("memory-unavailable"); let step = 0;
   const model = new MockLanguageModelV4({ doGenerate: async () => {
     if (step++ === 0) return call("read_quotes", { readScope: "cross-chat" }, "recall");
-    const result = evidence(session, "memory_read");
-    return call("finish_turn", { outcomes: [{ id: "recall", requestedOutcome: "Read saved facts", kind: "memory_read", targets: result.targets, evidenceIds: [result.id] }] }, "done");
+
+    return call("finish_turn", {}, "done");
   } });
   await createMigrationMainAgent({ alias: "model-1", mainModel: model, session }).generate({ prompt: "Read my saved facts." });
   expect(model.doGenerateCalls).toHaveLength(2);
@@ -95,8 +95,8 @@ it("repairs an empty or unsupported finish inside the same loop", async () => {
   const session = new QuoteSession("finish-repair"); let step = 0;
   const model = new MockLanguageModelV4({ doGenerate: async () => {
     const n = step++;
-    if (n === 0) return call("finish_turn", { outcomes: [] }, "empty");
-    if (n === 1) return call("finish_turn", { outcomes: [], response: "Total USD 120." }, "unsupported");
+    if (n === 0) return call("finish_turn", {}, "empty");
+    if (n === 1) return call("finish_turn", { response: "Total USD 120." }, "unsupported");
     if (n === 2) return call("calculate_charges", { expression: "40*3" }, "math");
     return finish(session, "calculation");
   } });
@@ -120,7 +120,7 @@ it.each(["cargoTonnes", "movements"] as const)("retains and corrects supported s
     : finish(session, "quotation") });
   await createMigrationMainAgent({ alias: "model-1", mainModel: model, session, authority }).generate({ prompt: `Correct ${field} to 12. Remove flag; it was entered incorrectly.` });
   expect(model.doGenerateCalls).toHaveLength(2);
-  expect(session.completion.completion()?.outcomes[0].disposition).toBe("awaiting_approval");
+  expect(session.completion.completion()?.outcomes.at(-1)?.disposition).toBe("awaiting_approval");
   const operation = authority.pendingOperations()[0];
   expect(operation).toMatchObject({ kind: "quote", quote: { call: { [field]: "12" } } });
   if (operation.kind !== "quote") throw Error("Expected quote");
@@ -132,7 +132,7 @@ it("can repair a malformed finish without inventing a failed business operation"
   const session = new QuoteSession("invalid-finish"); let step = 0;
   const model = new MockLanguageModelV4({ doGenerate: async () => step++ === 0
     ? call("finish_turn", { outcomes: null }, "invalid")
-    : call("finish_turn", { outcomes: [], response: "Hello." }, "valid") });
+    : call("finish_turn", { response: "Hello." }, "valid") });
   await createMigrationMainAgent({ alias: "model-1", mainModel: model, session }).generate({ prompt: "Hello." });
   expect(model.doGenerateCalls).toHaveLength(2);
   expect(session.hasUnresolvedToolFailure("invalid")).toBe(false);
@@ -146,7 +146,7 @@ it("finishes missing package equivalence as awaiting input without claiming a co
   const authority = new AuthoritySession(); for (const q of session.quotes.values()) authority.acceptQuote(quoteCore(q));
   const ids = [...session.quotes.keys()]; let step = 0;
   const model = new MockLanguageModelV4({ doGenerate: async () => step++ === 0
-    ? call("compare_quotes", { quoteIds: ids, currency: "USD" }, "compare")
+    ? call("compare_quotes", { ...selection(session, ids), currency: "USD" }, "compare")
     : finish(session, "comparison") });
   await createMigrationMainAgent({ alias: "model-1", mainModel: model, session, authority }).generate({ prompt: "Compare these packages. I have not said their services match." });
   expect(model.doGenerateCalls).toHaveLength(2);
@@ -157,14 +157,14 @@ it("finishes missing package equivalence as awaiting input without claiming a co
 
 it("retains a genuinely missing FX pair after repairing a failed comparison", async () => {
   const { session, authority, ids } = await pair();
-  const extra = await session.update({ name: "Elm", pricing: "supplied", lines: [{ name: "service", currency: "EUR", amount: "110" }] });
+  const extra = await session.update({ name: "Elm", pricing: "supplied", lines: [{ name: "service", currency: "EUR", amount: "110", coverage:["service"] }] });
   expect(extra.status).toBe("calculated");
   const third = [...session.quotes.values()].at(-1)!; authority.acceptQuote(quoteCore(third)); ids.push(third.id);
   let step = 0;
   const model = new MockLanguageModelV4({ doGenerate: async () => {
     const n = step++;
-    if (n === 0) return call("compare_quotes", { quoteIds: ids, currency: "USD", exchangeRates: [{ from: "USD", to: "USD", rate: "1" }] }, "invalid");
-    if (n === 1) return call("compare_quotes", { quoteIds: ids, currency: "USD", exchangeRates: [{ from: "USD", to: "CAD", rate: "2" }], retryOf: "invalid" }, "missing-eur");
+    if (n === 0) return call("compare_quotes", { ...selection(session, ids), currency: "USD", exchangeRates: [{ from: "USD", to: "USD", rate: "1" }] }, "invalid");
+    if (n === 1) return call("compare_quotes", { ...selection(session, ids), currency: "USD", exchangeRates: [{ from: "USD", to: "CAD", rate: "2" }], retryOf: "invalid" }, "missing-eur");
     return finish(session, "comparison");
   } });
   await createMigrationMainAgent({ alias: "model-1", mainModel: model, session, authority }).generate({ prompt: "Compare in USD; 1 USD is 2 CAD. I do not know the EUR rate." });
@@ -178,15 +178,15 @@ it("corrects an invalid comparison currency without retaining its rejected prede
   const { session, authority, ids } = await pair(); let step = 0;
   const model = new MockLanguageModelV4({ doGenerate: async () => {
     const n = step++;
-    if (n === 0) return call("compare_quotes", { quoteIds: ids, currency: "ZZZ" }, "invalid");
+    if (n === 0) return call("compare_quotes", { ...selection(session, ids), currency: "ZZZ" }, "invalid");
     if (n === 1) return finish(session, "comparison", "premature");
-    if (n === 2) return call("compare_quotes", { quoteIds: ids, currency: "USD", exchangeRates: [{ from: "USD", to: "CAD", rate: "2" }], retryOf: "invalid" }, "correct");
+    if (n === 2) return call("compare_quotes", { ...selection(session, ids), currency: "USD", exchangeRates: [{ from: "USD", to: "CAD", rate: "2" }], retryOf: "invalid" }, "correct");
     return finish(session, "comparison");
   } });
   await createMigrationMainAgent({ alias: "model-1", mainModel: model, session, authority }).generate({ prompt: "Compare in USD using 1 USD = 2 CAD." });
   expect(model.doGenerateCalls).toHaveLength(4);
   expect(session.hasUnresolvedToolFailure("invalid")).toBe(false);
-  expect(session.completion.completion()?.outcomes[0].disposition).toBe("awaiting_approval");
+  expect(session.completion.completion()?.outcomes.at(-1)?.disposition).toBe("awaiting_approval");
 });
 
 it.each(["schema", "rounding"] as const)("repairs a %s rejection without dropping unchanged quote facts", async kind => {
@@ -217,8 +217,8 @@ it("resolves an ambiguous read with a returned matching ID and retires its quest
     const n = step++;
     if (n === 0) return call("read_quotes", { readScope: "current-chat", reference: "PO-1" }, "ambiguous");
     if (n === 1) return call("read_quotes", { readScope: "current-chat", quoteId: selected }, "selected");
-    const result = evidence(session, "quotation_read");
-    return call("finish_turn", { outcomes: [{ id: "read", requestedOutcome: "Read First", kind: "quotation_read", targets: result.targets, evidenceIds: [result.id] }] }, "done");
+
+    return call("finish_turn", {}, "done");
   } });
   await createMigrationMainAgent({ alias: "model-1", mainModel: model, session }).generate({ prompt: "Read First from PO-1." });
   expect(model.doGenerateCalls).toHaveLength(3);
@@ -233,7 +233,7 @@ it("finishes a source-proven unavailable comparison without inventing a definiti
   for (const hours of ["2", "3"]) await session.update({ pricing: "official", services: ["berth"], call: { port: "Finolex", callDate: "2026-10-18", loa: "137.25", occupancy: { hours } } });
   const ids = [...session.quotes.keys()]; expect(ids).toHaveLength(2); let step = 0;
   const model = new MockLanguageModelV4({ doGenerate: async () => step++ === 0
-    ? call("compare_quotes", { quoteIds: ids, currency: "INR" }, "compare")
+    ? call("compare_quotes", { ...selection(session, ids), currency: "INR" }, "compare")
     : finish(session, "comparison") });
   await createMigrationMainAgent({ alias: "model-1", mainModel: model, session }).generate({ prompt: "Compare the saved estimates definitively in INR." });
   expect(model.doGenerateCalls).toHaveLength(2);
