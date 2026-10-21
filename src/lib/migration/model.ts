@@ -14,10 +14,11 @@ export function migrationLanguageModel(alias: ModelAlias, context: ModelErrorCon
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) throw new Error("OpenRouter is not configured.");
   const testOverride = migrationTestModelActive();
+  const devModel = process.env.NODE_ENV === "development" ? process.env.PORTIA_DEV_MODEL : undefined;
   if (!testOverride && process.env.LLM_ALLOW_PAID !== "true") {
     throw new Error("Paid migration models require LLM_ALLOW_PAID=true.");
   }
-  const modelId = testOverride
+  const modelId = !testOverride && devModel ? devModel : testOverride
     ? process.env.MIGRATION_MODEL_OVERRIDE!
     : MODEL_IDS[alias];
   if (testOverride && modelId !== "openrouter/free" && !modelId.endsWith(":free")) {

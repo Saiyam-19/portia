@@ -54,14 +54,14 @@ export default function FormCard({ formCard, disabled = false, onSubmit, onCance
   }
   const canSubmit = formCard.fields.filter(field => field.required !== false).every(field => (Object.hasOwn(values, field.name) ? values[field.name] : '').trim())
   return (
-    <form aria-labelledby={`${id}-title`} onSubmit={event => { event.preventDefault(); if (canSubmit && !disabled) onSubmit(values, note) }} className="overflow-hidden rounded-2xl border border-border bg-card">
-      <div className="flex items-center gap-2.5 px-5 pt-5"><ClipboardList className="size-4 text-brand" aria-hidden="true" /><h3 id={`${id}-title`} className="text-sm font-medium">{formCard.title}</h3></div>
-      <fieldset disabled={disabled} className="space-y-5 p-5">
+    <form aria-labelledby={`${id}-title`} onSubmit={event => { event.preventDefault(); if (canSubmit && !disabled) onSubmit(values, note) }} className="overflow-hidden rounded-card bg-surface shadow-card">
+      <div className="flex items-center gap-2.5 border-b border-line bg-inset/50 px-5 py-4"><ClipboardList className="size-4 text-brand" aria-hidden="true" /><h3 id={`${id}-title`} className="text-sm font-medium">{formCard.title}</h3></div>
+      <fieldset disabled={disabled} className="grid grid-cols-1 gap-5 p-5 sm:grid-cols-2 [&>p]:col-span-full [&>div:last-child]:col-span-full">
         {formCard.description && <p className="text-sm text-muted-foreground">{formCard.description}</p>}
         {formCard.fields.map(field => <Field key={field.name} field={field} value={Object.hasOwn(values, field.name) ? values[field.name] : ''} onChange={value => setValues(previous => ({ ...previous, [field.name]: value }))} />)}
         <div className="space-y-2"><Label htmlFor={`${id}-note`} className="text-xs font-medium">Additional context <span className="font-normal text-muted-foreground">(optional)</span></Label><Textarea id={`${id}-note`} value={note} onChange={event => setNote(event.target.value)} placeholder="Add context or ask a question…" rows={2} maxLength={2000} /></div>
       </fieldset>
-      <div className="flex items-center justify-between border-t border-border/70 px-4 py-3">
+      <div className="flex items-center justify-between border-t border-line bg-inset/40 px-4 py-3">
         <Button type="button" variant="ghost" disabled={disabled} onClick={() => onCancel(note)} className="h-9 text-muted-foreground">Cancel</Button>
         <Button type="submit" disabled={!canSubmit || disabled} className="h-9 gap-2">Continue<ArrowUp className="size-3.5" aria-hidden="true" /></Button>
       </div>

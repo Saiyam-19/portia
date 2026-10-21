@@ -179,10 +179,10 @@ export default function ChatView({ conversationId, initialMessage, initialReques
   const hasPendingCard = Boolean(pendingForm) || items.some(item => item.segments.some(segment => segment.kind === 'card' && segment.formCard.response === null))
   return (
     <div className="relative flex h-full flex-col">
-      <WorkspaceHeader title={conversation?.conversation.title ?? 'Conversation'} conversation />
+      <WorkspaceHeader title={conversation?.conversation.title ?? 'Conversation'} conversation actions={<Button variant="ghost" size="icon-sm" aria-label="Delete conversation" onClick={() => setConfirmDelete(true)}><Trash2 className="size-4" /></Button>} />
       {conversation === null ? <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-sm text-muted-foreground"><p>Conversation not found or unavailable to this account.</p><Button onClick={() => router.replace('/dashboard')}>New conversation</Button></div> : !ready ? <div role="status" className="flex flex-1 items-center justify-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />Loading conversation…</div> : <>
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain" onScroll={event => { const e = event.currentTarget; followRef.current = e.scrollHeight - e.scrollTop - e.clientHeight < 100; setShowScrollDown(!followRef.current) }}>
-          <div className="mx-auto w-full max-w-3xl space-y-8 px-5 pt-5 pb-8 sm:px-8">
+        <div className="scroll-quiet min-h-0 flex-1 overflow-y-auto overscroll-contain" onScroll={event => { const e = event.currentTarget; followRef.current = e.scrollHeight - e.scrollTop - e.clientHeight < 100; setShowScrollDown(!followRef.current) }}>
+          <div className="mx-auto w-full max-w-[740px] space-y-7 px-5 pt-4 pb-10">
             {history.status === 'CanLoadMore' && <Button variant="ghost" onClick={() => { followRef.current = false; history.loadMore(40) }}>Load earlier messages</Button>}
             {history.status === 'LoadingMore' && <p role="status" className="text-xs text-muted-foreground">Loading earlier messages…</p>}
             {items.length === 0 && <p className="py-20 text-center text-sm text-muted-foreground">Start with a port, a vessel, or a question.</p>}
@@ -192,11 +192,11 @@ export default function ChatView({ conversationId, initialMessage, initialReques
             <div ref={bottomRef} />
           </div>
         </div>
-        <div className="relative shrink-0 pb-4">
+        <div className="relative shrink-0 px-5 pb-4">
           {showScrollDown && <Button variant="outline" size="icon-lg" className="absolute -top-12 left-1/2 -translate-x-1/2 rounded-full bg-background" aria-label="Scroll to latest message" onClick={scrollToBottom}><ArrowDown aria-hidden="true" /></Button>}
-          <div className="mx-auto w-full max-w-3xl px-5 sm:px-8">
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 -top-10 h-10 bg-gradient-to-b from-transparent to-page" /><div className="relative mx-auto w-full max-w-[700px]">
             {hasPendingCard ? <div role="status" className="rounded-xl border border-border bg-muted/40 px-4 py-4 text-center text-xs text-muted-foreground">Complete the details above to continue.<div className="mt-2 flex justify-center"><ModelSelector value={model} onChange={selectModel} disabled={running} /></div>{running && <Button variant="ghost" size="sm" className="ml-2" onClick={() => void stopRun()}>Stop response</Button>}</div> : <Composer value={input} onChange={setInput} onSend={() => void question(input)} model={model} onModelChange={selectModel} loading={running} onStop={() => void stopRun()} textareaRef={textareaRef} placeholder="Ask a follow-up question…" />}
-            <div className="mt-3 flex items-center justify-between gap-3"><p className="text-[11px] leading-relaxed text-muted-foreground">Estimates should be checked against current port tariffs.</p><Button variant="ghost" size="icon-sm" aria-label="Delete conversation" onClick={() => setConfirmDelete(true)}><Trash2 className="size-3.5" /></Button></div>
+            <p className="mt-2 text-center text-[11px] leading-relaxed text-ink-3">Estimates come from bundled tariff schedules — confirm with the port authority before invoicing.</p>
             {confirmDelete && <div role="alert" className="mt-2 flex flex-wrap items-center gap-2 text-xs"><span>Delete this conversation and its messages?</span><Button variant="destructive" size="sm" disabled={deleting} onClick={() => void remove()}>{deleting ? 'Deleting…' : 'Delete'}</Button><Button variant="ghost" size="sm" disabled={deleting} onClick={() => setConfirmDelete(false)}>Keep conversation</Button></div>}
           </div>
         </div>

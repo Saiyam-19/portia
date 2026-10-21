@@ -1,12 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
-import { Anchor, Check, Copy, Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Check, Copy } from 'lucide-react'
+import { Button, Tooltip } from '@/components/berthwise/ui/button'
+import { Markdown } from '@/components/berthwise/markdown'
+import { Logo } from '@/components/berthwise/sidebar'
+import { tokenize } from '@/lib/berthwise/mentions'
 import ToolNotification from './tool-notification'
 import FormCard from './form-card'
 import type { Segment } from './chat-view'
@@ -23,56 +22,22 @@ interface Props {
 export default function Message({ role, segments, streaming, formDisabled, onFormSubmit, onFormCancel }: Props) {
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle')
   const content = segments.map(segment => segment.kind === 'text' ? segment.content : '').join('\n')
-  if (role === 'user') {
-    return (
-      <article aria-label="Your message" className="flex justify-end">
-        <div className="max-w-[90%] rounded-2xl bg-muted px-4 py-3 text-sm leading-7 break-words whitespace-pre-wrap sm:max-w-[85%]">{content}</div>
-      </article>
-    )
-  }
+  if (role === 'user') return <article aria-label="Your message" className="flex justify-end"><div className="max-w-[90%] rounded-[18px] bg-hover-2/70 px-4 py-2.5 text-[14.5px] leading-[1.7] break-words whitespace-pre-wrap text-ink sm:max-w-[85%]">{tokenize(content).map((token, index) => <span key={index} className={token.kind === 'mention' ? 'rounded-chip bg-accent-tint px-0.5 text-accent-ink' : undefined}>{token.text}</span>)}</div></article>
   const hasRunningTool = segments.some(segment => segment.kind === 'tool' && segment.status === 'running')
   const copy = async () => {
     try { await navigator.clipboard.writeText(content); setCopyState('copied') }
     catch { setCopyState('error') }
   }
-  return (
-    <article aria-label="Plisto response" className="group/message min-w-0">
-      <div className="mb-3 flex items-center gap-2 text-xs font-medium"><Anchor className="size-4 text-brand" aria-hidden="true" />Plisto</div>
-      <div className="space-y-4 text-sm leading-7">
-        {segments.map((segment, index) => {
-          if (segment.kind === 'text') return (
-            <div key={index} className="chat-markdown prose prose-sm prose-neutral max-w-none text-foreground dark:prose-invert prose-headings:font-semibold prose-headings:tracking-normal prose-p:leading-7 prose-a:text-brand prose-a:no-underline hover:prose-a:underline prose-code:before:content-none prose-code:after:content-none">
-              <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
-                pre: ({ children }) => <pre className="overflow-x-auto rounded-xl bg-muted p-4 text-xs text-foreground">{children}</pre>,
-                table: ({ children }) => <div className="not-prose my-5 overflow-hidden rounded-xl border border-border"><Table aria-label="Response table" className="min-w-md">{children}</Table></div>,
-                thead: ({ children }) => <TableHeader className="bg-muted">{children}</TableHeader>,
-                tbody: ({ children }) => <TableBody>{children}</TableBody>,
-                tr: ({ children }) => <TableRow>{children}</TableRow>,
-                th: ({ children }) => <TableHead className="px-4 text-xs">{children}</TableHead>,
-                td: ({ children }) => <TableCell className="px-4 py-2.5">{children}</TableCell>,
-                a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer">{children}</a>,
-              }}>{segment.content}</ReactMarkdown>
-            </div>
-          )
-          if (segment.kind === 'tool') return <ToolNotification key={segment.id} tool={segment.tool} label={segment.label} status={segment.status} />
-          if (segment.kind === 'card') return <FormCard key={segment.formCard.toolCallId} formCard={segment.formCard} disabled={formDisabled} onSubmit={(data, note) => onFormSubmit?.(segment.formCard.toolCallId, data, note)} onCancel={note => onFormCancel?.(segment.formCard.toolCallId, note)} />
-          return null
-        })}
-        {streaming && !hasRunningTool && <div role="status" className="flex items-center gap-2 text-xs text-muted-foreground"><Loader2 className="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />{content ? 'Writing response…' : 'Working on it…'}</div>}
-      </div>
-      {!streaming && content && (
-        <div className="mt-2 flex h-8 items-center gap-2 text-xs text-muted-foreground">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon-sm" className="text-muted-foreground sm:opacity-0 sm:group-hover/message:opacity-100 sm:focus-visible:opacity-100" onClick={() => void copy()} aria-label={copyState === 'copied' ? 'Response copied' : 'Copy response'}>
-                {copyState === 'copied' ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>{copyState === 'copied' ? 'Copied' : 'Copy response'}</TooltipContent>
-          </Tooltip>
-          <span role="status">{copyState === 'error' ? 'Couldn’t copy. Select the text to copy it.' : copyState === 'copied' ? 'Copied' : ''}</span>
-        </div>
-      )}
-    </article>
-  )
+  return <article aria-label="Berthwise response" className="group/message min-w-0">
+    <div className="mb-3 flex items-center gap-2.5"><Logo className="size-6 rounded-[7px] [&_svg]:size-3.5" /><span className="text-[13px] font-semibold text-ink">Berthwise</span>{streaming && <span className="size-1.5 animate-pulse rounded-full bg-accent motion-reduce:animate-none" aria-hidden />}</div>
+    <div className="space-y-3">
+      {segments.map((segment, index) => {
+        if (segment.kind === 'text') return <Markdown key={index} content={segment.content} streaming={streaming && index === segments.length - 1} />
+        if (segment.kind === 'tool') return <ToolNotification key={segment.id} tool={segment.tool} label={segment.label} status={segment.status} />
+        return <FormCard key={segment.formCard.toolCallId} formCard={segment.formCard} disabled={formDisabled} onSubmit={(data, note) => onFormSubmit?.(segment.formCard.toolCallId, data, note)} onCancel={note => onFormCancel?.(segment.formCard.toolCallId, note)} />
+      })}
+      {streaming && !hasRunningTool && <div role="status" className="flex items-center gap-2 text-xs text-ink-3"><span className="size-1.5 animate-pulse rounded-full bg-accent motion-reduce:animate-none" />{content ? 'Writing response…' : 'Working on it…'}</div>}
+    </div>
+    {!streaming && content && <div className="mt-2 flex h-8 items-center gap-2 text-xs text-ink-3"><Tooltip label={copyState === 'copied' ? 'Copied' : 'Copy response'}><Button variant="ghost" size="icon-sm" className="sm:opacity-0 sm:group-hover/message:opacity-100 sm:focus-visible:opacity-100" onClick={() => void copy()} aria-label={copyState === 'copied' ? 'Response copied' : 'Copy response'}>{copyState === 'copied' ? <Check /> : <Copy />}</Button></Tooltip><span role="status">{copyState === 'error' ? 'Couldn’t copy. Select the text to copy it.' : copyState === 'copied' ? 'Copied' : ''}</span></div>}
+  </article>
 }

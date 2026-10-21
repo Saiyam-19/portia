@@ -58,6 +58,7 @@ const claimResultValidator = v.object({
 const conversationValidator = v.object({
   id: v.id("migrationConversations"),
   title: v.string(),
+  pinned: v.optional(v.boolean()),
   revision: v.number(),
   state: vConversationState,
   updatedAt: v.number(),
@@ -384,6 +385,25 @@ export const createConversation = mutation({
   },
 });
 
+export const updateConversation = mutation({
+  args: { conversationId: v.id("migrationConversations"), title: v.optional(v.string()), pinned: v.optional(v.boolean()) },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const ownerId = await publicOwner(ctx);
+    if (!ownerId) fail("UNAUTHENTICATED", "Sign in required.");
+    const conversation = await requireConversation(ctx, args.conversationId, ownerId);
+    const patch: { title?: string; pinned?: boolean } = {};
+    if (args.title !== undefined) {
+      const title = args.title.trim();
+      if (!title || title.length > 120) fail("INVALID_INPUT", "Use a title between 1 and 120 characters.");
+      patch.title = title;
+    }
+    if (args.pinned !== undefined) patch.pinned = args.pinned;
+    await ctx.db.patch(conversation._id, patch);
+    return null;
+  },
+});
+
 export const deleteConversation = mutation({
   args: { conversationId: v.id("migrationConversations") }, returns: v.null(),
   handler: async (ctx, args) => {
@@ -444,6 +464,7 @@ export const listConversations = query({
       page: page.page.map((conversation) => ({
         id: conversation._id,
         title: conversation.title,
+        pinned: conversation.pinned ?? false,
         revision: conversation.revision,
         state: conversation.state,
         updatedAt: conversation.updatedAt,

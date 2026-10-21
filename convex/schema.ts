@@ -37,6 +37,7 @@ export default defineSchema({
   migrationConversations: defineTable({
     ownerId: v.string(),
     title: v.string(),
+    pinned: v.optional(v.boolean()),
     agentThreadId: v.string(),
     revision: v.number(),
     nextFence: v.number(),

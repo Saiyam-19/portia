@@ -6,6 +6,10 @@ const quote = (s: string) => "'" + s.replaceAll("'", "''") + "'";
 export class ChatMemoryRuntime {
   private shell = new Bash({
     cwd: "/memory", executionLimitProfile: "hardened",
+    // Next.js dev hooks read the clock, track promises, and capture stack traces.
+    // These host-runtime operations run while SQLite executes. Keep every
+    // other defense active, including host filesystem and process.env guards.
+    defenseInDepth: { excludeViolationTypes: process.env.NODE_ENV === "development" ? ["performance_timing", "weak_ref", "error_prepare_stack_trace"] : [] },
     executionLimits: { maxExecutionTimeMs: 10_000, maxSqliteTimeoutMs: 5000,
       maxDatabaseBytes: 256 * 1024, maxDatabaseResultBytes: 256 * 1024,
       maxFileSystemBytes: 1024 * 1024, maxOutputSize: 256 * 1024 },

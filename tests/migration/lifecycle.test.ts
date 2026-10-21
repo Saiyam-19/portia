@@ -19,6 +19,19 @@ async function run(t: ReturnType<typeof setup>, ownerId: string, requestId: stri
 beforeEach(() => { vi.stubEnv('MIGRATION_DEV_ENABLED','true'); vi.stubEnv('PORTIA_CONVEX_DEPLOYMENT','brilliant-whale-380'); vi.stubEnv('CONVEX_SITE_URL','https://brilliant-whale-380.convex.site'); vi.stubEnv('PORTIA_AUTH_MODE','basic'); });
 afterEach(() => { vi.unstubAllEnvs(); vi.useRealTimers(); });
 describe('normal conversation lifecycle', () => {
+  it('persists rename and pin changes only for the live owner', async () => {
+    const t = setup(); const a = await account(t, 'a@example.com'); const b = await account(t, 'b@example.com');
+    const id = await a.client.mutation(api.migration.createConversation, {});
+    await expect(t.mutation(api.migration.updateConversation, { conversationId: id, title: 'No session' })).rejects.toThrow(/Sign in/);
+    await expect(b.client.mutation(api.migration.updateConversation, { conversationId: id, pinned: true })).rejects.toThrow(/not found/);
+    await a.client.mutation(api.migration.updateConversation, { conversationId: id, title: '  Mumbai call  ', pinned: true });
+    const page = await a.client.query(api.migration.listConversations, { paginationOpts: { cursor: null, numItems: 10 } });
+    expect(page.page[0]).toMatchObject({ title: 'Mumbai call', pinned: true, revision: 0 });
+    await a.client.mutation(api.migration.updateConversation, { conversationId: id, pinned: false });
+    expect((await a.client.query(api.migration.listConversations, { paginationOpts: { cursor: null, numItems: 10 } })).page[0]).toMatchObject({ title: 'Mumbai call', pinned: false });
+    await expect(a.client.mutation(api.migration.updateConversation, { conversationId: id, title: ' ' })).rejects.toThrow(/title/);
+    await expect(a.client.mutation(api.migration.updateConversation, { conversationId: id, title: 'x'.repeat(121) })).rejects.toThrow(/title/);
+  });
   it('restores the last used model for saved chats and pending forms without browser storage', async () => {
     const t = setup(); const a = await account(t, 'a@example.com');
     const id = await a.client.mutation(api.migration.createConversation, {});

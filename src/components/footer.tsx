@@ -12,7 +12,7 @@ export default function Footer() {
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
                 <Anchor className="w-4 h-4 text-white" />
               </div>
-              <span className="text-xl font-bold text-white tracking-tight">plisto</span>
+              <span className="text-xl font-bold text-white tracking-tight">Berthwise</span>
             </Link>
             <p className="text-sm leading-relaxed">
               Port charge intelligence for maritime operators worldwide.
@@ -50,7 +50,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-slate-800 mt-12 pt-8 text-sm text-center">
-          © {new Date().getFullYear()} Plisto. All rights reserved.
+          © {new Date().getFullYear()} Berthwise. All rights reserved.
         </div>
       </div>
     </footer>

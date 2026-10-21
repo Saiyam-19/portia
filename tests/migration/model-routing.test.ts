@@ -24,6 +24,17 @@ beforeEach(() => {
 afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); });
 
 describe("temporary free migration routing", () => {
+  it("uses the explicitly configured dev model for both aliases only outside production", async () => {
+    vi.stubEnv("MIGRATION_TEST_MODE", "false");
+    vi.stubEnv("LLM_ALLOW_PAID", "true");
+    vi.stubEnv("NODE_ENV", "development");
+    vi.stubEnv("PORTIA_DEV_MODEL", "deepseek/deepseek-v4.1-flash-1017");
+    for (const alias of ["model-1", "model-2"] as const) await generateText({ model: migrationLanguageModel(alias), prompt: "Synthetic dev routing test", maxRetries: 0 });
+    expect(bodies.map(body => body.model)).toEqual(["deepseek/deepseek-v4.1-flash-1017", "deepseek/deepseek-v4.1-flash-1017"]);
+    vi.stubEnv("NODE_ENV", "production");
+    await generateText({ model: migrationLanguageModel("model-1"), prompt: "Synthetic production routing test", maxRetries: 0 });
+    expect(bodies[2].model).toBe("openai/gpt-6.1-sol");
+  });
   it("routes both aliases free with zero-price and privacy restrictions", async () => {
     for (const alias of ["model-1", "model-2"] as const) {
       await generateText({ model: migrationLanguageModel(alias), prompt: "Synthetic routing test", maxRetries: 0 });

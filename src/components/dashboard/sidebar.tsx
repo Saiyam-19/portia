@@ -1,124 +1,74 @@
 'use client'
 
-import { useState } from 'react'
-import Link from 'next/link'
+import { useEffect, useRef, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { useTheme } from 'next-themes'
-import { usePaginatedQuery } from 'convex/react'
+import { useMutation, usePaginatedQuery } from 'convex/react'
 import { api } from '../../../convex/_generated/api'
-import { migrationAuthClient } from '@/lib/migration/auth-client'
-import { Anchor, SquarePen, Search, LogOut, ChevronsUpDown, Sun, Moon, Monitor, Check, X } from 'lucide-react'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
-import { Sidebar as SidebarPrimitive, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarTrigger, useSidebar } from '@/components/ui/sidebar'
-import { Skeleton } from '@/components/ui/skeleton'
-
-
-function dateGroup(date: string) {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const timestamp = new Date(date).getTime()
-  if (timestamp >= today.getTime()) return 'Today'
-  const yesterday = new Date(today)
-  yesterday.setDate(today.getDate() - 1)
-  if (timestamp >= yesterday.getTime()) return 'Yesterday'
-  const week = new Date(today)
-  week.setDate(today.getDate() - 7)
-  return timestamp >= week.getTime() ? 'Previous 7 days' : 'Earlier'
-}
+import type { Id } from '../../../convex/_generated/dataModel'
+import { Sidebar as VisualSidebar } from '@/components/berthwise/sidebar'
+import { AccountMenu } from '@/components/berthwise/account-menu'
+import { useSidebar } from '@/components/ui/sidebar'
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
+import { Button } from '@/components/berthwise/ui/button'
 
 export default function Sidebar({ email, name }: { email: string; name: string }) {
   const history = usePaginatedQuery(api.migration.listConversations, {}, { initialNumItems: 30 })
-  const conversations = history.results.map(item => ({ ...item, updated_at: new Date(item.updatedAt).toISOString() }))
-  const status = history.status === 'LoadingFirstPage' ? 'loading' : 'ready'
-  const [search, setSearch] = useState('')
-  const [signingOut, setSigningOut] = useState(false)
-  const [signOutError, setSignOutError] = useState(false)
+  const update = useMutation(api.migration.updateConversation)
+  const remove = useMutation(api.migration.deleteConversation)
+  const [error, setError] = useState('')
+  const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
+  const search = useRef<HTMLInputElement>(null)
   const pathname = usePathname()
   const router = useRouter()
-  const { theme, setTheme } = useTheme()
-  const { isMobile, setOpenMobile } = useSidebar()
-  const displayName = name || email.split('@')[0] || 'Your account'
-  const initials = displayName.split(/\s+/).map(part => part[0]).slice(0, 2).join('').toUpperCase()
-
-  const handleSignOut = async () => {
-    setSigningOut(true)
-    setSignOutError(false)
-    try {
-      const { error } = await migrationAuthClient.signOut()
-      if (error) throw error
-      router.push('/login')
-      router.refresh()
-    } catch { setSignOutError(true); setSigningOut(false) }
+  const { open, openMobile, toggleSidebar, setOpen, setOpenMobile, isMobile } = useSidebar()
+  const activeId = pathname.startsWith('/dashboard/chat/') ? pathname.split('/').at(-1) ?? null : null
+  const navigate = (path: string) => { router.push(path); setOpenMobile(false) }
+  useEffect(() => {
+    const key = (event: KeyboardEvent) => {
+      const mod = event.ctrlKey || event.metaKey
+      if (mod && event.key.toLowerCase() === 'k') {
+        event.preventDefault(); if (isMobile) setOpenMobile(true); else setOpen(true)
+        setTimeout(() => search.current?.focus(), 100)
+      } else if (mod && event.shiftKey && event.key.toLowerCase() === 'o') {
+        event.preventDefault(); router.push('/dashboard'); setOpenMobile(false)
+      }
+    }
+    window.addEventListener('keydown', key)
+    return () => window.removeEventListener('keydown', key)
+  }, [router, setOpen, setOpenMobile, isMobile])
+  const change = async (id: string, patch: { title?: string; pinned?: boolean }) => {
+    setError('')
+    try { await update({ conversationId: id as Id<'migrationConversations'>, ...patch }) }
+    catch { setError('Couldn’t update this chat. Please try again.') }
   }
-  const closeMobile = () => setOpenMobile(false)
-  const filtered = conversations.filter(conversation => conversation.title.toLowerCase().includes(search.toLowerCase()))
-  const groups = ['Today', 'Yesterday', 'Previous 7 days', 'Earlier'].map(label => ({ label, items: filtered.filter(conversation => dateGroup(conversation.updated_at) === label) }))
-
-  return (
-    <SidebarPrimitive className="border-sidebar-border/60" aria-label="Chat navigation">
-      <SidebarHeader className="gap-5 px-4 pt-5 pb-3">
-        <div className="flex items-center justify-between px-1">
-          <Link href="/dashboard" onClick={closeMobile} className="flex items-center gap-2.5 rounded-md text-xl font-semibold tracking-tight focus-visible:outline-2 focus-visible:outline-ring" aria-label="Plisto home">
-            <Anchor className="size-5 text-brand" strokeWidth={1.8} aria-hidden="true" />plisto
-          </Link>
-          {isMobile ? <Button variant="ghost" size="icon-lg" onClick={closeMobile} aria-label="Close sidebar"><X /></Button> : <SidebarTrigger className="size-8 text-muted-foreground" />}
-        </div>
-        <Button asChild variant="outline" className="h-10 w-full justify-start gap-2.5 border-border/70 bg-background/60 text-sm shadow-none">
-          <Link href="/dashboard" onClick={closeMobile}><SquarePen className="size-4 text-brand" aria-hidden="true" />New conversation</Link>
-        </Button>
-        <InputGroup className="h-9 border-transparent bg-transparent dark:bg-transparent">
-          <InputGroupAddon><Search className="size-4" aria-hidden="true" /></InputGroupAddon>
-          <InputGroupInput aria-label="Search conversations" placeholder="Search conversations" value={search} onChange={event => setSearch(event.target.value)} className="text-xs md:text-xs" />
-        </InputGroup>
-      </SidebarHeader>
-      <SidebarContent className="px-2">
-        {status === 'loading' && <div role="status" aria-label="Loading conversations" className="space-y-4 px-3 py-5"><Skeleton className="h-3 w-24" /><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-3/4" /></div>}
-        {status === 'ready' && filtered.length === 0 && <p className="px-3 py-5 text-xs leading-relaxed text-muted-foreground">{search ? 'No conversations match your search.' : 'Your conversations will appear here.'}</p>}
-        {groups.filter(group => group.items.length > 0).map(group => (
-          <SidebarGroup key={group.label} className="pt-2 pb-4">
-            <SidebarGroupLabel className="mb-1 text-xs font-normal text-muted-foreground">{group.label}</SidebarGroupLabel>
-            <SidebarMenu>
-              {group.items.map(conversation => {
-                const active = pathname === `/dashboard/chat/${conversation.id}`
-                return (
-                  <SidebarMenuItem key={conversation.id}>
-                    <SidebarMenuButton asChild isActive={active} className="h-9 px-2.5 font-normal data-active:font-medium">
-                      <Link href={`/dashboard/chat/${conversation.id}`} onClick={closeMobile} aria-current={active ? 'page' : undefined} title={conversation.title}><span>{conversation.title}</span></Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )
-              })}
-            </SidebarMenu>
-          </SidebarGroup>
-        ))}
-        {history.status === 'CanLoadMore' && <Button variant="ghost" className="mx-3 mb-4 text-xs" onClick={() => history.loadMore(30)}>Load more conversations</Button>}
-        {history.status === 'LoadingMore' && <p role="status" className="px-3 py-3 text-xs text-muted-foreground">Loading more…</p>}
-      </SidebarContent>
-      <SidebarFooter className="gap-2 p-3">
-        {signOutError && <p role="alert" className="px-2 text-xs text-destructive">Sign out failed. Please try again.</p>}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-14 w-full justify-start gap-3 px-2" aria-label="Account and appearance">
-              <Avatar className="size-8"><AvatarFallback className="bg-sidebar-accent text-xs font-medium">{initials}</AvatarFallback></Avatar>
-              <span className="min-w-0 flex-1 text-left"><span className="block truncate text-sm font-medium">{displayName}</span><span className="block truncate text-xs font-normal text-muted-foreground">Personal workspace</span></span>
-              <ChevronsUpDown className="size-3.5 text-muted-foreground" aria-hidden="true" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent side="top" align="start" className="w-60">
-            <DropdownMenuLabel className="truncate font-normal text-muted-foreground">{email || displayName}</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuLabel>Appearance</DropdownMenuLabel>
-            {([{ value: 'light', label: 'Light', icon: Sun }, { value: 'dark', label: 'Dark', icon: Moon }, { value: 'system', label: 'System', icon: Monitor }] as const).map(option => (
-              <DropdownMenuItem key={option.value} onSelect={() => setTheme(option.value)}><option.icon aria-hidden="true" />{option.label}{theme === option.value && <Check className="ml-auto" aria-hidden="true" />}</DropdownMenuItem>
-            ))}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem disabled={signingOut} onSelect={() => void handleSignOut()}><LogOut aria-hidden="true" />{signingOut ? 'Signing out…' : 'Sign out'}</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarFooter>
-    </SidebarPrimitive>
+  const confirmDelete = async () => {
+    if (!deleteId || deleting) return
+    setDeleting(true); setError('')
+    try { await remove({ conversationId: deleteId as Id<'migrationConversations'> }); if (deleteId === activeId) navigate('/dashboard'); setDeleteId(null) }
+    catch { setError('Couldn’t delete this chat. Please try again.') }
+    finally { setDeleting(false) }
+  }
+  const content = (
+    <VisualSidebar conversations={history.results} activeId={activeId} running={new Set(history.results.filter(chat => chat.state === 'running').map(chat => chat.id))}
+      onSelect={id => navigate(`/dashboard/chat/${id}`)} onNew={() => navigate('/dashboard')} onCollapse={() => isMobile ? setOpenMobile(false) : toggleSidebar()}
+      onRename={(id, title) => { if (title.trim()) void change(id, { title: title.trim() }) }}
+      onPin={id => void change(id, { pinned: !history.results.find(chat => chat.id === id)?.pinned })} onDelete={setDeleteId} searchRef={search}
+      loading={history.status === 'LoadingFirstPage'} account={<AccountMenu name={name} email={email} />}
+      footer={<>
+        {history.status === 'CanLoadMore' && <Button variant="ghost" size="sm" onClick={() => history.loadMore(30)}>Load more chats</Button>}
+        {history.status === 'LoadingMore' && <p role="status" className="px-2 py-3 text-xs text-ink-3">Loading more…</p>}
+        {deleteId && <div role="alert" className="my-2 rounded-card bg-surface p-3 text-xs text-ink shadow-card"><p>Delete this chat and its messages?</p><div className="mt-2 flex gap-2"><Button size="sm" variant="destructive" disabled={deleting} onClick={() => void confirmDelete()}>{deleting ? 'Deleting…' : 'Delete'}</Button><Button size="sm" variant="ghost" disabled={deleting} onClick={() => setDeleteId(null)}>Keep chat</Button></div></div>}
+        {error && <p role="alert" className="p-2 text-xs text-red">{error}</p>}
+      </>} />
   )
+  if (isMobile) return <Sheet open={openMobile} onOpenChange={setOpenMobile}>
+    <SheetContent side="left" showCloseButton={false} className="app-root max-w-[calc(100vw-32px)] bg-sidebar p-0 text-ink data-[side=left]:w-[268px] data-[side=left]:border-0">
+      <SheetHeader className="sr-only"><SheetTitle>Chats</SheetTitle><SheetDescription>Search your chats or start a new conversation.</SheetDescription></SheetHeader>
+      {content}
+    </SheetContent>
+  </Sheet>
+  return <aside aria-label="Chat navigation" data-state={open ? 'expanded' : 'collapsed'} className="peer relative hidden shrink-0 overflow-clip lg:block" style={{ width: open ? 268 : 0, transition: 'width 320ms cubic-bezier(0.23,1,0.32,1)' }}>
+    <div className="h-full w-[268px] transition-[opacity,transform] duration-300" style={{ opacity: open ? 1 : 0, transform: open ? 'none' : 'translateX(-12px)', transitionTimingFunction: 'cubic-bezier(0.23,1,0.32,1)' }} inert={!open}>{content}</div>
+  </aside>
 }
