@@ -121,7 +121,7 @@ it("uses independent generic line quantities instead of shared vessel movements"
       { name: "pilot move", currency: "USD", billing: { kind: "movement", price: "6.25", quantity: "4" } },
     ],
   });
-  expect(applied.totals?.[0]).toMatchObject({ amount: "103.25", lineAmounts: ["41.25", "37.00", "25.00"] });
+  expect(applied.totals?.[0]).toMatchObject({ amount: "103.25", lineAmounts: ["41.25", "37", "25"] });
   expect(applied.body).toMatch(/3 launch jobs.*13\.75/);
   expect(applied.body).toMatch(/5 escort jobs.*7\.4/);
   expect(applied.body).toMatch(/4 movements.*6\.25/);

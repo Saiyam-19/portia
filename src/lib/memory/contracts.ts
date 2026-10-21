@@ -1,4 +1,5 @@
 export type MemoryFact = { key: string; value: string; sources: string[] };
+export type MemoryStateVersion = { epoch: number; memoryRevision: number; scratchpadRevision: number };
 export type MemoryOperation =
   | { kind: "remember"; key: string; value: string; source: string }
   | { kind: "forget"; key: string }

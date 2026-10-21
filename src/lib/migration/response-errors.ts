@@ -1,6 +1,10 @@
 import { modelErrorDetails } from "./error-reporting";
+import { PublicationLimitError, PUBLICATION_LIMIT_MESSAGE, PUBLICATION_LIMIT_AFTER_APPROVAL_MESSAGE } from "./publication-contract";
+import { RemainingObligationsLimitError } from "../portia/remaining-obligations";
 
 const messages = {
+  publication: PUBLICATION_LIMIT_MESSAGE,
+  publicationAfterApproval: PUBLICATION_LIMIT_AFTER_APPROVAL_MESSAGE,
   timeout: "The response timed out. Your submitted details are saved. Send a follow-up to continue; partial work is not a completed estimate.",
   billing: "The AI service has reached its billing limit. Please contact support; your submitted details are saved.",
   busy: "The AI service is temporarily busy. Please try again shortly; your submitted details are saved.",
@@ -9,6 +13,8 @@ const messages = {
 } as const;
 
 export function responseErrorMessage(error: unknown): string {
+  if (error instanceof RemainingObligationsLimitError) return error.message;
+  if (error instanceof PublicationLimitError) return messages.publication;
   const { statusCode, errorType } = modelErrorDetails(error);
   if (errorType === "timeout" || statusCode === 408 || statusCode === 504) return messages.timeout;
   if (statusCode === 402) return messages.billing;

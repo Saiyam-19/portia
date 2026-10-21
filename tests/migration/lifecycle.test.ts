@@ -19,6 +19,27 @@ async function run(t: ReturnType<typeof setup>, ownerId: string, requestId: stri
 beforeEach(() => { vi.stubEnv('MIGRATION_DEV_ENABLED','true'); vi.stubEnv('PORTIA_CONVEX_DEPLOYMENT','brilliant-whale-380'); vi.stubEnv('CONVEX_SITE_URL','https://brilliant-whale-380.convex.site'); vi.stubEnv('PORTIA_AUTH_MODE','basic'); });
 afterEach(() => { vi.unstubAllEnvs(); vi.useRealTimers(); });
 describe('normal conversation lifecycle', () => {
+  it.each(['incomplete', 'completed', 'error'] as const)('projects the %s disposition without exposing internal error details', async disposition => {
+    const t = setup(); const a = await account(t, 'a@example.com');
+    const claimed = await run(t, a.userId, 'disposition');
+    if (disposition === 'error') {
+      await t.mutation(internal.migration.failRun, { ownerId: a.userId, runId: claimed.runId, fence: claimed.fence, errorCode: 'PRIVATE_PROVIDER_DETAIL' });
+    } else {
+      await t.mutation(internal.migration.completeRun, {
+        ownerId: a.userId, runId: claimed.runId, fence: claimed.fence,
+        responseMessages: [{ role: 'assistant', content: 'Partial calculation: 91.' }],
+        form: null, finishReason: 'stop', ...(disposition === 'incomplete' ? { incomplete: true } : {}),
+      });
+    }
+    const history = await a.client.query(api.migration.listConversationMessages, { conversationId: claimed.conversationId, paginationOpts: { cursor: null, numItems: 50 } });
+    expect(history.page.length).toBeGreaterThan(0);
+    for (const message of history.page) {
+      expect(message.runStatus).toBe(disposition === 'completed' ? 'completed' : 'error');
+      expect(message.completionDisposition).toBe(disposition === 'incomplete' ? 'incomplete' : undefined);
+      expect(message).not.toHaveProperty('errorCode');
+    }
+    expect(JSON.stringify(history)).not.toContain('PRIVATE_PROVIDER_DETAIL');
+  });
   it('restores the last used model for saved chats and pending forms without browser storage', async () => {
     const t = setup(); const a = await account(t, 'a@example.com');
     const id = await a.client.mutation(api.migration.createConversation, {});

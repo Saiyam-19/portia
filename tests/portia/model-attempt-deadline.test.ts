@@ -7,7 +7,7 @@ const finish = { type: "finish", finishReason: { unified: "stop", raw: undefined
 let parent: AbortController;
 beforeEach(() => { vi.useFakeTimers(); parent = new AbortController(); });
 afterEach(() => { parent.abort(); vi.useRealTimers(); });
-it("bounds a continually trickling incomplete attempt and releases only its completed retry", async () => {
+it("bounds a continually trickling incomplete attempt without a default recovery dispatch", async () => {
   let count = 0;
   const underlying = new MockLanguageModelV4({ doStream: async args => ({ stream: new ReadableStream<LanguageModelV4StreamPart>({ start(controller) {
     if (count++ > 0) { controller.enqueue({ type: "text-start", id: "ready" }); controller.enqueue({ type: "text-delta", id: "ready", delta: "Ready." }); controller.enqueue({ type: "text-end", id: "ready" }); controller.enqueue(finish); controller.close(); return; }
@@ -16,11 +16,11 @@ it("bounds a continually trickling incomplete attempt and releases only its comp
     const interval = setInterval(() => controller.enqueue({ type: "text-delta", id: "discarded", delta: " drip" }), 10_000);
     args.abortSignal!.addEventListener("abort", () => { clearInterval(interval); controller.error(args.abortSignal!.reason); }, { once: true });
   } }) }) });
-  const pending = Promise.resolve(withCompleteModelSteps(underlying).doStream({ prompt: [], abortSignal: parent.signal })); pending.catch(() => {});
-  await vi.advanceTimersByTimeAsync(90_001); expect(count).toBe(2);
-  const reader = (await pending).stream.getReader(), parts = [];
-  for (;;) { const next = await reader.read(); if (next.done) break; parts.push(next.value); }
-  expect(parts.filter(p => p.type === "text-delta").map(p => p.delta)).toEqual(["Ready."]);
+  let released = false;
+  const pending = Promise.resolve(withCompleteModelSteps(underlying).doStream({ prompt: [], abortSignal: parent.signal })).then(() => { released = true; return undefined; }, error => error);
+  await vi.advanceTimersByTimeAsync(90_001);
+  expect(await pending).toMatchObject({ name: "TimeoutError" });
+  expect(count).toBe(1); expect(released).toBe(false);
 });
 it("clears the absolute watchdog before slow cleanup of a deterministic error", async () => {
   let count = 0;

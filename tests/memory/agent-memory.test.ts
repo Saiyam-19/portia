@@ -4,8 +4,8 @@ import { expect, it, vi } from "vitest";
 import { createMigrationMainAgent } from "../../src/lib/migration/domain-agent";
 
 const result: LanguageModelV4GenerateResult = {
-  content: [{ type: "text", text: "Ready" }],
-  finishReason: { unified: "stop", raw: undefined },
+  content: [{ type: "tool-call", toolCallId: "ready", toolName: "finish_turn", input: JSON.stringify({ outcomes: [], response: "Ready" }) }],
+  finishReason: { unified: "tool-calls", raw: undefined },
   usage: { inputTokens: { total: 1, noCache: 1, cacheRead: undefined, cacheWrite: undefined }, outputTokens: { total: 1, text: 1, reasoning: undefined } },
   warnings: [],
 };

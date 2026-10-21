@@ -3,7 +3,7 @@ import agentTest from "@convex-dev/agent/test";
 import betterAuthTest from "@convex-dev/better-auth/test";
 import { convexTest } from "convex-test";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { MockLanguageModelV4 } from "ai/test";
+import { MockLanguageModelV4 } from "../helpers/portia-protocol-model";
 import type { ModelMessage } from "ai";
 import { internal } from "../../convex/_generated/api";
 import schema from "../../convex/schema";

@@ -1,12 +1,13 @@
 import type { ModelMessage } from "ai";
 import Decimal from "decimal.js";
 import { callSchema, lineSchema, type Quote, type QuoteLine } from "./quotes";
+import { isQuoteWriteTool } from "./tool-names";
 
 /** Read-only bridge for authenticated historical receipts. Never runs on a new
  * chat, accepts new proposals, rewrites raw messages, or mines assistant prose. */
 export async function readLegacyQuotes(messages: readonly ModelMessage[]): Promise<{ quotes: Quote[]; warning?: string }> {
   const historical = messages.some(message => message.role === "tool" && message.content.some(part => part.type === "tool-result" && part.toolName === "interpret_request"));
-  if (!historical) return { quotes: [], ...(!messages.some(message => message.role === "tool" && message.content.some(part => part.type === "tool-result" && part.toolName === "manage_quote")) && messages.some(message => message.role === "assistant") ? { warning: "Historical prose is not a saved quotation. Unrecorded historical prices and conditions must be confirmed from user-supplied or official evidence." } : {}) };
+  if (!historical) return { quotes: [], ...(!messages.some(message => message.role === "tool" && message.content.some(part => part.type === "tool-result" && isQuoteWriteTool(part.toolName))) && messages.some(message => message.role === "assistant") ? { warning: "Historical prose is not a saved quotation. Unrecorded historical prices and conditions must be confirmed from user-supplied or official evidence." } : {}) };
   try {
     const { replayConversation, currentConversationFact, unresolvedConversationField, monetaryEvidenceCurrency, FIELD_NAMES } = await import("../migration/conversation");
     const { state } = replayConversation(messages);

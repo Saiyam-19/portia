@@ -368,13 +368,18 @@ describe("migration Convex state machine", () => {
       responseMessages: [{ role: "assistant", content: "Final cited answer" }],
       finishReason: "stop",
     });
-    expect(await t.mutation(internal.migration.completeRun, {
+    await expect(t.mutation(internal.migration.completeRun, {
       ownerId: ownerA,
       runId: run.runId,
       fence: run.fence,
       responseMessages: [],
       form: null,
       finishReason: "stop",
+    })).rejects.toThrow(/readable answer/);
+    expect(await t.mutation(internal.migration.completeRun, {
+      ownerId: ownerA, runId: run.runId, fence: run.fence,
+      responseMessages: [{ role: "assistant", content: "Final cited answer" }],
+      form: null, finishReason: "stop",
     })).toMatchObject({ state: "idle" });
   });
 
@@ -542,6 +547,15 @@ describe("migration Convex state machine", () => {
       form: null,
       finishReason: "length",
     })).rejects.toThrow(/clean terminal stop/i);
+  });
+  it.each(["blank", "provider-error"] as const)("does not let incomplete disposition bypass %s validation", async kind => {
+    const t = setup();
+    const run = await claim(t);
+    await expect(t.mutation(internal.migration.completeRun, {
+      ownerId: ownerA, runId: run.runId, fence: run.fence, form: null,
+      responseMessages: kind === "blank" ? [] : [{ role: "assistant", content: "Partial work" }],
+      finishReason: kind === "blank" ? "tool-calls" : "error", incomplete: true,
+    })).rejects.toThrow(/Incomplete work requires/);
   });
   it("validates own-property form values without inherited prototype keys", async () => {
     const t = setup();

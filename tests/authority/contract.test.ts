@@ -20,7 +20,7 @@ it.each([" ","\0","界".repeat(400)])("rejects memory values the persistence bou
 });
 it("rejects oversized review before staging anything and never truncates terms",()=>{
   const authority=new AuthoritySession();
-  expect(()=>authority.propose({id:crypto.randomUUID(),kind:"quote",before:null,previous:null,quote:{id:"oversized",revision:0,name:"Large",pricing:"supplied",call:{},lines:[],services:[],terms:{unresolvedTerms:Array.from({length:16},()=>"x".repeat(1000))}}})).toThrow(/too large/);
+  expect(authority.propose({id:crypto.randomUUID(),kind:"quote",before:null,previous:null,quote:{id:"oversized",revision:0,name:"Large",pricing:"supplied",call:{},lines:[],services:[],terms:{unresolvedTerms:Array.from({length:16},()=>"x".repeat(1000))}}})).toMatchObject({ status: "unresolved", availability: "unavailable", code: "review_capacity", body: expect.stringMatching(/too large/) });
   expect(authority.hasPending()).toBe(false);
 });
 it.each([false,true])("rejects quote/comparison mixed packets in either execution order (%s)",reverse=>{

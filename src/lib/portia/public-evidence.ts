@@ -1,14 +1,14 @@
 import "server-only";
-import DecimalJs from "decimal.js";
+import { TariffNumber } from "./tariff-number";
 import finolex from "../../../data/reviewed-tariffs/full-scope-2026/gac-finolex-2023.json";
 import redi from "../../../data/reviewed-tariffs/full-scope-2026/gac-redi-2023.json";
 import jsw from "../../../data/reviewed-tariffs/full-scope-2026/jsw-dec2025-indexed.json";
 import oct from "../../../data/reviewed-tariffs/full-scope-2026/oct-evidence.json";
-import { Components, dateOf } from "./published-components";
+import { Components, combineTariffResults, componentValidationFailure, dateOf } from "./published-components";
 import { safe } from "./quotes";
 import type { TariffInput, TariffResult } from "./tariff-types";
 
-const D = DecimalJs.clone({ precision: 40, rounding: DecimalJs.ROUND_HALF_UP });
+const D = TariffNumber;
 const key = (value: string) => value.normalize("NFKC").trim().toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
 type Mode = "quote" | "rule";
 
@@ -143,7 +143,7 @@ function assessedCargoTonnes(c: Components) {
     return tonnes;
   }
   if (!Array.isArray(c.input.cargoItems) || !c.input.cargoItems.length || c.input.cargoItems.length > 50) { c.questions.push("Provide between 1 and 50 actual itemized gross cargo weights."); return; }
-  const values: DecimalJs[] = [];
+  const values: TariffNumber[] = [];
   for (const item of c.input.cargoItems) {
     const raw = item?.grossTonnes;
     if (typeof raw !== "string" || !/^\d+(?:\.\d+)?$/.test(raw) || raw.length > 48 || !new D(raw).isFinite() || new D(raw).lte(0) || new D(raw).gt("1e12")) { c.questions.push("Each cargo item needs a positive gross weight in tonnes within the supported range."); return; }
@@ -219,7 +219,6 @@ function octComponents(c: Components, services: string[]) {
 
 /** Bounded evidence routing by facility/service, not by acceptance prompts. */
 export async function publicEvidenceComponents(input: TariffInput, mode: Mode): Promise<{ handled: string[]; result: TariffResult } | undefined> {
-  const c = new Components(input, mode);
   const handlers: Record<string, { services: string[]; run: (c: Components, selected: string[]) => void }> = {
     "ranpar-finolex": { services: ["berth", "pilotage", "towage", "towage-standby", "mooring"], run: finolexComponents },
     redi: { services: ["anchorage", "pilotage", "port-services", "launch"], run: rediComponents },
@@ -230,6 +229,15 @@ export async function publicEvidenceComponents(input: TariffInput, mode: Mode): 
   if (!handler) return;
   const handled = input.charges.filter(service => handler.services.includes(service));
   if (!handled.length) return;
-  handler.run(c, handled);
-  return { handled, result: await c.result() };
+  // OCT cargo and the conditional berth scenario have different governing
+  // source sets. A failed historical berth source cannot erase validated
+  // cargo wharfage. Other handlers use one shared source packet; their
+  // cargo/handling aliases remain one operation, never duplicate amounts.
+  const groups = input.port === "ictpl" ? handled.map(service => [service]) : [handled];
+  const results = await Promise.all(groups.map(async services => {
+    const c = new Components({ ...input, charges: services }, mode);
+    try { handler.run(c, services); return await c.result(); }
+    catch { return componentValidationFailure(services, "published-reference"); }
+  }));
+  return { handled, result: combineTariffResults(results) };
 }

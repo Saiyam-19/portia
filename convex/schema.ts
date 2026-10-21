@@ -11,6 +11,7 @@ import {
   vAuthorization,
   vQuoteApproval,
   vRunStatus,
+  vRemainingObligations,
 } from "./validators";
 
 export default defineSchema({
@@ -75,6 +76,9 @@ export default defineSchema({
     authorizationDeclined: v.optional(v.boolean()),
     authorizationResolutionReason: v.optional(v.union(v.literal("approved"),v.literal("rejected"),v.literal("cancelled"),v.literal("note"),v.literal("submitted"))),
     authorizationContinuation: v.optional(v.array(v.object({payload:v.string(),toolCallId:v.string(),title:v.string(),description:v.optional(v.string()),fields:v.array(vFormField),reviewGroup:v.string()}))),
+    remainingObligations:v.optional(vRemainingObligations),
+    // Version 1 exposes only canonical assistant strings; model arrays stay private.
+    publicTextVersion: v.optional(v.literal(1)),
     checkpointStep: v.optional(v.number()),
     checkpointHash: v.optional(v.string()),
     checkpointHasText: v.optional(v.boolean()),
@@ -104,6 +108,7 @@ export default defineSchema({
     resolutionReason: v.optional(v.union(v.literal("approved"),v.literal("rejected"),v.literal("cancelled"),v.literal("note"),v.literal("submitted"))),
     authorization: v.optional(vAuthorization),
     continuation: v.optional(v.array(v.object({payload:v.string(),toolCallId:v.string(),title:v.string(),description:v.optional(v.string()),fields:v.array(vFormField),reviewGroup:v.string()}))),
+    remainingObligations:v.optional(vRemainingObligations),
     createdAt: v.number(),
     resolvedAt: v.optional(v.number()),
   })

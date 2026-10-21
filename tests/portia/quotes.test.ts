@@ -42,7 +42,8 @@ it("C3 compares saved quotes using exact directional supplied FX", async () => {
   const quoteIds = [...s.quotes.keys()];
   const result = await s.compare({ quoteIds, currency: "USD", exchangeRates: [{ from: "EUR", to: "USD", rate: "1.10" }] });
   for (const text of ["USD 950.00", "EUR 900.00", "USD 990.00", "USD 40.00", "**Amber** has the lower"]) expect(result.body).toContain(text);
-  expect((await s.compare({ quoteIds, currency: "USD" })).status).toBe("error");
+  const missing = await s.compare({ quoteIds, currency: "USD" });
+  expect(missing.status).toBe("unresolved"); expect(missing.questions.join(" ")).toContain("EUR to USD"); expect(missing).toHaveProperty("clarificationId");
 });
 it("bounds inputs and rejects duplicate/stale same-step updates", async () => {
   expect(quoteInputSchema.safeParse({ ...input, officialRate: "12" }).success).toBe(false);

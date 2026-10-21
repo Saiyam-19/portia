@@ -4,6 +4,7 @@ import type { Doc, Id } from "../_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "../_generated/server";
 import type { Infer } from "convex/values";
 import { memoryOperation } from "../memoryValidators";
+import { validMemoryValue } from "../../src/lib/memory/input";
 
 export const memoryEnabled = () => process.env.PORTIA_MEMORY_ENABLED === "true";
 export const memoryError = (code: string): never => { throw new ConvexError(code); };
@@ -62,7 +63,7 @@ async function enqueueOperation(ctx: MutationCtx, ownerId: string, requestId: st
   if (ns.nextSequence - ns.appliedSequence >= limit) return memoryError("MEMORY_BUSY");
   let factIndex = [...ns.factIndex];
   if (operation.kind === "remember") {
-    if (!/^[a-z][a-z0-9_]{0,79}$/.test(operation.key) || !operation.value.trim() || new TextEncoder().encode(operation.value).length > 1024 || operation.value.includes("\0")) return memoryError("INVALID_MEMORY");
+    if (!/^[a-z][a-z0-9_]{0,79}$/.test(operation.key) || !validMemoryValue(operation.value)) return memoryError("INVALID_MEMORY");
     const prior = factIndex.find(f => f.key === operation.key);
     const valueHash = await hashMemory(operation.value);
     const sources = prior?.hash === valueHash ? [...new Set([...prior.sources, operation.source])] : [operation.source];

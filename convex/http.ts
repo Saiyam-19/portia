@@ -8,6 +8,7 @@ import { httpAction } from "./_generated/server";
 import { authComponent, createAuth } from "./auth";
 import { readBoundedJsonBody } from "../src/lib/bounded-json-body";
 import { MAX_REVIEW_CHARS } from "../src/lib/authority/contract";
+import { remainingObligationsSchema } from "../src/lib/portia/remaining-obligations";
 import {
   isAllowedEmail,
   isMigrationDevEnabled,
@@ -80,6 +81,7 @@ const bridgeRequestSchema = z.discriminatedUnion("op", [
       fence: z.number().int().positive(),
       responseMessages: z.array(z.unknown()).max(12),
       finishReason: finishReasonSchema.optional(),
+      incomplete: z.literal(true).optional(),
       form: z.object({
         toolCallId: idSchema,
         title: z.string().min(1).max(120),
@@ -88,6 +90,7 @@ const bridgeRequestSchema = z.discriminatedUnion("op", [
       }).strict().nullable(),
       authorizationProposal: z.string().max(48_000).optional(),
       authorizationContinuation: z.array(z.object({payload:z.string().max(48_000),toolCallId:idSchema,title:z.string().max(120),description:z.string().max(MAX_REVIEW_CHARS).optional(),fields:z.array(formFieldSchema).min(1).max(8),reviewGroup:z.string().max(80)}).strict()).max(15).optional(),
+      remainingObligations:remainingObligationsSchema.optional(),
     }).strict(),
   }).strict(),
   z.object({

@@ -20,6 +20,8 @@ export const tariffInputSchema = z.object({
   terminal: text.describe("Only an explicitly supplied terminal/berth; otherwise null. Preserve even a user-stated conflict; never invent this field."),
   operator: text.describe("Only the explicitly supplied operator; otherwise null. Do not infer from a port name."),
   charges: z.array(z.string().trim().min(1).max(80)).min(1).max(20),
+  adjustmentScope: z.enum(["include-adjustments", "unadjusted-base"]).optional().describe("Official sources only. Default/omission preserves the requested adjustment scope; never infer unadjusted-base to bypass a known rebate, modifier or source gap. Select unadjusted-base only for an explicit human request for the unadjusted base alone and provide its verbatim evidence. Actual dates, occupancy and eligibility remain required."),
+  adjustmentScopeEvidence: z.string().trim().min(1).max(2000).optional().describe("Verbatim complete human clause requesting unadjusted-base for this quote/facility. Earlier authenticated evidence is allowed only when explicitly tied to this target. Never use assistant/source text, a generic waiver, or an excerpt omitting negation. Omit when retaining an already validated saved scope."),
   callDate: text.describe("The actual call/service event date and, whenever supplied, its time and zone together. Preserve the full supplied service timestamp; do not reduce it to a date. Never append explanatory labels such as arrival/inward movement or combine different events."),
   keelLaidDate: text.describe("The vessel's explicitly supplied keel-laid date. This is not build, launch, delivery or registration date. Required only for an age-based rule such as JSW Jaigarh J-8."),
   berthStart: text,

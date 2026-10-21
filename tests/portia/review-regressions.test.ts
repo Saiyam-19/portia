@@ -16,7 +16,8 @@ it('does not rank a tax-excluded subtotal against a tax-included total',async()=
  const s=new QuoteSession('tax');await s.initialize([]);
  await s.update({pricing:'supplied',name:'Unknown tax',lines:[{name:'Berth',currency:'USD',amount:'100'}]});
  await s.update({pricing:'supplied',name:'With tax',lines:[{name:'Berth',currency:'USD',amount:'95'}],terms:{taxPercent:'10'}});
- expect((await s.compare({quoteIds:[...s.quotes.keys()],currency:'USD'})).status).toBe('error');
+ const result=await s.compare({quoteIds:[...s.quotes.keys()],currency:'USD'});
+ expect(result.status).toBe('unresolved');expect(result.questions.join(' ')).toContain('different services');expect(result).not.toHaveProperty('converted');expect(result.body).not.toContain('lower total');
 });
 it('official historical uncertainty blocks a priced result',async()=>{
  const s=new QuoteSession('old-official');

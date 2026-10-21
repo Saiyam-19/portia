@@ -2,20 +2,20 @@ import "server-only";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
-import Decimal from "decimal.js";
+import { TariffNumber as Decimal } from "./tariff-number";
 import rules from "../../../data/reviewed-tariffs/jnpa-2026/rules.json";
 import explanationSources from "../../../data/reviewed-tariffs/bounded-explanations-2026/sources.json";
 import extensions from "../../../data/reviewed-tariffs/component-extensions-2026/rules.json";
 import mumbaiSources from "../../../data/ports/mumbai/approved-2026-05-09/rules.json";
 import { calculateElapsedTime } from "../migration/elapsed-time";
-import { calculateChargeBatch } from "../migration/calculator-batch";
-import type { TariffInput, TariffResult, TariffApplicability, TariffSource } from "./tariff-types";
+import { calculateExactChargeBatch as calculateChargeBatch } from "./exact-charge-batch";
+import type { TariffInput, TariffResult, TariffApplicability, TariffSource, TariffIssue } from "./tariff-types";
 export type { TariffInput, TariffResult } from "./tariff-types";
 export { tariffInputSchema } from "./tariff-input";
 import { SUPPORTED_PORTS, PORT_ALIASES, AMBIGUOUS_PORT_NAMES } from "../migration/ports";
 import { resolvePortIdentity } from "../migration/port-identity";
 import coverageGaps from "../../../data/reviewed-tariffs/coverage-gaps.json";
-import { publishedComponents, combineTariffResults, berthPeriodIssue, rulePeriodIssues } from "./published-components";
+import { publishedComponents, combineTariffResults, componentValidationFailure, berthPeriodProblem, occupancyDuration, rulePeriodIssues } from "./published-components";
 import { publicEvidenceComponents } from "./public-evidence";
 import { ancillaryServiceSchema } from "./tariff-input";
 
@@ -44,11 +44,19 @@ function unresolved(questions: string[], body = ""): TariffResult {
   return { status: "unresolved", sourceClass: "official-tariff", body, questions: [...new Set(questions)],
     applicability: { status: "unverified", currentTariffVerified: false, message: "No complete applicable tariff calculation established." } };
 }
+function unresolvedIssue(issue: TariffIssue, body = ""): TariffResult {
+  return { ...unresolved(issue.kind === "input" ? [issue.message] : [], body), issues: [issue],
+    ...(issue.kind !== "input" ? { limitations: [issue.message] } : {}) };
+}
+function appendIssue(issue: TariffIssue, questions: string[], limitations: string[], issues: TariffIssue[]) {
+  issues.push(issue);
+  (issue.kind === "input" ? questions : limitations).push(issue.message);
+}
 
 const eligiblePorts = ["gateway-terminals-india-pvt-ltd", "jsw-jnpt-liquid-terminal", "jawahar-nehru-port-authority-jnpa"];
 
-async function verifiedSources() {
-  for (const source of rules.sources) {
+async function verifiedSources(selected: typeof rules.sources) {
+  for (const source of selected) {
     const data = await readFile(path.join(process.cwd(), "data/reviewed-tariffs/jnpa-2026", source.file));
     if (createHash("sha256").update(data).digest("hex") !== source.sha256) throw new Error("Reviewed component source hash changed.");
   }
@@ -69,7 +77,7 @@ async function extendedComponents(input: TariffInput, mode: "quote" | "rule", po
   const nsft = port === "nhava-sheva-freeport-terminal", nsigt = port === "nhava-sheva-gateway-terminal", nsict = port === "nhava-sheva-international-container-terminal";
   const mumbai = port === "mumbai", jaigarh = port === "jaigarh";
   if (!(nsft || nsigt || nsict || mumbai || jaigarh) || mumbai && get("service") === "coastal") return;
-  const wanted = [...new Set(input.charges)], questions: string[] = [], limitations: string[] = [];
+  const wanted = [...new Set(input.charges)], questions: string[] = [], limitations: string[] = [], issues: TariffIssue[] = [];
   const handles=(nsft||nsigt||nsict)&&wanted.some(c=>["handling","container-handling","cargo-handling","cargo"].includes(c))||(mumbai||nsigt)&&wanted.includes("berth")||jaigarh&&wanted.includes("port-dues");
   if(!handles)return;
   const base = { sourceClass: "official-tariff" as const, applicability: applicability(mode) };
@@ -106,19 +114,19 @@ async function extendedComponents(input: TariffInput, mode: "quote" | "rule", po
     return ["year", "month", "day"].map(type => parts.find(p => p.type === type)!.value).join("-");
   };
   if ((mumbai || nsigt) && wanted.includes("berth")) {
-    const intervalIssue = berthPeriodIssue(input, source.effectiveFrom, through);
-    if (intervalIssue) questions.push(intervalIssue);
+    const intervalIssue = berthPeriodProblem(input, source.effectiveFrom, through);
+    if (intervalIssue) appendIssue(intervalIssue, questions, limitations, issues);
   }
   const dateRaw = (mumbai || nsigt && wanted.includes("berth")) ? get("berthStart") ?? get("callDate") : get("callDate") ?? get("berthStart");
   const date = dateRaw ? parseDate(dateRaw) : undefined;
-  if (!date) questions.push("call date, with unambiguous date order/time zone when a timestamp is supplied");
-  else if (date < source.effectiveFrom || through && date > through) limitations.push(`The retained source period (${source.effectiveFrom}${through ? " through " + through : " onward"}) does not cover the requested call date. A matching reviewed source version is unavailable; no quotation has been calculated.`);
+  if (!date) appendIssue({ kind: "input", code: "invalid-service-date", field: "callDate", message: "call date, with unambiguous date order/time zone when a timestamp is supplied" }, questions, limitations, issues);
+  else if (date < source.effectiveFrom || through && date > through) appendIssue({ kind: "source", code: "uncovered-service-period", message: `The retained source period (${source.effectiveFrom}${through ? " through " + through : " onward"}) does not cover the requested call date. A matching reviewed source version is unavailable; no quotation has been calculated.` }, questions, limitations, issues);
   if (get("berthEnd") && (mumbai || nsigt && wanted.includes("berth"))) {
     const end = parseDate(get("berthEnd")!);
-    if (!end) questions.push("an unambiguous berth end date");
-    else if (end < source.effectiveFrom || through && end > through) limitations.push("The retained source does not cover the complete berth interval. No quotation has been calculated.");
+    if (!end) appendIssue({ kind: "input", code: "invalid-berth-end", field: "berthEnd", message: "an unambiguous berth end date" }, questions, limitations, issues);
+    else if (end < source.effectiveFrom || through && end > through) appendIssue({ kind: "source", code: "uncovered-berth-period", service: "berth", message: "The retained source does not cover the complete berth interval. No quotation has been calculated." }, questions, limitations, issues);
   }
-  if (questions.length || limitations.length) return { ...base, status: "unresolved", body: "", questions, limitations };
+  if (questions.length || limitations.length) return { ...base, status: "unresolved", body: "", questions, limitations, issues };
   const number = (field: keyof Omit<TariffInput, "charges">, positive = false, integer = false) => {
     const raw = get(field);
     if (raw === undefined || !/^\d+(?:\.\d+)?$/.test(raw) || !new Decimal(raw).isFinite() || positive && new Decimal(raw).lte(0) || integer && !new Decimal(raw).isInteger()) {
@@ -127,21 +135,9 @@ async function extendedComponents(input: TariffInput, mode: "quote" | "rule", po
     return raw;
   };
   const hours = () => {
-    let duration = get("durationHours");
-    if (get("durationMinutes") !== undefined) {
-      const minutes = number("durationMinutes", true); if (!minutes) return;
-      const converted = new Decimal(minutes).div(60).toString();
-      if (duration !== undefined && !new Decimal(duration).eq(converted)) { questions.push("durationHours and durationMinutes disagree"); return; }
-      duration ??= converted;
-    }
-    if (get("berthStart") && get("berthEnd")) {
-      const elapsed = calculateElapsedTime({ start: get("berthStart")!, end: get("berthEnd")!, timeZone: get("timeZone"), dateOrder: get("dateOrder") as "DMY" | "MDY" | undefined });
-      if (elapsed.status !== "ok") { questions.push(elapsed.message); return; }
-      if (duration !== undefined && !new Decimal(duration).eq(elapsed.elapsedHours)) { questions.push("duration and berth timestamps disagree"); return; }
-      duration ??= elapsed.elapsedHours;
-    }
-    if (duration === undefined || !/^\d+(?:\.\d+)?$/.test(duration) || new Decimal(duration).lte(0)) { questions.push("positive ordinary berth occupancy duration or ordered berth timestamps"); return; }
-    return duration;
+    const duration = occupancyDuration(input);
+    if ("issue" in duration) { appendIssue(duration.issue, questions, limitations, issues); return; }
+    return duration.hours;
   };
   const add = (charge: string, expression: string, formula: string) => {
     const id = `component_${rows.length}`;
@@ -190,9 +186,10 @@ async function extendedComponents(input: TariffInput, mode: "quote" | "rule", po
     } else rate = extensions.containers["nhava-sheva-gateway-terminal"].berthRate;
     if (questions.length === before && gt && duration && rate) {
       const assessed = mumbai ? `max(${gt},${extensions.mumbaiForeign.minimumGt})` : gt;
-      add("berth", `${assessed}*${rate}*ceil(${duration})`, `${mumbai ? get("terminal") : "NSIGT operator berth (ceiling component)"}: ${assessed} GT × ${source.currency} ${rate}/GRT/started hour × ceil(${duration}) hours`);
+      const billedHours = duration.ceil().toFixed(0);
+      add("berth", `${assessed}*${rate}*${billedHours}`, `${mumbai ? get("terminal") : "NSIGT operator berth (ceiling component)"}: ${assessed} GT × ${source.currency} ${rate}/GRT/started hour × ${billedHours} commenced hours`);
       knownBerthModifiers = (["priority", "idleTime", "penalty", "otherAdjustments", "shifting", "falseReadiness", "ousting", "rebate"] as const).filter(field => get(field) === "true");
-      if (knownBerthModifiers.length) questions.push(`berth: stated ${knownBerthModifiers.join(", ")} requires its applicable adjustment; only the unadjusted base is calculated, not a complete adjusted berth charge`);
+      if (knownBerthModifiers.length) appendIssue({ kind: "unsupported", code: "berth-adjustments-unpriced", service: "berth", message: `berth: stated ${knownBerthModifiers.join(", ")} requires its applicable adjustment; only the unadjusted base is calculated, not a complete adjusted berth charge` }, questions, limitations, issues);
     }
   }
   if (jaigarh && wanted.includes("port-dues")) {
@@ -200,11 +197,13 @@ async function extendedComponents(input: TariffInput, mode: "quote" | "rule", po
     if (!/^JSW(?:\s+Jaig(?:arh|ad)(?:\s+Port(?:\s+Limited)?)?)?$/i.test(get("operator")?.trim() ?? "")) questions.push("port-dues: explicit JSW Jaigarh operator identity is required; generic Jaigarh does not select an operator");
     if (get("cargoCategory") !== "mechanized-bulk") questions.push("port-dues: explicit mechanized-bulk category is required");
     const gt = number("gt", true), days = number("callDays", true);
-    if (days && new Decimal(days).gt(extensions.jaigarh.maximumValidityDays)) questions.push("port-dues: single-call duration exceeds maximum 30-day dues validity; renewal charging is not approved");
-    if (questions.length === before && gt && days) add("port-dues", `max(${gt}*${extensions.jaigarh.rate},${extensions.jaigarh.minimum})`, `JSW Jaigarh J-1 single-call mechanized-bulk dues: max(${gt} GRT × USD ${extensions.jaigarh.rate}, USD ${extensions.jaigarh.minimum} monetary minimum); ${days}-day call within maximum 30-day dues validity`);
+    const renewal = !!days && new Decimal(days).gt(extensions.jaigarh.maximumValidityDays);
+    if (renewal) appendIssue({ kind: "unsupported", code: "jaigarh-renewal-unpriced", service: "port-dues", message: "port-dues: single-call duration exceeds maximum 30-day dues validity; renewal charging is not approved" }, questions, limitations, issues);
+    if (!renewal && questions.length === before && gt && days) add("port-dues", `max(${gt}*${extensions.jaigarh.rate},${extensions.jaigarh.minimum})`, `JSW Jaigarh J-1 single-call mechanized-bulk dues: max(${gt} GRT × USD ${extensions.jaigarh.rate}, USD ${extensions.jaigarh.minimum} monetary minimum); ${days}-day call within maximum 30-day dues validity`);
   }
-  for (const charge of wanted) if (!rows.some(row => row.charge === charge || row.charge === "handling" && handlingNames.includes(charge)) && !questions.some(item => item.startsWith(`${charge}:`))) questions.push(`${charge}: requested component is unresolved or outside these reviewed rules; no amount assigned`);
-  if (!rows.length) return { ...base, status: "unresolved", body: "", questions: [...new Set(questions)] };
+  const supported = new Set([...(nsft || nsigt || nsict ? handlingNames : []), ...(mumbai || nsigt ? ["berth"] : []), ...(jaigarh ? ["port-dues"] : [])]);
+  for (const charge of wanted) if (!supported.has(charge)) appendIssue({ kind: "source", code: "uncovered-service", service: charge, message: `${charge}: requested component is outside these reviewed rules; no amount assigned` }, questions, limitations, issues);
+  if (!rows.length) return { ...base, status: "unresolved", body: "", questions: [...new Set(questions)], limitations, issues };
   expressions.push({ id: "subtotal", expression: rows.map(row => `$${row.id}`).join("+") });
   const calculations = calculateChargeBatch(expressions), values = new Map(calculations.map(c => [c.id, c.result]));
   const money = (value: string) => { const amount = new Decimal(value); const [whole, fraction] = amount.toFixed(Math.max(2, amount.decimalPlaces())).split("."); return `${source.currency} ${whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}.${fraction}`; };
@@ -225,7 +224,7 @@ async function extendedComponents(input: TariffInput, mode: "quote" | "rule", po
   if (mumbai || rows.some(row => row.charge === "berth")) limits.push("Ordinary unadjusted berth base assumes the supplied duration is billable occupancy. Readiness/idling/priority/penal adjustments require their actual predicates; elapsed port stay is not automatically berth occupancy.");
   if (knownBerthModifiers.length) limits.push(`Known berth modifiers: ${knownBerthModifiers.join(", ")}. Their adjustments remain unresolved; the displayed amount is the unadjusted base and cannot establish a complete adjusted charge or comparison winner.`);
   const body = `**Conditional published components — not a complete bill**\n\n| Component | Amount |\n|---|---:|\n${rows.map(row => `| ${row.charge} | ${money(values.get(row.id)!)} |`).join("\n")}\n| Identified component subtotal | ${money(values.get("subtotal")!)} |\n\n${rows.map(row => `- ${row.formula}.`).join("\n")}\n\n${limits.join("\n\n")}\n\nSources: ${files.map(item => `[${item.file}](${item.url})`).join("; ")}. ${source.reference}. Effective ${source.effectiveFrom}${"effectiveThrough" in source ? ` through ${source.effectiveThrough}` : " (no universal closed expiry inferred)"}; verified ${extensions.verifiedOn}.`;
-  return { ...base, status: "calculated", sources: sourceLinks(files), body, questions: [...new Set(questions)], totals: [{ currency: source.currency, amount: values.get("subtotal")!, chargeIds, lineAmounts: rows.map(row => values.get(row.id)!), basis: "component" }], calculation: { sourceHashes: files.map(file => file.sha256), calculations, rows, currencies: [source.currency], dispositions: wanted.map(charge => ({ charge, status: rows.some(row => row.charge === charge || row.charge === "handling" && handlingNames.includes(charge)) ? "calculated" : "unresolved" })) } };
+  return { ...base, status: questions.length || limitations.length ? "unresolved" : "calculated", sources: sourceLinks(files), body, questions: [...new Set(questions)], limitations, issues, totals: [{ currency: source.currency, amount: values.get("subtotal")!, chargeIds, lineAmounts: rows.map(row => values.get(row.id)!), basis: "component" }], calculation: { sourceHashes: files.map(file => file.sha256), calculations, rows, currencies: [source.currency], dispositions: wanted.map(charge => ({ charge, status: rows.some(row => row.charge === charge || row.charge === "handling" && handlingNames.includes(charge)) ? "calculated" : "unresolved" })) } };
 }
 
 /** These packets approve explanations, not executable call/invoice rules. */
@@ -286,10 +285,10 @@ async function reviewedComponents(input: TariffInput, mode: "quote" | "rule"): P
   const extended = await extendedComponents(input, mode, port);
   if (extended) return extended;
   if (!eligiblePorts.includes(port)) return;
-  await verifiedSources();
   const base = { sourceClass: "official-tariff" as const, applicability: applicability(mode) };
   const questions: string[] = [];
   const selectedSources = rules.sources.filter((_, index) => index === 0 || index === (port === "gateway-terminals-india-pvt-ltd" ? 1 : port === "jsw-jnpt-liquid-terminal" ? 2 : -1));
+  await verifiedSources(selectedSources);
   const sources = `[JNPA SOR, effective ${rules.effectiveFrom}–${rules.effectiveThrough}](${rules.sources[0].url})` + (port === "gateway-terminals-india-pvt-ltd" ? `; [GTI general note 5, p11](${rules.sources[1].url})` : port === "jsw-jnpt-liquid-terminal" ? `; [JSW JNPT general conditions, pp1–4](${rules.sources[2].url})` : "");
   if (mode === "rule") {
     const statements: string[] = [];
@@ -302,56 +301,52 @@ async function reviewedComponents(input: TariffInput, mode: "quote" | "rule"): P
   }
   const date = callDate(input);
   const limitations: string[] = [];
-  if (!date) questions.push("call date (and the timestamp zone/date order if needed)");
-  else if (date < rules.effectiveFrom || date > rules.effectiveThrough) limitations.push(`The retained governing schedule covers ${rules.effectiveFrom} through ${rules.effectiveThrough}, not the requested call date. A matching reviewed source version is unavailable. No quotation has been calculated.`);
+  const issues: TariffIssue[] = [];
+  if (!date) appendIssue({ kind: "input", code: "invalid-service-date", field: "callDate", message: "call date (and the timestamp zone/date order if needed)" }, questions, limitations, issues);
+  else if (date < rules.effectiveFrom || date > rules.effectiveThrough) appendIssue({ kind: "source", code: "uncovered-service-period", message: `The retained governing schedule covers ${rules.effectiveFrom} through ${rules.effectiveThrough}, not the requested call date. A matching reviewed source version is unavailable. No quotation has been calculated.` }, questions, limitations, issues);
   if (!get("gt")) questions.push("gross tonnage (GT/GRT)");
   if (!get("service")) questions.push("coastal or foreign-going service");
   else if (get("service") !== "foreign") limitations.push("A reviewed coastal-service rule for these components is unavailable.");
-  if (questions.length || limitations.length) return { ...base, status: "unresolved", body: "", questions, limitations };
+  if (questions.length || limitations.length) return { ...base, status: "unresolved", body: "", questions, limitations, issues };
   const gt = get("gt")!; const rows: Array<{ id: string; charge: string; formula: string; section: string }> = [];
   const expressions: Array<{ id: string; expression: string }> = [];
   const wanted = [...new Set(input.charges)];
   for (const [index, charge] of wanted.entries()) {
     const id = `component_${index}`;
     if (charge === "berth" && port !== "jawahar-nehru-port-authority-jnpa") {
-      const intervalIssue = berthPeriodIssue(input, rules.effectiveFrom, rules.effectiveThrough);
-      if (intervalIssue) { questions.push(intervalIssue); continue; }
-      let hours = get("durationHours");
-      if (get("durationMinutes") !== undefined) {
-        const converted = new Decimal(get("durationMinutes")!).div(60).toString();
-        if (hours !== undefined && !new Decimal(hours).eq(converted)) { questions.push("durationHours and durationMinutes disagree"); continue; }
-        hours ??= converted;
-      }
-      if (get("berthStart") && get("berthEnd")) {
-        const time = calculateElapsedTime({ start: get("berthStart")!, end: get("berthEnd")!, timeZone: get("timeZone"), dateOrder: get("dateOrder") as "DMY" | "MDY" | undefined });
-        if (time.status !== "ok") { questions.push(time.message); continue; }
-        if (hours && !new Decimal(hours).eq(time.elapsedHours)) { questions.push("duration and timestamps disagree"); continue; }
-        hours ??= time.elapsedHours;
-      }
-      if (!hours) { questions.push("berth occupancy duration or berth start/end times"); continue; }
-      expressions.push({ id, expression: `${gt}*${rules.berth.rate}*ceil(${hours})` });
-      rows.push({ id, charge: "Ordinary berth base", formula: `${gt} GT × USD ${rules.berth.rate}/GT/hour × ceil(${hours}) hours`, section: rules.berth.section });
+      const intervalIssue = berthPeriodProblem(input, rules.effectiveFrom, rules.effectiveThrough);
+      if (intervalIssue) { appendIssue(intervalIssue, questions, limitations, issues); continue; }
+      const duration = occupancyDuration(input);
+      if ("issue" in duration) { appendIssue(duration.issue, questions, limitations, issues); continue; }
+      const billedHours = duration.hours.ceil().toFixed(0);
+      expressions.push({ id, expression: `${gt}*${rules.berth.rate}*${billedHours}` });
+      rows.push({ id, charge: "Ordinary berth base", formula: `${gt} GT × USD ${rules.berth.rate}/GT/hour × ${billedHours} commenced hours`, section: rules.berth.section });
     } else if (charge === "pilotage" || charge === "towage") {
       if (charge === "towage" && wanted.includes("pilotage")) continue;
-      if (new Decimal(gt).gt(rules.pilotage.maximumGt)) { questions.push("reviewed higher-tonnage pilotage slab"); continue; }
+      if (new Decimal(gt).gt(rules.pilotage.maximumGt)) { appendIssue({ kind: "source", code: "pilotage-slab-uncovered", service: charge, message: "The reviewed higher-tonnage pilotage slab is unavailable for this retained branch." }, questions, limitations, issues); continue; }
       const movements = get("movements");
-      if (movements !== "2") { questions.push("whether the ordinary pilotage includes one inward and one outward movement, both foreign-going"); continue; }
+      if (movements !== "2") {
+        appendIssue(movements === undefined
+          ? { kind: "input", code: "missing-movement-scope", service: charge, field: "movements", message: "whether the ordinary pilotage includes one inward and one outward movement, both foreign-going" }
+          : { kind: "unsupported", code: "pilotage-movement-scope", service: charge, message: "The supplied movement count differs from this branch's inward/outward cycle; its applicable leg scope remains unpriced." }, questions, limitations, issues);
+        continue;
+      }
       expressions.push({ id, expression: `max(${gt}*${rules.pilotage.rate},${rules.pilotage.minimumVisit})` });
       rows.push({ id, charge: "Ordinary pilotage-cum-towage (inward + outward)", formula: `max(${gt} GT × USD ${rules.pilotage.rate}/GT, USD ${rules.pilotage.minimumVisit})`, section: rules.pilotage.section });
     } else if (charge === "port-dues" && port === "jsw-jnpt-liquid-terminal" && get("vesselCategory") === "tanker" && ["loading", "discharging", "both"].includes(get("cargoOperation") ?? "")) {
       expressions.push({ id, expression: `${gt}*${rules.portDues.rate}` }); rows.push({ id, charge: "Ordinary JNPA port-dues base", formula: `${gt} GT × USD ${rules.portDues.rate}/GT`, section: rules.portDues.section });
-    } else questions.push(`${charge}: governing applicability/source remains unresolved; no amount assigned`);
+    } else appendIssue({ kind: "source", code: "uncovered-service", service: charge, message: `${charge}: governing applicability/source remains unresolved; no amount assigned` }, questions, limitations, issues);
   }
-  if (!rows.length) return { ...base, status: "unresolved", body: "", questions: [...new Set(questions)] };
+  if (!rows.length) return { ...base, status: "unresolved", body: "", questions: [...new Set(questions)], limitations, issues };
   expressions.push({ id: "subtotal", expression: rows.map(r => `$${r.id}`).join("+") });
   const calculations = calculateChargeBatch(expressions); const amounts = new Map(calculations.map(c => [c.id, c.result]));
   const body = `**Conditional ordinary pre-tax components — not a complete bill**\n\n| Component | Amount |\n|---|---:|\n${rows.map(r => `| ${r.charge} | ${format(amounts.get(r.id)!)} |`).join("\n")}\n| Identified component subtotal | ${format(amounts.get("subtotal")!)} |\n\n${rows.map(r => `- **${r.charge}:** ${r.formula}.`).join("\n")}\n\nAssumes ordinary unadjusted occupancy/operations. This does not assert that no adjustment applies. Routine pilotage tugs are not charged twice.\n\nSources: ${sources}. ${rows.map(r => r.section).join("; ")}. Published validity ${rules.effectiveFrom}–${rules.effectiveThrough}; verified ${rules.verifiedOn}. Recheck subsequent amendments before actual invoicing.`;
   if(wanted.includes("berth")){
     const modifiers=(["priority","idleTime","penalty","otherAdjustments","shifting","falseReadiness","ousting","rebate"] as const).filter(f=>get(f)==="true");
-    if(modifiers.length)questions.push(`berth: ${modifiers.join(", ")} needs its governing adjustment; only the unadjusted base is shown`);
+    if(modifiers.length) appendIssue({ kind: "unsupported", code: "berth-adjustments-unpriced", service: "berth", message: `berth: ${modifiers.join(", ")} needs its governing adjustment; only the unadjusted base is shown` }, questions, limitations, issues);
   }
   const chargeIds=rows.flatMap(r=>r.charge.includes("berth")?["berth:ordinary-foreign:gt-hour"]:r.charge.includes("pilotage")?["pilotage-towage:ordinary-foreign:inward-outward"]:["port-dues:jnpa:ordinary-cargo"]);
-  return { ...base, sources: sourceLinks(selectedSources), status: "calculated", body:body+"\n\nFor a complete invoice, separately establish: "+rules.pending.join("; ")+(port==="jsw-jnpt-liquid-terminal"?". "+rules.jswSourceGap:""),questions:[...new Set(questions)],totals:[{currency:"USD",amount:amounts.get("subtotal")!,chargeIds,basis:"component",lineAmounts:rows.map(r=>amounts.get(r.id)!)}],calculation:{sourceHashes:rules.sources.map(s=>s.sha256),calculations} };
+  return { ...base, sources: sourceLinks(selectedSources), status: questions.length || limitations.length ? "unresolved" : "calculated", body:body+"\n\nFor a complete invoice, separately establish: "+rules.pending.join("; ")+(port==="jsw-jnpt-liquid-terminal"?". "+rules.jswSourceGap:""),questions:[...new Set(questions)],limitations,issues,totals:[{currency:"USD",amount:amounts.get("subtotal")!,chargeIds,basis:"component",lineAmounts:rows.map(r=>amounts.get(r.id)!)}],calculation:{sourceHashes:selectedSources.map(s=>s.sha256),calculations} };
 }
 
 const coastalConditions = {
@@ -372,11 +367,13 @@ const descriptions: Partial<Record<keyof TariffInput, string>> = {
 /** The retained Mumbai arithmetic is independent of conversation interpretation and quote storage. */
 async function coastalMumbai(input: TariffInput, mode: "quote" | "rule"): Promise<TariffResult> {
   const r = mumbaiSources;
-  for (const source of r.sources) {
+  const includeTax = input.charges.includes("gst");
+  const selectedSources = includeTax ? r.sources : r.sources.slice(0, 2);
+  for (const source of selectedSources) {
     const bytes = await readFile(path.join(process.cwd(), "data/ports/mumbai/approved-2026-05-09", source.file));
     if (createHash("sha256").update(bytes).digest("hex") !== source.sha256) throw new Error("Approved tariff source checksum mismatch.");
   }
-  const base = { sourceClass: "official-tariff" as const, sources: sourceLinks(r.sources), applicability: { ...applicability(mode), effectiveFrom: r.effectiveFrom } };
+  const base = { sourceClass: "official-tariff" as const, sources: sourceLinks(selectedSources), applicability: { ...applicability(mode), effectiveFrom: r.effectiveFrom } };
   if (mode === "rule") {
     if (input.terminal && input.terminal !== r.berth || input.vesselCategory && input.vesselCategory !== "general-cargo" || input.service && input.service !== "coastal") {
       return unresolved(["The retained ordinary coastal Indira Dock rule does not establish this berth/category/service. A matching rule is needed."]);
@@ -384,14 +381,14 @@ async function coastalMumbai(input: TariffInput, mode: "quote" | "rule"): Promis
     return { ...base, status: "explained", questions: [], limitations: rulePeriodIssues(input, r.effectiveFrom, r.verifiedThrough, true), body: `The retained May 2026 ordinary coastal Indira Dock rule charges INR ${r.ratePerGrtStartedHour} per GRT per commenced hour: any part hour counts as a whole hour. It has a ${r.minimumGrt}-GRT floor and INR ${r.minimumBill} bill minimum. Readiness and operation conditions affect chargeable occupancy. This is a rule explanation, not a vessel quote or confirmation of current October applicability. Rate effective ${r.effectiveFrom}. [MbPA SOR §2.17](${r.sources[0].url}); [May amendment](${r.sources[1].url}).${input.charges.includes("gst") ? `\n\nFor a directly billed ordinary private registered customer with supplier location and place of supply both Maharashtra, no SEZ status or exemption/concession, the retained treatment is CGST ${r.cgstPercent}% plus SGST ${r.sgstPercent}%, SAC ${r.sac}. This conditional explanation does not decide your tax status. [MbPA GST classification p38](${r.sources[2].url}); [CBIC heading9967](${r.sources[3].url}); [intra-state supply FAQ85](${r.sources[4].url}).` : ""} Other berth/category/tax conditions require their applicable rules.` };
   }
   if (!input.charges.includes("berth")) return unresolved(["The base service and applicable rule for the requested tax/rounding scope are needed."]);
-  const includeTax = input.charges.includes("gst"), includeRounding = input.charges.includes("rounding");
+  const includeRounding = input.charges.includes("rounding");
   const conditions = { ...coastalConditions, ...(includeTax ? domesticTaxConditions : {}), ...(includeRounding ? { standaloneBill: "true" } : {}) };
   const required: Array<keyof Omit<TariffInput, "charges">> = ["gt", "berthStart", "berthEnd", "readinessTime", "cargoOperation", ...Object.keys(conditions) as Array<keyof typeof conditions>];
   const missing = required.filter(key => detail(input, key) === undefined).map(key => descriptions[key] ?? key);
   const mismatched = Object.entries(conditions).filter(([key, expected]) => detail(input, key as keyof typeof conditions) !== undefined && detail(input, key as keyof typeof conditions) !== expected);
-  if (mismatched.length || detail(input, "otherAdjustments") === "true") return unresolved([`The retained ordinary coastal rule does not cover these current conditions: ${[...mismatched.map(([key]) => descriptions[key as keyof TariffInput] ?? key), ...(detail(input, "otherAdjustments") === "true" ? ["other adjustments"] : [])].join(", ")}. A matching rule is needed; do not change the facts to fit this rule.`]);
+  if (mismatched.length || detail(input, "otherAdjustments") === "true") return unresolvedIssue({ kind: "unsupported", code: "coastal-conditions-uncovered", service: "berth", message: `The retained ordinary coastal rule does not cover these current conditions: ${[...mismatched.map(([key]) => descriptions[key as keyof TariffInput] ?? key), ...(detail(input, "otherAdjustments") === "true" ? ["other adjustments"] : [])].join(", ")}. A matching rule is needed; do not change the facts to fit this rule.` });
   if (missing.length) return unresolved(missing);
-  if (!["loading", "discharging", "both"].includes(input.cargoOperation!)) return unresolved(["The applicable non-cargo operation rule is not established."]);
+  if (!["loading", "discharging", "both"].includes(input.cargoOperation!)) return unresolvedIssue({ kind: "source", code: "coastal-non-cargo-rule", service: "berth", message: "The applicable non-cargo operation rule is not established." });
   const time = calculateElapsedTime({ start: input.berthStart!, end: input.berthEnd!, timeZone: input.timeZone, dateOrder: input.dateOrder });
   if (time.status !== "ok") return unresolved([time.message]);
   const rawReadiness = input.readinessTime!;
@@ -403,13 +400,14 @@ async function coastalMumbai(input: TariffInput, mode: "quote" | "rule"): Promis
   const readiness = valid.length === 1 ? valid[0] : checked[0];
   if (readiness.status !== "ok") return unresolved([readiness.message]);
   if (Date.parse(readiness.endUtc) > Date.parse(time.endUtc) || new Decimal(time.elapsedHours).lte(0)) return unresolved(["Ordered berth, readiness and departure times are required."]);
-  if (input.durationHours && !new Decimal(input.durationHours).eq(time.elapsedHours) || input.durationMinutes && !new Decimal(input.durationMinutes).eq(time.elapsedMinutes)) return unresolved(["The stated duration conflicts with the berth timestamps."]);
-  if (Date.parse(readiness.endUtc) + Number(r.readinessAllowanceHours) * 3600000 < Date.parse(time.endUtc)) return unresolved(["Readiness-clock exclusions need review before applying a cutoff earlier than departure."]);
-  if (Date.parse(time.startUtc) < Date.parse(r.effectiveFrom + "T00:00:00+05:30") || Date.parse(time.endUtc) > Date.parse(r.verifiedThrough + "T23:59:59+05:30")) return unresolved([`The call lies outside this retained rule packet's bounded arithmetic period (${r.effectiveFrom} through ${r.verifiedThrough}); a matching source version is needed. These metadata dates do not certify current tariff applicability.`]);
+  const duration = occupancyDuration(input);
+  if ("issue" in duration) return unresolvedIssue(duration.issue);
+  if (Date.parse(readiness.endUtc) + Number(r.readinessAllowanceHours) * 3600000 < Date.parse(time.endUtc)) return unresolvedIssue({ kind: "unsupported", code: "coastal-readiness-cutoff", service: "berth", message: "Readiness-clock exclusions need review before applying a cutoff earlier than departure." });
+  if (Date.parse(time.startUtc) < Date.parse(r.effectiveFrom + "T00:00:00+05:30") || Date.parse(time.endUtc) > Date.parse(r.verifiedThrough + "T23:59:59+05:30")) return unresolvedIssue({ kind: "source", code: "coastal-period-uncovered", service: "berth", message: `The call lies outside this retained rule packet's bounded arithmetic period (${r.effectiveFrom} through ${r.verifiedThrough}); a matching source version is needed. These metadata dates do not certify current tariff applicability.` });
 
   const fullBill = includeTax && includeRounding;
   const expressions = [
-    { id: "hours", expression: `ceil(${time.elapsedHours})` },
+    { id: "hours", expression: duration.hours.ceil().toFixed(0) },
     { id: "assessed_gt", expression: `max(${input.gt},${r.minimumGrt})` },
     { id: "berth_raw", expression: `$assessed_gt*${r.ratePerGrtStartedHour}*$hours` },
     { id: "berth", expression: fullBill ? `max(${r.minimumBill},$berth_raw)` : "$berth_raw" },
@@ -423,7 +421,7 @@ async function coastalMumbai(input: TariffInput, mode: "quote" | "rule"): Promis
   const calculations = calculateChargeBatch(expressions), values = new Map(calculations.map(item => [item.id, item.result]));
   const amount = (key: string) => values.get(key)!;
   const questions: string[] = [];
-  if (includeTax && ["cgst", "sgst"].some(key => new Decimal(amount(key)).decimalPlaces() > 2)) return unresolved(["Fractional-paise tax rounding requires an approved rule; no complete tax total is established."]);
+  if (includeTax && ["cgst", "sgst"].some(key => new Decimal(amount(key)).decimalPlaces() > 2)) return unresolvedIssue({ kind: "source", code: "coastal-fractional-tax-rule", service: "gst", message: "Fractional-paise tax rounding requires an approved rule; no complete tax total is established." });
   if (!fullBill && new Decimal(amount("berth")).lt(r.minimumBill)) questions.push("The bill scope is needed before allocating the minimum bill charge.");
   if (includeRounding && !includeTax) questions.push("Final bill rounding needs the complete bill total and tax treatment.");
   const lines = [
@@ -434,7 +432,7 @@ async function coastalMumbai(input: TariffInput, mode: "quote" | "rule"): Promis
   const sourceText = `[MbPA May 2026 SOR §1.2 and §2.17, pp4,6,22–23](${r.sources[0].url}); [9 May 2026 amendment p2](${r.sources[1].url})${includeTax ? `; [MbPA GST classification p38](${r.sources[2].url}); [CBIC heading9967](${r.sources[3].url}); [intra-state supply FAQ85](${r.sources[4].url})` : ""}`;
   const body = `**Mumbai Indira Dock — conditional retained-May-rule estimate${includeTax ? " including GST" : ", before tax"}**\n\nCurrent October tariff applicability is unverified. The amounts below apply the retained May 2026 rule to your stated eligibility, operating and tax conditions; they are not a verified-current tariff quote.\n\n| Component | Amount |\n|---|---:|\n${lines.map(line => `| ${line.charge} | ${money("INR", line.amount)} |`).join("\n")}\n| **Conditional ${fullBill ? "scoped total" : "component total"}** | **${money("INR", amount("total"))}** |\n\n- **Time:** ${input.berthStart} → ${input.berthEnd}; ${time.elapsedMinutes} elapsed minutes, ${amount("hours")} commenced hours. Valid readiness ${input.readinessTime} + ${r.readinessAllowanceHours}h is no earlier than actual departure, so departure ends this charge.\n- **Berth formula:** max(${input.gt}, ${r.minimumGrt}) GT × INR ${r.ratePerGrtStartedHour}/GRT/commenced hour × ${amount("hours")} hours = ${money("INR", amount("berth_raw"))}. ${fullBill ? `INR ${r.minimumBill} minimum bill checked. Final total rounds upward to whole INR.` : `The INR ${r.minimumBill} bill minimum and final invoice rounding require the whole bill scope.`}\n${includeTax ? `- **GST:** SAC ${r.sac}; CGST ${r.cgstPercent}% + SGST ${r.sgstPercent}%, included once. Supplier and place of supply both Maharashtra; no IGST added.\n` : ""}- **Scope:** requested berth${includeTax ? ", GST" : ""}${fullBill ? " and bill rounding" : ""} only. Other port-call services and settlement adjustments excluded. The coastal INR rate is used directly; no additional coastal reduction or FX.\n\nSources: ${sourceText}. Retained rate effective ${r.effectiveFrom}; later amendments/current October applicability have not been established.`;
   return { ...base, status: "calculated", body, questions, totals: [{ currency: "INR", amount: amount("total"), chargeIds: ["berth", ...(includeTax ? ["gst"] : []), ...(fullBill ? ["bill-rounding"] : [])], lineAmounts: lines.map(line => line.amount), basis: fullBill ? "scoped-quote" : "component" }],
-    calculation: { sourceHashes: r.sources.map(source => source.sha256), calculations, rows: lines, elapsedMinutes: time.elapsedMinutes, billableHours: amount("hours"), suppliedGt: input.gt, assessedGt: amount("assessed_gt"), startUtc: time.startUtc, endUtc: time.endUtc, readinessUtc: readiness.endUtc } };
+    calculation: { sourceHashes: selectedSources.map(source => source.sha256), calculations, rows: lines, elapsedMinutes: time.elapsedMinutes, billableHours: amount("hours"), suppliedGt: input.gt, assessedGt: amount("assessed_gt"), startUtc: time.startUtc, endUtc: time.endUtc, readinessUtc: readiness.endUtc } };
 }
 
 function sourceGap(input: TariffInput): TariffResult {
@@ -588,6 +586,33 @@ function ruleResult(result: TariffResult): TariffResult {
   return { ...result, limitations: [...result.limitations ?? [], ...result.questions], questions: [] };
 }
 
+/** The saved input retains known adjustments. This projection records a
+ * deliberately requested unadjusted price scope without treating it as a
+ * waiver or erasing physical events, eligibility, dates or quantities. */
+function projectAdjustmentScope(result: TariffResult, input: TariffInput): TariffResult {
+  const scope = input.adjustmentScope ?? "include-adjustments";
+  const known = (["rebate", "otherAdjustments"] as const).filter(field => input[field] === true || input[field] === "true");
+  if (scope === "unadjusted-base") {
+    const note = `Explicit unadjusted-base scope: rebate and other price adjustments are excluded${known.length ? `; the supplied ${known.join(", ")} facts remain recorded` : ""}. This is not an adjusted or complete invoice. Physical eligibility, occupancy, dates and source limitations still apply.`;
+    const roundingIssue: TariffIssue | undefined = input.charges.includes("rounding")
+      ? { kind: "unsupported", code: "base-only-final-invoice", service: "rounding", message: "Final invoice rounding cannot be established from an unadjusted base while adjustment amounts are excluded." }
+      : undefined;
+    return { ...result, adjustmentScope: scope,
+      ...(roundingIssue && result.status !== "error" ? { status: "unresolved" as const } : {}),
+      body: `**Explicit unadjusted base — adjustment amounts excluded**\n\n${note}\n\n${result.body}`,
+      issues: [...result.issues ?? [], ...(roundingIssue ? [roundingIssue] : [])],
+      limitations: [...result.limitations ?? [], ...(roundingIssue ? [roundingIssue.message] : [])],
+      ...(result.totals ? { totals: result.totals.map(total => ({ ...total, basis: total.basis === "reference" ? "reference" as const : "component" as const, chargeIds: [...total.chargeIds, "adjustment-scope:unadjusted-base"] })) } : {}),
+      applicability: { ...result.applicability, message: `${result.applicability.message} ${note}` } };
+  }
+  if (!known.length) return { ...result, adjustmentScope: scope };
+  const issue: TariffIssue = { kind: "unsupported", code: "known-adjustments-unpriced", message: `The stated ${known.join(", ")} need their governing amounts and applicability. Any shown base components exclude these unresolved adjustments and cannot establish the adjusted quotation or a comparison winner.` };
+  return { ...result, adjustmentScope: scope, status: result.status === "error" ? "error" : "unresolved",
+    body: `**Requested adjustment remains unresolved — any base amounts are partial**\n\n${result.body}`,
+    issues: [...result.issues ?? [], issue], limitations: [...result.limitations ?? [], issue.message],
+    applicability: { ...result.applicability, status: "unverified", message: `${result.applicability.message} ${issue.message}` } };
+}
+
 /** Direct business lookup. It never constructs or reads a generic conversation fact table. */
 export async function lookupTariff(input: FacilityInput, mode: "quote" | "rule" = "quote"): Promise<TariffResult> {
   if (!input.port?.trim()) return unresolved(["Which port or terminal is this call for?"]);
@@ -602,6 +627,13 @@ export async function lookupTariff(input: FacilityInput, mode: "quote" | "rule" 
   }
   input = { ...input, port, terminal: identity.terminal, operator: identity.operator, charges: [...new Set(input.charges.flatMap(normalizeService))] };
   if (mode === "quote") { const invalid = invalidQuantities(input); if (invalid.length) return unresolved(invalid); }
+  // Keep the authenticated saved particulars intact. Only the calculation
+  // view excludes the explicitly out-of-scope price adjustments; operational
+  // flags/readiness/actual quantities are deliberately not changed.
+  const requestedInput = input;
+  if (mode === "quote" && input.adjustmentScope === "unadjusted-base") {
+    input = { ...input, rebate: false, otherAdjustments: false, charges: input.charges.filter(charge => charge !== "rounding") };
+  }
   try {
     const published = await publishedComponents(input, mode);
     const evidence = await publicEvidenceComponents(input, mode);
@@ -610,11 +642,16 @@ export async function lookupTariff(input: FacilityInput, mode: "quote" | "rule" 
     const invoice = published || evidence ? remaining.filter(charge => ["gst", "rounding"].includes(charge)) : [];
     if (invoice.length) remaining.splice(0, remaining.length, ...remaining.filter(charge => !invoice.includes(charge)));
     const legacyInput = { ...input, charges: remaining };
-    const legacy = remaining.length ? await reviewedComponents(legacyInput, mode)
-      ?? (port === "mumbai" && remaining.every(charge => ["berth", "gst", "rounding"].includes(charge)) ? await coastalMumbai(legacyInput, mode) : sourceGap(legacyInput)) : undefined;
+    let legacy: TariffResult | undefined;
+    if (remaining.length) {
+      try {
+        legacy = await reviewedComponents(legacyInput, mode)
+          ?? (port === "mumbai" && remaining.every(charge => ["berth", "gst", "rounding"].includes(charge)) ? await coastalMumbai(legacyInput, mode) : sourceGap(legacyInput));
+      } catch { legacy = componentValidationFailure(remaining); }
+    }
     const invoiceLimit = `Requested ${invoice.join(" and ")} requires the combined service/tax base. Tax or final rounding on only one component would omit other requested charges; no combined tax-inclusive invoice total has been established.`;
     const result = combineTariffResults([...(published ? [published.result] : []), ...(evidence ? [evidence.result] : []), ...(legacy ? [legacy] : []), ...(invoice.length ? [{ ...unresolved([], invoiceLimit), limitations: [invoiceLimit] }] : [])]);
-    return { ...(mode === "rule" ? ruleResult(result) : result), facility: port };
+    return { ...(mode === "rule" ? ruleResult(result) : projectAdjustmentScope(result, requestedInput)), facility: port };
   } catch (error) {
     return { status: "error", sourceClass: "official-tariff", body: "The retained tariff source or calculation could not be validated. No complete estimate is available; retry after the source integrity issue is resolved.", questions: [],
       applicability: { status: "unverified", currentTariffVerified: false, message: error instanceof Error ? error.message : "Source/rule validation failed." } };

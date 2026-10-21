@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { MockLanguageModelV4 } from "ai/test";
+import { MockLanguageModelV4 } from "../helpers/portia-protocol-model";
 import type { LanguageModelV4GenerateResult } from "@ai-sdk/provider";
 import { createMigrationMainAgent } from "../../src/lib/migration/domain-agent";
 import { QuoteSession } from "../../src/lib/portia/session";
@@ -45,7 +45,7 @@ it("NSFT rule then finish explicitly remains an incomplete calculation", async (
   const r = await run("Calculate NSFT road bundle for 120 laden and 80 empty normal EXIM 20ft boxes, before tax.", [generated([rule]), done]);
   expect(r.text).toContain("No quotation has been calculated"); expect(r.text).toContain("Rules only");
   expect(r.text).not.toMatch(/999999|estimate is complete/); expect(r.session.quotes.size).toBe(0);
-  expect(JSON.stringify(r.model.doGenerateCalls[1].prompt)).toContain("calculation request still needs manage_quote");
+  expect(JSON.stringify(r.model.doGenerateCalls[1].prompt)).toContain("calculation request still needs official_quote or supplied_quote");
 });
 it("NSFT rule then quotation produces and reloads the calculated amount", async () => {
   const { charges, ...particulars } = nsft;
@@ -71,9 +71,9 @@ it("mixed asynchronous quotation and labelled arithmetic preserve dispatch order
     call("calculate_charges", { label: "A", expression: "7*13" }, "A"),
     call("calculate_charges", { label: "B", expression: "19*23" }, "B"),
   ]), done]);
-  expect(r.result.steps[0].toolResults.find(result => result.toolName === "manage_quote")?.output).toMatchObject({ approvalRequired: true });
-  expect(r.text.indexOf("First quote")).toBeLessThan(r.text.indexOf("A: 7*13"));
-  expect(r.text).toContain("A: 7*13 = **91**"); expect(r.text).toContain("B: 19*23 = **437**");
+  expect(r.result.steps[0].toolResults.find(result => result.toolName === "supplied_quote")?.output).toMatchObject({ approvalRequired: true });
+  expect(r.text.indexOf("First quote")).toBeLessThan(r.text.indexOf("A: `7*13`"));
+  expect(r.text).toContain("A: `7*13` = **91**"); expect(r.text).toContain("B: `19*23` = **437**");
 });
 it("genuine rule-only request needs no quotation or vessel intake", async () => {
   const r = await run("Explain the NSFT road handling rule only; no quotation.", [generated([rule]), done]);
@@ -96,7 +96,7 @@ it("preserves two explanations, arithmetic and elapsed results in tool order", a
     call("calculate_elapsed_time", { start: "12 November 2026 08:00 IST", end: "12 November 2026 10:00 IST" }, "time-1"),
     call("calculate_elapsed_time", { start: "12 November 2026 11:00 IST", end: "12 November 2026 14:00 IST" }, "time-2"),
   ]), done]);
-  for (const text of ["94.78", "0.0053", "11+12 = **23**", "20*3 = **60**", "**2 hours**", "**3 hours**"]) expect(r.text).toContain(text);
+  for (const text of ["94.78", "0.0053", "`11+12` = **23**", "`20*3` = **60**", "**2 hours**", "**3 hours**"]) expect(r.text).toContain(text);
   expect(r.text.indexOf("94.78")).toBeLessThan(r.text.indexOf("0.0053"));
 });
 it("comparison preserves unrelated outputs and repeated same-quote revisions show only the latest", async () => {

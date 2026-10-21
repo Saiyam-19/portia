@@ -72,7 +72,9 @@ it("calculates C1 and correction conditionally, without current October authorit
 it("asks only requested coastal prerequisites and withholds unsafe tax totals", async () => {
   const result = await lookupTariff({ port: "Mumbai", charges: ["berth"], service: "coastal", gt: "8000" });
   expect(result.status).toBe("unresolved"); expect(result.questions.join(" ")).not.toMatch(/GST|supplier|SEZ|official rate/i);
-  expect((await lookupTariff({ ...coastal, gt: "10001" })).questions.join(" ")).toContain("Fractional-paise");
+  const fractionalTax = await lookupTariff({ ...coastal, gt: "10001" });
+  expect(fractionalTax.questions).toEqual([]);
+  expect(fractionalTax.limitations?.join(" ")).toContain("Fractional-paise");
   expect((await lookupTariff({ ...coastal, readinessTime: "10 October 2026 20:00 IST" })).status).toBe("unresolved");
 });
 it.each(["BPCL Liquid Cargo Jetty", "ICTPL", "Konkan LNG", "Mumbai Cruise Terminal", "GTI", "NSFT", "NSIGT", "NSICT", "Jaigarh", "Finolex"])("preserves source explanations for %s without vessel intake", async port => {
@@ -102,5 +104,6 @@ it("validates source identity and direct domain input at the boundary", async ()
   expect((await lookupTariff({ ...coastal, gt: "1/0" })).status).toBe("unresolved");
   vi.mocked(readFile).mockResolvedValueOnce(Buffer.from("changed source"));
   const result = await lookupTariff(coastal);
-  expect(result.status).toBe("error"); expect(result.totals).toBeUndefined(); expect(result.applicability.message).toMatch(/checksum/);
+  expect(result.status).toBe("error"); expect(result.totals).toBeUndefined();
+  expect(result.issues).toContainEqual(expect.objectContaining({ kind: "source", code: "component-validation-failed" }));
 });

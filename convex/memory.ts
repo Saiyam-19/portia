@@ -5,6 +5,7 @@ import { internal } from "./_generated/api";
 import { memoryActor, memoryState, memoryClaim, memoryOperation } from "./memoryValidators";
 import { ensureMemory, findMemory, memoryRun, memoryError, memoryEnabled, enqueueMemory, hashMemory } from "./lib/memoryLifecycle";
 import { requireMigrationDevEnabled } from "./lib/migrationGate";
+import { validScratchpad } from "../src/lib/memory/input";
 const enabled = () => { requireMigrationDevEnabled(); if (!memoryEnabled()) memoryError("MEMORY_DISABLED"); };
 
 export const open = internalMutation({
@@ -101,7 +102,7 @@ export const writeNotes = internalMutation({
     const run=await memoryRun(ctx,args.ownerId,args.runId,args.runFence);
     const ns=await ensureMemory(ctx,args.ownerId);
     if(ns.epoch!==args.expectedEpoch||ns.blockedThrough>ns.appliedSequence)return memoryError("MEMORY_CHANGED");
-    if(new TextEncoder().encode(args.markdown).length>6000||args.markdown.includes("\0"))return memoryError("NOTES_TOO_LARGE");
+    if(!validScratchpad(args.markdown))return memoryError("NOTES_TOO_LARGE");
     const row=await ctx.db.query("memoryScratchpads").withIndex("by_conversation",q=>q.eq("conversationId",run.conversationId)).unique();
     const hash=await hashMemory(args.markdown);
     const receipt=await ctx.db.query("memoryNoteReceipts").withIndex("by_owner_and_request",q=>q.eq("ownerId",args.ownerId).eq("requestId",args.requestId)).unique();

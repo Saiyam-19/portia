@@ -1,5 +1,6 @@
 /// <reference types="vite/client" />
 import agentTest from '@convex-dev/agent/test';
+import { createThread } from '@convex-dev/agent';
 import betterAuthTest from '@convex-dev/better-auth/test';
 import { convexTest } from 'convex-test';
 import { beforeEach, afterEach, expect, it, vi } from 'vitest';
@@ -101,7 +102,10 @@ it('keeps worst-case trusted deletion admission within640 queued operations',asy
   const t=setup(),a=await account(t);await t.mutation(internal.memory.open,{ownerId:a.ownerId});
   // Seed valid-sized index metadata to isolate the queue bound without512 paid/agent runs.
   const ids=await t.run(async ctx=>{
-    const ids:Id<'migrationConversations'>[]=[];for(let i=0;i<544;i++)ids.push(await ctx.db.insert('migrationConversations',{ownerId:a.ownerId,title:'Source',agentThreadId:'metadata-fixture',revision:0,nextFence:1,state:'idle',updatedAt:Date.now()}));
+    const ids:Id<'migrationConversations'>[]=[];for(let i=0;i<544;i++){
+      const agentThreadId=await createThread(ctx,components.agent,{userId:a.ownerId});
+      ids.push(await ctx.db.insert('migrationConversations',{ownerId:a.ownerId,title:'Source',agentThreadId,revision:0,nextFence:1,state:'idle',updatedAt:Date.now()}));
+    }
     const ns=(await ctx.db.query('memoryNamespaces').withIndex('by_owner',q=>q.eq('ownerId',a.ownerId)).unique())!;
     const applied=Array.from({length:64},(_,i)=>({key:'key'+i,hash:'old',sources:ids.slice(i*8,i*8+8)}));
     const projected=applied.map((f,i)=>i<32?{...f,hash:'new',sources:[ids[512+i]]}:f);

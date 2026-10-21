@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { MockLanguageModelV4 } from "ai/test";
+import { MockLanguageModelV4 } from "../helpers/portia-protocol-model";
 import type { LanguageModelV4GenerateResult } from "@ai-sdk/provider";
 import { createMigrationMainAgent } from "../../src/lib/migration/domain-agent";
 import { QuoteSession } from "../../src/lib/portia/session";

@@ -3,107 +3,130 @@ import { MockLanguageModelV4 } from "ai/test";
 import { ToolLoopAgent, tool, stepCountIs } from "ai";
 import { z } from "zod";
 import type { LanguageModelV4StreamPart, LanguageModelV4CallOptions } from "@ai-sdk/provider";
-const state = vi.hoisted(() => ({ model: undefined as unknown }));
-vi.mock("@openrouter/ai-sdk-provider", () => ({ createOpenRouter: () => ({ chat: () => state.model }) }));
-import { migrationLanguageModel } from "../../src/lib/migration/model";
+import { withCompleteModelSteps } from "../../src/lib/migration/complete-model-step";
+import { MIGRATION_TRANSPORT_POLICY } from "../../src/lib/migration/agent-policy";
+
+// These are transport-contract tests, never paid factory/release tests.
+const state: { model?: MockLanguageModelV4 } = {};
+const completeModel = (explicitRecoveries?: number) => explicitRecoveries === undefined
+  ? withCompleteModelSteps(state.model!)
+  : withCompleteModelSteps(state.model!, { ...MIGRATION_TRANSPORT_POLICY, maxRecoveryDispatchesPerRun: explicitRecoveries });
 const usage = { inputTokens: { total: 1, noCache: 1, cacheRead: undefined, cacheWrite: undefined }, outputTokens: { total: 1, text: 1, reasoning: undefined } };
 const finish = { type: "finish", finishReason: { unified: "tool-calls", raw: undefined }, usage } as const;
 let outer: AbortController;
-beforeEach(() => { vi.useFakeTimers(); vi.stubEnv("OPENROUTER_API_KEY", "test-only"); vi.stubEnv("LLM_ALLOW_PAID", "true"); outer = new AbortController(); });
-afterEach(() => { outer.abort(); vi.useRealTimers(); vi.unstubAllEnvs(); vi.restoreAllMocks(); });
+beforeEach(() => { vi.useFakeTimers(); outer = new AbortController(); });
+afterEach(() => { outer.abort(); vi.useRealTimers(); vi.restoreAllMocks(); });
 const options = (): LanguageModelV4CallOptions => ({ prompt: [{ role: "user", content: [{ type: "text", text: "Calculate" }] }], abortSignal: outer.signal });
-function source(parts: LanguageModelV4StreamPart[], signal?: AbortSignal, close = true, cancelled = vi.fn()) {
+function source(parts: LanguageModelV4StreamPart[], signal?: AbortSignal, close = true) {
   let controller: ReadableStreamDefaultController<LanguageModelV4StreamPart>;
   const abort = () => { try { controller.error(signal?.reason); } catch { /* already closed */ } };
-  return { stream: new ReadableStream<LanguageModelV4StreamPart>({ start(c) { controller = c; parts.forEach(p => c.enqueue(p)); if (close) c.close(); else signal?.addEventListener("abort", abort, { once: true }); }, cancel() { cancelled(); signal?.removeEventListener("abort", abort); } }) };
+  return { stream: new ReadableStream<LanguageModelV4StreamPart>({
+    start(c) { controller = c; parts.forEach(part => c.enqueue(part)); if (close) c.close(); else signal?.addEventListener("abort", abort, { once: true }); },
+    cancel() { signal?.removeEventListener("abort", abort); },
+  }) };
 }
-async function collect(result: Awaited<ReturnType<ReturnType<typeof migrationLanguageModel>["doStream"]>>) {
-  const reader = result.stream.getReader(), parts = [];
-  while (true) { const next = await reader.read(); if (next.done) break; parts.push(next.value); }
-  return parts;
+async function drain<T>(stream: ReadableStream<T>) {
+  const reader = stream.getReader(), parts: T[] = [];
+  for (;;) { const next = await reader.read(); if (next.done) return parts; parts.push(next.value); }
 }
-it("withholds an incomplete tool step, aborts it, then releases only one complete retry", async () => {
-  const signals: AbortSignal[] = []; let calls = 0;
+it("default policy aborts an incomplete buffered tool step without a recovery dispatch", async () => {
+  const signals: AbortSignal[] = [];
   state.model = new MockLanguageModelV4({ doStream: async args => {
     signals.push(args.abortSignal!);
-    const id = calls++ === 0 ? "discarded" : "committed";
-    return source([{ type: "stream-start", warnings: [] }, { type: "tool-call", toolCallId: id, toolName: "manage_quote", input: "{}" }, ...(id === "committed" ? [finish] : [])], args.abortSignal, id === "committed");
+    return source([{ type: "tool-call", toolCallId: "must-not-escape", toolName: "save", input: "{}" }], args.abortSignal, false);
   } });
-  let resolved = false;
-  const pending = migrationLanguageModel("model-1").doStream(options()); pending.then(() => { resolved = true; }, () => {});
-  await vi.advanceTimersByTimeAsync(1); expect(resolved).toBe(false);
+  let released = false;
+  const pending = Promise.resolve(completeModel().doStream(options())).then(() => { released = true; return undefined; }, error => error);
   await vi.advanceTimersByTimeAsync(15_001);
-  const parts = await collect(await pending);
-  expect(signals[0].aborted).toBe(true); expect(signals[1].aborted).toBe(false);
-  expect(parts.filter(p => p.type === "tool-call").map(p => p.toolCallId)).toEqual(["committed"]);
-  expect(calls).toBe(2);
+  expect(await pending).toMatchObject({ name: "TimeoutError" });
+  expect(released).toBe(false); expect(signals).toHaveLength(1); expect(signals[0].aborted).toBe(true);
+  expect(MIGRATION_TRANSPORT_POLICY.maxRecoveryDispatchesPerRun).toBe(0);
 });
-it("bounds recovery to two additional dispatches for the whole run, not per step", async () => {
-  let count = 0;
-  state.model = new MockLanguageModelV4({ doStream: async args => { count++; return source([{ type: "stream-start", warnings: [] }], args.abortSignal, false); } });
-  const model = migrationLanguageModel("model-1"), pending = model.doStream(options()).then(() => "unexpected", error => error);
-  await vi.advanceTimersByTimeAsync(180_010);
-  expect(await pending).toMatchObject({ name: "TimeoutError" }); expect(count).toBe(3);
-  const next = model.doStream(options()).then(() => "unexpected", error => error);
-  await vi.advanceTimersByTimeAsync(60_010); expect(await next).toMatchObject({ name: "TimeoutError" }); expect(count).toBe(4);
+it("default policy rejects early EOF without dispatching a recovery", async () => {
+  state.model = new MockLanguageModelV4({ doStream: async args => source([{ type: "text-start", id: "discarded" }], args.abortSignal) });
+  await expect(completeModel().doStream(options())).rejects.toThrow(/before its finish/);
+  expect(state.model!.doStreamCalls).toHaveLength(1);
 });
-it("does not retry parent cancellation or release buffered calls", async () => {
-  let count = 0;
-  state.model = new MockLanguageModelV4({ doStream: async args => { count++; return source([{ type: "tool-call", toolCallId: "hidden", toolName: "remember_memory", input: "{}" }], args.abortSignal, false); } });
-  const pending = migrationLanguageModel("model-1").doStream(options()).then(() => "unexpected", error => error);
+it("default policy times out headers once and cannot dispatch after later cancellation", async () => {
+  state.model = new MockLanguageModelV4({ doStream: async () => new Promise(() => {}) });
+  const pending = Promise.resolve(completeModel().doStream(options())).then(() => "unexpected", error => error);
+  await vi.advanceTimersByTimeAsync(60_001);
+  expect(await pending).toMatchObject({ name: "TimeoutError" }); expect(state.model!.doStreamCalls).toHaveLength(1);
+  outer.abort(new DOMException("Stopped", "AbortError")); await vi.advanceTimersByTimeAsync(120_000);
+  expect(state.model!.doStreamCalls).toHaveLength(1);
+});
+it("parent cancellation suppresses recovery even under an explicitly enabled mock-only policy", async () => {
+  state.model = new MockLanguageModelV4({ doStream: async args => source([{ type: "tool-call", toolCallId: "hidden", toolName: "save", input: "{}" }], args.abortSignal, false) });
+  const pending = Promise.resolve(completeModel(2).doStream(options())).then(() => "unexpected", error => error);
   await vi.advanceTimersByTimeAsync(1); outer.abort(new DOMException("Stopped", "AbortError")); await vi.advanceTimersByTimeAsync(1);
-  expect(await pending).toMatchObject({ name: "AbortError" }); expect(count).toBe(1);
+  expect(await pending).toMatchObject({ name: "AbortError" }); expect(state.model!.doStreamCalls).toHaveLength(1);
 });
-it.each(["length", "content-filter", "error"] as const)("withholds %s finishes without a retry", async reason => {
-  const mock = new MockLanguageModelV4({ doStream: async args => source([{ type: "tool-call", toolCallId: "hidden", toolName: "manage_quote", input: "{}" }, { ...finish, finishReason: { unified: reason, raw: undefined } }], args.abortSignal) }); state.model = mock;
-  await expect(migrationLanguageModel("model-1").doStream(options())).rejects.toThrow(); expect(mock.doStreamCalls).toHaveLength(1);
+it.each(["length", "content-filter", "error"] as const)("withholds %s finishes even when mock-only recovery is enabled", async reason => {
+  state.model = new MockLanguageModelV4({ doStream: async args => source([{ type: "tool-call", toolCallId: "hidden", toolName: "save", input: "{}" }, { ...finish, finishReason: { unified: reason, raw: undefined } }], args.abortSignal) });
+  await expect(completeModel(2).doStream(options())).rejects.toThrow();
+  expect(state.model!.doStreamCalls).toHaveLength(1);
 });
-it("requires a valid finish and EOF, retaining ordinary successful stream contents", async () => {
+it("requires a valid finish and clean EOF while retaining successful stream contents", async () => {
   const parts: LanguageModelV4StreamPart[] = [{ type: "stream-start", warnings: [] }, { type: "text-start", id: "t" }, { type: "text-delta", id: "t", delta: "hello" }, { type: "text-end", id: "t" }, { ...finish, finishReason: { unified: "stop", raw: undefined } }];
   state.model = new MockLanguageModelV4({ doStream: async args => source(parts, args.abortSignal) });
-  expect(await collect(await migrationLanguageModel("model-1").doStream(options()))).toEqual(parts);
+  expect(await drain((await completeModel().doStream(options())).stream)).toEqual(parts);
 });
-it("recovers an early EOF without releasing the failed step", async () => {
-  let count = 0;
-  state.model = new MockLanguageModelV4({ doStream: async args => source(count++ ? [finish] : [{ type: "text-start", id: "discarded" }], args.abortSignal) });
-  expect(await collect(await migrationLanguageModel("model-1").doStream(options()))).toEqual([finish]); expect(count).toBe(2);
+it("bounds an explicit mock-only recovery allowance across the whole wrapper lifetime", async () => {
+  state.model = new MockLanguageModelV4({ doStream: async args => source([{ type: "stream-start", warnings: [] }], args.abortSignal, false) });
+  const model = completeModel(2), pending = Promise.resolve(model.doStream(options())).then(() => "unexpected", error => error);
+  await vi.advanceTimersByTimeAsync(180_010);
+  expect(await pending).toMatchObject({ name: "TimeoutError" }); expect(state.model!.doStreamCalls).toHaveLength(3);
+  const next = Promise.resolve(model.doStream(options())).then(() => "unexpected", error => error);
+  await vi.advanceTimersByTimeAsync(60_010);
+  expect(await next).toMatchObject({ name: "TimeoutError" }); expect(state.model!.doStreamCalls).toHaveLength(4);
 });
-it("times out headers and does not dispatch again after parent cancellation", async () => {
-  let count = 0;
-  state.model = new MockLanguageModelV4({ doStream: async () => { count++; return new Promise(() => {}); } });
-  const pending = migrationLanguageModel("model-1").doStream(options()).then(() => "unexpected", error => error);
-  await vi.advanceTimersByTimeAsync(60_001); expect(count).toBe(2);
-  outer.abort(new DOMException("Stopped", "AbortError"));
-  expect(await pending).toMatchObject({ name: "AbortError" }); await vi.advanceTimersByTimeAsync(120_000); expect(count).toBe(2);
+it("never retries a budget refusal, including with an explicit mock-only recovery allowance", async () => {
+  state.model = new MockLanguageModelV4({ doStream: async () => { throw new Error("LIVE_TEST_SPEND_CAP"); } });
+  await expect(completeModel(2).doStream(options())).rejects.toThrow("LIVE_TEST_SPEND_CAP");
+  expect(state.model!.doStreamCalls).toHaveLength(1);
 });
-it("does not retry a budget refusal", async () => {
-  const mock = new MockLanguageModelV4({ doStream: async () => { throw new Error("LIVE_TEST_SPEND_CAP"); } }); state.model = mock;
-  await expect(migrationLanguageModel("model-1").doStream(options())).rejects.toThrow(); expect(mock.doStreamCalls).toHaveLength(1);
+it("does not turn deterministic failure into retry eligibility during slow cleanup", async () => {
+  state.model = new MockLanguageModelV4({ doStream: async () => ({ stream: new ReadableStream<LanguageModelV4StreamPart>({
+    start(controller) { setTimeout(() => controller.enqueue({ type: "error", error: new Error("Deterministic provider error") }), 59_990); },
+    cancel() { return new Promise<void>(resolve => setTimeout(resolve, 500)); },
+  }) }) });
+  const pending = Promise.resolve(completeModel(2).doStream(options())).then(() => "unexpected", error => error);
+  await vi.advanceTimersByTimeAsync(60_600);
+  expect(await pending).toBeInstanceOf(Error); expect(state.model!.doStreamCalls).toHaveLength(1);
 });
-it("never turns a deterministic error into a retry while slow cancellation is pending", async () => {
-  let count = 0;
-  state.model = new MockLanguageModelV4({ doStream: async () => {
-    if (count++ > 0) return source([finish]);
-    return { stream: new ReadableStream<LanguageModelV4StreamPart>({ start(controller) { setTimeout(() => controller.enqueue({ type: "error", error: new Error("Deterministic provider error") }), 59_990); }, cancel() { return new Promise<void>(resolve => setTimeout(resolve, 500)); } }) };
-  } });
-  const result = migrationLanguageModel("model-1").doStream(options()).then(() => "unexpected", error => error);
-  await vi.advanceTimersByTimeAsync(60_600); expect(await result).toBeInstanceOf(Error); expect(count).toBe(1);
-});
-it("does not replay a completed tool step when a later text step stalls", async () => {
-  let count = 0;
-  state.model = new MockLanguageModelV4({ doStream: async args => source(count++ === 1 ? [{ type: "raw", rawValue: ": OPENROUTER PROCESSING" }] : [finish], args.abortSignal, count !== 2) });
-  const model = migrationLanguageModel("model-1"); expect(await collect(await model.doStream(options()))).toEqual([finish]);
-  const next = model.doStream(options()); await vi.advanceTimersByTimeAsync(60_001);
-  expect(await collect(await next)).toEqual([finish]); expect(count).toBe(3);
-});
-it("executes a recovered tool once and never executes the discarded attempt", async () => {
-  let count = 0; const execute = vi.fn(async () => ({ saved: true }));
+it("does not repeat an executed earlier tool when a later default-policy step stalls", async () => {
+  const execute = vi.fn(async () => ({ saved: true })); let dispatches = 0;
   state.model = new MockLanguageModelV4({ doStream: async args => {
-    const current = count++;
-    return source(current < 2 ? [{ type: "tool-call", toolCallId: current ? "committed" : "discarded", toolName: "save", input: "{}" }, ...(current ? [finish] : [])] : [{ ...finish, finishReason: { unified: "stop", raw: undefined } }], args.abortSignal, current !== 0);
+    const first = dispatches++ === 0;
+    return source(first
+      ? [{ type: "tool-call", toolCallId: "committed-once", toolName: "save", input: "{}" }, finish]
+      : [{ type: "raw", rawValue: ": provider heartbeat" }], args.abortSignal, first);
   } });
-  const agent = new ToolLoopAgent({ model: migrationLanguageModel("model-1"), tools: { save: tool({ inputSchema: z.object({}), execute }) }, maxRetries: 0, stopWhen: stepCountIs(3) });
+  const agent = new ToolLoopAgent({ model: completeModel(), tools: { save: tool({ inputSchema: z.object({}), execute }) }, maxRetries: 0, stopWhen: stepCountIs(3) });
   const result = await agent.stream({ prompt: "Save once", abortSignal: outer.signal });
-  const finished = result.finishReason; await vi.advanceTimersByTimeAsync(1); expect(execute).not.toHaveBeenCalled();
-  await vi.advanceTimersByTimeAsync(15_001); expect(await finished).toBe("stop"); expect(execute).toHaveBeenCalledTimes(1); expect(count).toBe(3);
+  const ended = Promise.resolve(result.finishReason).catch(() => undefined);
+  const consumed = drain(result.stream);
+  await vi.advanceTimersByTimeAsync(60_010);
+  const parts = await consumed; await ended;
+  expect(execute).toHaveBeenCalledTimes(1); expect(dispatches).toBe(2);
+  expect(parts.some(part => part.type === "error")).toBe(true);
+  expect(parts.filter(part => part.type === "tool-call").map(part => part.toolCallId)).toEqual(["committed-once"]);
+});
+it("explicit mock-only recovery never executes the discarded partial tool", async () => {
+  let dispatches = 0; const execute = vi.fn(async () => ({ saved: true }));
+  state.model = new MockLanguageModelV4({ doStream: async args => {
+    const current = dispatches++;
+    return source(current < 2
+      ? [{ type: "tool-call", toolCallId: current ? "committed" : "discarded", toolName: "save", input: "{}" }, ...(current ? [finish] : [])]
+      : [{ ...finish, finishReason: { unified: "stop", raw: undefined } }], args.abortSignal, current !== 0);
+  } });
+  const agent = new ToolLoopAgent({ model: completeModel(1), tools: { save: tool({ inputSchema: z.object({}), execute }) }, maxRetries: 0, stopWhen: stepCountIs(3) });
+  const result = await agent.stream({ prompt: "Save once", abortSignal: outer.signal });
+  const ended = Promise.resolve(result.finishReason);
+  const consumed = drain(result.stream);
+  await vi.advanceTimersByTimeAsync(1); expect(execute).not.toHaveBeenCalled();
+  await vi.advanceTimersByTimeAsync(15_001);
+  const parts = await consumed;
+  expect(await ended).toBe("stop"); expect(execute).toHaveBeenCalledTimes(1); expect(dispatches).toBe(3);
+  expect(parts.filter(part => part.type === "tool-call").map(part => part.toolCallId)).toEqual(["committed"]);
 });

@@ -1,7 +1,8 @@
 import DecimalJs from "decimal.js";
 const Decimal = DecimalJs.clone({ precision: 40, rounding: DecimalJs.ROUND_HALF_UP });
 import { z } from "zod";
-import { calculateTariffExpression } from "../migration/calculator";
+import { calculateExactExpression } from "./exact-expression";
+import { addRational, compareRational, divideRational, exactValue, finiteDecimal, multiplyRational, rational, roundRational, sameExact, subtractRational, sumExact } from "./fx-conversion";
 import { calculateElapsedTime } from "../migration/elapsed-time";
 import { tariffInputSchema, tariffServiceSchema } from "./tariff-input";
 import type { TariffResult } from "./tariff-types";
@@ -21,6 +22,8 @@ export const knownCurrencyCode = (value: string): boolean => currencyCodeCatalog
 const limit = z.object({ amount: decimal, per: z.enum(["block", "call"]), basis: z.enum(["unit", "line"]).optional().describe("Required when a time line has multiple resources: unit applies the bound to each resource before multiplication; line applies it to the combined line.") }).strict();
 const duration = z.object({ hours: decimal.optional(), minutes: decimal.optional() }).strict()
   .refine(value => value.hours !== undefined || value.minutes !== undefined, "Provide a duration component; explicit zero is retained.");
+export const lineFieldSchema = z.enum(["billing", "price", "currency", "quantity", "quantityLabel", "duration", "periodHours", "commenced", "perQuantity", "resourceQuantity", "resourceLabel", "perResourceQuantity", "percent", "baseLines", "minimum", "maximum", "minimumDurationHours", "statedExtension"]);
+export type LineField = z.infer<typeof lineFieldSchema>;
 export const lineSchema = z.object({
   name, currency: currencySchema.optional().describe("Original uppercase three-letter currency code. Preserve unknown codes for explicit resolution."), amount: decimal.optional(), rate: decimal.optional(),
   amountBasis: z.literal("user-stated-flat").optional(),
@@ -30,12 +33,13 @@ export const lineSchema = z.object({
   periodHours: positive.optional(), commenced: z.boolean().optional(),
   quantity: decimal.optional(), quantityLabel: name.optional(), duration: duration.optional(), minimumDurationHours: positive.optional(),
   resourceQuantity: decimal.optional(), resourceLabel: name.optional(), perResourceQuantity: positive.optional(),
-  percent: positive.optional(), baseLines: z.array(name).min(1).max(16).optional(),
+  percent: decimal.optional(), baseLines: z.array(name).min(1).max(16).optional(),
   statedExtension: decimal.optional().describe("Non-authoritative stated extension checked against backend arithmetic after explicit line rounding."),
   minimum: limit.optional(), maximum: limit.optional(),
   removeMinimum: z.boolean().optional().describe("True only when explicitly removing an existing supplied minimum."),
   removeMaximum: z.boolean().optional().describe("True only when explicitly removing an existing supplied maximum."),
   removeMinimumDuration: z.boolean().optional(), removeStatedExtension: z.boolean().optional(),
+  unresolvedFields: z.array(lineFieldSchema).min(1).max(18).optional(),
 }).strict();
 
 const billingBase = { price: decimal.optional().describe("Original supplied price when known. Omit when unknown; code never invents zero.") };
@@ -46,7 +50,7 @@ export const billingSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("movement"), ...billingBase, quantity: decimal.optional(), perQuantity: positive.optional() }).strict(),
   z.object({ kind: z.literal("tonne"), ...billingBase, quantity: decimal.optional(), perQuantity: positive.optional() }).strict(),
   z.object({ kind: z.literal("quantity"), ...billingBase, quantity: decimal.optional(), quantityLabel: name, perQuantity: positive.optional() }).strict(),
-  z.object({ kind: z.literal("percentage"), percent: positive.optional().describe("Explicit supplied percentage, not a precomputed price."), baseLines: z.array(name).min(1).max(16).optional().describe("Exact named charge lines forming the percentage base.") }).strict(),
+  z.object({ kind: z.literal("percentage"), percent: decimal.optional().describe("Explicit supplied percentage, including zero; not a precomputed price."), baseLines: z.array(name).min(1).max(16).optional().describe("Exact named charge lines forming the percentage base.") }).strict(),
 ]);
 export const commandLineSchema = z.object({
   name, currency: currencySchema.optional().describe("Copy the original uppercase three-letter currency code. Do not substitute a familiar currency for an unknown code."),
@@ -58,6 +62,7 @@ export const commandLineSchema = z.object({
   removeStatedExtension: z.boolean().optional(),
   minimum: limit.optional().describe("Monetary minimum in the line currency."), maximum: limit.optional().describe("Monetary maximum in the line currency."),
   removeMinimum: z.boolean().optional(), removeMaximum: z.boolean().optional(),
+  clearFields: z.array(lineFieldSchema).min(1).max(18).optional().describe("Explicitly withdraw these line facts to unknown; never zero, default one, or no bound. Use current human scopeChangeEvidence. Null preserves fields."),
 }).strict().superRefine((line, context) => {
   const issue = (field: keyof typeof line, message: string) => context.addIssue({ code: "custom", path: [field], message });
   if (line.billing && line.price !== undefined) issue("price", "Use a complete billing recipe or a price-only correction, not both.");
@@ -68,7 +73,49 @@ export const commandLineSchema = z.object({
   if (line.billing?.kind === "flat" && line.statedExtension !== undefined) issue("statedExtension", "A flat supplier-stated amount is already the extension; statedExtension is only a check for backend-derived billing.");
   if (line.billing && !["time", "gt-time"].includes(line.billing.kind) && line.minimumDurationHours !== undefined) issue("minimumDurationHours", "Minimum billable duration applies only to time billing.");
   if (line.billing && !["time", "gt-time"].includes(line.billing.kind) && [line.minimum?.per, line.maximum?.per].includes("block")) issue("minimum", "Per-block monetary bounds require time billing.");
+  for (const field of line.clearFields ?? []) if (explicitLineFields(line).has(field)) issue("clearFields", `Cannot set/remove and withdraw ${field} together.`);
 });
+
+function explicitLineFields(line: { currency?: string; price?: string; billing?: object; minimum?: object; maximum?: object; minimumDurationHours?: string; statedExtension?: string; removeMinimum?: boolean; removeMaximum?: boolean; removeMinimumDuration?: boolean; removeStatedExtension?: boolean }): Set<LineField> {
+  const fields = new Set<LineField>();
+  if (line.currency !== undefined) fields.add("currency");
+  if (line.price !== undefined) fields.add("price");
+  if (line.billing) {
+    fields.add("billing");
+    for (const [key, value] of Object.entries(line.billing)) if (value !== undefined && lineFieldSchema.safeParse(key).success) fields.add(key as LineField);
+  }
+  for (const field of ["minimum", "maximum", "minimumDurationHours", "statedExtension"] as const) if (line[field] !== undefined) fields.add(field);
+  if (line.removeMinimum) fields.add("minimum");
+  if (line.removeMaximum) fields.add("maximum");
+  if (line.removeMinimumDuration) fields.add("minimumDurationHours");
+  if (line.removeStatedExtension) fields.add("statedExtension");
+  return fields;
+}
+
+export function lineFieldApplies(field: LineField, kind?: string): boolean {
+  if (["billing", "price", "currency", "minimum", "maximum"].includes(field)) return field !== "price" || kind !== "percentage";
+  if (field === "statedExtension") return kind !== "flat";
+  if (["duration", "periodHours", "commenced", "resourceQuantity", "resourceLabel", "perResourceQuantity", "minimumDurationHours"].includes(field)) return kind === "time" || kind === "gt-time";
+  if (field === "perQuantity") return ["gt-time", "movement", "tonne", "quantity"].includes(kind ?? "");
+  if (field === "quantity") return ["movement", "tonne", "quantity"].includes(kind ?? "");
+  if (field === "quantityLabel") return kind === "quantity";
+  return kind === "percentage";
+}
+
+/** Server-created markers prevent withdrawn facts from regaining defaults after reload. */
+export function applyLineFieldPatches(previous: QuoteLine | undefined, patch: CommandLine, line: QuoteLine): QuoteLine {
+  const kind = line.amount !== undefined || line.unit === "amount" || line.amountBasis ? "flat" : line.unit;
+  const unresolved = new Set((previous?.unresolvedFields ?? []).filter(field => lineFieldApplies(field, kind)));
+  for (const field of explicitLineFields(patch)) unresolved.delete(field);
+  for (const field of patch.clearFields ?? []) {
+    unresolved.add(field);
+    if (field === "price") { delete line.amount; delete line.rate; }
+    else if (field !== "billing") delete (line as unknown as Record<string, unknown>)[field];
+  }
+  if (unresolved.size) line.unresolvedFields = [...unresolved].sort();
+  else delete line.unresolvedFields;
+  return line;
+}
 export const callSchema = tariffInputSchema.omit({ charges: true, durationHours: true, durationMinutes: true }).extend({
   facilityId: tariffInputSchema.shape.facilityId.describe("Canonical catalog facility ID selected from the provided catalog only when the raw booked identity fields uniquely ground it. Preserve the original port/terminal/operator wording alongside it. Omit for unknown, ambiguous or conflicting identities."),
   terminal: tariffInputSchema.shape.terminal.describe("Only an explicitly supplied physical terminal/berth; otherwise null. Preserve user-stated conflicts, never invent this field. At JSW Jaigarh, J-1 is a port-dues tariff item, not an established terminal name; do not copy that row label here."),
@@ -132,11 +179,12 @@ export const quoteCommandSchema = quoteToolInputSchema.safeExtend({
   clearCallFields: z.array(callSchema.keyof()).min(1).max(20).optional().describe("Explicitly withdrawn/replaced saved particulars, such as an obsolete terminal after a corrected booking. Null merely preserves a field. Never clear an inconvenient fact to fit a tariff."),
   scopeChangeEvidence: z.string().min(1).max(2000).optional().describe("For removed services or cleared particulars, copy the current human correction. Never remove a charge or fact to make an unresolved calculation pass."),
   reviewGroup: z.string().trim().min(1).max(80).optional().describe("Optional user-requested separate review group. Omit to review staged work together."),
+  retryOf: z.string().min(1).max(100).optional().describe("Returned errorId for this same failed operation. Resolve unknown quotation targets through read_quotes first."),
 }).superRefine((input, context) => {
   const issue = (field: string, message: string) => context.addIssue({ code: "custom", path: [field], message });
   if (input.action === "read") {
     if (!input.readScope) issue("readScope", "Choose current-chat or cross-chat for a read.");
-    for (const field of Object.keys(input)) if (!["action", "readScope", "quoteId", "reference", "reporting"].includes(field)) issue(field, "A read cannot contain quotation changes.");
+    for (const field of Object.keys(input)) if (!["action", "readScope", "quoteId", "reference", "reporting", "retryOf"].includes(field)) issue(field, "A read cannot contain quotation changes.");
     if (input.readScope === "cross-chat" && (input.quoteId || input.reference)) issue("readScope", "Cross-chat recall reads memory facts; current quotation selectors do not apply.");
     if (input.readScope === "cross-chat" && input.reporting) issue("reporting", "Reporting precision applies to current quotations, not historical memory.");
     if (input.quoteId && input.reference) issue("reference", "Select a quotation by ID or exact reference, not both.");
@@ -151,6 +199,7 @@ export const quoteCommandSchema = quoteToolInputSchema.safeExtend({
   } else if (!input.quoteId) issue("quoteId", "Update requires a returned saved quotation ID.");
   if (input.pricing === "supplied" && input.services) issue("services", "Supplied quotation scope consists of named lines, including unpriced requested lines; services is for official tariff families only. Preserve every requested supplied charge in lines.");
   if ((input.removeServices?.length || input.removeUnsupportedServices?.length || input.clearCallFields?.length) && !input.scopeChangeEvidence) issue("scopeChangeEvidence", "Scope/fact removal requires the current human correction; omission never removes it.");
+  if (input.lines?.some(line => line.clearFields?.length) && !input.scopeChangeEvidence) issue("scopeChangeEvidence", "Withdrawing line facts requires the current human correction.");
   for (const field of input.clearCallFields ?? []) if (input.call?.[field] !== undefined) issue("clearCallFields", "Cannot supply and clear the same particular.");
   if (input.services?.some(service => input.removeServices?.includes(service))) issue("removeServices", "Cannot include and remove the same charge.");
   if (input.services?.includes("other") && !input.terms?.unsupportedServices?.length) issue("terms", "Retain the exact unlisted charge description in unsupportedServices.");
@@ -176,11 +225,16 @@ export function quoteMetadata(quote: Pick<Quote, "call">): string {
   const lines = fields.flatMap(([label, value]) => value ? [`${label}: ${safe(value)}`] : []);
   return lines.length ? lines.join("\n\n") + "\n\n" : "";
 }
-export const money = (currency: string, value: string) => { const [whole, fraction] = new Decimal(value).toFixed(Math.max(2, new Decimal(value).decimalPlaces())).split("."); return `${currency} ${whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}.${fraction}`; };
+export const money = (currency: string, value: string) => {
+  const exact = rational(value), decimalValue = finiteDecimal(exact);
+  if (decimalValue === undefined) return `${currency} ${exact.numerator}/${exact.denominator} (exact)`;
+  const [whole, fraction = ""] = decimalValue.split(".");
+  return `${currency} ${whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}.${fraction.padEnd(2, "0")}`;
+};
 export function callParticulars(quote: Quote) {
   const { occupancy, ...call } = quote.call;
   return { ...call, charges: quote.services,
-    ...(occupancy ? { durationMinutes: new Decimal(occupancy.hours ?? 0).mul(60).plus(occupancy.minutes ?? 0).toString() } : {}) };
+    ...(occupancy ? { durationMinutes: exactValue(addRational(multiplyRational(rational(occupancy.hours ?? "0"), rational("60")), rational(occupancy.minutes ?? "0"))) } : {}) };
 }
 export function calculateSupplied(quote: Quote): QuoteResult {
   const questions = [...(quote.terms.unresolvedTerms ?? []), ...(quote.unresolvedHistory ?? [])];
@@ -198,11 +252,14 @@ export function calculateSupplied(quote: Quote): QuoteResult {
   if (call.berthStart && call.berthEnd) {
     const elapsed = calculateElapsedTime({ start: call.berthStart, end: call.berthEnd, timeZone: call.timeZone, dateOrder: call.dateOrder });
     if (elapsed.status !== "ok") questions.push(elapsed.message);
-    else if (duration && !new Decimal(duration).eq(elapsed.elapsedMinutes)) questions.push("Stated occupancy conflicts with the berth timestamps; confirm the corrected interval.");
-    else duration = elapsed.elapsedMinutes;
+    else {
+      const exactMinutes = exactValue(divideRational(rational((BigInt(Date.parse(elapsed.endUtc)) - BigInt(Date.parse(elapsed.startUtc))).toString()), rational("60000")));
+      if (duration && !sameExact(duration, exactMinutes)) questions.push("Stated occupancy conflicts with the berth timestamps; confirm the corrected interval.");
+      else duration = exactMinutes;
+    }
   }
   const indexes = new Map(quote.lines.map((line, index) => [key(line.name), index]));
-  const evaluate = (index: number): CalculatedLine | undefined => {
+  const evaluateLine = (index: number): CalculatedLine | undefined => {
     if (states[index] === 2) return calculated[index];
     const line = quote.lines[index];
     const missing = (message: string) => questions.push(`${line.name}: ${message}`);
@@ -210,6 +267,10 @@ export function calculateSupplied(quote: Quote): QuoteResult {
     states[index] = 1;
     const { currency, amount, rate, unit } = line;
     const finish = (value?: CalculatedLine) => { calculated[index] = value; states[index] = 2; return value; };
+    if (line.unresolvedFields?.length) {
+      for (const field of line.unresolvedFields) missing(`${field} was explicitly withdrawn and remains unknown; provide the governing value before calculating this line.`);
+      return finish();
+    }
     if (!currency) { missing("which currency applies?"); return finish(); }
     if (!knownCurrencyCode(currency)) { missing(`${currency} is not a recognized currency code in the runtime ISO 4217 catalog. The supplied code is retained; confirm the correct three-letter code.`); return finish(); }
     if (line.minimum && line.maximum && line.minimum.per === line.maximum.per && line.minimum.basis === line.maximum.basis && new Decimal(line.minimum.amount).gt(line.maximum.amount)) { missing("minimum exceeds maximum; confirm the supplier's terms."); return finish(); }
@@ -239,8 +300,8 @@ export function calculateSupplied(quote: Quote): QuoteResult {
         expression = `${fn}(${expression},${bound.amount})`; formula += `; ${which} ${currency} ${bound.amount}/call`;
       }
       if (rounding?.stage === "line") expression = `round(${expression},${rounding.decimals})`;
-      const result = calculateTariffExpression(expression);
-      if (line.statedExtension !== undefined && !new Decimal(line.statedExtension).eq(result)) { missing(`stated extension ${currency} ${line.statedExtension} does not match backend result ${currency} ${result}.`); return finish(); }
+      const result = calculateExactExpression(expression);
+      if (line.statedExtension !== undefined && !sameExact(line.statedExtension, result)) { missing(`stated extension ${currency} ${line.statedExtension} does not match backend result ${currency} ${result}.`); return finish(); }
       return finish({ name: line.name, currency, amount: result, formula });
     }
 
@@ -261,7 +322,7 @@ export function calculateSupplied(quote: Quote): QuoteResult {
     if (amount === undefined && unit !== "amount") {
       if (!unit) { missing("what are the rate's units?"); return finish(); }
       if (unit === "time" || unit === "gt-time") {
-        const lineDuration = line.duration ? new Decimal(line.duration.hours ?? 0).mul(60).plus(line.duration.minutes ?? 0).toString() : duration;
+        const lineDuration = line.duration ? exactValue(addRational(multiplyRational(rational(line.duration.hours ?? "0"), rational("60")), rational(line.duration.minutes ?? "0"))) : duration;
         if (lineDuration === undefined) { missing("what is the occupancy, line duration, or the full start/end timestamps?"); return finish(); }
         if (!line.periodHours || line.commenced === undefined) { missing("what is the billing period, and are part periods charged in full?"); return finish(); }
         if (unit === "gt-time" && !call.gt) { missing("what is the vessel's GT/GRT?"); return finish(); }
@@ -274,20 +335,21 @@ export function calculateSupplied(quote: Quote): QuoteResult {
         const boundBases = new Set(bounds.flatMap(bound => bound.basis ? [bound.basis] : []));
         if (boundBases.size > 1) { missing("monetary bounds mix unit and line bases; provide one governing basis for this line."); return finish(); }
         const boundBasis = resourceSpecified ? [...boundBases][0] ?? "line" : "line";
-        const billableDuration = line.minimumDurationHours ? Decimal.max(lineDuration, new Decimal(line.minimumDurationHours).mul(60)).toString() : lineDuration;
-        const periods = calculateTariffExpression(`${line.commenced ? "ceil" : ""}(${billableDuration}/(${line.periodHours}*60))`);
+        const minimumDuration = line.minimumDurationHours ? multiplyRational(rational(line.minimumDurationHours), rational("60")) : undefined;
+        const billableDuration = minimumDuration && compareRational(minimumDuration, rational(lineDuration)) > 0 ? exactValue(minimumDuration) : lineDuration;
+        const periods = calculateExactExpression(`${line.commenced ? "ceil" : ""}(${billableDuration}/(${line.periodHours}*60))`);
         const rateBlock = unit === "gt-time" ? `(${call.gt}/${line.perQuantity ?? "1"})*${rate}` : rate!;
         const baseBlock = resourceSpecified ? `(${rateBlock})/${line.perResourceQuantity ?? "1"}` : rateBlock;
         if (boundBasis === "unit" && resourceSpecified) {
           let unitBlock = baseBlock;
           for (const [which, fn] of [["minimum", "max"], ["maximum", "min"]] as const) if (line[which]?.per === "block") unitBlock = `${fn}(${unitBlock},${line[which]!.amount})`;
-          let unitTotal = `(${unitBlock})*${periods}`;
+          let unitTotal = `(${unitBlock})*(${periods})`;
           for (const [which, fn] of [["minimum", "max"], ["maximum", "min"]] as const) if (line[which]?.per === "call") unitTotal = `${fn}(${unitTotal},${line[which]!.amount})`;
           expression = `(${unitTotal})*${resourceFactor}`;
         } else {
           let lineBlock = resourceSpecified ? `(${baseBlock})*${resourceFactor}` : baseBlock;
           for (const [which, fn] of [["minimum", "max"], ["maximum", "min"]] as const) if (line[which]?.per === "block") lineBlock = `${fn}(${lineBlock},${line[which]!.amount})`;
-          expression = `(${lineBlock})*${periods}`;
+          expression = `(${lineBlock})*(${periods})`;
           if (resourceSpecified) for (const [which, fn] of [["minimum", "max"], ["maximum", "min"]] as const) if (line[which]?.per === "call") expression = `${fn}(${expression},${line[which]!.amount})`;
         }
         formula = `${unit === "gt-time" ? `${call.gt} GT / ${line.perQuantity ?? "1"} × ` : ""}${resourceSpecified ? `${line.resourceQuantity} ${safe(line.resourceLabel!)} × ` : ""}${currency} ${rate}${resourceSpecified ? ` / ${line.perResourceQuantity ?? "1"} ${safe(line.resourceLabel!)}` : ""} per ${line.periodHours}-hour ${line.commenced ? "commenced" : "exact"} period; supplied duration ${lineDuration} minutes${line.minimumDurationHours ? `; minimum billable duration ${line.minimumDurationHours} hours` : ""}; billable periods ${periods}`;
@@ -310,19 +372,27 @@ export function calculateSupplied(quote: Quote): QuoteResult {
       formula += `; ${which} ${currency} ${bound.amount}/${bound.per}`;
     }
     if (rounding?.stage === "line") expression = `round(${expression},${rounding.decimals})`;
-    const calculatedAmount = calculateTariffExpression(expression);
-    if (line.statedExtension !== undefined && !new Decimal(line.statedExtension).eq(calculatedAmount)) { missing(`stated extension ${currency} ${line.statedExtension} does not match backend result ${currency} ${calculatedAmount}.`); return finish(); }
+    const calculatedAmount = calculateExactExpression(expression);
+    if (line.statedExtension !== undefined && !sameExact(line.statedExtension, calculatedAmount)) { missing(`stated extension ${currency} ${line.statedExtension} does not match backend result ${currency} ${calculatedAmount}.`); return finish(); }
     return finish({ name: line.name, currency, amount: calculatedAmount, formula });
+  };
+  const evaluate = (index: number): CalculatedLine | undefined => {
+    try { return evaluateLine(index); }
+    catch {
+      states[index] = 2;
+      questions.push(`${quote.lines[index].name}: calculation exceeded the supported exact-arithmetic bounds or has an invalid divisor. This line remains unresolved; independent lines are retained.`);
+      return undefined;
+    }
   };
   for (let index = 0; index < quote.lines.length; index++) evaluate(index);
   const lines = calculated.filter((line): line is CalculatedLine => !!line);
   if (!quote.lines.length) questions.push("Which supplied quotation lines should be included?");
   const totals = [...new Set(lines.map(line => line.currency))].map(currency => {
     const amounts = lines.filter(line => line.currency === currency).map(line => line.amount);
-    const subtotal = Decimal.sum(...amounts), tax = subtotal.mul(taxPercent ?? 0).div(100);
-    let total = subtotal.plus(tax);
-    if (rounding?.stage === "total") total = total.toDecimalPlaces(rounding.decimals, Decimal.ROUND_HALF_UP);
-    return { currency, amount: total.toString(), chargeIds: lines.filter(line => line.currency === currency).map(line => key(line.name)).concat(taxPercent !== undefined ? ["supplied-tax"] : []).sort(), lineAmounts: [...amounts, ...(taxPercent !== undefined ? [tax.toString()] : [])], basis: "scoped-quote" as const };
+    const subtotal = rational(sumExact(amounts)), tax = multiplyRational(subtotal, multiplyRational(rational(taxPercent ?? "0"), rational("0.01")));
+    let total = addRational(subtotal, tax);
+    if (rounding?.stage === "total") total = roundRational(total, rounding.decimals);
+    return { currency, amount: exactValue(total), chargeIds: lines.filter(line => line.currency === currency).map(line => key(line.name)).concat(taxPercent !== undefined ? ["supplied-tax"] : []).sort(), lineAmounts: [...amounts, ...(taxPercent !== undefined ? [exactValue(tax)] : [])], basis: "scoped-quote" as const };
   });
   const adjustments = unscopedUncertainty ? "Derived charges, monetary bounds, tax and rounding are withheld while governing terms remain unresolved. Only the raw listed fixed amounts are summed; retained recipes are not approved." : `${taxPercent === undefined ? "No tax rate supplied; tax is outside this calculation." : new Decimal(taxPercent).eq(0) ? "No tax, as supplied." : `Supplied tax ${taxPercent}% included in each currency total.`} ${rounding ? `Half-up monetary rounding per ${rounding.stage}, ${rounding.decimals} decimals.` : "Exact monetary values; no monetary rounding."}`;
   const body = lines.length ? `**${safe(quote.name)} — user-supplied quotation**\n\n| Charge | Amount |\n|---|---:|\n${lines.map(line => `| ${safe(line.name)} | ${money(line.currency, line.amount)} |`).join("\n")}\n${totals.map(total => `| **${questions.length ? "Identified subtotal" : "Total of supplied lines"}** | **${money(total.currency, total.amount)}** |`).join("\n")}\n\n${lines.map(line => `- **${safe(line.name)}:** ${line.formula}.`).join("\n")}\n\n${adjustments} Unquoted services excluded. These are supplied prices, not official tariff rates.` : "";
@@ -334,17 +404,36 @@ export function quoteChanges(quote: Quote, result: QuoteResult): string {
   const baseline = quote.baseline;
   const changes = result.totals.flatMap(total => {
     const original = baseline.totals?.find(row => row.currency === total.currency);
-    if (!original || new Decimal(total.amount).eq(original.amount)) return [];
-    const difference = new Decimal(total.amount).minus(original.amount);
-    return [`${difference.gte(0) ? "Increase" : "Decrease"} from ${baseline.imported ? "imported saved" : "original"} quotation: **${money(total.currency, difference.abs().toString())}** (${money(total.currency, original.amount)} → ${money(total.currency, total.amount)}).`];
+    if (!original || sameExact(total.amount, original.amount)) return [];
+    const difference = subtractRational(rational(total.amount), rational(original.amount));
+    const positive = compareRational(difference, rational("0")) >= 0;
+    return [`${positive ? "Increase" : "Decrease"} from ${baseline.imported ? "imported saved" : "original"} quotation: **${money(total.currency, exactValue({ ...difference, numerator: positive ? difference.numerator : -difference.numerator }))}** (${money(total.currency, original.amount)} → ${money(total.currency, total.amount)}).`];
   });
   const unchanged = quote.lines.filter(line => {
     const before = baseline.lines.filter(item => item.currency === line.currency).findIndex(item => key(item.name) === key(line.name));
     const after = quote.lines.filter(item => item.currency === line.currency).findIndex(item => key(item.name) === key(line.name));
     const original = baseline.totals?.find(total => total.currency === line.currency)?.lineAmounts?.[before];
     const current = result.totals?.find(total => total.currency === line.currency)?.lineAmounts?.[after];
-    return original !== undefined && current !== undefined && new Decimal(original).eq(current);
+    return original !== undefined && current !== undefined && sameExact(original, current);
   }).map(line => safe(line.name));
   if (changes.length && unchanged.length) changes.push(`Unchanged amounts: ${unchanged.join(", ")}.`);
   return changes.length ? "\n\n" + changes.join("\n\n") : "";
+}
+
+/** A previous saved revision is distinct from the original baseline. Official
+ * historical tariff amounts are not recomputed with potentially changed sources. */
+export function quotePreviousChange(previous: Quote | undefined, result: QuoteResult): string {
+  if (!previous || previous.pricing !== "supplied" || result.status !== "calculated" || result.questions.length || !result.totals?.length) return "";
+  const before = calculateSupplied(previous);
+  if (before.status !== "calculated" || before.questions.length || !before.totals?.length) return "";
+  const currencies = [...new Set([...before.totals, ...result.totals].map(total => total.currency))];
+  const rows = currencies.map(currency => {
+    const prior = before.totals!.find(total => total.currency === currency), next = result.totals!.find(total => total.currency === currency);
+    if (!prior || !next) return `${currency}: previous ${prior ? money(currency, prior.amount) : "not present"}; current ${next ? money(currency, next.amount) : "not present"}. No cross-currency difference is inferred.`;
+    const delta = subtractRational(rational(next.amount), rational(prior.amount));
+    const direction = compareRational(delta, rational("0"));
+    const absolute = direction < 0 ? { ...delta, numerator: -delta.numerator } : delta;
+    return `${money(currency, prior.amount)} → ${money(currency, next.amount)}; ${direction < 0 ? "decrease" : direction > 0 ? "increase" : "change"} ${money(currency, exactValue(absolute))}.`;
+  });
+  return `\n\n**Immediately previous saved revision ${previous.revision} — ${safe(previous.name)}**\n\n${rows.join("\n\n")}`;
 }

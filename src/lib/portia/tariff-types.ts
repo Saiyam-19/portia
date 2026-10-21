@@ -19,6 +19,10 @@ export interface TariffInput {
   movements?: string;
   callDays?: string;
   service?: string;
+  /** Explicitly grounded requested scope, not an inferred waiver. Physical
+   * eligibility, dates and quantities remain required for either scope. */
+  adjustmentScope?: "include-adjustments" | "unadjusted-base";
+  adjustmentScopeEvidence?: string;
   vesselCategory?: string;
   flag?: string;
   cargoOperation?: string;
@@ -71,6 +75,15 @@ export interface TariffInput {
 }
 
 export type TariffSource = { url: string; reference: string; sha256: string };
+/** Input questions can be answered with human facts. Source/interpretation
+ * gaps cannot be repaired by changing those facts to fit a retained rule. */
+export type TariffIssue = {
+  kind: "input" | "source" | "unsupported";
+  code: string;
+  message: string;
+  service?: string;
+  field?: keyof TariffInput;
+};
 export type TariffApplicability = {
   status: "conditional-retained-rule" | "published-reference" | "explanation-only" | "unverified";
   currentTariffVerified: false;
@@ -87,6 +100,8 @@ export type TariffResult = {
   body: string;
   questions: string[];
   limitations?: string[];
+  issues?: TariffIssue[];
+  adjustmentScope?: TariffInput["adjustmentScope"];
   totals?: Array<{
     currency: string;
     amount: string;

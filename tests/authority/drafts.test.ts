@@ -162,5 +162,12 @@ it("drafts invalidate earlier comparison output and block parallel stale compari
     session.executeCommand({ action: "update", quoteId: a.quoteId, lines: [{ name: "berth", billing: { kind: "time", price: "7", periodHours: "3", commenced: true } }] }),
     session.compare(comparison),
   ]);
-  expect(retried.status).toBe("error"); expect(retried.body).toMatch(/unapproved draft/i); expect(session.finalText("")).not.toContain("has the lower total");
+  expect(retried.status).toBe("unresolved");
+  expect(retried.questions.join(" ")).toMatch(/occupancy|duration|timestamp/i);
+  expect(retried).not.toHaveProperty("converted");
+  expect(session.finalText("")).not.toContain("has the lower total");
+  const unknown = await session.compare({ quoteIds: [a.quoteId, "never-saved"], currency: "USD" });
+  expect(unknown.status).toBe("error");
+  expect(unknown).toHaveProperty("repairKind", "unknown_quotation_target");
+  expect(unknown).not.toHaveProperty("converted");
 });

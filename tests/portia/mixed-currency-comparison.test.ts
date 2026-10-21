@@ -28,7 +28,7 @@ it("line rounding includes legacy handling and newly sourced MUC", async () => {
     const result = await session.update({ pricing: "official", services: ["handling", "muc"], call: { port: "NSIGT", callDate: "2026-10-18", service: "foreign", containerSize: "20", ladenContainers, emptyContainers: "0", handlingMode: "road", specialCargo: false, cargoTraffic: "exim" } });
     expect(result.status).toBe("calculated"); if ("quoteId" in result) ids.push(result.quoteId);
   }
-  const compared = await session.compare({ quoteIds: ids, currency: "INR", rounding: { stage: "line", decimals: 0 } });
+  const compared = await session.compare({ quoteIds: ids, currency: "INR", rounding: { stage: "line", decimals: 0, scope: "all-comparison-amounts" } });
   expect(compared.status, compared.body).toBe("calculated");
   expect("converted" in compared && compared.converted.map(row => row.amount)).toEqual(["5878", "11756"]);
 });

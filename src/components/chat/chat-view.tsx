@@ -133,6 +133,12 @@ export default function ChatView({ conversationId, initialMessage, initialReques
     try {
       const response = await fetch('/api/chat/cancel', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ runId: activeRunId }) })
       if (!response.ok) throw new Error('Stop failed')
+      const result = await response.json() as { cancelled?: unknown }
+      if (typeof result.cancelled !== 'boolean') throw new Error('Invalid stop response')
+      if (!result.cancelled) {
+        setLocalError('The response is no longer running. Saved results are unchanged.')
+        return
+      }
       stop(); setLocalError('Response stopped. Partial work is not a completed estimate.')
     } catch { setLocalError('Couldn’t stop the response. Please try again.') }
   }

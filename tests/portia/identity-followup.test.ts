@@ -2,7 +2,7 @@ import { expect, it } from "vitest";
 import Decimal from "decimal.js";
 import { lookupTariff, resolveTariffPort } from "../../src/lib/portia/tariffs";
 import { QuoteSession } from "../../src/lib/portia/session";
-import { MockLanguageModelV4 } from "ai/test";
+import { MockLanguageModelV4 } from "../helpers/portia-protocol-model";
 import { createMigrationMainAgent } from "../../src/lib/migration/domain-agent";
 
 // Captured first frozen-build NSFT tool arguments, provider dispatch176.

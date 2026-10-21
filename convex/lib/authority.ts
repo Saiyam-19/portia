@@ -13,6 +13,7 @@ import {
 } from "../../src/lib/authority/contract";
 import { enqueueMemory, ensureMemory, hashMemory, memoryEnabled } from "./memoryLifecycle";
 import { hasQuoteDrafts, replayQuoteDrafts, validateDraftBindings } from "../../src/lib/portia/quote-drafts";
+import { isQuoteWriteTool } from "../../src/lib/portia/tool-names";
 
 const authorityError = (code: string, message: string): never => {
   throw new ConvexError({ code, message });
@@ -96,8 +97,8 @@ export async function validateAuthorityBase(
     authorityError("MEMORY_BUSY", "Pending memory work must finish before reviewing another memory change.");
   }
   for (const operation of memoryOperations) {
-    if (operation.memoryEpoch !== namespace.epoch || operation.memoryRevision !== namespace.revision) {
-      authorityError("STALE_AUTHORIZATION", "Memory changed after the review was created.");
+    if (operation.memoryEpoch !== namespace.epoch || operation.memoryRevision > namespace.revision) {
+      authorityError("STALE_AUTHORIZATION", "Memory epoch or revision is inconsistent with the review base.");
     }
     const current = namespace.factIndex.find((fact) => fact.key === operation.key);
     if (!current) {
@@ -107,6 +108,8 @@ export async function validateAuthorityBase(
     } else if (operation.kind === "remember" && (operation.previousValue === null || await hashMemory(operation.previousValue) !== current.hash)) {
       authorityError("INVALID_AUTHORIZATION", "The displayed prior memory value does not match its server binding.");
     }
+    // A newer namespace revision may come from an independently reviewed key.
+    // Exact epoch plus this key's prior hash/value remains the authorization fence.
   }
 }
 
@@ -147,7 +150,7 @@ function quoteReceipts(messages: Array<{ content: unknown }>, toolName = "manage
     for (const raw of message.content) {
       if (!raw || typeof raw !== "object") continue;
       const part = raw as { type?: unknown; toolName?: unknown; output?: unknown };
-      if (part.type !== "tool-result" || part.toolName !== toolName || !part.output || typeof part.output !== "object") continue;
+      if (part.type !== "tool-result" || !(toolName === "manage_quote" ? isQuoteWriteTool(part.toolName) : part.toolName === toolName) || !part.output || typeof part.output !== "object") continue;
       const output = part.output as { type?: unknown; value?: unknown };
       if (output.type !== "json" || !output.value || typeof output.value !== "object") continue;
       const record = (output.value as { record?: unknown }).record;

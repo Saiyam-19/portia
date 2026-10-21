@@ -193,7 +193,8 @@ it("persists and recomputes dated estimates without authoritative baselines, ran
   const second = await session.update({ pricing: "official", services: ["berth"], call: { port: "Finolex", callDate: date, loa: "140", occupancy: { hours: "3" } } });
   if (!("quoteId" in second)) throw Error("Expected second reference");
   const comparison = await session.compare({ quoteIds: [saved.quoteId, second.quoteId], currency: "INR" });
-  expect(comparison.status).toBe("error"); expect(comparison.body).toMatch(/reference|unconfirmed|conditional/i);
+  expect(comparison).toMatchObject({ status: "unresolved", availability: "unavailable" }); expect(comparison.body).toMatch(/reference|unconfirmed|conditional/i);
+  expect(comparison).not.toHaveProperty("converted"); expect(comparison.body).not.toContain("lower total");
   const restored = new QuoteSession("public-reference");
   await restored.initialize([{ role: "tool", content: [{ type: "tool-result", toolName: "manage_quote", toolCallId: "saved", output: { type: "json", value: saved } }] }] as ModelMessage[]);
   expect(restored.quotes.get(saved.quoteId)?.baseline).toBeUndefined();

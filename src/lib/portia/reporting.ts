@@ -1,5 +1,6 @@
 import DecimalJs from "decimal.js";
 import { money, type QuoteCommand, type QuoteResult } from "./quotes";
+import { exactValue, rational, roundRational, sameExact, sumExact } from "./fx-conversion";
 
 const D = DecimalJs.clone({ precision: 40, rounding: DecimalJs.ROUND_HALF_UP });
 
@@ -9,14 +10,14 @@ export function reportQuote(result: QuoteResult, rounding: QuoteCommand["reporti
   if (!rounding || !result.totals?.length) return result;
   const reported = [];
   for (const total of result.totals) {
-    if (rounding.stage === "line" && (!total.lineAmounts?.length || !D.sum(...total.lineAmounts).eq(total.amount))) {
+    if (rounding.stage === "line" && (!total.lineAmounts?.length || !sameExact(sumExact(total.lineAmounts), total.amount))) {
       const issue = "The requested line-rounded report cannot be produced: source lines do not reconcile to the saved total. An unallocated total adjustment cannot be dropped. Exact source amounts are retained below.";
       return { ...result, body: `**Requested report unavailable**\n\n${issue}\n\n${result.body}`, reporting: { ...rounding, status: "unavailable", totals: [], issues: [issue] } };
     }
     const amount = rounding.stage === "line"
-      ? D.sum(...total.lineAmounts!.map(value => new D(value).toDecimalPlaces(rounding.decimals)))
-      : new D(total.amount).toDecimalPlaces(rounding.decimals);
-    reported.push({ currency: total.currency, exactAmount: total.amount, amount: amount.toFixed(rounding.decimals) });
+      ? sumExact(total.lineAmounts!.map(value => exactValue(roundRational(rational(value), rounding.decimals))))
+      : exactValue(roundRational(rational(total.amount), rounding.decimals));
+    reported.push({ currency: total.currency, exactAmount: total.amount, amount: new D(amount).toFixed(rounding.decimals) });
   }
   const partial = result.status === "unresolved" || result.status === "error" || result.questions.length > 0;
   const label = partial ? "identified subtotal, scope incomplete" : "included-scope total";

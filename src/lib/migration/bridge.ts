@@ -1,6 +1,7 @@
 import "server-only";
 import { migrationServerConfig } from "./config";
 import { AuthTokenError } from "./auth-errors";
+import { MAX_PUBLICATION_SERIALIZED_BYTES, PublicationLimitError } from "./publication-contract";
 
 const MIN_TOKEN_TTL_SECONDS = 300;
 const REFRESH_INTERVAL_MS = 45_000;
@@ -106,7 +107,8 @@ export async function callMigrationBridge<T>(
 ): Promise<T> {
   const { convexSiteUrl, serverSecret } = migrationServerConfig();
   const serialized = JSON.stringify(body);
-  if (Buffer.byteLength(serialized, "utf8") > 128_000) {
+  if (Buffer.byteLength(serialized, "utf8") > MAX_PUBLICATION_SERIALIZED_BYTES) {
+    if (body && typeof body === "object" && "op" in body && body.op === "complete") throw new PublicationLimitError();
     throw new Error("Bridge request is too large.");
   }
   const response = await fetch(`${convexSiteUrl}/migration/bridge`, {

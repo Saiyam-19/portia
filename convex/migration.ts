@@ -1,7 +1,6 @@
 import { ensureMemory, memoryEnabled, assertRunMemory, runMemoryCurrent, deleteConversationMemory, hashMemory } from "./lib/memoryLifecycle";
 import {
   createThread,
-  extractText,
   listMessages as listAgentMessages,
   saveMessages,
   vMessage,
@@ -11,6 +10,7 @@ import {
   paginationResultValidator,
 } from "convex/server";
 import { ConvexError, v } from "convex/values";
+import { assertPublicationFits, PUBLICATION_LIMIT_MESSAGE } from "../src/lib/migration/publication-contract";
 import { components, internal } from "./_generated/api";
 import type { Doc, Id } from "./_generated/dataModel";
 import {
@@ -18,10 +18,11 @@ import {
   mutation,
   internalQuery,
   type MutationCtx,
+  type QueryCtx,
   query,
 } from "./_generated/server";
 import { authComponent } from "./auth";
-import { hasQuoteDrafts } from "../src/lib/portia/quote-drafts";
+import { discardedDraftsForReview, hasQuoteDrafts } from "../src/lib/portia/quote-drafts";
 import {
   APPROVE,
   REJECT,
@@ -54,18 +55,47 @@ import {
   vAuthorization,
   vQuoteApproval,
   vRunStatus,
+  vRemainingObligations,
 } from "./validators";
 
 const MAX_QUESTION_CHARS = 4_000;
 const MAX_CONTEXT_MESSAGES = 200;
 const MAX_CONTEXT_CHARS = 200_000;
+function discardablePackets(payloads: string[]): AuthorityPacket[] {
+  return payloads.flatMap(payload => {
+    try { return [checkedPacket(payload)]; }
+    catch { return []; } // A damaged/expired review must remain rejectable.
+  });
+}
+/** Recover discard provenance for existing native rejections too. The form
+ * record, never model-authored text, determines which proposals were declined.
+ * History stays stored verbatim; both replay consumers receive the same view. */
+async function restoreNativeDraftDiscards<T extends { role: string; content: unknown }>(ctx: Pick<QueryCtx, "db">, conversation: Doc<"migrationConversations">, messages: T[]): Promise<T[]> {
+  const history: T[] = [];
+  for (const message of messages) {
+    if (message.role !== "tool" || !Array.isArray(message.content)) { history.push(message); continue; }
+    const parts = [...message.content];
+    for (let index = 0; index < parts.length; index++) {
+      const part = parts[index], body = part?.output?.value;
+      if (part?.type !== "tool-result" || part.toolName !== "ask_user_input" || part.output?.type !== "json" || !body || typeof body !== "object" || body.discardedQuoteDrafts !== undefined || !["rejected", "cancelled"].includes(body.resolutionReason)) continue;
+      const form = await ctx.db.query("migrationForms").withIndex("by_conversation_and_tool_call_id", q => q.eq("conversationId", conversation._id).eq("toolCallId", part.toolCallId)).unique();
+      if (!form?.authorization || form.ownerId !== conversation.ownerId || !form.resolvedAt || form.resolutionReason !== body.resolutionReason || form.note?.trim()
+        || canonical({ values: form.values ?? {}, cancelled: form.status === "cancelled", note: form.note ?? "" }) !== canonical({ values: body.values ?? {}, cancelled: body.cancelled, note: body.note ?? "" })) continue;
+      const discardedQuoteDrafts = await discardedDraftsForReview(history, conversation._id, discardablePackets([form.authorization.payload, ...(form.continuation ?? []).map(item => item.payload)]), body.resolutionReason);
+      if (discardedQuoteDrafts) parts[index] = { ...part, output: { ...part.output, value: { ...body, discardedQuoteDrafts } } };
+    }
+    history.push({ ...message, content: parts });
+  }
+  return history;
+}
+
 async function draftHistory(ctx: MutationCtx, conversation: Doc<"migrationConversations">) {
   const result = await listAgentMessages(ctx, components.agent, {
     threadId: conversation.agentThreadId,
     paginationOpts: { cursor: null, numItems: MAX_CONTEXT_MESSAGES + 1 }, excludeToolMessages: false,
   });
   if (!result.isDone || result.page.length > MAX_CONTEXT_MESSAGES) throw new ConvexError({ code: "CONTEXT_LIMIT", message: "Quotation draft history exceeds the conversation limit." });
-  const messages = [...result.page].sort((a, b) => a.order - b.order || a.stepOrder - b.stepOrder).flatMap(doc => doc.message ? [doc.message] : []);
+  const messages = await restoreNativeDraftDiscards(ctx, conversation, [...result.page].sort((a, b) => a.order - b.order || a.stepOrder - b.stepOrder).flatMap(doc => doc.message ? [doc.message] : []));
   if (messages.reduce((sum, message) => sum + JSON.stringify(message).length, 0) > MAX_CONTEXT_CHARS) throw new ConvexError({ code: "CONTEXT_LIMIT", message: "Quotation draft history exceeds the context size limit." });
   return messages;
 }
@@ -128,6 +158,7 @@ const messageProjectionValidator = v.object({
   stepOrder: v.number(),
   runId: v.union(v.id("migrationRuns"), v.null()),
   runStatus: v.union(vRunStatus, v.null()),
+  completionDisposition: v.optional(v.literal("incomplete")),
   status: v.union(
     v.literal("pending"),
     v.literal("success"),
@@ -139,9 +170,9 @@ type SafeMessagePart =
   | { type: "text"; text: string }
   | { type: "tool"; toolCallId: string; toolName: string; status: "called" | "completed" | "error" };
 
-function safeMessageParts(content: unknown): SafeMessagePart[] {
+function safeMessageParts(content: unknown, allowArrayText = true): SafeMessagePart[] {
   if (typeof content === "string") {
-    return content ? [{ type: "text" as const, text: content.slice(0, 32_000) }] : [];
+    return content ? [{ type: "text" as const, text: content }] : [];
   }
   if (!Array.isArray(content)) return [];
   const safe: SafeMessagePart[] = [];
@@ -149,7 +180,7 @@ function safeMessageParts(content: unknown): SafeMessagePart[] {
     if (!raw || typeof raw !== "object") continue;
     const part = raw as Record<string, unknown>;
     if (part.type === "text" && typeof part.text === "string") {
-      safe.push({ type: "text", text: part.text.slice(0, 32_000) });
+      if (allowArrayText) safe.push({ type: "text", text: part.text });
       continue;
     }
     if (
@@ -256,7 +287,7 @@ function checkedApprovalProposal(payload: string, form: NonNullable<Parameters<t
   return packet;
 }
 
-const PRIVATE_CONVERSATION_TOOLS = new Set(["interpret_request", "execute_conversation", "complete_auxiliary", "port_information", "manage_quote", "compare_quotes"]);
+const PRIVATE_CONVERSATION_TOOLS = new Set(["interpret_request", "execute_conversation", "complete_auxiliary", "port_information", "manage_quote", "supplied_quote", "official_quote", "read_quotes", "compare_quotes", "finish_turn"]);
 const RETIRED_TOOLS = new Set(["interpret_request", "execute_conversation", "complete_auxiliary", "consult_port_agent", "calculate_supplied_quote"]);
 const ALLOWED_MAIN_TOOLS = new Set([
   ...PRIVATE_CONVERSATION_TOOLS,
@@ -289,8 +320,13 @@ function validateToolHistory(
         toolName?: unknown;
         toolCallId?: unknown;
         input?: unknown;
+        output?: unknown;
       };
       if (candidate.type === "tool-result") {
+        const output = candidate.output as { type?: unknown; value?: unknown } | undefined;
+        if (!historical && output?.type === "json" && output.value && typeof output.value === "object" && "discardedQuoteDrafts" in output.value) {
+          fail("UNTRUSTED_DRAFT_DISCARD", "Only a native review response can discard quotation drafts.");
+        }
         if (typeof candidate.toolCallId !== "string" || typeof candidate.toolName !== "string") {
           fail("INVALID_TOOL_RESULT", "Tool result is malformed.");
         }
@@ -604,18 +640,19 @@ export const listConversationMessages = query({
         const message = doc.message;
         const role = message?.role;
         if (!message || (role !== "user" && role !== "assistant" && role !== "tool")) return [];
-        const parts = safeMessageParts(message.content);
         const run = await ctx.db.query("migrationRuns").withIndex("by_conversation_and_prompt_position", q => q.eq("conversationId", args.conversationId).eq("promptOrder", doc.order).lte("promptStepOrder", doc.stepOrder)).order("desc").first();
+        const parts = safeMessageParts(message.content, !(role === "assistant" && run?.publicTextVersion === 1));
         return [{
           id: doc._id,
           role: role === "user" ? "user" as const : "assistant" as const,
-          text: (extractText(message) ?? "").slice(0, 32_000),
+          text: parts.flatMap(part => part.type === "text" ? [part.text] : []).join("\n"),
           parts,
           order: doc.order,
           stepOrder: doc.stepOrder,
           status: doc.status,
           runId: run?._id ?? null,
           runStatus: run?.status ?? null,
+          ...(run?.errorCode === "INCOMPLETE_WORK" ? { completionDisposition: "incomplete" as const } : {}),
         }];
       }))).flat(),
     };
@@ -856,6 +893,11 @@ export const resolveFormAndClaim = internalMutation({
       });
       await validateAuthorityBase(ctx, conversation, packet, await draftHistory(ctx, conversation));
     }
+    const discardedQuoteDrafts = declined && form.authorization
+      ? await discardedDraftsForReview(await draftHistory(ctx, conversation), conversation._id,
+        discardablePackets([form.authorization.payload, ...(form.continuation ?? []).map(item => item.payload)]),
+        args.cancelled ? "cancelled" : "rejected")
+      : undefined;
     await assertUserRunCapacity(ctx, args.ownerId);
     await consumeBudget(ctx, args.ownerId, "run");
 
@@ -871,7 +913,7 @@ export const resolveFormAndClaim = internalMutation({
           toolName: "ask_user_input",
           output: {
             type: "json",
-            value: { cancelled: args.cancelled, values: args.values, note: args.note ?? "", resolutionReason },
+            value: { cancelled: args.cancelled, values: args.values, note: args.note ?? "", resolutionReason, ...(discardedQuoteDrafts ? { discardedQuoteDrafts } : {}) },
           },
         }],
       }],
@@ -908,6 +950,7 @@ export const resolveFormAndClaim = internalMutation({
       ...(declined ? { authorizationDeclined: true } : {}),
       authorizationResolutionReason: resolutionReason,
       ...((approved || resolutionReason === "submitted") && form.continuation?.length ? {authorizationContinuation:form.continuation} : {}),
+      ...(approved&&form.remainingObligations?{remainingObligations:form.remainingObligations}:{}),
       startedAt: now,
       updatedAt: now,
     });
@@ -951,6 +994,7 @@ export const getRunContext = internalQuery({
     authorizationDeclined: v.optional(v.boolean()),
     authorizationResolutionReason: v.optional(v.string()),
     authorizationContinuation: v.optional(v.array(v.object({payload:v.string(),toolCallId:v.string(),title:v.string(),description:v.optional(v.string()),fields:v.array(vFormField),reviewGroup:v.string()}))),
+    remainingObligations:v.optional(vRemainingObligations),
     authorityContext: v.object({
       quotes: v.array(vQuoteApproval),
       comparisons: v.array(v.string()),
@@ -975,9 +1019,9 @@ export const getRunContext = internalQuery({
     if (!result.isDone || result.page.length > MAX_CONTEXT_MESSAGES) {
       fail("CONTEXT_LIMIT", `Conversation exceeds ${MAX_CONTEXT_MESSAGES} stored messages.`);
     }
-    const messages = [...result.page]
+    const messages = await restoreNativeDraftDiscards(ctx, conversation, [...result.page]
       .sort((a, b) => a.order - b.order || a.stepOrder - b.stepOrder)
-      .flatMap((doc) => (doc.message ? [doc.message] : []));
+      .flatMap((doc) => (doc.message ? [doc.message] : [])));
     if (messages.reduce((total, message) => total + JSON.stringify(message).length, 0) > MAX_CONTEXT_CHARS) {
       fail("CONTEXT_LIMIT", `Conversation exceeds ${MAX_CONTEXT_CHARS} serialized context characters.`);
     }
@@ -995,6 +1039,7 @@ export const getRunContext = internalQuery({
       ...(run.authorizationDeclined ? { authorizationDeclined: true } : {}),
       ...(run.authorizationResolutionReason ? { authorizationResolutionReason: run.authorizationResolutionReason } : {}),
       ...(run.authorizationContinuation ? { authorizationContinuation: run.authorizationContinuation } : {}),
+      ...(run.remainingObligations?{remainingObligations:run.remainingObligations}:{}),
       authorityContext: {
         quotes: conversation.quoteApprovals ?? [],
         comparisons: conversation.comparisonApprovals ?? [],
@@ -1053,19 +1098,21 @@ export const checkpointRun = internalMutation({
     }
     await validateQuoteReceipts(args.responseMessages, conversation._id, undefined, false,
       hasQuoteDrafts(args.responseMessages) ? await draftHistory(ctx, conversation) : []);
+    // Preserve model context and paired tools privately. A provider's plain
+    // assistant string is normalized to the private array representation too.
+    const privateMessages: typeof args.responseMessages = args.responseMessages.map(message => message.role === "assistant" && typeof message.content === "string"
+      ? { ...message, content: [{ type: "text" as const, text: message.content }] } : message);
     await saveMessages(ctx, components.agent, {
       threadId: conversation.agentThreadId,
       userId: args.ownerId,
       promptMessageId: run.promptMessageId,
-      messages: args.responseMessages,
+      messages: privateMessages,
     });
-    const hasText = args.responseMessages.some(
-      (message) => message.role === "assistant" && (extractText(message) ?? "").trim().length > 0,
-    );
     await ctx.db.patch(run._id, {
+      publicTextVersion: 1,
       checkpointStep: args.stepNumber,
       checkpointHash: args.payloadHash,
-      checkpointHasText: hasText,
+      checkpointHasText: false,
       checkpointFinishReason: args.finishReason,
       updatedAt: Date.now(),
     });
@@ -1104,35 +1151,58 @@ export const completeRun = internalMutation({
     responseMessages: v.array(vMessage),
     form: v.union(vFormInput, v.null()),
     finishReason: v.optional(vFinishReason),
+    incomplete: v.optional(v.literal(true)),
     authorizationProposal: v.optional(v.string()),
     authorizationContinuation: v.optional(v.array(v.object({payload:v.string(),toolCallId:v.string(),title:v.string(),description:v.optional(v.string()),fields:v.array(vFormField),reviewGroup:v.string()}))),
+    remainingObligations:v.optional(vRemainingObligations),
   },
-  returns: v.object({ state: vConversationState, revision: v.number() }),
-  handler: async (ctx, args): Promise<{ state: "waiting" | "idle"; revision: number }> => {
+  returns: v.object({ state: vConversationState, revision: v.number(), publicText: v.optional(v.string()) }),
+  handler: async (ctx, args): Promise<{ state: "waiting" | "idle" | "error"; revision: number; publicText?: string }> => {
     requireMigrationDevEnabled();
     if (args.responseMessages.length > 12) {
       fail("INVALID_OUTPUT", "Generated message count is out of bounds.");
     }
+    try {
+      const wireArgs = Object.fromEntries(Object.entries(args).filter(([name]) => name !== "ownerId"));
+      assertPublicationFits({ op: "complete", args: wireArgs });
+    } catch {
+      fail("PUBLICATION_LIMIT", PUBLICATION_LIMIT_MESSAGE);
+    }
     let proposalPacket: AuthorityPacket | undefined;
+    const stagedOperationIds=new Set<string>();
     if (args.authorizationProposal !== undefined) {
       if (!args.form) fail("INVALID_AUTHORIZATION", "An exact-operation proposal requires its complete review form.");
       validateFormDefinition(args.form, MAX_REVIEW_CHARS);
       proposalPacket = checkedApprovalProposal(args.authorizationProposal, args.form);
+      for(const operation of proposalPacket.operations){if(stagedOperationIds.has(operation.id))fail("INVALID_AUTHORIZATION","Duplicate operation ID across review groups.");stagedOperationIds.add(operation.id);}
       if ((args.authorizationContinuation?.length ?? 0) > 15) fail("INVALID_AUTHORIZATION", "Too many staged review groups.");
       for (const successor of args.authorizationContinuation ?? []) {
         const form={toolCallId:successor.toolCallId,title:successor.title,description:successor.description,fields:successor.fields};
-        validateFormDefinition(form, MAX_REVIEW_CHARS); checkedApprovalProposal(successor.payload, form);
+        validateFormDefinition(form, MAX_REVIEW_CHARS); const successorPacket=checkedApprovalProposal(successor.payload, form);
+        for(const operation of successorPacket.operations){if(stagedOperationIds.has(operation.id))fail("INVALID_AUTHORIZATION","Duplicate operation ID across review groups.");stagedOperationIds.add(operation.id);}
       }
     } else if (args.form) validateFormDefinition(args.form);
+    for(const outcome of args.remainingObligations?.outcomes??[])for(const branch of outcome.branches){
+      if(branch.disposition==="awaiting_approval"&&!branch.operationId)fail("INVALID_OBLIGATIONS","Awaiting-review obligations require their server operation ID.");
+      if(branch.operationId&&!stagedOperationIds.has(branch.operationId))fail("INVALID_OBLIGATIONS","Remaining obligation refers to an operation outside the staged review queue.");
+    }
     if (args.authorizationContinuation?.length && !args.form) fail("INVALID_AUTHORIZATION", "Review continuation requires the active native form.");
+    if(args.remainingObligations){
+      if(new TextEncoder().encode(JSON.stringify(args.remainingObligations)).byteLength>64_000||args.remainingObligations.outcomes.length>256)fail("INVALID_OBLIGATIONS","Remaining obligations exceed the persisted bound.");
+      for(const outcome of args.remainingObligations.outcomes){
+        if(!outcome.branches.length||outcome.branches.length>256)fail("INVALID_OBLIGATIONS","Remaining obligation branch count is invalid.");
+        for(const branch of outcome.branches)if(branch.comparisonCurrency!==undefined&&!/^[A-Z]{3}$/.test(branch.comparisonCurrency)||branch.targets.length>24||branch.targets.some(value=>!value||value.length>120)||branch.questions.some(value=>!value||new TextEncoder().encode(value).byteLength>128_000)||branch.detail!==undefined&&(!branch.detail||new TextEncoder().encode(branch.detail).byteLength>128_000)||branch.operationId!==undefined&&!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(branch.operationId)||branch.reportingView&&(branch.reportingView.stage==="exact"?branch.reportingView.decimals!==undefined:branch.reportingView.decimals===undefined||!Number.isInteger(branch.reportingView.decimals)||branch.reportingView.decimals<0||branch.reportingView.decimals>8)||branch.quoteState&&(branch.quoteState.quoteIds.length<1||branch.quoteState.quoteIds.length>24||branch.quoteState.quoteIds.some(id=>!id||id.length>100)||!/^[a-f0-9]{64}$/.test(branch.quoteState.digest)))fail("INVALID_OBLIGATIONS","Remaining obligation fields are invalid.");
+      }
+    }
+    if(args.remainingObligations?.outcomes.length&&(!proposalPacket||!args.form))fail("INVALID_OBLIGATIONS","Remaining obligations require the active exact review.");
     if (args.authorizationContinuation?.length && args.authorizationProposal === undefined) for (const successor of args.authorizationContinuation) {
       const successorForm={toolCallId:successor.toolCallId,title:successor.title,description:successor.description,fields:successor.fields};
       validateFormDefinition(successorForm,MAX_REVIEW_CHARS);checkedApprovalProposal(successor.payload,successorForm);
     }
     validateCompletionMessages(args.responseMessages, args.form);
-    const finalHasText = args.responseMessages.some(
-      (message) => message.role === "assistant" && (extractText(message) ?? "").trim().length > 0,
-    );
+    const publicAnswers = args.responseMessages.filter(message => message.role === "assistant" && typeof message.content === "string");
+    if (publicAnswers.length > 1) fail("INVALID_PUBLIC_ANSWER", "Completion requires one canonical public answer, not several independent reconstructions.");
+    const finalHasText = publicAnswers.some(message => typeof message.content === "string" && message.content.trim().length > 0);
     const run = await ctx.db.get(args.runId);
     if (!run || run.ownerId !== args.ownerId) fail("NOT_FOUND", "Run not found.");
     await assertRunMemory(ctx, run);
@@ -1159,18 +1229,51 @@ export const completeRun = internalMutation({
       await validateQuoteReceipts(args.responseMessages, conversation._id, undefined, false, persisted);
       if (proposalPacket) await validateAuthorityBase(ctx, conversation, proposalPacket, [...persisted, ...args.responseMessages]);
     }
-    const terminalHasText = args.responseMessages.length > 0 ? finalHasText : Boolean(run.checkpointHasText);
+    const terminalHasText = finalHasText;
     const terminalFinishReason = args.finishReason ?? run.checkpointFinishReason;
-    if (!args.form && (!terminalHasText || terminalFinishReason !== "stop")) {
+    // Incomplete work is an explicit server disposition, never a fabricated
+    // successful model stop. Keep the raw checkpoint reason and failure state.
+    if (args.incomplete && (run.authorization || !finalHasText || !["stop", "tool-calls", "length"].includes(terminalFinishReason ?? ""))) {
+      fail("INVALID_INCOMPLETE_OUTPUT", "Incomplete work requires a readable partial answer and a bounded model exit, without approved execution.");
+    }
+    if (!args.form && (!terminalHasText || terminalFinishReason !== "stop" && !args.incomplete)) {
       fail("INCOMPLETE_OUTPUT", "Model returned no readable answer with a clean terminal stop.");
     }
 
+    const ledger = executionPacket ? await authorityLedgerUpdates(conversation, executionPacket) : undefined;
+    const appliedOperationIds = new Set(executionPacket?.operations.map(operation => operation.id) ?? []);
+    const remainingAfterApproval = run.remainingObligations ? { ...run.remainingObligations, outcomes: run.remainingObligations.outcomes.flatMap(outcome => {
+      const branches = outcome.branches.filter(branch => !(branch.disposition === "awaiting_approval" && branch.operationId && appliedOperationIds.has(branch.operationId)));
+      return branches.length ? [{ ...outcome, branches }] : [];
+    }) } : undefined;
+    const successor = args.form ? undefined : run.authorizationContinuation?.[0];
+    let successorDeferred = false;
+    if (successor) {
+      // Validate before publishing. Only validation is recoverable here; a
+      // persistence error below must roll the whole mutation back.
+      try {
+        const packet = checkedApprovalProposal(successor.payload, { toolCallId: successor.toolCallId, title: successor.title, description: successor.description, fields: successor.fields });
+        await validateAuthorityBase(ctx, { ...conversation, ...ledger }, packet, [...persisted, ...args.responseMessages]);
+      } catch { successorDeferred = true; }
+    }
+    const deferredNotice = "Remaining exact-review work was deferred because its current saved base could not be validated. No successor review was opened; send a follow-up to restage it.";
+    let publicText = publicAnswers.length ? String(publicAnswers[0].content) : undefined;
+    if (successorDeferred) publicText = [publicText, deferredNotice].filter(Boolean).join("\n\n");
+    const publicResult = publicText === undefined ? {} : { publicText };
+    const responseMessages = args.responseMessages.map(message => message.role === "assistant" && typeof message.content === "string"
+      ? { ...message, content: publicText ?? "" } : message);
+    try { assertPublicationFits({ op: "complete", args: { ...Object.fromEntries(Object.entries(args).filter(([name]) => name !== "ownerId")), responseMessages } }); }
+    catch { fail("PUBLICATION_LIMIT", PUBLICATION_LIMIT_MESSAGE); }
+
+    // A final public answer is the server's canonical plain string. All model
+    // arrays retained in this run remain context, not a second public answer.
+    await ctx.db.patch(run._id, { publicTextVersion: 1 });
     if (args.responseMessages.length > 0) {
       await saveMessages(ctx, components.agent, {
         threadId: conversation.agentThreadId,
         userId: args.ownerId,
         promptMessageId: run.promptMessageId,
-        messages: args.responseMessages,
+        messages: responseMessages,
       });
     }
     const now = Date.now();
@@ -1195,9 +1298,10 @@ export const completeRun = internalMutation({
         status: "pending",
         ...(proposalPacket ? { authorization: { payload: args.authorizationProposal!, expiresAt: now + AUTHORITY_TTL_MS } } : {}),
         ...(args.authorizationContinuation?.length ? {continuation:args.authorizationContinuation} : {}),
+        ...(args.remainingObligations?.outcomes.length?{remainingObligations:args.remainingObligations}:{}),
         createdAt: now,
       });
-      await ctx.db.patch(run._id, { status: "waiting", updatedAt: now });
+      await ctx.db.patch(run._id, { status: "waiting", ...(args.incomplete ? { errorCode: "INCOMPLETE_WORK" } : {}), updatedAt: now });
       await ctx.db.patch(conversation._id, {
         revision,
         state: "waiting",
@@ -1205,37 +1309,33 @@ export const completeRun = internalMutation({
         pendingFormId: formId,
         updatedAt: now,
       });
-      return { state: "waiting", revision };
+      return { state: "waiting", revision, ...publicResult };
     }
 
-    const ledger = executionPacket ? await authorityLedgerUpdates(conversation, executionPacket) : undefined;
-    const successor = run.authorizationContinuation?.[0];
     if (successor) {
-      try {
-        const successorPacket=checkedApprovalProposal(successor.payload,{toolCallId:successor.toolCallId,title:successor.title,description:successor.description,fields:successor.fields});
-        await validateAuthorityBase(ctx,{...conversation,...ledger},successorPacket,[...persisted,...args.responseMessages]);
+      if (!successorDeferred) {
         const rest=run.authorizationContinuation!.slice(1);
         await saveMessages(ctx,components.agent,{threadId:conversation.agentThreadId,userId:args.ownerId,promptMessageId:run.promptMessageId,messages:[{role:"assistant",content:[{type:"tool-call",toolName:"ask_user_input",toolCallId:successor.toolCallId,input:{title:successor.title,description:successor.description,fields:successor.fields}}]}]});
-        const formId=await ctx.db.insert("migrationForms",{conversationId:conversation._id,ownerId:args.ownerId,runId:run._id,fence:run.fence,toolCallId:successor.toolCallId,title:successor.title,description:successor.description,fields:successor.fields,status:"pending",authorization:{payload:successor.payload,expiresAt:now+AUTHORITY_TTL_MS},...(rest.length?{continuation:rest}:{}),createdAt:now});
+        const formId=await ctx.db.insert("migrationForms",{conversationId:conversation._id,ownerId:args.ownerId,runId:run._id,fence:run.fence,toolCallId:successor.toolCallId,title:successor.title,description:successor.description,fields:successor.fields,status:"pending",authorization:{payload:successor.payload,expiresAt:now+AUTHORITY_TTL_MS},...(rest.length?{continuation:rest}:{}),...(remainingAfterApproval?.outcomes.length?{remainingObligations:remainingAfterApproval}:{}),createdAt:now});
         await ctx.db.patch(run._id,{status:"waiting",authorization:undefined,authorizationContinuation:undefined,updatedAt:now});
         await ctx.db.patch(conversation._id,{revision,state:"waiting",activeRunId:undefined,pendingFormId:formId,...(ledger??{}),updatedAt:now});
-        return {state:"waiting",revision};
-      } catch {
-        await saveMessages(ctx,components.agent,{threadId:conversation.agentThreadId,userId:args.ownerId,promptMessageId:run.promptMessageId,messages:[{role:"assistant",content:"Approved operations were applied. Remaining exact-review work was deferred because its saved base changed; send a follow-up to restage it."}]});
+        return {state:"waiting",revision,...publicResult};
+      } else {
         await ctx.db.patch(run._id,{status:"completed",authorization:undefined,authorizationContinuation:undefined,updatedAt:now});
         await ctx.db.patch(conversation._id,{revision,state:"idle",activeRunId:undefined,...(ledger??{}),lastError:"Remaining exact-review work was deferred because its base changed; completed approved work was preserved.",updatedAt:now});
-        return {state:"idle",revision};
+        return {state:"idle",revision,...publicResult};
       }
     }
-    await ctx.db.patch(run._id, { status: "completed", updatedAt: now });
+    await ctx.db.patch(run._id, { status: args.incomplete ? "error" : "completed", ...(args.incomplete ? { errorCode: "INCOMPLETE_WORK" } : {}), updatedAt: now });
     await ctx.db.patch(conversation._id, {
       revision,
-      state: "idle",
+      state: args.incomplete ? "error" : "idle",
       activeRunId: undefined,
       ...(ledger ?? {}),
+      ...(args.incomplete ? { lastError: "Some requested work remains incomplete. Tool-backed partial results were preserved; send a follow-up to continue." } : {}),
       updatedAt: now,
     });
-    return { state: "idle", revision };
+    return { state: args.incomplete ? "error" : "idle", revision, ...publicResult };
   },
 });
 

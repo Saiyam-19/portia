@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { bytesToHex, utf8ToBytes } from "@noble/hashes/utils.js";
+import { memoryKeySchema, memoryValueSchema } from "../memory/input";
 
 export const AUTHORITY_VERSION = 1;
 export const AUTHORITY_VERSION_V2 = 2;
@@ -8,6 +9,9 @@ export const AUTHORITY_TTL_MS = 15 * 60_000;
 export const MAX_REVIEW_CHARS = 12_000;
 export const APPROVE = "Approve exactly as shown";
 export const REJECT = "Reject";
+export class ReviewCapacityError extends Error {
+  constructor(message: string) { super(message); this.name = "ReviewCapacityError"; }
+}
 const jsonObject = z.record(z.string(), z.unknown());
 const binding = z.object({ quoteId: z.string().min(1).max(100), revision: z.number().int().nonnegative(), digest: z.string().regex(/^[a-f0-9]{64}$/) }).strict();
 export const quoteCoreSchema = z.object({
@@ -20,7 +24,7 @@ const operationBase = { id: z.string().uuid() };
 export const authorityOperationSchema = z.discriminatedUnion("kind", [
   z.object({ ...operationBase, kind: z.literal("quote"), quote: quoteCoreSchema, before: binding.nullable(), previous: quoteCoreSchema.nullable(), preview: z.object({ totals: z.array(z.object({ currency: z.string(), amount: z.string() }).strict()).min(1).max(16) }).strict().optional() }).strict(),
   z.object({ ...operationBase, kind: z.literal("comparison"), input: jsonObject, quotes: z.array(binding.extend({ name: z.string().max(120) })).min(2).max(8) }).strict(),
-  z.object({ ...operationBase, kind: z.enum(["remember", "forget"]), key: z.string().regex(/^[a-z][a-z0-9_]{0,79}$/), value: z.string().min(1).max(1024).refine(value => value.trim().length > 0 && !value.includes("\0") && new TextEncoder().encode(value).length <= 1024, "Memory value must contain text and fit 1024 UTF-8 bytes.").optional(), previousValue: z.string().max(1024).nullable(), previousValueHash: z.string().regex(/^[a-f0-9]{64}$/).nullable(), memoryEpoch: z.number().int().nonnegative(), memoryRevision: z.number().int().nonnegative() }).strict(),
+  z.object({ ...operationBase, kind: z.enum(["remember", "forget"]), key: memoryKeySchema, value: memoryValueSchema.optional(), previousValue: memoryValueSchema.nullable(), previousValueHash: z.string().regex(/^[a-f0-9]{64}$/).nullable(), memoryEpoch: z.number().int().nonnegative(), memoryRevision: z.number().int().nonnegative() }).strict(),
 ]);
 const packetBase = z.object({ operations: z.array(authorityOperationSchema).min(1).max(4) });
 type Operation = z.infer<typeof authorityOperationSchema>;
@@ -65,7 +69,7 @@ export function quoteCore(quote: { id: string; revision: number; name: string; p
 }
 export function comparisonCore(op: Extract<AuthorityOperation, { kind: "comparison" }>) { return { input: op.input, quotes: op.quotes.map(({ quoteId, revision, digest }) => ({ quoteId, revision, digest })) }; }
 export function parsePacket(payload: string): AuthorityPacket {
-  if (new TextEncoder().encode(payload).byteLength > 48_000) throw new Error("Approval payload is too large; split the request.");
+  if (new TextEncoder().encode(payload).byteLength > 48_000) throw new ReviewCapacityError("Approval payload is too large; split the request.");
   return authorityPacketSchema.parse(JSON.parse(payload));
 }
 const labels: Record<string, string> = { gt: "Gross tonnage (GT)", nt: "Net tonnage (NT)", dwt: "Deadweight tonnes", loa: "Length overall", cargoTonnes: "Cargo tonnes", fxInrPerUsd: "INR per USD", fxBasis: "FX source", fxDate: "FX date", taxPercent: "Tax percent", perQuantity: "Rate denominator", periodHours: "Billing period hours", commenced: "Charge commenced periods", amount: "Amount", rate: "Rate", currency: "Currency", minimum: "Minimum", maximum: "Maximum", unresolvedTerms: "Unresolved conditions", unresolvedHistory: "Unresolved historical conditions" };
@@ -103,7 +107,7 @@ export function reviewPacket(packet: AuthorityPacket): string {
     else parts.push("Forget cross-chat memory", `Key: ${visible(op.key)}`, "This also invalidates private working notes; chat history remains.");
   }
   const text = parts.join("\n");
-  if (text.length > MAX_REVIEW_CHARS) throw new Error("The complete review is too large. Split the request; no terms were truncated or approved.");
+  if (text.length > MAX_REVIEW_CHARS) throw new ReviewCapacityError("The complete review is too large. Split the request; no terms were truncated or approved.");
   return text;
 }
 export function approvalForm(packet: AuthorityPacket, toolCallId: string) {

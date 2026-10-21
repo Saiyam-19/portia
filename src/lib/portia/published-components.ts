@@ -2,12 +2,13 @@ import "server-only";
 import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import path from "node:path";
-import DecimalJs from "decimal.js";
+import { TariffNumber } from "./tariff-number";
 import packet from "../../../data/reviewed-tariffs/full-scope-2026/rules.json";
 import { calculateElapsedTime } from "../migration/elapsed-time";
-import type { TariffInput, TariffResult, TariffSource } from "./tariff-types";
+import type { TariffInput, TariffResult, TariffSource, TariffIssue } from "./tariff-types";
+import { addRational, compareRational, multiplyRational, rational, type ExactRational } from "./fx-conversion";
 
-const D = DecimalJs.clone({ precision: 40, rounding: DecimalJs.ROUND_HALF_UP });
+const D = TariffNumber;
 const JNPA = "jawahar-nehru-port-authority-jnpa", BMCT = "mumbai-container-terminal";
 const NSIGT = "nhava-sheva-gateway-terminal", NSICT = "nhava-sheva-international-container-terminal";
 const NSFT = "nhava-sheva-freeport-terminal", GTI = "gateway-terminals-india-pvt-ltd";
@@ -23,51 +24,106 @@ export function dateOf(raw: string | undefined, input: TariffInput): string | un
   const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date(parsed.startUtc));
   return ["year", "month", "day"].map(type => parts.find(p => p.type === type)!.value).join("-");
 }
+const durationIssue = (code: string, message: string, field?: keyof TariffInput): TariffIssue =>
+  ({ kind: "input", code, message, service: "berth", ...(field ? { field } : {}) });
+function suppliedDurationMilliseconds(input: TariffInput): { milliseconds?: ExactRational; issue?: TariffIssue } {
+  let milliseconds: ExactRational | undefined;
+  for (const [field, scale] of [["durationHours", "3600000"], ["durationMinutes", "60000"]] as const) {
+    const raw = input[field];
+    if (raw === undefined) continue;
+    if (typeof raw !== "string" || raw.length > 48 || !/^\d+(?:\.\d+)?$/.test(raw)
+      || compareRational(rational(raw), rational("0")) <= 0 || compareRational(rational(raw), rational("1e12")) > 0) {
+      return { issue: durationIssue("invalid-duration", `${field}: provide a positive decimal quantity within the supported range.`, field) };
+    }
+    const converted = multiplyRational(rational(raw), rational(scale));
+    if (milliseconds && compareRational(milliseconds, converted) !== 0) {
+      return { issue: durationIssue("duration-units-disagree", "The stated hours and minutes disagree; confirm total occupancy.") };
+    }
+    milliseconds = converted;
+  }
+  return { milliseconds };
+}
+
+/** One duration path for every tariff family. Original decimal quantities are
+ * compared in exact rational milliseconds with parsed timestamp instants,
+ * never with rounded decimal-hour output from the elapsed-time tool. */
+export function occupancyDuration(input: TariffInput): { milliseconds: ExactRational; hours: TariffNumber } | { issue: TariffIssue } {
+  const supplied = suppliedDurationMilliseconds(input);
+  if (supplied.issue) return { issue: supplied.issue };
+  let milliseconds = supplied.milliseconds;
+  if (input.berthStart && input.berthEnd) {
+    const time = calculateElapsedTime({ start: input.berthStart, end: input.berthEnd, timeZone: input.timeZone, dateOrder: input.dateOrder });
+    if (time.status !== "ok") return { issue: durationIssue("invalid-occupancy-interval", time.message) };
+    // Each parsed instant is a safe integer; subtract as bigint so even a
+    // calendar-spanning interval cannot lose an integer millisecond.
+    const elapsed = { numerator: BigInt(Date.parse(time.endUtc)) - BigInt(Date.parse(time.startUtc)), denominator: BigInt(1) };
+    if (milliseconds && compareRational(milliseconds, elapsed) !== 0) {
+      return { issue: durationIssue("duration-timestamps-disagree", "The occupancy duration and berth timestamps disagree.") };
+    }
+    milliseconds = elapsed;
+  }
+  if (!milliseconds || compareRational(milliseconds, rational("0")) <= 0) {
+    return { issue: durationIssue("missing-positive-occupancy", "What is the positive berth occupancy duration, or full start/end timestamps?") };
+  }
+  return { milliseconds, hours: new D(milliseconds).div(3600000) };
+}
+
 /** A dated rule must cover occupancy, not just the supplied call day. Date-only
  * starts represent an entire day; never invent midnight to fit an expiry. */
-export function berthPeriodIssue(input: TariffInput, from: string, through?: string): string | undefined {
+export function berthPeriodProblem(input: TariffInput, from: string, through?: string): TariffIssue | undefined {
   const raw = input.berthStart ?? input.callDate, startDay = dateOf(raw, input);
-  if (!startDay) return "Provide the unambiguous berth start or call date.";
+  if (!startDay) return durationIssue("missing-berth-date", "Provide the unambiguous berth start or call date.", input.berthStart ? "berthStart" : "callDate");
   const outside = (day: string) => day < from || !!through && day > through;
-  if (outside(startDay)) return `The published period ${from}${through ? ` through ${through}` : " onward"} does not cover the berth start.`;
+  const uncovered = (message: string): TariffIssue => ({ kind: "source", code: "uncovered-berth-period", message, service: "berth" });
+  if (outside(startDay)) return uncovered(`The published period ${from}${through ? ` through ${through}` : " onward"} does not cover the berth start.`);
   if (input.berthEnd) {
     const endDay = dateOf(input.berthEnd, input);
-    if (!endDay) return "Provide the unambiguous berth end date/time.";
-    if (outside(endDay)) return "The published schedule does not cover the complete berth interval; a matching source for the uncovered period is required.";
+    if (!endDay) return durationIssue("invalid-berth-end", "Provide the unambiguous berth end date/time.", "berthEnd");
+    if (outside(endDay)) return uncovered("The published schedule does not cover the complete berth interval; a matching source for the uncovered period is required.");
     return;
   }
-  const minutes = input.durationMinutes !== undefined ? new D(input.durationMinutes) : input.durationHours !== undefined ? new D(input.durationHours).mul(60) : undefined;
-  if (!minutes || !through) return;
+  const supplied = suppliedDurationMilliseconds(input);
+  if (supplied.issue) return supplied.issue;
+  if (!supplied.milliseconds || !through) return;
   if (raw && /\d{1,2}:\d{2}/.test(raw)) {
     const start = calculateElapsedTime({ start: raw, end: raw, timeZone: input.timeZone, dateOrder: input.dateOrder });
-    if (start.status !== "ok") return start.message;
-    const endMs = new D(new Date(start.startUtc).getTime()).plus(minutes.mul(60_000));
-    if (endMs.abs().gt("8640000000000000")) return "The stated occupancy exceeds the supported calendar range.";
-    const endDay = dateOf(new Date(endMs.toNumber()).toISOString(), input);
-    if (!endDay || outside(endDay)) return "The published schedule does not cover the complete berth interval; a matching source for the uncovered period is required.";
+    if (start.status !== "ok") return durationIssue("invalid-berth-start", start.message, "berthStart");
+    const endMs = addRational(rational(String(Date.parse(start.startUtc))), supplied.milliseconds);
+    if (compareRational(endMs, rational("8640000000000000")) > 0) return durationIssue("occupancy-calendar-range", "The stated occupancy exceeds the supported calendar range.");
+    const expiry = Date.parse(through + "T00:00:00+05:30") + 86_400_000;
+    if (compareRational(endMs, rational(String(expiry))) >= 0) return uncovered("The published schedule does not cover the complete berth interval; a matching source for the uncovered period is required.");
   } else {
-    const lastPossibleEnd = new D(Date.parse(startDay + "T00:00:00Z")).plus(86_400_000 - 1).plus(minutes.mul(60_000));
+    const lastPossibleEnd = addRational(rational(String(Date.parse(startDay + "T00:00:00Z") + 86_400_000 - 1)), supplied.milliseconds);
     const expiry = Date.parse(through + "T00:00:00Z") + 86_400_000;
-    if (lastPossibleEnd.gte(expiry)) return "Provide full berth start/end timestamps at the tariff expiry boundary; the date and occupancy alone do not establish coverage of the complete interval.";
+    if (compareRational(lastPossibleEnd, rational(String(expiry))) >= 0) return durationIssue("ambiguous-expiry-boundary", "Provide full berth start/end timestamps at the tariff expiry boundary; the date and occupancy alone do not establish coverage of the complete interval.");
   }
+}
+
+/** Historical string API for explanation callers. Quote intake uses the typed
+ * problem so unavailable authority cannot become a missing-input form. */
+export function berthPeriodIssue(input: TariffInput, from: string, through?: string): string | undefined {
+  return berthPeriodProblem(input, from, through)?.message;
 }
 
 /** Explanation requests need no invented date or vessel intake. If the human
  * supplies an event/interval, the explanation must state its temporal limits. */
-export function rulePeriodIssues(input: TariffInput, from: string, through?: string, occupancy = false): string[] {
+export function rulePeriodProblems(input: TariffInput, from: string, through?: string, occupancy = false): TariffIssue[] {
   const dates = occupancy ? [["berth start", input.berthStart ?? input.callDate], ["berth end", input.berthEnd]] : [["service date", input.callDate ?? input.berthStart]];
-  const issues: string[] = [];
+  const issues: TariffIssue[] = [];
   for (const [label, raw] of dates) {
     if (!raw) continue;
     const day = dateOf(raw, input);
-    if (!day) issues.push(`The supplied ${label} is ambiguous or invalid; temporal applicability is not established.`);
-    else if (day < from || through && day > through) issues.push(`The retained evidence period ${from}${through ? ` through ${through}` : " onward"} does not cover the requested ${label} (${day}). This source does not establish the rate for that date; a matching dated source is needed.`);
+    if (!day) issues.push({ kind: "input", code: "invalid-service-date", message: `The supplied ${label} is ambiguous or invalid; temporal applicability is not established.` });
+    else if (day < from || through && day > through) issues.push({ kind: "source", code: "uncovered-service-period", message: `The retained evidence period ${from}${through ? ` through ${through}` : " onward"} does not cover the requested ${label} (${day}). This source does not establish the rate for that date; a matching dated source is needed.` });
   }
   if (occupancy && (input.berthStart || input.callDate) && !issues.length) {
-    const issue = berthPeriodIssue(input, from, through);
+    const issue = berthPeriodProblem(input, from, through);
     if (issue) issues.push(issue);
   }
-  return [...new Set(issues)];
+  return issues;
+}
+export function rulePeriodIssues(input: TariffInput, from: string, through?: string, occupancy = false): string[] {
+  return [...new Set(rulePeriodProblems(input, from, through, occupancy).map(issue => issue.message))];
 }
 
 const amountText = (currency: string, value: string) => {
@@ -83,10 +139,15 @@ export class Components {
   blocked: string[] = [];
   notes: string[] = [];
   explanations: string[] = [];
+  issues: TariffIssue[] = [];
   sources = new Map<string, TariffSource>();
   estimated = false;
   evidenceStatus?: TariffResult["applicability"]["evidenceStatus"];
   constructor(readonly input: TariffInput, readonly mode: Mode) {}
+  issue(issue: TariffIssue) {
+    this.issues.push(issue);
+    (this.mode === "quote" && issue.kind === "input" ? this.questions : this.blocked).push(issue.message);
+  }
   estimate(note: string, evidenceStatus: NonNullable<TariffResult["applicability"]["evidenceStatus"]>) {
     this.estimated = true;
     this.evidenceStatus = evidenceStatus;
@@ -100,45 +161,32 @@ export class Components {
   }
   period(from: string, through?: string, occupancy = false) {
     if (this.mode === "rule") {
-      const issues = rulePeriodIssues(this.input, from, through, occupancy);
-      this.blocked.push(...issues); return !issues.length;
+      const issues = rulePeriodProblems(this.input, from, through, occupancy);
+      issues.forEach(issue => this.issue(issue)); return !issues.length;
     }
     if (occupancy) {
-      const issue = berthPeriodIssue(this.input, from, through);
-      if (issue) { this.questions.push(issue); return false; }
+      const issue = berthPeriodProblem(this.input, from, through);
+      if (issue) { this.issue(issue); return false; }
       return true;
     }
     const day = dateOf(this.input.callDate ?? this.input.berthStart, this.input);
-    if (!day) { this.questions.push("What is the call/service date? Use an unambiguous date and explicit zone for timestamps."); return false; }
+    if (!day) { this.issue({ kind: "input", code: "missing-service-date", message: "What is the call/service date? Use an unambiguous date and explicit zone for timestamps.", field: "callDate" }); return false; }
     if (day < from || through && day > through) {
-      this.blocked.push(`The published rule period ${from}${through ? ` through ${through}` : " onward"} does not cover the requested service date.`); return false;
+      this.issue({ kind: "source", code: "uncovered-service-period", message: `The published rule period ${from}${through ? ` through ${through}` : " onward"} does not cover the requested service date.` }); return false;
     }
     return true;
   }
-  number(field: keyof TariffInput, label: string, positive = true, integer = false): DecimalJs | undefined {
+  number(field: keyof TariffInput, label: string, positive = true, integer = false): TariffNumber | undefined {
     const raw = this.input[field];
     if (typeof raw !== "string" || !/^\d+(?:\.\d+)?$/.test(raw) || raw.length > 48 || !new D(raw).isFinite() || new D(raw).gt("1e12") || positive && new D(raw).lte(0) || integer && !new D(raw).isInteger()) {
       this.questions.push(`${label}: provide a ${positive ? "positive" : "nonnegative"}${integer ? " whole-number" : ""} quantity.`); return;
     }
     return new D(raw);
   }
-  hours(): DecimalJs | undefined {
-    let duration: DecimalJs | undefined;
-    if (this.input.durationHours !== undefined) duration = this.number("durationHours", "Berth occupancy hours");
-    if (this.input.durationMinutes !== undefined) {
-      const minutes = this.number("durationMinutes", "Berth occupancy minutes");
-      if (!minutes) return;
-      if (duration && !duration.eq(minutes.div(60))) { this.questions.push("The stated hours and minutes disagree; confirm total occupancy."); return; }
-      duration = minutes.div(60);
-    }
-    if (this.input.berthStart && this.input.berthEnd) {
-      const time = calculateElapsedTime({ start: this.input.berthStart, end: this.input.berthEnd, timeZone: this.input.timeZone, dateOrder: this.input.dateOrder });
-      if (time.status !== "ok") { this.questions.push(time.message); return; }
-      if (duration && !duration.eq(time.elapsedHours)) { this.questions.push("The occupancy duration and berth timestamps disagree."); return; }
-      duration = new D(time.elapsedHours);
-    }
-    if (!duration || duration.lte(0)) { this.questions.push("What is the positive berth occupancy duration, or full start/end timestamps?"); return; }
-    return duration;
+  hours(): TariffNumber | undefined {
+    const duration = occupancyDuration(this.input);
+    if ("issue" in duration) { this.issue(duration.issue); return; }
+    return duration.hours;
   }
   status(): "foreign" | "coastal" | undefined {
     if (this.input.service !== "foreign" && this.input.service !== "coastal") { this.questions.push("Is this service foreign-going or coastal?"); return; }
@@ -150,7 +198,7 @@ export class Components {
     if (modifiers.length || this.input.readinessTime) this.blocked.push(`Only the ordinary unadjusted component is available here; ${[...modifiers, ...(this.input.readinessTime ? ["readiness cessation"] : [])].join(", ")} needs its applicable adjustment.`);
     this.notes.push("Ordinary unadjusted component only. No exemption, penalty waiver or complete invoice is implied.");
   }
-  add(id: string, label: string, currency: string, amount: DecimalJs | string, formula: string) {
+  add(id: string, label: string, currency: string, amount: TariffNumber | string, formula: string) {
     if (!this.rows.some(row => row.id === id)) this.rows.push({ id, label, currency, amount: new D(amount).toString(), formula });
   }
   async result(): Promise<TariffResult> {
@@ -165,7 +213,7 @@ export class Components {
     const incomplete = this.questions.length > 0 || this.blocked.length > 0;
     const heading = this.estimated ? "Reference estimate — current applicability unconfirmed" : "Published tariff components — not a complete bill";
     const body = this.mode === "rule" ? this.explanations.join("\n\n") : this.rows.length ? `**${heading}**\n\n| Component | Amount |\n|---|---:|\n${this.rows.map(r => `| ${r.label} | ${amountText(r.currency, r.amount)} |`).join("\n")}\n${totals.map(t => `| Identified component subtotal | ${amountText(t.currency, t.amount)} |`).join("\n")}\n\n${this.rows.map(r => `${r.label}: ${r.formula}.`).join("\n\n")}` : "No source-validated amount established for this scope.";
-    return { status: this.mode === "rule" ? "explained" : incomplete || !this.rows.length ? "unresolved" : this.estimated ? "estimated" : "calculated", sourceClass: this.estimated ? "published-reference" : "official-tariff", questions: [...new Set(this.questions)], limitations: [...new Set(this.blocked)],
+    return { status: this.mode === "rule" ? "explained" : incomplete || !this.rows.length ? "unresolved" : this.estimated ? "estimated" : "calculated", sourceClass: this.estimated ? "published-reference" : "official-tariff", questions: [...new Set(this.questions)], limitations: [...new Set(this.blocked)], ...(this.issues.length ? { issues: this.issues } : {}),
       body: body + `\n\n${[...new Set(this.notes)].join(" ")}\n\nSources checked ${packet.checkedOn}: ${[...this.sources.values()].map(s => `[${s.reference}](${s.url})`).join("; ")}. Exact component arithmetic; tax, currency conversion and final invoice rounding are excluded unless explicitly shown.`,
       ...(totals.length ? { totals } : {}), calculation: this.rows.length ? { lines: this.rows } : undefined, sources: [...this.sources.values()],
       applicability: { status: this.mode === "rule" ? "explanation-only" : incomplete ? "unverified" : this.estimated ? "published-reference" : "conditional-retained-rule", currentTariffVerified: false, sourceCheckedOn: packet.checkedOn, ...(this.evidenceStatus ? { evidenceStatus: this.evidenceStatus } : {}), message: this.estimated ? "Dated published reference or conditional scenario only. Current applicability is unconfirmed; this is not an authoritative quotation or complete bill." : "Official publications checked for these dated components. Actual call eligibility, commercial discounts and complete invoice treatment remain conditional." } };
@@ -301,7 +349,7 @@ function muc(c: Components) {
   c.explanations.push("MUC ceiling INR145 plus fixed INR25 maritime development fund per physical container, excluding GST, from 28 October 2024 through 30 September 2027. Coastal and transshipment containers are exempt. No TEU multiplier or collection-commission discount. Lower MUC requires NLDSL authorization; the fixed fund is unchanged.");
   if (!c.period("2024-10-28", "2027-09-30") || c.mode === "rule") return;
   if (!["exim", "coastal", "transshipment"].includes(c.input.cargoTraffic ?? "")) { c.questions.push("Are the containers EXIM, coastal or transshipment cargo?"); return; }
-  let count: DecimalJs | undefined;
+  let count: TariffNumber | undefined;
   if (c.input.containerCount !== undefined) count = c.number("containerCount", "Physical container count", false, true);
   else if (c.input.ladenContainers !== undefined && c.input.emptyContainers !== undefined) {
     const a = c.number("ladenContainers", "Laden container count", false, true), b = c.number("emptyContainers", "Empty container count", false, true); if (a && b) count = a.plus(b);
@@ -319,7 +367,7 @@ function calendarAnniversary(date: string, years: number): string | undefined {
   return `${target.toString().padStart(4, "0")}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
 }
 
-function jaigarhAgePilotage(c: Components, gt: DecimalJs) {
+function jaigarhAgePilotage(c: Components, gt: TariffNumber) {
   const keel = dateOf(c.input.keelLaidDate, c.input), call = dateOf(c.input.callDate, c.input);
   if (!c.input.keelLaidDate || !keel) { c.questions.push("Provide the unambiguous keel-laid date; build, launch, delivery and registration dates do not establish J-8 vessel age."); return; }
   if (!c.input.callDate || !call) { c.questions.push("Provide the unambiguous call/service date for the J-8 age assessment."); return; }
@@ -394,7 +442,15 @@ function kll(c: Components, charges: string[]) {
   }
   if (!c.period("2025-10-01", "2026-10-31", true)) return;
   if (c.input.berthEnd && (dateOf(c.input.berthEnd, c.input) ?? "") >= "2026-11-01") { c.blocked.push("This occupancy crosses the KLL tariff revision; a single old cap cannot price the interval."); return; }
-  if (charges.includes("berth")) { const hours = c.hours(); if (!hours) return; if (hours.gt(36)) { c.blocked.push("KLL excess stay beyond 36 hours needs the applicable delay/cap allocation; no complete berth amount established."); return; } }
+  let berthReady = true;
+  if (charges.includes("berth")) {
+    const hours = c.hours();
+    if (!hours) berthReady = false;
+    else if (hours.gt(36)) {
+      c.issue({ kind: "unsupported", code: "kll-excess-berth-allocation", service: "berth", message: "KLL excess stay beyond 36 hours needs the applicable delay/cap allocation; no complete berth amount established." });
+      berthReady = false;
+    }
+  }
   const fx = c.number("fxInrPerUsd", "Supplied SBI TT selling INR per USD exchange rate");
   const scheduled = dateOf(c.input.scheduledBerthingDate, c.input), fxDate = dateOf(c.input.fxDate, c.input);
   if (!scheduled || !fxDate || c.input.fxBasis !== "SBI-TT-selling") { c.questions.push("Provide scheduled berthing date and the dated SBI TT selling INR/USD rate prescribed for the day before it (previous bank working day if a holiday)."); return; }
@@ -403,10 +459,14 @@ function kll(c: Components, charges: string[]) {
   if (!fx) return;
   let base = new D(0);
   for (const [service, rate, cap] of [["berth", ".1", "1000000"], ["pilotage", ".2", "2000000"]] as const) if (charges.includes(service)) {
+    if (service === "berth" && !berthReady) continue;
     const value = D.min(gt.mul(rate).mul(fx), cap); base = base.plus(value);
     c.add(`${service}:kll:capped`, `KLL ${service} capped base`, "INR", value, `min(${gt} GRT × USD${rate} × supplied INR/USD ${fx}, INR${cap})`);
   }
-  if (charges.includes("gst")) c.add("gst:kll:18-percent", "KLL GST18%", "INR", base.mul(".18"), `18% × capped base INR${base}`);
+  if (charges.includes("gst")) {
+    if (charges.includes("berth") && !berthReady) c.issue({ kind: "unsupported", code: "kll-incomplete-tax-base", service: "gst", message: "The requested KLL combined GST remains incomplete because its berth base is unresolved. The independent pilotage base is shown without treating it as the whole tax base." });
+    else c.add("gst:kll:18-percent", "KLL GST18%", "INR", base.mul(".18"), `18% × capped base INR${base}`);
+  }
   c.notes.push(`FX supplied by the user: SBI TT selling ${fxDate}; not independently verified market data.`);
 }
 
@@ -472,18 +532,41 @@ function bpcl(c: Components, services: string[]) {
 
 /** Returns exactly the services claimed by this packet; caller retains all others. */
 export async function publishedComponents(input: TariffInput, mode: Mode): Promise<{ handled: string[]; result: TariffResult } | undefined> {
-  const c = new Components(input, mode), port = input.port!, handled = new Set<string>();
-  const take = (services: string[], run: (selected: string[]) => void) => { const selected = input.charges.filter(s => services.includes(s) && !handled.has(s)); if (selected.length) { selected.forEach(s => handled.add(s)); run(selected); } };
-  if (family.has(port) || port === "mumbai") take(["muc"], () => muc(c));
-  if (family.has(port)) take(["pilotage", "towage"], () => pilotage(c, false));
-  if (port === "mumbai" && input.vesselCategory !== "cruise") take(["pilotage", "towage"], () => pilotage(c, true));
-  if (port === BMCT || port === NSIGT && input.service === "coastal") take(["berth"], () => operatorBerth(c, port === BMCT));
-  if ([BMCT, NSIGT, NSICT, NSFT, GTI].includes(port)) take(["handling", "cargo"], () => containerHandling(c, port));
-  if (port === "jaigarh" && (input.cargoCategory !== "mechanized-bulk" || input.charges.some(s => ["pilotage", "age-pilotage", "towage", "mooring", "environment", "pilot-attendance"].includes(s)))) take(["port-dues", "pilotage", "age-pilotage", "towage", "mooring", "environment", "pilot-attendance"], services => jaigarh(c, services));
-  if (port === "konkan-lng-ltd" && input.charges.some(s => s === "berth" || s === "pilotage")) take(["berth", "pilotage", "gst"], services => kll(c, services));
-  if (port === "mumbai-cruise-terminal" || port === "mumbai" && input.vesselCategory === "cruise") take(["cruise", "berth", "pilotage", "towage", "port-dues", "passenger-fee"], () => cruise(c));
-  if (port === "bpcl-liquid-cargo-jetty") take(["cargo", ...packet.bpcl.ancillaryRates.map(r => r.service)], services => bpcl(c, services));
-  return handled.size ? { handled: [...handled], result: await c.result() } : undefined;
+  const port = input.port!, handled = new Set<string>(), results: Array<Promise<TariffResult>> = [];
+  const take = (services: string[], run: (component: Components, selected: string[]) => void) => {
+    const selected = input.charges.filter(s => services.includes(s) && !handled.has(s));
+    if (!selected.length) return;
+    selected.forEach(s => handled.add(s));
+    // A group retains shared source/dependency scope: inward/outward towage,
+    // KLL base+tax, aliases of one handling row and the composite cruise fee.
+    // Unrelated groups never share unverified rows or source-check failures.
+    results.push((async () => {
+      const component = new Components({ ...input, charges: selected }, mode);
+      try { run(component, selected); return await component.result(); }
+      catch { return componentValidationFailure(selected); }
+    })());
+  };
+  if (family.has(port) || port === "mumbai") take(["muc"], c => muc(c));
+  if (family.has(port)) take(["pilotage", "towage"], c => pilotage(c, false));
+  if (port === "mumbai" && input.vesselCategory !== "cruise") take(["pilotage", "towage"], c => pilotage(c, true));
+  if (port === BMCT || port === NSIGT && input.service === "coastal") take(["berth"], c => operatorBerth(c, port === BMCT));
+  if ([BMCT, NSIGT, NSICT, NSFT, GTI].includes(port)) take(["handling", "cargo"], c => containerHandling(c, port));
+  if (port === "jaigarh" && (input.cargoCategory !== "mechanized-bulk" || input.charges.some(s => ["pilotage", "age-pilotage", "towage", "mooring", "environment", "pilot-attendance"].includes(s)))) take(["port-dues", "pilotage", "age-pilotage", "towage", "mooring", "environment", "pilot-attendance"], (c, services) => jaigarh(c, services));
+  if (port === "konkan-lng-ltd" && input.charges.some(s => s === "berth" || s === "pilotage")) take(["berth", "pilotage", "gst"], (c, services) => kll(c, services));
+  if (port === "mumbai-cruise-terminal" || port === "mumbai" && input.vesselCategory === "cruise") take(["cruise", "berth", "pilotage", "towage", "port-dues", "passenger-fee"], c => cruise(c));
+  if (port === "bpcl-liquid-cargo-jetty") take(["cargo", ...packet.bpcl.ancillaryRates.map(r => r.service)], (c, services) => bpcl(c, services));
+  return handled.size ? { handled: [...handled], result: combineTariffResults(await Promise.all(results)) } : undefined;
+}
+
+/** Fail closed only for the source/dependency group that could not validate.
+ * Do not expose its amounts, pretend its services were zero, or silently
+ * retry another tariff family. Validated siblings may still be displayed. */
+export function componentValidationFailure(services: readonly string[], sourceClass: TariffResult["sourceClass"] = "official-tariff"): TariffResult {
+  const names = services.map(service => service.replace(/[<>|\r\n]/g, " ")).join(", ");
+  const message = `${names}: retained source or calculation validation failed. No amount from this affected group is published; its requested services remain unresolved.`;
+  return { status: "error", sourceClass, body: message, questions: [], limitations: [message],
+    issues: services.map(service => ({ kind: "source", code: "component-validation-failed", service, message })),
+    applicability: { status: "unverified", currentTariffVerified: false, message } };
 }
 
 export function combineTariffResults(results: TariffResult[]): TariffResult {
@@ -497,5 +580,5 @@ export function combineTariffResults(results: TariffResult[]): TariffResult {
   const reference = results.some(r => r.sourceClass === "published-reference" || r.totals?.some(t => t.basis === "reference"));
   const estimated = reference && results.every(r => ["calculated", "estimated"].includes(r.status) && !r.questions.length);
   const explained = results.every(r => r.status === "explained");
-  return { status: estimated ? "estimated" : resolved ? "calculated" : explained ? "explained" : "unresolved", sourceClass: reference ? "published-reference" : "official-tariff", body: (estimated ? "**Reference estimate — current applicability unconfirmed.**\n\n" : resolved || explained ? "" : "**Requested estimate incomplete; only identified components are shown.**\n\n") + results.map(r => r.body).join("\n\n") + ((resolved || estimated) && totals.length ? `\n\nCombined ${estimated ? "reference" : "requested component"} subtotal: ${totals.map(t => amountText(t.currency, t.amount)).join(" + ")}.` : ""), questions: [...new Set(results.flatMap(r => r.questions))], limitations: [...new Set(results.flatMap(r => r.limitations ?? []))], ...(totals.length ? { totals } : {}), sources: [...new Map(results.flatMap(r => r.sources ?? []).map(s => [s.url, s])).values()], applicability: { status: estimated ? "published-reference" : resolved ? "conditional-retained-rule" : explained ? "explanation-only" : "unverified", currentTariffVerified: false, sourceCheckedOn: packet.checkedOn, ...(reference ? { evidenceStatus: "mixed-unconfirmed" as const } : {}), message: "Each component retains its source and applicability limitations. A missing requested charge is not zero. Reference estimates cannot support a definitive price ranking." } };
+  return { status: estimated ? "estimated" : resolved ? "calculated" : explained ? "explained" : "unresolved", sourceClass: reference ? "published-reference" : "official-tariff", body: (estimated ? "**Reference estimate — current applicability unconfirmed.**\n\n" : resolved || explained ? "" : "**Requested estimate incomplete; only identified components are shown.**\n\n") + results.map(r => r.body).join("\n\n") + ((resolved || estimated) && totals.length ? `\n\nCombined ${estimated ? "reference" : "requested component"} subtotal: ${totals.map(t => amountText(t.currency, t.amount)).join(" + ")}.` : ""), questions: [...new Set(results.flatMap(r => r.questions))], limitations: [...new Set(results.flatMap(r => r.limitations ?? []))], issues: results.flatMap(r => r.issues ?? []), ...(totals.length ? { totals } : {}), sources: [...new Map(results.flatMap(r => r.sources ?? []).map(s => [s.url, s])).values()], applicability: { status: estimated ? "published-reference" : resolved ? "conditional-retained-rule" : explained ? "explanation-only" : "unverified", currentTariffVerified: false, sourceCheckedOn: packet.checkedOn, ...(reference ? { evidenceStatus: "mixed-unconfirmed" as const } : {}), message: "Each component retains its source and applicability limitations. A missing requested charge is not zero. Reference estimates cannot support a definitive price ranking." } };
 }

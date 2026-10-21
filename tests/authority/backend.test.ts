@@ -1,5 +1,6 @@
 /// <reference types="vite/client" />
 import agentTest from "@convex-dev/agent/test";
+import { listMessages } from "@convex-dev/agent";
 import betterAuthTest from "@convex-dev/better-auth/test";
 import { convexTest } from "convex-test";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -101,6 +102,14 @@ beforeEach(() => {
 afterEach(() => { vi.unstubAllEnvs(); vi.useRealTimers(); });
 
 describe("exact-operation backend authority", () => {
+  it("carries bounded remaining obligations from exact review into the approval run",async()=>{
+    const t=setup(),run=await claim(t),packet=quotePacket(),payload=canonical(packet),form=approvalForm(packet,"obligation-review");
+    const remainingObligations={version:1 as const,outcomes:[{kind:"information" as const,branches:[{disposition:"unavailable" as const,targets:["redi-current"],questions:[],detail:"Current operative schedule unavailable."}]}]};
+    const proposed=await t.mutation(internal.migration.completeRun,{ownerId:owner,runId:run.runId,fence:run.fence,responseMessages:[{role:"assistant",content:[{type:"tool-call",toolName:"ask_user_input",toolCallId:form.toolCallId,input:{title:form.title,description:form.description,fields:form.fields}}]}],form,authorizationProposal:payload,remainingObligations});
+    const approved=await resolve(t,run,{payload,form,result:proposed});
+    const context=await t.query(internal.migration.getRunContext,{ownerId:owner,runId:approved.runId,fence:approved.fence});
+    expect(context.remainingObligations).toEqual(remainingObligations);
+  });
   it("completes a native official comparison from an ordinary saved quote and its newer approved FX revision", async () => {
     const t = setup();
     const ordinaryA: QuoteCore = { id: "official-a", revision: 0, name: "Official A", pricing: "official", call: { gt: "8317" }, services: ["port-dues"], lines: [{ name: "Port dues", currency: "USD", amount: "71.35" }], terms: {} };
@@ -186,7 +195,7 @@ describe("exact-operation backend authority", () => {
     expect(conversation?.quoteApprovals?.map((binding) => binding.quoteId).sort()).toEqual([quote.id, completedB.id].sort());
   });
 
-  it("commits the first group and persists a visible notice when a successor becomes stale", async () => {
+  it("keeps an independent memory successor when only the namespace revision advances", async () => {
     const t = setup(), run = await claim(t), first = quotePacket(), successorPacket = memoryPacket();
     const firstPayload = canonical(first), firstForm = approvalForm(first, "stale-first"), successorPayload = canonical(successorPacket), successorForm = approvalForm(successorPacket, "stale-successor");
     const proposed = await t.mutation(internal.migration.completeRun, {
@@ -204,17 +213,41 @@ describe("exact-operation backend authority", () => {
       ownerId: owner, runId: granted.runId, fence: granted.fence,
       responseMessages: await receiptMessages(run.conversationId), form: null, finishReason: "stop",
     });
-    expect(completed.state).toBe("idle");
+    expect(completed.state).toBe("waiting");
     const conversation = await t.run((ctx) => ctx.db.get(run.conversationId));
     expect(conversation?.quoteApprovals).toContainEqual({ quoteId: quote.id, revision: 0, digest: await authorityDigest(quoteCore(quote)) });
-    expect(conversation?.pendingFormId).toBeUndefined();
-    expect(conversation?.lastError).toMatch(/remaining exact-review work was deferred/i);
+    expect(conversation?.pendingFormId).toBeDefined();
+    expect(conversation?.lastError).toBeUndefined();
     expect(await t.run(async (ctx) => (await ctx.db.query("memoryOperations").collect()).length)).toBe(0);
-    const followup = await claim(t, "after-stale-successor", run.conversationId, completed.revision);
-    const context = await t.query(internal.migration.getRunContext, { ownerId: owner, runId: followup.runId, fence: followup.fence });
-    expect(JSON.stringify(context.messages)).toContain("Remaining exact-review work was deferred because its saved base changed");
-    expect(context.authorization).toBeUndefined();
-    expect(context.authorizationContinuation).toBeUndefined();
+    const successor=await t.run(async ctx=>ctx.db.get(conversation!.pendingFormId!));
+    expect(successor?.authorization?.payload).toBe(successorPayload);
+  });
+
+  it("publishes one identical canonical answer when a successor's prior value changes", async () => {
+    const t = setup(), run = await claim(t), first = quotePacket(), next = memoryPacket();
+    const payload = canonical(first), form = approvalForm(first, "canonical-first"), successor = approvalForm(next, "canonical-next");
+    const proposed = await t.mutation(internal.migration.completeRun, {
+      ownerId: owner, runId: run.runId, fence: run.fence,
+      responseMessages: [{ role: "assistant", content: [{ type: "tool-call", toolName: "ask_user_input", toolCallId: form.toolCallId, input: { title: form.title, description: form.description, fields: form.fields } }] }],
+      form, authorizationProposal: payload, authorizationContinuation: [{ payload: canonical(next), ...successor, reviewGroup: "memory" }],
+    });
+    const granted = await resolve(t, run, { payload, form, result: proposed }, { requestId: "canonical-approve" });
+    await t.run(async ctx => {
+      const namespace = (await ctx.db.query("memoryNamespaces").withIndex("by_owner", q => q.eq("ownerId", owner)).unique())!;
+      await ctx.db.patch(namespace._id, { revision: namespace.revision + 1, factIndex: [{ key: "preferred_port", hash: "a".repeat(64), sources: [] }] });
+    });
+    const completed = await t.mutation(internal.migration.completeRun, { ownerId: owner, runId: granted.runId, fence: granted.fence,
+      responseMessages: await receiptMessages(run.conversationId), form: null, finishReason: "stop" });
+    expect(completed.state).toBe("idle");
+    expect(completed.publicText).toContain("Applied the approved quotation.");
+    expect(completed.publicText).toContain("No successor review was opened");
+    const history = await t.run(async ctx => {
+      const conversation = (await ctx.db.get(run.conversationId))!;
+      expect(conversation.pendingFormId).toBeUndefined();
+      return listMessages(ctx, components.agent, { threadId: conversation.agentThreadId, paginationOpts: { cursor: null, numItems: 100 }, excludeToolMessages: false });
+    });
+    const texts = history.page.flatMap(doc => doc.message?.role === "assistant" && typeof doc.message.content === "string" ? [doc.message.content] : []);
+    expect(texts).toEqual([completed.publicText]);
   });
 
   it.each([
@@ -258,6 +291,20 @@ describe("exact-operation backend authority", () => {
     expect(JSON.stringify(context.messages)).toContain('"resolutionReason":"approved"');
     const final=await t.mutation(internal.migration.completeRun,{ownerId:owner,runId:next.runId,fence:next.fence,responseMessages:[{role:"assistant",content:[{type:"tool-call",toolName:"remember_memory",toolCallId:"approved-memory",input:{key:"preferred_port",value:"Mumbai"}}]},{role:"tool",content:[{type:"tool-result",toolName:"remember_memory",toolCallId:"approved-memory",output:{type:"json",value:{saved:true}}}]},{role:"assistant",content:"Requested memory saved."}],form:null,finishReason:"stop"});expect(final.state).toBe("idle");
     expect(await t.run(async ctx=>(await ctx.db.query("memoryOperations").collect()).some(operation=>operation.status==="pending"))).toBe(true);
+  });
+  it("keeps an independently reviewed memory key after an earlier key advances the namespace revision",async()=>{
+    const t=setup(),run=await claim(t),first=memoryPacket({key:"preferred_port",value:"Mumbai"}),second=memoryPacket({key:"preferred_units",value:"metric"});
+    second.operations[0]!.id="00000000-0000-4000-8000-000000000005";
+    const firstPayload=canonical(first),firstForm=approvalForm(first,"memory-group-1"),secondPayload=canonical(second),secondForm=approvalForm(second,"memory-group-2");
+    const proposed=await t.mutation(internal.migration.completeRun,{ownerId:owner,runId:run.runId,fence:run.fence,responseMessages:[{role:"assistant",content:[{type:"tool-call",toolName:"ask_user_input",toolCallId:firstForm.toolCallId,input:{title:firstForm.title,description:firstForm.description,fields:firstForm.fields}}]}],form:firstForm,authorizationProposal:firstPayload,authorizationContinuation:[{payload:secondPayload,...secondForm,reviewGroup:"units"}]});
+    const granted=await resolve(t,run,{payload:firstPayload,form:firstForm,result:proposed});
+    const job=(await t.mutation(internal.memory.claim,{ownerId:owner}))!;
+    const runtime=await ChatMemoryRuntime.restore(job.image);await runtime.apply(job.operations);
+    await t.mutation(internal.memory.publish,{ownerId:owner,token:job.token,fence:job.fence,epoch:job.epoch,baseRevision:job.baseRevision,through:job.through,image:await runtime.snapshot()});
+    const completed=await t.mutation(internal.migration.completeRun,{ownerId:owner,runId:granted.runId,fence:granted.fence,responseMessages:[{role:"assistant",content:[{type:"tool-call",toolName:"remember_memory",toolCallId:"approved-first",input:{key:"preferred_port",value:"Mumbai"}}]},{role:"tool",content:[{type:"tool-result",toolName:"remember_memory",toolCallId:"approved-first",output:{type:"json",value:{saved:true}}}]},{role:"assistant",content:"Requested memory saved."}],form:null,finishReason:"stop"});
+    expect(completed.state).toBe("waiting");
+    const conversation=await t.run(ctx=>ctx.db.get(run.conversationId)),successor=await t.run(ctx=>ctx.db.get(conversation!.pendingFormId!));
+    expect(successor?.authorization?.payload).toBe(secondPayload);
   });
   it("persists an identical complete review privately, executes one exact quote, and records provenance", async () => {
     const t = setup(), run = await claim(t), packet = quotePacket(), proposed = await propose(t, run, packet);
@@ -354,14 +401,13 @@ describe("exact-operation backend authority", () => {
     expect((await t.query(internal.memory.inspect, { ownerId: owner })).payloads).toBe(0);
   });
 
-  it.each(["epoch", "revision", "prior-hash"] as const)("rejects stale memory %s", async (kind) => {
+  it.each(["epoch", "prior-hash"] as const)("rejects stale memory %s", async (kind) => {
     const t = setup();
     await t.mutation(internal.memory.open, { ownerId: owner });
     const run = await claim(t), proposed = await propose(t, run, memoryPacket());
     await t.run(async (ctx) => {
       const ns = (await ctx.db.query("memoryNamespaces").withIndex("by_owner", (q) => q.eq("ownerId", owner)).unique())!;
       if (kind === "epoch") await ctx.db.patch(ns._id, { epoch: 1 });
-      if (kind === "revision") await ctx.db.patch(ns._id, { revision: 1 });
       if (kind === "prior-hash") await ctx.db.patch(ns._id, { factIndex: [{ key: "preferred_port", hash: "a".repeat(64), sources: [] }] });
     });
     await expect(resolve(t, run, proposed)).rejects.toThrow(/memory|prior/i);

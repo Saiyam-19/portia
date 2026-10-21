@@ -4,6 +4,8 @@ import type { ModelAlias } from "./contracts";
 import { withSafeModelErrors } from "./safe-model";
 import type { ModelErrorContext } from "./error-reporting";
 import { withCompleteModelSteps } from "./complete-model-step";
+import { MIGRATION_TRANSPORT_POLICY } from "./agent-policy";
+import { PRIVATE_BUSINESS_TOOLS } from "../portia/tool-names";
 
 export const PORTIA_MODEL_ID = "openai/gpt-6-luna";
 /** Provider 3.1.0 drops the AI SDK per-tool strict flag when mapping Chat
@@ -11,7 +13,7 @@ export const PORTIA_MODEL_ID = "openai/gpt-6-luna";
 export const strictBusinessToolFetch: typeof fetch = (input, init) => {
   if (typeof init?.body !== "string") return fetch(input, init);
   const body = JSON.parse(init.body);
-  for (const entry of body.tools ?? []) if (["port_information", "manage_quote", "compare_quotes"].includes(entry.function?.name)) entry.function.strict = true;
+  for (const entry of body.tools ?? []) if (PRIVATE_BUSINESS_TOOLS.has(entry.function?.name)) entry.function.strict = true;
   return fetch(input, { ...init, body: JSON.stringify(body) });
 };
 /** Both historical aliases resolve to the explicitly approved runtime model. */
@@ -23,5 +25,5 @@ export function migrationLanguageModel(alias: ModelAlias, context: ModelErrorCon
   return withSafeModelErrors(withCompleteModelSteps(openrouter.chat(PORTIA_MODEL_ID, {
     reasoning: { effort: "none" },
     provider: { only: ["azure"], allow_fallbacks: false, require_parameters: true, data_collection: "deny", zdr: true, max_price: { prompt: 0.1, completion: 0.5 } },
-  })), { ...context, modelAlias: alias });
+  }), MIGRATION_TRANSPORT_POLICY), { ...context, modelAlias: alias });
 }

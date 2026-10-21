@@ -1,6 +1,7 @@
 import {checkedFacts,memorySummary} from "./format";
 import { Bash } from "just-bash";
 import type { MemoryFact, MemoryOperation } from "./contracts";
+import { validMemoryValue, validScratchpad } from "./input";
 const DB = "/memory/long_term.sqlite";
 const quote = (s: string) => "'" + s.replaceAll("'", "''") + "'";
 export class ChatMemoryRuntime {
@@ -43,7 +44,7 @@ export class ChatMemoryRuntime {
     if (operations.length > 16) throw new Error("MEMORY_BATCH_LIMIT");
     for (const op of operations) {
       if (op.kind === "remember") {
-        if (!/^[a-z][a-z0-9_]{0,79}$/.test(op.key) || Buffer.byteLength(op.value) > 1024 || op.value.includes("\0")) throw new Error("INVALID_MEMORY");
+        if (!/^[a-z][a-z0-9_]{0,79}$/.test(op.key) || !validMemoryValue(op.value)) throw new Error("INVALID_MEMORY");
         const prior = (await this.facts()).find(f => f.key === op.key);
         const sources = prior?.value === op.value ? [...new Set([...prior.sources, op.source])] : [op.source];
         if (sources.length > 8 || (!prior && (await this.facts()).length >= 64)) throw new Error("MEMORY_LIMIT");
@@ -71,7 +72,7 @@ export class ChatMemoryRuntime {
     return await this.shell.fs.readFile("/memory/summary.md");
   }
   async workingNotes(markdown: string) {
-    if (Buffer.byteLength(markdown) > 6000) throw new Error("NOTES_TOO_LARGE");
+    if (!validScratchpad(markdown)) throw new Error("NOTES_TOO_LARGE");
     await this.shell.fs.mkdir("/scratchpad", { recursive: true });
     await this.shell.fs.writeFile("/scratchpad/current.md", markdown);
     return await this.shell.fs.readFile("/scratchpad/current.md");

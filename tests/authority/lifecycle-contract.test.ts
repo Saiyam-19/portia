@@ -47,7 +47,8 @@ it("replaces ready quote intent, invalidates its comparison, and preserves inval
 it("does not bridge mismatched official scopes or ungrounded supplied equivalence",async()=>{
  const session=new QuoteSession("scope");await session.initialize([{role:"user",content:"Compare the packages."}]);
  const a=await session.update({pricing:"supplied",lines:[{name:"alpha",currency:"USD",amount:"11"}]});const b=await session.update({pricing:"supplied",lines:[{name:"beta",currency:"USD",amount:"13"}]});if(!("quoteId" in a)||!("quoteId" in b))throw Error();
- expect((await session.compare({quoteIds:[a.quoteId,b.quoteId]})).status).toBe("error");
+ const missingScope=await session.compare({quoteIds:[a.quoteId,b.quoteId]});
+ expect(missingScope.status).toBe("unresolved");expect(missingScope.questions.join(" ")).toContain("scope equivalence");expect(missingScope).not.toHaveProperty("converted");
  expect((await session.compare({quoteIds:[a.quoteId,b.quoteId],scopeEquivalence:{statement:"They are the same"}})).body).toMatch(/not grounded/i);
 });
 

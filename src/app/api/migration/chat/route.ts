@@ -31,7 +31,9 @@ import { trustedMigrationOrigin } from "@/lib/migration/origin";
 import { publicChatStream } from "@/lib/migration/public-stream";
 import { createMigrationMainAgent } from "@/lib/migration/domain-agent";
 import { QuoteSession } from "@/lib/portia/session";
+import type { RemainingObligations } from "@/lib/portia/remaining-obligations";
 import { persistedAnswerStream } from "@/lib/portia/publication";
+import { assertPublicationFits, publicationFits, PublicationLimitError, PUBLICATION_LIMIT_MESSAGE, PUBLICATION_LIMIT_AFTER_APPROVAL_MESSAGE } from "@/lib/migration/publication-contract";
 import { MIGRATION_CHAT_TIMEOUT } from "@/lib/migration/agent-policy";
 import { modelErrorDetails } from "@/lib/migration/error-reporting";
 import { responseErrorMessage } from "@/lib/migration/response-errors";
@@ -57,6 +59,7 @@ type RunContext = {
   authorizationDeclined?: boolean;
   authorizationResolutionReason?: string;
   authorizationContinuation?: Array<{payload:string;reviewGroup:string}>;
+  remainingObligations?:RemainingObligations;
 };
 
 function requestHash(value: unknown): string {
@@ -270,11 +273,12 @@ export async function POST(request: Request): Promise<Response> {
     if (context.authorization || context.authorizationDeclined) {
       await session.initialize(context.messages);
       const rejectedText = context.authorizationResolutionReason === "cancelled" ? "Review cancelled. No proposed operations were applied." : "Review rejected. No proposed operations were applied.";
-      const approved = context.authorization ? await executeAuthorizedOperations({authorization:context.authorization,session,drainMemory:memorySession ? ()=>memorySession.view() : undefined,signal:AbortSignal.any([controller.signal,request.signal,AbortSignal.timeout(MIGRATION_CHAT_TIMEOUT.totalMs)])}) : {messages:[{role:"assistant" as const,content:rejectedText}],text:rejectedText};
+      const approved = context.authorization ? await executeAuthorizedOperations({authorization:context.authorization,session,drainMemory:memorySession ? ()=>memorySession.view() : undefined,signal:AbortSignal.any([controller.signal,request.signal,AbortSignal.timeout(MIGRATION_CHAT_TIMEOUT.totalMs)]),remainingObligations:context.remainingObligations}) : {messages:[{role:"assistant" as const,content:rejectedText}],text:rejectedText};
       controller.signal.throwIfAborted();request.signal.throwIfAborted();
-      await callMigrationBridge(manager,{op:"complete",args:{runId:claim.runId,fence:claim.fence,responseMessages:approved.messages,form:null,finishReason:"stop"}});
+      assertPublicationFits(approved.text);
+      const completed = await callMigrationBridge<{ publicText?: string }>(manager,{op:"complete",args:{runId:claim.runId,fence:claim.fence,responseMessages:approved.messages,form:null,finishReason:"stop"}});
       persisted = true; await finalizeRun({kind:"done"});
-      return completedResponse(claim,approved.text);
+      return completedResponse(claim,completed.publicText ?? approved.text);
     }
     const agent = createMigrationMainAgent({
       memory, authority,
@@ -298,7 +302,10 @@ export async function POST(request: Request): Promise<Response> {
           session.observeTools(step.toolResults, step.toolCalls, step.content.filter(part => part.type === "tool-error"));
           const stepMessages = step.response.messages as ModelMessage[];
           if (!step.toolCalls.length) {
-            pendingStepMessages = [{ role: "assistant", content: await session.answer(step.text) }];
+            // Model prose stays private context until a valid finish supplies
+            // the canonical public answer. Normalize string-shaped SDK messages.
+            pendingStepMessages = stepMessages.map<ModelMessage>(message => message.role === "assistant" && typeof message.content === "string"
+              ? { ...message, content: [{ type: "text" as const, text: message.content }] } : message);
             return;
           }
           const stepForm = pendingForm(stepMessages);
@@ -306,8 +313,8 @@ export async function POST(request: Request): Promise<Response> {
             if (step.toolCalls.length !== 1 || step.toolCalls[0]?.toolName !== "ask_user_input" || step.toolResults.length !== 0) {
               throw new Error("ask_user_input must be the only unresolved tool in its step.");
             }
-            pendingStepMessages = stepMessages.map(message => message.role === "assistant" && Array.isArray(message.content)
-              ? { ...message, content: message.content.filter(part => part.type !== "text" && part.type !== "reasoning") } : message);
+            pendingStepMessages = stepMessages.map<ModelMessage>(message => message.role === "assistant" && typeof message.content === "string"
+              ? { ...message, content: [{ type: "text" as const, text: message.content }] } : message);
             pendingStepForm = stepForm;
             return;
           }
@@ -318,7 +325,7 @@ export async function POST(request: Request): Promise<Response> {
               fence: claim!.fence,
               stepNumber: step.stepNumber,
               payloadHash: requestHash(stepMessages),
-              responseMessages: stepMessages.map(message => message.role === "assistant" && Array.isArray(message.content) ? { ...message, content: message.content.filter(part => part.type !== "text" && part.type !== "reasoning") } : message),
+              responseMessages: stepMessages,
               finishReason: step.finishReason,
             },
           });
@@ -350,54 +357,82 @@ export async function POST(request: Request): Promise<Response> {
           if (abortSignal.aborted) return;
           let authorizationProposal: string | undefined;
           let authorizationContinuation: Array<{payload:string;toolCallId:string;title:string;description?:string;fields:FormDefinition["fields"];reviewGroup:string}> | undefined;
-          const serverReviewReady = authority.hasPending() && !session.hasCurrentInputQuestions();
+          let remainingObligations:RemainingObligations|undefined;
+          const completion = session.completion.completion();
+          let incomplete = !completion && !pendingStepForm;
+          const notices: string[] = [];
           if (!session.hasCurrentInputQuestions()) {
-            if (serverReviewReady) session.prepareExactReview();
+            if (authority.hasPending()) session.prepareExactReview();
             if (pendingStepForm) {
-              // Preserve the rejected model call with exactly one non-human
-              // result. Dropping it would corrupt history on the next reload.
+              // Keep the rejected model call paired; it is not human input.
               pendingStepMessages.push({ role: "tool", content: [{ type: "tool-result", toolName: "ask_user_input", toolCallId: pendingStepForm.toolCallId,
                 output: { type: "error-text", value: "This model form was not presented because no missing business inputs were established. Exact-operation review is generated by the server; no user response or approval was inferred." } }] });
               pendingStepForm = null;
-              if (!authority.hasPending()) {
-                const pairedHistory = pendingStepMessages.filter(message => message.role === "tool" || message.role === "assistant" && Array.isArray(message.content));
-                pendingStepMessages = [...pairedHistory, { role: "assistant", content: [session.finalText(""), "No new operation was prepared for approval. The requested work remains incomplete; nothing was approved."].filter(Boolean).join("\n\n") }];
-              }
+              incomplete = !completion;
+              if (!authority.hasPending()) notices.push("No new operation was prepared for approval. The requested work remains incomplete; nothing was approved.");
             }
           }
           if (!pendingStepForm) {
             const queue = authority.pendingQueue(), pending = queue[0];
             if (pending) {
-              pendingStepForm = pending.form; authorizationProposal = pending.payload;
-              authorizationContinuation = queue.slice(1).map(item=>({payload:item.payload,...item.form,reviewGroup:item.reviewGroup}));
-              const {toolCallId,...input} = pending.form;
-              const verifiedText = session.finalText("");
-              const text = serverReviewReady && verifiedText.trim() ? verifiedText : pendingStepMessages.filter(message => message.role === "assistant" && typeof message.content === "string").map(message => String(message.content)).join("\n").trim() || verifiedText;
-              const pairedHistory = pendingStepMessages.filter(message => message.role === "tool" || message.role === "assistant" && Array.isArray(message.content));
-              pendingStepMessages = [...pairedHistory, ...(text ? [{role:"assistant" as const,content:text}] : []), {role:"assistant",content:[{type:"tool-call",toolName:"ask_user_input",toolCallId,input}]}];
+              pendingStepForm = pending.form;
+              authorizationProposal = pending.payload;
+              const snapshot=session.completion.remainingObligations();
+              if(snapshot.outcomes.length)remainingObligations=snapshot;
+              authorizationContinuation = queue.slice(1).map(item => ({ payload: item.payload, ...item.form, reviewGroup: item.reviewGroup }));
             }
           }
-          if (pendingStepForm && !authorizationProposal && authority.hasPending()) authorizationContinuation = authority.pendingQueue().map(item=>({payload:item.payload,...item.form,reviewGroup:item.reviewGroup}));
-          await callMigrationBridge(manager, {
+          if (pendingStepForm && !authorizationProposal && authority.hasPending()) {
+            authorizationContinuation = authority.pendingQueue().map(item => ({ payload: item.payload, ...item.form, reviewGroup: item.reviewGroup }));
+          }
+
+          // Render ONCE after server form repair. This exact string is saved and
+          // streamed; attaching a native review must not reconstruct empty prose.
+          let canonicalText = completion ? await session.answer(completion.response) : session.finalText("");
+          if (incomplete) notices.push("Some requested work remains incomplete. Only the tool-backed results shown here were prepared or completed.");
+          canonicalText = [canonicalText, ...notices].filter(Boolean).join("\n\n");
+          if (session.completion.publicationLimitExceeded() || !publicationFits(canonicalText)) {
+            canonicalText = PUBLICATION_LIMIT_MESSAGE;
+            incomplete = true;
+          }
+          const formCallId = pendingStepForm?.toolCallId;
+          const pairedHistory: ModelMessage[] = pendingStepMessages.flatMap<ModelMessage>(message => {
+            if (message.role === "tool") return [message];
+            if (message.role !== "assistant" || !Array.isArray(message.content)) return [];
+            const content = message.content.filter(part => !(part.type === "tool-call" && part.toolName === "ask_user_input" && part.toolCallId === formCallId));
+            return content.length ? [{ ...message, content }] : [];
+          });
+          pendingStepMessages = [...pairedHistory, ...(canonicalText ? [{ role: "assistant" as const, content: canonicalText }] : [])];
+          if (pendingStepForm) {
+            const { toolCallId, ...input } = pendingStepForm;
+            pendingStepMessages.push({ role: "assistant", content: [{ type: "tool-call", toolName: "ask_user_input", toolCallId, input }] });
+          }
+          const completionRequest = {
             op: "complete",
             args: {
               runId: claim!.runId,
               fence: claim!.fence,
               responseMessages: pendingStepMessages,
               form: pendingStepForm,
-              ...(authorizationProposal ? {authorizationProposal} : {}),
-              ...(authorizationContinuation?.length ? {authorizationContinuation} : {}),
-              finishReason,
+              ...(authorizationProposal ? { authorizationProposal } : {}),
+              ...(authorizationContinuation?.length ? { authorizationContinuation } : {}),
+              ...(authorizationProposal&&remainingObligations?{remainingObligations}:{}),
+              finishReason: completion && !incomplete ? "stop" : finishReason,
+              ...(incomplete ? { incomplete: true } : {}),
             },
-          });
+          };
+          // Review payload and text share the existing bridge capacity. If the
+          // complete packet does not fit, fail explicitly; never remove terms.
+          assertPublicationFits(completionRequest);
+          const completed = await callMigrationBridge<{ publicText?: string }>(manager, completionRequest);
           persisted = true;
-          publishedText = pendingStepForm && !authority.hasPending() ? "" : pendingStepMessages.filter(message => message.role === "assistant").map(message => typeof message.content === "string" ? message.content : "").join("\n");
+          publishedText = completed.publicText ?? canonicalText;
           console.info("portia_run_completed", {
             runId: claim!.runId,
             modelAlias: context.modelAlias,
             elapsedMs: Date.now() - requestStartedAt,
             modelSteps: steps.length,
-            state: pendingStepForm ? "waiting" : "completed",
+            state: pendingStepForm ? "waiting" : incomplete ? "incomplete" : "completed",
           });
         } catch (error) {
           if (!abortSignal.aborted) {
@@ -441,7 +476,7 @@ export async function POST(request: Request): Promise<Response> {
     const serviceFailure = authFailureResponse(error); if (serviceFailure) return serviceFailure;
     const status = error instanceof Error && /Unauthenticated|Authentication/i.test(error.message) ? 401 : 409;
     return Response.json(
-      { error: status === 401 ? "Unauthenticated." : claim?.authorizationExecution ? "Approval was accepted, but no quotation result was published. Check Memory for approved memory operations before retrying; those may already have been applied." : "Unable to start the migration response." },
+      { error: error instanceof PublicationLimitError ? claim?.authorizationExecution ? PUBLICATION_LIMIT_AFTER_APPROVAL_MESSAGE : PUBLICATION_LIMIT_MESSAGE : status === 401 ? "Unauthenticated." : claim?.authorizationExecution ? "Approval was accepted, but no quotation result was published. Check Memory for approved memory operations before retrying; those may already have been applied." : "Unable to start the migration response." },
       { status, headers: { "Cache-Control": "no-store" } },
     );
   }
