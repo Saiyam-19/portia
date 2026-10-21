@@ -9,8 +9,10 @@ import type { TariffResult } from "./tariff-types";
 import { PORT_ALIASES } from "../migration/ports";
 
 export const decimal = z.string().regex(/^\d+(?:\.\d+)?$/).max(40).refine(value => {
-  const n = new Decimal(value); return n.isFinite() && n.lte("1e18") && n.decimalPlaces() <= 20;
-}, "Quantity exceeds supported precision or size.");
+  try {
+    const n = new Decimal(value); return n.isFinite() && n.lte("1e18") && n.decimalPlaces() <= 20;
+  } catch { return false; }
+}, { message: "Quantity exceeds supported precision or size.", abort: true });
 const positive = decimal.refine(value => new Decimal(value).gt(0), "Must be positive.");
 const name = z.string().trim().min(1).max(120);
 // Node/browser ICU exposes its retained ISO 4217 currency catalog. The wire
