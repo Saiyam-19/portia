@@ -7,7 +7,7 @@ import type { AgentMemory } from "../memory/session";
 import { memoryKeySchema, memoryValueSchema, supportRetrySchema } from "../memory/input";
 import { QuoteSession, selectedComparisonSchema } from "../portia/session";
 import { safe } from "../portia/quotes";
-import { officialQuoteSchema, readQuotesSchema, suppliedQuoteSchema } from "../portia/agent-inputs";
+import { officialQuoteSchema, readQuotesSchema, suppliedQuoteWireSchema } from "../portia/agent-inputs";
 import { finishExecutedSchema } from "../portia/completion";
 import { recordDecisionEvidence } from "../portia/decision-evidence";
 import { nullableToolSchema } from "../portia/tool-schema";
@@ -69,7 +69,7 @@ export function createMigrationMainAgent(options: {
         check(abortSignal); return session.recordAnswer(toolCallId, request ? { ...result, body: `**${safe("facility" in result && typeof result.facility === "string" ? PORT_ALIASES[result.facility]?.[0] ?? result.facility : [request.port, request.terminal].filter(Boolean).join(" / "))}**\n\n` + result.body } : result);
       },
     }),
-    supplied_quote: tool({ description: "Create or update vendor-supplied quotations with original prices, metadata and typed billing. Creation has no quoteId; update uses a returned ID and changed fields only. Missing line inputs stay missing. Complete terms are prepared for server-owned exact review; no prices are approved by this tool.", strict: true, inputSchema: nullableToolSchema(suppliedQuoteSchema),
+    supplied_quote: tool({ description: "Create or update vendor-supplied quotations with original prices, metadata and typed billing. Creation has no quoteId; update uses a returned ID and changed fields only. Missing line inputs stay missing. Complete terms are prepared for server-owned exact review; no prices are approved by this tool.", strict: true, inputSchema: nullableToolSchema(suppliedQuoteWireSchema),
       execute: async (input, { abortSignal, toolCallId }) => { check(abortSignal); session.reserveAnswer(toolCallId); return session.executeCommand({ ...input, pricing: "supplied" }, abortSignal, toolCallId); } }),
     official_quote: tool({ description: "Create or update an estimate from retained port tariff sources. Pass original facility identities, requested services and known particulars; code retrieves rates and reports missing inputs/source limitations. Never pass supplier prices. Update only changed particulars using a returned quoteId.", strict: true, inputSchema: nullableToolSchema(officialQuoteSchema),
       execute: async (input, { abortSignal, toolCallId }) => { check(abortSignal); session.reserveAnswer(toolCallId); return session.executeCommand({ ...input, pricing: "official" }, abortSignal, toolCallId); } }),

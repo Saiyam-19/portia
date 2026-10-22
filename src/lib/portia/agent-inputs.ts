@@ -25,6 +25,23 @@ export const suppliedQuoteSchema = z.object({
   terms: termsSchema.omit({ unsupportedServices: true }).optional(),
   clearCallFields: z.array(suppliedCallSchema.keyof()).min(1).max(20).optional(), scopeChangeEvidence: command.scopeChangeEvidence,
 }).strict().superRefine((input, context) => validateCommand(input, context, { pricing: "supplied" }));
+// Explicit wire role: cargo movements belong to each billing recipe. Keep the
+// established storage/receipt field so existing quotes need no migration.
+const suppliedWireCallSchema = suppliedCallSchema.omit({ movements: true }).extend({
+  vesselMovements: callSchema.shape.movements.describe("Explicit number of vessel movements only (arrivals, departures or berth shifts). Never copy cargo-handling/transfer movements here; those stay in line billing.movements. Leave unknown unless the source identifies vessel movements."),
+});
+export const suppliedQuoteWireSchema = z.object({
+  ...suppliedQuoteSchema.shape,
+  call: suppliedWireCallSchema.optional(),
+  clearCallFields: z.array(suppliedWireCallSchema.keyof()).min(1).max(20).optional(),
+}).strict().transform(({ call, clearCallFields, ...input }) => {
+  const { vesselMovements, ...knownCall } = call ?? {};
+  return {
+    ...input,
+    ...(call ? { call: { ...knownCall, ...(vesselMovements !== undefined ? { movements: vesselMovements } : {}) } } : {}),
+    ...(clearCallFields ? { clearCallFields: clearCallFields.map(field => field === "vesselMovements" ? "movements" : field) } : {}),
+  };
+}).pipe(suppliedQuoteSchema);
 export const officialQuoteSchema = z.object({
   ...write, call: command.call, services: command.services, vesselCategoryEvidence: command.vesselCategoryEvidence,
   terms: termsSchema.pick({ unresolvedTerms: true, unsupportedServices: true }).optional(),

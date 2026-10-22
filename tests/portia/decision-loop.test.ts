@@ -116,7 +116,7 @@ it.each(["cargoTonnes", "movements"] as const)("retains and corrects supported s
   const authority = new AuthoritySession(); authority.acceptQuote(quoteCore(original));
   let step = 0;
   const model = new MockLanguageModelV4({ doGenerate: async () => step++ === 0
-    ? call("supplied_quote", { action: "update", quoteId: original.id, call: { [field]: "12" }, clearCallFields: ["flag"], scopeChangeEvidence: "Remove flag; it was entered incorrectly." }, "correct")
+    ? call("supplied_quote", { action: "update", quoteId: original.id, call: { [field === "movements" ? "vesselMovements" : field]: "12" }, clearCallFields: ["flag"], scopeChangeEvidence: "Remove flag; it was entered incorrectly." }, "correct")
     : finish(session, "quotation") });
   await createMigrationMainAgent({ alias: "model-1", mainModel: model, session, authority }).generate({ prompt: `Correct ${field} to 12. Remove flag; it was entered incorrectly.` });
   expect(model.doGenerateCalls).toHaveLength(2);

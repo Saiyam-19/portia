@@ -8,7 +8,17 @@ export function canonicalQuoteCommand(toolName: string, raw: unknown): unknown {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return raw;
   if (toolName === "compare_quotes" && "selections" in raw && Array.isArray(raw.selections)) return {...raw,quoteIds:raw.selections.map(selection=>selection?.quoteId)};
   if (toolName === "compare_quotes" && "officialQuoteIds" in raw && Array.isArray(raw.officialQuoteIds)) return {...raw,quoteIds:raw.officialQuoteIds};
-  if (toolName === "supplied_quote") return { ...raw, pricing: "supplied" };
+  if (toolName === "supplied_quote") {
+    // Successful SDK calls already contain canonical fields; malformed calls
+    // still contain wire fields. Normalize both for failure/repair identity.
+    const input = { ...raw } as Record<string, unknown>;
+    if (input.call && typeof input.call === "object" && !Array.isArray(input.call) && "vesselMovements" in input.call) {
+      const { vesselMovements, ...call } = input.call as Record<string, unknown>;
+      input.call = { ...call, movements: vesselMovements };
+    }
+    if (Array.isArray(input.clearCallFields)) input.clearCallFields = input.clearCallFields.map(field => field === "vesselMovements" ? "movements" : field);
+    return { ...input, pricing: "supplied" };
+  }
   if (toolName === "official_quote") return { ...raw, pricing: "official" };
   if (toolName === "read_quotes") return { ...raw, action: "read" };
   return raw;

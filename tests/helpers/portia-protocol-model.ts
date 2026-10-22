@@ -17,6 +17,13 @@ function migrateCall<T extends { toolName: string; input: string }>(part: T, opt
   if (input.action === "read") { delete input.action; return { ...part, toolName: "read_quotes", input: JSON.stringify(input) }; }
   const saved = context(options, "SAVED_QUOTES") as { quotes?: Array<{ id: string; pricing: string }>; drafts?: Array<{ quote: { id: string; pricing: string } }> } | undefined;
   const pricing = input.pricing ?? saved?.quotes?.find(quote => quote.id === input.quoteId)?.pricing ?? saved?.drafts?.find(draft => draft.quote.id === input.quoteId)?.quote.pricing;
+  if (pricing === "supplied") {
+    if (input.call && typeof input.call === "object" && !Array.isArray(input.call) && "movements" in input.call) {
+      const { movements, ...call } = input.call as Record<string, unknown>;
+      input.call = { ...call, vesselMovements: movements };
+    }
+    if (Array.isArray(input.clearCallFields)) input.clearCallFields = input.clearCallFields.map(field => field === "movements" ? "vesselMovements" : field);
+  }
   if (pricing === "supplied" || pricing === "official") delete input.pricing;
   return { ...part, toolName: pricing === "supplied" ? "supplied_quote" : "official_quote", input: JSON.stringify(input) };
 }
