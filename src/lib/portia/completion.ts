@@ -95,6 +95,7 @@ export class CompletionSession {
   private issues: Issue[] = [];
   private attempted = false;
   private readonly pendingIntent: NonNullable<FinishExecutedInput["pending"]> = [];
+  private executedFinish?: { callId: string; input: FinishExecutedInput; outcomes: Outcome[] };
 
   constructor(private readonly renderPublication?: (response: string) => string) {}
 
@@ -125,20 +126,47 @@ export class CompletionSession {
         && ["completed","awaiting_approval"].includes(next.disposition) && this.isCurrent(next));
     });
   }
-  finishExecuted(input: FinishExecutedInput, callId: string) {
-    for (const pending of input.pending ?? []) if (!this.pendingIntent.some(item=>item.kind===pending.kind && item.reason===pending.reason)) this.pendingIntent.push({...pending});
-    // Each executed result keeps its own binding, even when another result has
-    // the same kind/targets but a different currency, selection or view.
-    const outcomes = [...this.evidence.values()].filter(item => this.isCurrent(item)).map(item => ({
+  // Each executed result keeps its own binding, even when another result has
+  // the same kind/targets but a different currency, selection or view.
+  private executedOutcome(item: Evidence): Outcome {
+    return {
       id: `work-${item.id.slice(7)}`, requestedOutcome: item.kind, kind: item.kind,
       targets: [...item.targets], evidenceIds: [item.id],
       ...(item.comparisonCurrency ? {comparisonCurrency:item.comparisonCurrency} : {}),
       ...(item.kind === "quotation_read" ? {reportingViews:[item.reportingView ?? {stage:"exact" as const}]} : {}),
-    }));
+    };
+  }
+  private executedResponse(input: FinishExecutedInput) {
+    const pendingText = [...this.pendingIntent.map(({reason})=>`Unfinished requested work: ${reason}`),...(this.invalidatedComparisons().length?[INVALIDATED_COMPARISON]:[])].join("\n");
+    return [input.response,pendingText].filter(Boolean).join("\n\n");
+  }
+  finishExecuted(input: FinishExecutedInput, callId: string) {
+    for (const pending of input.pending ?? []) if (!this.pendingIntent.some(item=>item.kind===pending.kind && item.reason===pending.reason)) this.pendingIntent.push({...pending});
+    const outcomes = [...this.evidence.values()].filter(item => this.isCurrent(item)).map(item => this.executedOutcome(item));
     // Older superseded execution rows are historical, not model-declared intent.
     for (const id of this.outcomes.keys()) if (id.startsWith("work-") && !outcomes.some(row=>row.id===id)) this.outcomes.delete(id);
-    const pendingText = [...this.pendingIntent.map(({reason})=>`Unfinished requested work: ${reason}`),...(this.invalidatedComparisons().length?[INVALIDATED_COMPARISON]:[])].join("\n");
-    return this.finish({outcomes,response:[input.response,pendingText].filter(Boolean).join("\n\n")},callId);
+    this.executedFinish = { callId, input: structuredClone(input), outcomes: structuredClone(outcomes) };
+    return this.finish({outcomes,response:this.executedResponse(input)},callId);
+  }
+  /** A finish sent in the same step as business calls saves a whole model
+   * dispatch. It is accepted only when every sibling call settled cleanly;
+   * questions, limitations or failures go back to the model for review. Only
+   * sibling results are added; earlier evidence is never silently rebound. */
+  private acceptSharedFinish(toolCalls: readonly { toolCallId: string; toolName: string }[], finish: NonNullable<CompletionSession["executedFinish"]>) {
+    const siblings = toolCalls.filter(call => call.toolCallId !== finish.callId);
+    const results = siblings.map(call => { const id = this.calls.get(call.toolCallId); return id ? this.evidence.get(id) : undefined; });
+    if (results.some(result => !result || !["completed", "awaiting_approval"].includes(result.disposition))) {
+      this.issues = [{ code: "review_step_results", message: "A call in the same step as finish_turn returned questions, limitations or an error, so this finish was not accepted. Review that result: repair anything the human already supplied; otherwise call finish_turn again so the server presents the questions." }];
+      return false;
+    }
+    // A failure repaired by a sibling retry is history. Any other result that
+    // went stale still fails validation below rather than being replaced.
+    const kept = finish.outcomes.filter(outcome => outcome.evidenceIds.every(id => { const item = this.evidence.get(id); return !item || item.disposition !== "failed" || this.isCurrent(item); }));
+    const bound = new Set(kept.flatMap(outcome => outcome.evidenceIds));
+    const outcomes = [...kept, ...results.filter((result): result is Evidence => !!result && !bound.has(result.id)).map(result => this.executedOutcome(result))];
+    for (const id of this.outcomes.keys()) if (id.startsWith("work-") && !outcomes.some(row => row.id === id)) this.outcomes.delete(id);
+    this.finish({ outcomes, response: this.executedResponse(finish.input) }, finish.callId);
+    return true;
   }
   finish(input: FinishTurnInput, callId: string) {
     this.attempted = true; this.accepted = undefined;
@@ -212,7 +240,11 @@ export class CompletionSession {
   acceptStep(toolCalls: readonly { toolCallId: string; toolName: string }[]) {
     this.accepted = undefined;
     if (!this.candidate || !toolCalls.some(call => call.toolCallId === this.candidate!.callId && call.toolName === "finish_turn")) return false;
-    if (toolCalls.length !== 1) { this.issues = [{ code: "finish_must_be_alone", message: "Call finish_turn alone after all business tools finish, using their returned evidence." }]; return false; }
+    if (toolCalls.length !== 1) {
+      const executed = this.executedFinish?.callId === this.candidate.callId ? this.executedFinish : undefined;
+      if (!executed) { this.issues = [{ code: "finish_must_be_alone", message: "Call finish_turn alone after all business tools finish, using their returned evidence." }]; return false; }
+      if (!this.acceptSharedFinish(toolCalls, executed)) return false;
+    }
     const structural = this.issues.filter(issue => ["duplicate_outcome", "changed_outcome"].includes(issue.code));
     const checked = this.validate(this.candidate.input); this.issues = [...structural, ...checked.issues];
     if (this.issues.length) return false;
