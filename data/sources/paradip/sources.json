@@ -1,0 +1,29 @@
+{
+  "port": "paradip",
+  "documents": [
+    {
+      "file": "data/sources/paradip/sor-indexed-2026-27.pdf",
+      "title": "Paradip Port Authority indexed Scale of Rates 2026-27, w.e.f. 1 May 2026",
+      "issuer": "Paradip Port Authority",
+      "url": "https://www.paradipport.gov.in/uploads/2026/06/sor-indexed-26-27-final.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/paradip/sor-indexed-2026-27.md",
+      "sha256": "b00c0d793278b79ce686902ed15f8ed616763b69b0a5e10f22049ec0895af2db",
+      "pages": 18,
+      "pagesWithoutText": [
+        1
+      ]
+    },
+    {
+      "file": "data/sources/paradip/sor-2026-new-18092026.pdf",
+      "title": "Paradip Port Authority Scale of Rates 2026 (uploaded 18 September 2026)",
+      "issuer": "Paradip Port Authority",
+      "url": "https://www.paradipport.gov.in/uploads/2026/09/Scale-of-Rates-2026-_18092026_compressed.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/paradip/sor-2026-new-18092026.md",
+      "sha256": "70f61c9a4a4905c8060ab9285f11ac8cbb7c44cb20a51a5e6edbe81209c4ea9b",
+      "pages": 56,
+      "pagesWithoutText": []
+    }
+  ]
+}

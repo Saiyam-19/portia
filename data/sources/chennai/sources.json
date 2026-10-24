@@ -1,0 +1,16 @@
+{
+  "port": "chennai",
+  "documents": [
+    {
+      "file": "data/sources/chennai/tn-gazette-2026-sor.pdf",
+      "title": "Tamil Nadu Government Gazette, Part III Section 2, 2026 issue 23: Chennai Port Authority revised Scale of Rates",
+      "issuer": "Chennai Port Authority (Tamil Nadu Government Gazette)",
+      "url": "https://www.stationeryprinting.tn.gov.in/gazette/2026/23_III_2_2026.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/chennai/tn-gazette-2026-sor.md",
+      "sha256": "bec33b9bcef6fa1f37c70c2df2dcf4d1f660457a0a81ff1ed7351a1e80790bf3",
+      "pages": 35,
+      "pagesWithoutText": []
+    }
+  ]
+}

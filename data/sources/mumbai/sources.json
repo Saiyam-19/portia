@@ -1,0 +1,31 @@
+{
+  "port": "mumbai",
+  "documents": [
+    {
+      "file": "data/sources/mumbai/sor-2026-05.pdf",
+      "title": "Mumbai Port Authority Scale of Rates (updated May 2026)",
+      "issuer": "Mumbai Port Authority",
+      "url": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1778833452.pdf",
+      "retrievedOn": "2026-10-15",
+      "markdown": "data/sources/mumbai/sor-2026-05.md",
+      "sha256": "bcef570f3e41b1eb94772c38052f3701a981bd3b4d22059134ddcc1fe44bc244",
+      "pages": 61,
+      "pagesWithoutText": []
+    },
+    {
+      "file": "data/sources/mumbai/berth-amendment-2026-05.pdf",
+      "title": "Mumbai Port Authority berth hire amendment (May 2026)",
+      "issuer": "Mumbai Port Authority",
+      "url": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1778833405.pdf",
+      "retrievedOn": "2026-10-15",
+      "markdown": "data/sources/mumbai/berth-amendment-2026-05.md",
+      "sha256": "c64752669611dc4581ff6fc591a9073c17a7986c1a9e18c1fd606aec8a43354c",
+      "pages": 3,
+      "pagesWithoutText": [
+        1,
+        2,
+        3
+      ]
+    }
+  ]
+}

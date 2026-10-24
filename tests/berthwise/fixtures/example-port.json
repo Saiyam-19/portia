@@ -1,0 +1,57 @@
+{
+  "id": "example-port",
+  "name": "Example Port Authority",
+  "kind": "major",
+  "aliases": ["Example Port", "EPA"],
+  "terminals": [
+    { "id": "main-dock", "name": "Main Dock", "aliases": [], "berths": [
+      { "id": "north-quay", "name": "North Quay", "aliases": ["NQ"] },
+      { "id": "south-quay", "name": "South Quay", "aliases": ["SQ"] }
+    ] }
+  ],
+  "checkedOn": "2026-10-25",
+  "versions": [
+    {
+      "id": "example-sor-2026",
+      "effectiveFrom": "2026-05-01",
+      "effectiveTo": "2027-04-30",
+      "documents": [
+        { "id": "sor-2026", "title": "Example Port Scale of Rates 2026-27", "issuer": "Example Port Authority", "url": "https://example.org/sor-2026.pdf",
+          "file": "data/sources/example-port/sor-2026.pdf", "markdown": "data/sources/example-port/sor-2026.md",
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000", "publishedOn": "2026-04-20", "retrievedOn": "2026-10-25" }
+      ],
+      "defaults": { "status": "foreign", "vesselType": "general-cargo", "movements": 2 },
+      "charges": [
+        { "id": "port-dues", "type": "port-dues", "label": "Port dues", "basis": "grt",
+          "rates": [
+            { "when": { "status": ["foreign"] }, "currency": "USD", "bands": [{ "rate": "0.4000" }] },
+            { "when": { "status": ["coastal"] }, "currency": "INR", "bands": [{ "rate": "10.0000" }] }
+          ],
+          "source": { "document": "sor-2026", "page": 2, "section": "2.1" } },
+        { "id": "pilotage-towage", "type": "pilotage-towage", "label": "Pilotage and towage", "basis": "grt", "minimumQuantity": "1000", "includes": ["pilotage", "towage"],
+          "rates": [
+            { "when": { "status": ["foreign"] }, "currency": "USD", "bandMode": "excess", "bands": [
+              { "upTo": "30000", "rate": "0.6000" }, { "upTo": "60000", "base": "18000", "rate": "0.5000" }, { "base": "33000", "rate": "0.4000" } ] }
+          ],
+          "conditions": ["Covers one arrival and one departure."],
+          "source": { "document": "sor-2026", "page": 3, "section": "2.2" } },
+        { "id": "berth-hire", "type": "berth-hire", "label": "Berth hire", "basis": "grt-hour", "timeRounding": "started-hour", "minimumQuantity": "1000",
+          "rates": [
+            { "when": { "status": ["foreign"], "berths": ["north-quay"] }, "currency": "USD", "bands": [{ "rate": "0.0100" }] },
+            { "when": { "status": ["foreign"], "berths": ["south-quay"] }, "currency": "USD", "bands": [{ "rate": "0.0080" }] }
+          ],
+          "source": { "document": "sor-2026", "page": 5, "section": "2.5" } },
+        { "id": "mooring", "type": "mooring", "label": "Mooring and unmooring", "basis": "call", "bandOn": "grt", "per": "movement",
+          "rates": [ { "when": {}, "currency": "USD", "bands": [{ "upTo": "20000", "rate": "100" }, { "rate": "150" }] } ],
+          "source": { "document": "sor-2026", "page": 6 } },
+        { "id": "wharfage", "type": "wharfage", "label": "Wharfage", "basis": "tonne",
+          "rates": [
+            { "when": { "cargoClasses": ["coal"] }, "currency": "INR", "bands": [{ "rate": "50" }], "minimumAmount": "1000" },
+            { "when": { "cargoClasses": ["steel"] }, "currency": "INR", "bands": [{ "rate": "80" }], "minimumAmount": "1000" }
+          ],
+          "source": { "document": "sor-2026", "page": 9 } }
+      ],
+      "notes": []
+    }
+  ]
+}

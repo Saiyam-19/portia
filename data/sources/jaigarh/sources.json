@@ -1,0 +1,16 @@
+{
+  "port": "jaigarh",
+  "documents": [
+    {
+      "file": "data/sources/jaigarh/tariff-2026-05.pdf",
+      "title": "JSW Jaigarh Port tariff w.e.f. 1 May 2026",
+      "issuer": "JSW Jaigarh Port",
+      "url": "https://www.jswinfrastructure.in/sites/default/files/assets/industry/infrastructure/jaigarh/JSW-Jaigarh-Port-Tariff-wef-01.05.2026.pdf",
+      "retrievedOn": "2026-10-15",
+      "markdown": "data/sources/jaigarh/tariff-2026-05.md",
+      "sha256": "98ae0d5f90ffa0c3dc725f3aee555ae3d20caee1a65b569fe37f7a12c6d60f0f",
+      "pages": 22,
+      "pagesWithoutText": []
+    }
+  ]
+}

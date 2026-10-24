@@ -1,0 +1,16 @@
+{
+  "port": "new-mangalore",
+  "documents": [
+    {
+      "file": "data/sources/new-mangalore/sor-2026-27.pdf",
+      "title": "New Mangalore Port Authority indexed Scale of Rates, 1 May 2026 to 30 April 2027",
+      "issuer": "New Mangalore Port Authority",
+      "url": "https://newmangaloreport.gov.in/sites/default/files/inline-files/Indexed%20SOR%20wef%2001.05.2026%20%280.65%29.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/new-mangalore/sor-2026-27.md",
+      "sha256": "ba434e6d4b35544e142a784977b25b3d140730c70bf10f3a0cb0f318635cd9bf",
+      "pages": 87,
+      "pagesWithoutText": []
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "port": "jnpa",
+  "documents": [
+    {
+      "file": "data/sources/jnpa/sor-2026-27.pdf",
+      "title": "JNPA Scale of Rates w.e.f. 1 May 2026 (including MBPA)",
+      "issuer": "Jawaharlal Nehru Port Authority",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/SOR_w_e_f_01_05_2026_including_MBPA.pdf",
+      "retrievedOn": "2026-10-15",
+      "markdown": "data/sources/jnpa/sor-2026-27.md",
+      "sha256": "6a0853b86c086a8983a5aaaa2a6c6d5dec0a6435df7d373cebebea3f7fb70095",
+      "pages": 13,
+      "pagesWithoutText": [
+        1
+      ]
+    },
+    {
+      "file": "data/sources/jnpa/gti-2026.pdf",
+      "title": "Gateway Terminals India commercial tariff, effective 1 May 2026",
+      "issuer": "Gateway Terminals India (APM Terminals Mumbai)",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/Commercial_2026_Tariff_-_Effective_01st_May_2026_0001_hrs.pdf",
+      "retrievedOn": "2026-10-15",
+      "markdown": "data/sources/jnpa/gti-2026.md",
+      "sha256": "613c33f6c67c4f9e2f81749469dcdc2beae585292e35d583467b0020e169b554",
+      "pages": 11,
+      "pagesWithoutText": []
+    },
+    {
+      "file": "data/sources/jnpa/nsigt-2026.pdf",
+      "title": "NSIGT Scale of Rates, 1 April 2026",
+      "issuer": "Nhava Sheva (India) Gateway Terminal",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/Scale_of_Rates_1st_April_2026.pdf",
+      "retrievedOn": "2026-10-15",
+      "markdown": "data/sources/jnpa/nsigt-2026.md",
+      "sha256": "e1e7b142ca42f384b8f7a0e2cf5fdd1946faa1bbea2d31a86ef2967f865420c6",
+      "pages": 10,
+      "pagesWithoutText": []
+    },
+    {
+      "file": "data/sources/jnpa/nsict-2026.pdf",
+      "title": "NSICT tariff 2026",
+      "issuer": "Nhava Sheva International Container Terminal",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/NSICT_Tariff_2026.pdf",
+      "retrievedOn": "2026-10-15",
+      "markdown": "data/sources/jnpa/nsict-2026.md",
+      "sha256": "572e163b2995cb6ed9f1649771f08fd3830afa04adfa3d7cb565ee82a5e048e7",
+      "pages": 10,
+      "pagesWithoutText": []
+    },
+    {
+      "file": "data/sources/jnpa/nsft-2026.pdf",
+      "title": "NSFT terminal tariff, 1 May 2026",
+      "issuer": "Nhava Sheva Freeport Terminal",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/NSFTPL_Terminal_Tariff_01_05_2026.pdf",
+      "retrievedOn": "2026-10-15",
+      "markdown": "data/sources/jnpa/nsft-2026.md",
+      "sha256": "337c9ec529dd4959f3186565d0b147f98b5f68e1cef4d4aa5367f3d57c50a95e",
+      "pages": 11,
+      "pagesWithoutText": []
+    },
+    {
+      "file": "data/sources/jnpa/bmct-2026.pdf",
+      "title": "BMCT Scale of Rates w.e.f. 6 April 2026",
+      "issuer": "Bharat Mumbai Container Terminals (PSA Mumbai)",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/SoR-_BMCT_w_e_f_06-Apr-2026.pdf",
+      "retrievedOn": "2026-10-15",
+      "markdown": "data/sources/jnpa/bmct-2026.md",
+      "sha256": "efed96a2230d2ffd36dde38bc995114b43af2871406ef3bd6c933edaaf3d8740",
+      "pages": 11,
+      "pagesWithoutText": []
+    },
+    {
+      "file": "data/sources/jnpa/jsw-jnpt-liquid-2024.pdf",
+      "title": "JSW JNPT Liquid Terminal tariff w.e.f. 5 November 2024",
+      "issuer": "JSW JNPT Liquid Terminal",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/JSW_JNPT_Liquid_Terminal_Pvt_Ltd_Tariff_wef_05112024.pdf",
+      "retrievedOn": "2026-10-15",
+      "markdown": "data/sources/jnpa/jsw-jnpt-liquid-2024.md",
+      "sha256": "6ff9b2708ae9377fb6f62deadca6145b0879e0cbe837f18c652ab38daafbc29d",
+      "pages": 4,
+      "pagesWithoutText": []
+    }
+  ]
+}

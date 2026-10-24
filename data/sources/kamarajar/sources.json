@@ -1,0 +1,41 @@
+{
+  "port": "kamarajar",
+  "documents": [
+    {
+      "file": "data/sources/kamarajar/sor-consolidated.pdf",
+      "title": "Kamarajar Port Limited Scale of Rates (consolidated with amendments)",
+      "issuer": "Kamarajar Port Limited",
+      "url": "https://www.kamarajarport.in/storage/app/public/scale_of_rates/rTphsHaUdS8DIST5zbB5GNi4fo4V0goUQOOeKUde.pdf",
+      "retrievedOn": "2026-10-25",
+      "tlsWarning": "The site's TLS certificate had expired when this file was downloaded.",
+      "markdown": "data/sources/kamarajar/sor-consolidated.md",
+      "sha256": "d2f1e65cad478c1c2dfb1c423f7e32bad015d77003393233e0224c279beab0ae",
+      "pages": 26,
+      "pagesWithoutText": []
+    },
+    {
+      "file": "data/sources/kamarajar/sor-annex-2.pdf",
+      "title": "Kamarajar Port Limited scale of rates annex (second file on the Scale of Rates page)",
+      "issuer": "Kamarajar Port Limited",
+      "url": "https://www.kamarajarport.in/storage/app/public/scale_of_rates/TRk8mzphjxfdjmP67QEsPI5eGA98IDGnL32of6op.pdf",
+      "retrievedOn": "2026-10-25",
+      "tlsWarning": "The site's TLS certificate had expired when this file was downloaded.",
+      "markdown": "data/sources/kamarajar/sor-annex-2.md",
+      "sha256": "67ccef39c53ac157bca094f4dd44f5d37777e12400d9971d48cb96acdc19d217",
+      "pages": 1,
+      "pagesWithoutText": []
+    },
+    {
+      "file": "data/sources/kamarajar/sor-annex-3.pdf",
+      "title": "Kamarajar Port Limited scale of rates annex (third file on the Scale of Rates page)",
+      "issuer": "Kamarajar Port Limited",
+      "url": "https://www.kamarajarport.in/storage/app/public/scale_of_rates/s49gIjpJ45QY95o6skCtNvegb2Sm4oX6LKsitTWk.pdf",
+      "retrievedOn": "2026-10-25",
+      "tlsWarning": "The site's TLS certificate had expired when this file was downloaded.",
+      "markdown": "data/sources/kamarajar/sor-annex-3.md",
+      "sha256": "1bda53a5fc938743b2674d946a1153afe072680f78b510443c40548deef19c2b",
+      "pages": 1,
+      "pagesWithoutText": []
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "port": "deendayal",
+  "documents": [
+    {
+      "file": "data/sources/deendayal/sor-escalated-2026-27.pdf",
+      "title": "Deendayal Port Authority SOR (w.e.f. 20 January 2023), escalated 0.65% w.e.f. 1 May 2026",
+      "issuer": "Deendayal Port Authority",
+      "url": "https://www.deendayalport.gov.in/uploads/PROPOSED_SOR_W_E_F_20_01_2023_ESCL_0_65_W_E_F_01_05_2026_24bf10bed3.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/deendayal/sor-escalated-2026-27.md",
+      "sha256": "9a9990bb5f5663d424be18d4165ac791efae47ba6d89ea0e40f4d00e3491cf69",
+      "pages": 39,
+      "pagesWithoutText": []
+    },
+    {
+      "file": "data/sources/deendayal/pilotage-corrigendum-2024.pdf",
+      "title": "Deendayal Port Authority corrigendum to Schedule 2.1 (pilotage fees), gazette G.N. 90 of 13 August 2024",
+      "issuer": "Deendayal Port Authority",
+      "url": "https://www.deendayalport.gov.in/uploads/Corrigendum_to_Existing_Schedule_2_1_Schedule_of_Pilotage_Fees_under_Chapter_II_of_the_Existing_SOR_of_DPA_Notified_in_the_State_Gazette_Vide_G_N_No_90_dated_13_08_2024_28d946bed9.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/deendayal/pilotage-corrigendum-2024.md",
+      "sha256": "f9cc7ae64fc2730cde0d49cf8b6a0c02dadfd6b16f55a800da8ad8e8d8c32bba",
+      "pages": 4,
+      "pagesWithoutText": [
+        1,
+        2,
+        3,
+        4
+      ]
+    }
+  ]
+}

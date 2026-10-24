@@ -1,0 +1,38 @@
+{
+  "port": "kattupalli",
+  "documents": [
+    {
+      "file": "data/sources/kattupalli/bpts-2025-10-15.pdf",
+      "title": "Kattupalli Port (MIDPL) Berthing Policy and Tariff Structure w.e.f. 15 October 2025",
+      "issuer": "Marine Infrastructure Developer Pvt Ltd (Adani Kattupalli Port)",
+      "url": "https://www.adaniports.com/-/media/project/ports/portsandterminals/kattupalli-port-documents/public-notices/bpts-kattupalli-port-wef-15-oct-2025.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/kattupalli/bpts-2025-10-15.md",
+      "sha256": "487171bf89d639607ea4ccbba837a1135ea8e9f15c03bcd1cdb256fc192b6a3f",
+      "pages": 61,
+      "pagesWithoutText": []
+    },
+    {
+      "file": "data/sources/kattupalli/bpts-addendum-2026-07-15.pdf",
+      "title": "Addendum to Kattupalli Port Berthing Policy and Tariff Structure, effective 15 July 2026",
+      "issuer": "Marine Infrastructure Developer Pvt Ltd (Adani Kattupalli Port)",
+      "url": "https://www.adaniports.com/-/media/project/ports/portsandterminals/kattupalli-port-documents/berthing-policy-and-tariff-structure/addendum-to-berthing-policy-and-tariff-structure-of-midpl-kattupalli-port-effective-15th-july-2026.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/kattupalli/bpts-addendum-2026-07-15.md",
+      "sha256": "4831f54d51ae293de3ac6b96c048b25b6100877d0cdde179dede7b7cdbcbeaa1",
+      "pages": 1,
+      "pagesWithoutText": []
+    },
+    {
+      "file": "data/sources/kattupalli/fuel-surcharge-2026-10-01.pdf",
+      "title": "Kattupalli fuel surcharge on pilotage, circular dated 1 October 2026",
+      "issuer": "Marine Infrastructure Developer Pvt Ltd (Adani Kattupalli Port)",
+      "url": "https://www.adaniports.com/-/media/project/ports/portsandterminals/kattupalli-port-documents/public-notices/fs_kattupalli_dtd_01-10-2026.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/kattupalli/fuel-surcharge-2026-10-01.md",
+      "sha256": "8f6e31bd57ac8e1327dee72f68c87630e37f546775b4522e1841c3748c4d9faf",
+      "pages": 1,
+      "pagesWithoutText": []
+    }
+  ]
+}

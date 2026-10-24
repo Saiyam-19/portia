@@ -1,0 +1,27 @@
+{
+  "port": "hazira",
+  "documents": [
+    {
+      "file": "data/sources/hazira/bpts-rev14-2026-10.pdf",
+      "title": "Adani Hazira Port Berthing Policy and Tariff Structure, issue 3 revision 14 (October 2026)",
+      "issuer": "Adani Hazira Port",
+      "url": "https://www.adaniports.com/-/media/project/ports/portsandterminals/hazira-port-documents/tariff/bpts_hazira_issue-03_rev-14_oct-2026.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/hazira/bpts-rev14-2026-10.md",
+      "sha256": "41e2495c9e3e25da0845d8226ecca4567cddad5b425566916aeb0225bdef999a",
+      "pages": 56,
+      "pagesWithoutText": []
+    },
+    {
+      "file": "data/sources/hazira/fuel-surcharge-2026-10-01.pdf",
+      "title": "Hazira fuel surcharge on pilotage, circular dated 1 October 2026",
+      "issuer": "Adani Hazira Port",
+      "url": "https://www.adaniports.com/-/media/project/ports/portsandterminals/hazira-port-documents/trade-notice/fs_hazira_dtd_01-10-2026.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/hazira/fuel-surcharge-2026-10-01.md",
+      "sha256": "d9d27f7c80849e41c414873ff0acc9392ed7f684b1844f4b7d57be22f04e1197",
+      "pages": 1,
+      "pagesWithoutText": []
+    }
+  ]
+}

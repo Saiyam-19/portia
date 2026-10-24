@@ -1,0 +1,16 @@
+{
+  "port": "pipavav",
+  "documents": [
+    {
+      "file": "data/sources/pipavav/tariffs-2026-01-01.pdf",
+      "title": "Gujarat Pipavav Port (APM Terminals Pipavav) tariffs effective 1 January 2026",
+      "issuer": "Gujarat Pipavav Port Ltd (APM Terminals)",
+      "url": "https://cms-cd.apmterminals.com/pipavav/-/media/mainsite/asia-and-pacific/Pipavav/Information/Tariffs---Effective-01-Jan-2026.pdf?rev=1d7894ec026b427ca2d18b3af9555796",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/pipavav/tariffs-2026-01-01.md",
+      "sha256": "29c6c8722676d26189073fe8a72cd788a9ca129288fdfcb43e06e24a28f46c7d",
+      "pages": 42,
+      "pagesWithoutText": []
+    }
+  ]
+}
