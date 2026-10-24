@@ -2,8 +2,8 @@ import { expect, it } from "vitest";
 import { clientResponseError, responseErrorMessage } from "../../src/lib/migration/response-errors";
 
 it("distinguishes a timeout from an exhausted provider balance", () => {
-  expect(responseErrorMessage(new DOMException("private timeout context", "TimeoutError"))).toContain("timed out");
-  expect(responseErrorMessage({ code: 402, message: "private account details" })).toContain("billing limit");
+  expect(responseErrorMessage(new DOMException("private timeout context", "TimeoutError"))).toContain("took too long");
+  expect(responseErrorMessage({ code: 402, message: "private account details" })).toContain("spending limit");
   expect(responseErrorMessage({ code: 429 })).toContain("busy");
 });
 

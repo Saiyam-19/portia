@@ -7,24 +7,11 @@ import type { Id } from "./_generated/dataModel";
 import { httpAction } from "./_generated/server";
 import { authComponent, createAuth } from "./auth";
 import { readBoundedJsonBody } from "../src/lib/bounded-json-body";
-import { MAX_REVIEW_CHARS } from "../src/lib/authority/contract";
-import { remainingObligationsSchema } from "../src/lib/portia/remaining-obligations";
 import {
   isAllowedEmail,
   isMigrationDevEnabled,
   requireMigrationDevEnabled,
 } from "./lib/migrationGate";
-
-const formFieldSchema = z.object({
-  name: z.string(),
-  label: z.string(),
-  type: z.enum(["text", "number", "radio", "textarea"]),
-  placeholder: z.string().optional(),
-  options: z.array(z.string()).optional(),
-  unit: z.string().optional(),
-  required: z.boolean(),
-  hint: z.string().optional(),
-}).strict();
 
 const modelAliasSchema = z.enum(["model-1", "model-2"]);
 const finishReasonSchema = z.enum(["stop", "length", "content-filter", "tool-calls", "error", "other"]);
@@ -39,20 +26,6 @@ const bridgeRequestSchema = z.discriminatedUnion("op", [
       question: z.string().min(1).max(4_000),
       modelAlias: modelAliasSchema,
       expectedRevision: z.number().int().nonnegative().nullable(),
-    }).strict(),
-  }).strict(),
-  z.object({
-    op: z.literal("resolveForm"),
-    args: z.object({
-      conversationId: idSchema,
-      requestId: idSchema,
-      payloadHash: z.string().min(1).max(128),
-      toolCallId: idSchema,
-      values: z.record(z.string(), z.string()),
-      cancelled: z.boolean(),
-      note: z.string().max(2_000).optional(),
-      modelAlias: modelAliasSchema,
-      expectedRevision: z.number().int().nonnegative(),
     }).strict(),
   }).strict(),
   z.object({
@@ -80,17 +53,7 @@ const bridgeRequestSchema = z.discriminatedUnion("op", [
       runId: idSchema,
       fence: z.number().int().positive(),
       responseMessages: z.array(z.unknown()).max(12),
-      finishReason: finishReasonSchema.optional(),
       incomplete: z.literal(true).optional(),
-      form: z.object({
-        toolCallId: idSchema,
-        title: z.string().min(1).max(120),
-        description: z.string().max(MAX_REVIEW_CHARS).optional(),
-        fields: z.array(formFieldSchema).min(1).max(8),
-      }).strict().nullable(),
-      authorizationProposal: z.string().max(48_000).optional(),
-      authorizationContinuation: z.array(z.object({payload:z.string().max(48_000),toolCallId:idSchema,title:z.string().max(120),description:z.string().max(MAX_REVIEW_CHARS).optional(),fields:z.array(formFieldSchema).min(1).max(8),reviewGroup:z.string().max(80)}).strict()).max(15).optional(),
-      remainingObligations:remainingObligationsSchema.optional(),
     }).strict(),
   }).strict(),
   z.object({
@@ -146,13 +109,6 @@ const bridge = httpAction(async (ctx, request) => {
         ownerId: user._id,
         ...args,
         conversationId: args.conversationId as Id<"migrationConversations"> | null,
-      }));
-    }
-    if (op === "resolveForm") {
-      return json(await ctx.runMutation(internal.migration.resolveFormAndClaim, {
-        ownerId: user._id,
-        ...args,
-        conversationId: args.conversationId as Id<"migrationConversations">,
       }));
     }
     if (op === "context") {

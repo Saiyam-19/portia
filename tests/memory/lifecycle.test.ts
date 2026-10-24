@@ -40,7 +40,7 @@ it("keeps a deletion barrier closed across batches and rejects the stale run",as
   await publish(first);
   expect(await t.mutation(internal.memory.open,{ownerId:a.ownerId})).toMatchObject({blocked:true,image:null,pending:true});
   await expect(t.mutation(internal.memory.open,{ownerId:a.ownerId,runId:other.runId,runFence:other.fence})).rejects.toThrow("MEMORY_CHANGED");
-  await expect(t.mutation(internal.migration.completeRun,{ownerId:a.ownerId,runId:other.runId,fence:other.fence,responseMessages:[{role:"assistant",content:"Late secret"}],form:null,finishReason:"stop"})).rejects.toThrow("MEMORY_CHANGED");
+  await expect(t.mutation(internal.migration.completeRun,{ownerId:a.ownerId,runId:other.runId,fence:other.fence,responseMessages:[{role:"assistant",content:"Late secret"}]})).rejects.toThrow("MEMORY_CHANGED");
   const second=(await t.mutation(internal.memory.claim,{ownerId:a.ownerId}))!;
   expect(second.operations.at(-1)).toEqual({kind:"forget",key:"key0"});
   await publish(second);

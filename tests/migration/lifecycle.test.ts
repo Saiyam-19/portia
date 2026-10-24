@@ -28,29 +28,38 @@ describe('normal conversation lifecycle', () => {
       await t.mutation(internal.migration.completeRun, {
         ownerId: a.userId, runId: claimed.runId, fence: claimed.fence,
         responseMessages: [{ role: 'assistant', content: 'Partial calculation: 91.' }],
-        form: null, finishReason: 'stop', ...(disposition === 'incomplete' ? { incomplete: true } : {}),
+        ...(disposition === 'incomplete' ? { incomplete: true as const } : {}),
       });
     }
     const history = await a.client.query(api.migration.listConversationMessages, { conversationId: claimed.conversationId, paginationOpts: { cursor: null, numItems: 50 } });
     expect(history.page.length).toBeGreaterThan(0);
     for (const message of history.page) {
-      expect(message.runStatus).toBe(disposition === 'completed' ? 'completed' : 'error');
+      expect(message.runStatus).toBe(disposition === 'error' ? 'error' : 'completed');
       expect(message.completionDisposition).toBe(disposition === 'incomplete' ? 'incomplete' : undefined);
       expect(message).not.toHaveProperty('errorCode');
     }
     expect(JSON.stringify(history)).not.toContain('PRIVATE_PROVIDER_DETAIL');
   });
-  it('restores the last used model for saved chats and pending forms without browser storage', async () => {
+  it('restores the last used model for saved chats without browser storage', async () => {
     const t = setup(); const a = await account(t, 'a@example.com');
     const id = await a.client.mutation(api.migration.createConversation, {});
-    const first = await t.mutation(internal.migration.claimQuestion, { ownerId: a.userId, conversationId: id, requestId: 'model-two', payloadHash: 'model-two', question: 'Ask for GRT', modelAlias: 'model-2', expectedRevision: 0 });
-    const form = { toolCallId: 'grt', title: 'GRT', fields: [{ name: 'grt', label: 'GRT', type: 'number' as const, required: true }] };
-    await t.mutation(internal.migration.completeRun, { ownerId: a.userId, runId: first.runId, fence: first.fence, responseMessages: [{ role: 'assistant', content: [{ type: 'tool-call', toolCallId: 'grt', toolName: 'ask_user_input', input: { title: form.title, fields: form.fields } }] }], form });
-    const saved = await a.client.query(api.migration.getConversation, { conversationId: id });
-    expect(saved?.conversation).toMatchObject({ modelAlias: 'model-2', state: 'waiting' });
-    const second = await t.mutation(internal.migration.resolveFormAndClaim, { ownerId: a.userId, conversationId: id, requestId: 'switch-model', payloadHash: 'switch-model', modelAlias: 'model-1', expectedRevision: saved!.conversation.revision, toolCallId: 'grt', values: { grt: '20000' }, note: '', cancelled: false });
-    await t.mutation(internal.migration.completeRun, { ownerId: a.userId, runId: second.runId, fence: second.fence, responseMessages: [{ role: 'assistant', content: 'Complete' }], form: null, finishReason: 'stop' });
-    expect((await a.client.query(api.migration.getConversation, { conversationId: id }))?.conversation).toMatchObject({ modelAlias: 'model-1', state: 'idle' });
+    const first = await t.mutation(internal.migration.claimQuestion, { ownerId: a.userId, conversationId: id, requestId: 'model-two', payloadHash: 'model-two', question: 'Berth hire at Mumbai', modelAlias: 'model-2', expectedRevision: 0 });
+    await t.mutation(internal.migration.completeRun, { ownerId: a.userId, runId: first.runId, fence: first.fence, responseMessages: [{ role: 'assistant', content: 'Which ship?' }] });
+    expect((await a.client.query(api.migration.getConversation, { conversationId: id }))?.conversation).toMatchObject({ modelAlias: 'model-2', state: 'idle' });
+  });
+  it('shows the owner tool progress and result cards, never raw tool output', async () => {
+    const t = setup(); const a = await account(t, 'a@example.com');
+    const claimed = await run(t, a.userId, 'card');
+    await t.mutation(internal.migration.checkpointRun, { ownerId: a.userId, runId: claimed.runId, fence: claimed.fence, stepNumber: 0, payloadHash: 'card', responseMessages: [
+      { role: 'assistant', content: [{ type: 'tool-call', toolCallId: 'e1', toolName: 'estimate_port_call', input: { port: 'Mumbai' } }] },
+      { role: 'tool', content: [{ type: 'tool-result', toolCallId: 'e1', toolName: 'estimate_port_call', output: { type: 'json', value: { summary: 'PRIVATE SUMMARY', card: { kind: 'estimate', total: '19728' } } } }] },
+    ] });
+    await t.mutation(internal.migration.completeRun, { ownerId: a.userId, runId: claimed.runId, fence: claimed.fence, responseMessages: [{ role: 'assistant', content: 'About USD 19,728.' }] });
+    const history = await a.client.query(api.migration.listConversationMessages, { conversationId: claimed.conversationId, paginationOpts: { cursor: null, numItems: 50 } });
+    const parts = history.page.flatMap(message => message.parts);
+    expect(parts).toContainEqual({ type: 'card', toolCallId: 'e1', toolName: 'estimate_port_call', card: JSON.stringify({ kind: 'estimate', total: '19728' }) });
+    expect(parts).toContainEqual({ type: 'text', text: 'About USD 19,728.' });
+    expect(JSON.stringify(history)).not.toContain('PRIVATE SUMMARY');
   });
   it('protects create/delete/read by live owner; deletion fences the running response', async () => {
     const t = setup(); const a = await account(t,'a@example.com'); const b = await account(t,'b@example.com');
@@ -63,7 +72,7 @@ describe('normal conversation lifecycle', () => {
     expect(history.page[0]).toMatchObject({runId:claimed.runId,runStatus:'active',role:'user'});
     await a.client.mutation(api.migration.deleteConversation,{conversationId:id});
     expect(await a.client.query(api.migration.getConversation,{conversationId:id})).toBeNull();
-    await expect(t.mutation(internal.migration.completeRun,{ownerId:a.userId,runId:claimed.runId,fence:claimed.fence,responseMessages:[{role:'assistant',content:'Late write'}],form:null})).rejects.toThrow();
+    await expect(t.mutation(internal.migration.completeRun,{ownerId:a.userId,runId:claimed.runId,fence:claimed.fence,responseMessages:[{role:'assistant',content:'Late write'}]})).rejects.toThrow();
   });
   it('unknown and legacy UUID URLs are friendly missing conversations', async () => {
     const t=setup(); const a=await account(t,'a@example.com');

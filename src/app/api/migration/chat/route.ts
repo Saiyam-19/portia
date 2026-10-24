@@ -1,48 +1,27 @@
-import { AuthoritySession } from "@/lib/authority/session";
-import { executeAuthorizedOperations } from "@/lib/authority/execute";
-import type { AuthorityContext } from "@/lib/authority/contract";
 import { MemorySession, memoryFeatureEnabled } from "@/lib/memory/session";
-import {
-  createUIMessageStream,
-  createUIMessageStreamResponse,
-  toUIMessageStream,
-  type ModelMessage,
-} from "ai";
+import { createUIMessageStreamResponse, generateText, toUIMessageStream, type ModelMessage } from "ai";
 import { createHash } from "node:crypto";
-import {
-  formDefinitionSchema,
-  formInputSchema,
-  migrationChatRequestSchema,
-  type ClaimResult,
-  type FormDefinition,
-  MAX_CHAT_REQUEST_BYTES,
-} from "@/lib/migration/contracts";
+import { migrationChatRequestSchema, type ClaimResult, MAX_CHAT_REQUEST_BYTES } from "@/lib/migration/contracts";
 import { readBoundedJsonBody } from "@/lib/bounded-json-body";
-import {
-  callMigrationBridge,
-  MigrationTokenManager,
-} from "@/lib/migration/bridge";
-import {
-  registerMigrationRun,
-  unregisterMigrationRun,
-} from "@/lib/migration/run-registry";
+import { callMigrationBridge, MigrationTokenManager } from "@/lib/migration/bridge";
+import { registerMigrationRun, unregisterMigrationRun } from "@/lib/migration/run-registry";
 import { migrationPreviewEnabled } from "@/lib/migration/config";
 import { trustedMigrationOrigin } from "@/lib/migration/origin";
 import { publicChatStream } from "@/lib/migration/public-stream";
-import { createMigrationMainAgent } from "@/lib/migration/domain-agent";
-import { QuoteSession } from "@/lib/portia/session";
-import type { RemainingObligations } from "@/lib/portia/remaining-obligations";
-import { persistedAnswerStream } from "@/lib/portia/publication";
-import { assertPublicationFits, publicationFits, PublicationLimitError, PUBLICATION_LIMIT_MESSAGE, PUBLICATION_LIMIT_AFTER_APPROVAL_MESSAGE } from "@/lib/migration/publication-contract";
+import { BERTHWISE_INSTRUCTIONS, createMigrationMainAgent } from "@/lib/migration/domain-agent";
+import { migrationLanguageModel } from "@/lib/migration/model";
+import { assertPublicationFits, PublicationLimitError, PUBLICATION_LIMIT_MESSAGE } from "@/lib/migration/publication-contract";
 import { MIGRATION_CHAT_TIMEOUT } from "@/lib/migration/agent-policy";
 import { modelErrorDetails } from "@/lib/migration/error-reporting";
 import { responseErrorMessage } from "@/lib/migration/response-errors";
 import { authFailureResponse } from "@/lib/migration/auth-errors";
+import { createRunFinalizer, withStreamFinalizer, type RunFinalization } from "@/lib/migration/stream-finalizer";
+import { publishedAnswerStream } from "@/lib/berthwise/answer-stream";
+import { businessTools } from "@/lib/berthwise/tools";
 import {
-  createRunFinalizer,
-  withStreamFinalizer,
-  type RunFinalization,
-} from "@/lib/migration/stream-finalizer";
+  assistantText, hasCards, numberSources, OUT_OF_STEPS, repairRequest, UNCHECKED_SUMMARY, UNCHECKED_SUMMARY_WITH_CARDS,
+  unsupportedNumbers, withoutNarration,
+} from "@/lib/berthwise/answer";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -54,81 +33,33 @@ type RunContext = {
   promptMessageId: string;
   revision: number;
   messages: ModelMessage[];
-  authorityContext?: AuthorityContext;
-  authorization?: {payload:string;expiresAt:number};
-  authorizationDeclined?: boolean;
-  authorizationResolutionReason?: string;
-  authorizationContinuation?: Array<{payload:string;reviewGroup:string}>;
-  remainingObligations?:RemainingObligations;
 };
 
 function requestHash(value: unknown): string {
   return createHash("sha256").update(JSON.stringify(value)).digest("hex");
 }
 
-function pendingForm(messages: ReadonlyArray<{ content: unknown }>): FormDefinition | null {
-  const answered = new Set(messages.flatMap(message => Array.isArray(message.content) ? message.content.flatMap(part => part?.type === "tool-result" && typeof part.toolCallId === "string" ? [part.toolCallId] : []) : []));
-  for (const message of [...messages].reverse()) {
-    if (!Array.isArray(message.content)) continue;
-    for (const part of [...message.content].reverse()) {
-      if (part.type !== "tool-call" || part.toolName !== "ask_user_input" || answered.has(part.toolCallId)) continue;
-      const input = formInputSchema.safeParse(part.input);
-      if (!input.success) {
-        console.warn("portia_invalid_form_output", {
-          issues: input.error.issues.map(issue => ({ code: issue.code, path: issue.path })),
-        });
-        throw new Error("The model returned an invalid input form.");
-      }
-      const parsed = formDefinitionSchema.safeParse({
-        ...input.data,
-        toolCallId: part.toolCallId,
-      });
-      if (!parsed.success) throw new Error("The model returned an invalid input form.");
-      return parsed.data;
-    }
-  }
-  return null;
-}
-
-function completedResponse(claim: ClaimResult, text: string) {
-  return createUIMessageStreamResponse({
-    stream: createUIMessageStream({execute:({writer})=>{
-      writer.write({type:"start",messageId:claim.runId,messageMetadata:{conversationId:claim.conversationId,runId:claim.runId,revision:claim.revision}});
-      writer.write({type:"text-start",id:claim.runId});writer.write({type:"text-delta",id:claim.runId,delta:text});writer.write({type:"text-end",id:claim.runId});
-      writer.write({type:"finish",finishReason:"stop"});writer.setOutcome({status:"completed"});
-    }}),headers:{"Cache-Control":"no-store","X-Content-Type-Options":"nosniff"},
-  });
-}
-
 async function parseBody(request: Request) {
-  const body=await readBoundedJsonBody(request,MAX_CHAT_REQUEST_BYTES);
-  return body.ok?migrationChatRequestSchema.safeParse(body.value):null;
+  const body = await readBoundedJsonBody(request, MAX_CHAT_REQUEST_BYTES);
+  return body.ok ? migrationChatRequestSchema.safeParse(body.value) : null;
 }
 
 export async function POST(request: Request): Promise<Response> {
   const requestStartedAt = Date.now();
   if (!migrationPreviewEnabled()) return new Response("Not found", { status: 404 });
   const origin = trustedMigrationOrigin(request);
-  if (!origin) {
-    return Response.json({ error: "Cross-origin request denied." }, { status: 403 });
-  }
+  if (!origin) return Response.json({ error: "Cross-origin request denied." }, { status: 403 });
   const parsed = await parseBody(request);
-  if (!parsed?.success) {
-    return Response.json({ error: "Invalid chat request." }, { status: 400 });
-  }
+  if (!parsed?.success) return Response.json({ error: "Invalid chat request." }, { status: 400 });
 
   const controller = new AbortController();
-  const manager = new MigrationTokenManager(
-    request.headers.get("cookie") ?? "",
-    origin,
-    controller,
-  );
+  const manager = new MigrationTokenManager(request.headers.get("cookie") ?? "", origin, controller);
   let claim: ClaimResult | null = null;
   let persisted = false;
   let statusTimer: ReturnType<typeof setInterval> | null = null;
   let statusPollingEnabled = false;
-  let pendingStepMessages: ModelMessage[] = [];
-  let pendingStepForm: FormDefinition | null = null;
+  let finalMessages: ModelMessage[] = [];
+  const savedSteps: ModelMessage[] = [];
   let checkpointFailure: unknown;
   let responseFailure: unknown;
   let publishedText = "";
@@ -136,10 +67,7 @@ export async function POST(request: Request): Promise<Response> {
     isPersisted: () => persisted,
     abort: (event) => {
       if (!controller.signal.aborted) {
-        controller.abort(new DOMException(
-          event.kind === "cancel" ? "The browser disconnected." : "The response stream failed.",
-          "AbortError",
-        ));
+        controller.abort(new DOMException(event.kind === "cancel" ? "The browser disconnected." : "The response stream failed.", "AbortError"));
       }
     },
     failRun: async (event: RunFinalization) => {
@@ -148,32 +76,15 @@ export async function POST(request: Request): Promise<Response> {
       const details = modelErrorDetails(failure);
       const errorCode = details.errorType === "timeout" ? "MODEL_TIMEOUT"
         : details.statusCode !== null ? `MODEL_HTTP_${details.statusCode}`
-        : event.kind === "cancel"
-        ? "ABORTED"
-        : event.kind === "route-error"
-          ? "ROUTE_ERROR"
-          : event.kind === "error"
-            ? "STREAM_ERROR"
-            : "INCOMPLETE";
-      console.warn("portia_run_failed", {
-        runId: claim.runId, errorCode, ...details,
-        phase: checkpointFailure ? "persistence" : "response",
-      });
-      await callMigrationBridge(
-        manager,
-        {
-          op: "fail",
-          args: { runId: claim.runId, fence: claim.fence, errorCode },
-        },
-        { ignoreAbort: true },
-      ).catch(() => undefined);
+        : event.kind === "cancel" ? "ABORTED"
+        : event.kind === "route-error" ? "ROUTE_ERROR"
+        : event.kind === "error" ? "STREAM_ERROR" : "INCOMPLETE";
+      console.warn("berthwise_run_failed", { runId: claim.runId, errorCode, ...details, phase: checkpointFailure ? "persistence" : "response" });
+      await callMigrationBridge(manager, { op: "fail", args: { runId: claim.runId, fence: claim.fence, errorCode } }, { ignoreAbort: true }).catch(() => undefined);
     },
     cleanup: async () => {
       statusPollingEnabled = false;
-      if (statusTimer) {
-        clearInterval(statusTimer);
-        statusTimer = null;
-      }
+      if (statusTimer) { clearInterval(statusTimer); statusTimer = null; }
       manager.stop();
       if (claim) unregisterMigrationRun(claim.runId);
     },
@@ -182,116 +93,44 @@ export async function POST(request: Request): Promise<Response> {
   try {
     await manager.initialize();
     const body = parsed.data;
-    const payloadHash = requestHash(body);
-    claim = body.kind === "question"
-      ? await callMigrationBridge<ClaimResult>(manager, {
-          op: "claim",
-          args: {
-            conversationId: body.conversationId,
-            requestId: body.requestId,
-            payloadHash,
-            question: body.question,
-            modelAlias: body.modelAlias,
-            expectedRevision: body.expectedRevision,
-          },
-        })
-      : await callMigrationBridge<ClaimResult>(manager, {
-          op: "resolveForm",
-          args: {
-            conversationId: body.conversationId,
-            requestId: body.requestId,
-            payloadHash,
-            toolCallId: body.toolCallId,
-            values: body.values,
-            cancelled: body.cancelled,
-            note: body.note,
-            modelAlias: body.modelAlias,
-            expectedRevision: body.expectedRevision,
-          },
-        });
-
-    if (claim.replayed && !claim.authorizationExecution && !claim.authorizationDeclined) {
+    claim = await callMigrationBridge<ClaimResult>(manager, {
+      op: "claim",
+      args: {
+        conversationId: body.conversationId, requestId: body.requestId, payloadHash: requestHash(body),
+        question: body.question, modelAlias: body.modelAlias, expectedRevision: body.expectedRevision,
+      },
+    });
+    if (claim.replayed) {
       manager.stop();
-      return Response.json(
-        {
-          error: "Already submitted. Reload or open the saved conversation; no new inference was started.",
-          recovery: "open_saved_conversation",
-          conversationId: claim.conversationId,
-          runId: claim.runId,
-          revision: claim.revision,
-        },
-        { status: 409 },
-      );
-    }
-
-    // Cancelling an empty form is a UI action, not a request for more inference.
-    // Persist through the same owner/fence checks before acknowledging success.
-    if (body.kind === "form" && body.cancelled && !body.note?.trim()) {
-      const text = "Form cancelled. You can send a correction or ask another question.";
-      await callMigrationBridge(manager, {
-        op: "complete",
-        args: {
-          runId: claim.runId, fence: claim.fence, form: null, finishReason: "stop",
-          responseMessages: [{ role: "assistant", content: text }],
-        },
-      });
-      persisted = true;
-      await finalizeRun({ kind: "done" });
-      return completedResponse(claim, text);
+      return Response.json({
+        error: "Already submitted. Reload or open the saved conversation; no new inference was started.",
+        recovery: "open_saved_conversation", conversationId: claim.conversationId, runId: claim.runId, revision: claim.revision,
+      }, { status: 409 });
     }
 
     registerMigrationRun(claim.runId, controller);
-    const context = await callMigrationBridge<RunContext>(manager, {
-      op: "context",
-      args: { runId: claim.runId, fence: claim.fence },
-    });
+    const context = await callMigrationBridge<RunContext>(manager, { op: "context", args: { runId: claim.runId, fence: claim.fence } });
     let statusCheckPending = false;
     statusPollingEnabled = true;
     statusTimer = setInterval(() => {
       if (!statusPollingEnabled || statusCheckPending || controller.signal.aborted) return;
       statusCheckPending = true;
-      void callMigrationBridge<{ active: boolean; status: string }>(manager, {
-        op: "status",
-        args: { runId: claim!.runId, fence: claim!.fence },
-      })
-        .then((state) => {
-          if (statusPollingEnabled && !state.active) {
-            controller.abort(new DOMException("The run is no longer active.", "AbortError"));
-          }
-        })
-        .catch((pollError) => {
-          if (statusPollingEnabled) controller.abort(pollError);
-        })
+      void callMigrationBridge<{ active: boolean; status: string }>(manager, { op: "status", args: { runId: claim!.runId, fence: claim!.fence } })
+        .then((state) => { if (statusPollingEnabled && !state.active) controller.abort(new DOMException("The run is no longer active.", "AbortError")); })
+        .catch((pollError) => { if (statusPollingEnabled) controller.abort(pollError); })
         .finally(() => { statusCheckPending = false; });
     }, 2_000);
 
-    const memorySession = memoryFeatureEnabled() ? new MemorySession(manager, context.conversationId, {runId:claim.runId,runFence:claim.fence}) : undefined;
-    const memory = memorySession?.agent();
-    const authority = new AuthoritySession(context.authorityContext, context.authorizationContinuation);
-    const session = new QuoteSession(context.conversationId);
-    session.bindAuthority(authority);
-    if (context.authorization || context.authorizationDeclined) {
-      await session.initialize(context.messages);
-      const rejectedText = context.authorizationResolutionReason === "cancelled" ? "Review cancelled. No proposed operations were applied." : "Review rejected. No proposed operations were applied.";
-      const approved = context.authorization ? await executeAuthorizedOperations({authorization:context.authorization,session,drainMemory:memorySession ? ()=>memorySession.view() : undefined,signal:AbortSignal.any([controller.signal,request.signal,AbortSignal.timeout(MIGRATION_CHAT_TIMEOUT.totalMs)]),remainingObligations:context.remainingObligations}) : {messages:[{role:"assistant" as const,content:rejectedText}],text:rejectedText};
-      controller.signal.throwIfAborted();request.signal.throwIfAborted();
-      assertPublicationFits(approved.text);
-      const completed = await callMigrationBridge<{ publicText?: string }>(manager,{op:"complete",args:{runId:claim.runId,fence:claim.fence,responseMessages:approved.messages,form:null,finishReason:"stop"}});
-      persisted = true; await finalizeRun({kind:"done"});
-      return completedResponse(claim,completed.publicText ?? approved.text);
-    }
+    const memorySession = memoryFeatureEnabled() ? new MemorySession(manager, context.conversationId, { runId: claim.runId, runFence: claim.fence }) : undefined;
+    const model = migrationLanguageModel(context.modelAlias, { runId: claim.runId, agent: "main" });
     const agent = createMigrationMainAgent({
-      memory, authority,
-      alias: context.modelAlias,
-      runId: claim.runId,
-      session,
-      assertCanContinue: () => {
-        if (checkpointFailure) throw checkpointFailure;
-      },
+      alias: context.modelAlias, runId: claim.runId, mainModel: model, memory: memorySession?.agent(), tools: businessTools(),
+      assertCanContinue: () => { if (checkpointFailure) throw checkpointFailure; },
     });
 
     const deadline = AbortSignal.timeout(MIGRATION_CHAT_TIMEOUT.totalMs);
     const abortSignal = AbortSignal.any([controller.signal, request.signal, deadline]);
+    let checkpointStep = 0;
     const result = await agent.stream({
       messages: context.messages,
       abortSignal,
@@ -299,184 +138,81 @@ export async function POST(request: Request): Promise<Response> {
       onStepEnd: async (step) => {
         try {
           abortSignal.throwIfAborted();
-          session.observeTools(step.toolResults, step.toolCalls, step.content.filter(part => part.type === "tool-error"));
           const stepMessages = step.response.messages as ModelMessage[];
-          if (!step.toolCalls.length) {
-            // Model prose stays private context until a valid finish supplies
-            // the canonical public answer. Normalize string-shaped SDK messages.
-            pendingStepMessages = stepMessages.map<ModelMessage>(message => message.role === "assistant" && typeof message.content === "string"
-              ? { ...message, content: [{ type: "text" as const, text: message.content }] } : message);
-            return;
-          }
-          const stepForm = pendingForm(stepMessages);
-          if (stepForm) {
-            if (step.toolCalls.length !== 1 || step.toolCalls[0]?.toolName !== "ask_user_input" || step.toolResults.length !== 0) {
-              throw new Error("ask_user_input must be the only unresolved tool in its step.");
-            }
-            pendingStepMessages = stepMessages.map<ModelMessage>(message => message.role === "assistant" && typeof message.content === "string"
-              ? { ...message, content: [{ type: "text" as const, text: message.content }] } : message);
-            pendingStepForm = stepForm;
-            return;
-          }
+          if (!step.toolCalls.length) { finalMessages = stepMessages; return; }
+          const kept = withoutNarration(stepMessages);
+          savedSteps.push(...kept);
           await callMigrationBridge(manager, {
             op: "checkpoint",
-            args: {
-              runId: claim!.runId,
-              fence: claim!.fence,
-              stepNumber: step.stepNumber,
-              payloadHash: requestHash(stepMessages),
-              responseMessages: stepMessages,
-              finishReason: step.finishReason,
-            },
+            args: { runId: claim!.runId, fence: claim!.fence, stepNumber: checkpointStep++, payloadHash: requestHash(kept), responseMessages: kept, finishReason: step.finishReason },
           });
         } catch (error) {
-          console.warn("portia_checkpoint_rejected", {
-            runId: claim!.runId,
-            stepNumber: step.stepNumber,
-            toolNames: step.toolCalls.map(call => call.toolName),
-            toolResultCount: step.toolResults.length,
-            reason: error instanceof Error && [
-              "The model returned an invalid input form.",
-              "ask_user_input must be the only unresolved tool in its step.",
-              "Migration request was rejected.",
-            ].includes(error.message) ? error.message : "checkpoint failed",
-          });
+          console.warn("berthwise_checkpoint_rejected", { runId: claim!.runId, stepNumber: step.stepNumber, toolNames: step.toolCalls.map(call => call.toolName) });
           checkpointFailure = error;
           controller.abort(error);
         }
       },
-      onEnd: async ({ finishReason, steps }) => {
+      onEnd: async ({ steps }) => {
         statusPollingEnabled = false;
-        if (statusTimer) {
-          clearInterval(statusTimer);
-          statusTimer = null;
-        }
+        if (statusTimer) { clearInterval(statusTimer); statusTimer = null; }
         if (abortSignal.aborted) return;
         try {
           await manager.refresh();
           if (abortSignal.aborted) return;
-          let authorizationProposal: string | undefined;
-          let authorizationContinuation: Array<{payload:string;toolCallId:string;title:string;description?:string;fields:FormDefinition["fields"];reviewGroup:string}> | undefined;
-          let remainingObligations:RemainingObligations|undefined;
-          const completion = session.completion.completion();
-          let incomplete = !completion && !pendingStepForm;
-          const notices: string[] = [];
-          if (!session.hasCurrentInputQuestions()) {
-            if (authority.hasPending()) session.prepareExactReview();
-            if (pendingStepForm) {
-              // Keep the rejected model call paired; it is not human input.
-              pendingStepMessages.push({ role: "tool", content: [{ type: "tool-result", toolName: "ask_user_input", toolCallId: pendingStepForm.toolCallId,
-                output: { type: "error-text", value: "This model form was not presented because no missing business inputs were established. Exact-operation review is generated by the server; no user response or approval was inferred." } }] });
-              pendingStepForm = null;
-              incomplete = !completion;
-              if (!authority.hasPending()) notices.push("No new operation was prepared for approval. The requested work remains incomplete; nothing was approved.");
-            }
-          }
-          if (!pendingStepForm) {
-            const queue = authority.pendingQueue(), pending = queue[0];
-            if (pending) {
-              pendingStepForm = pending.form;
-              authorizationProposal = pending.payload;
-              const snapshot=session.completion.remainingObligations();
-              if(snapshot.outcomes.length)remainingObligations=snapshot;
-              authorizationContinuation = queue.slice(1).map(item => ({ payload: item.payload, ...item.form, reviewGroup: item.reviewGroup }));
-            }
-          }
-          if (pendingStepForm && !authorizationProposal && authority.hasPending()) {
-            authorizationContinuation = authority.pendingQueue().map(item => ({ payload: item.payload, ...item.form, reviewGroup: item.reviewGroup }));
-          }
-
-          // Render ONCE after server form repair. This exact string is saved and
-          // streamed; attaching a native review must not reconstruct empty prose.
-          let canonicalText = completion ? await session.answer(completion.response) : session.finalText("");
-          if (incomplete) notices.push("Some requested work remains incomplete. Only the tool-backed results shown here were prepared or completed.");
-          canonicalText = [canonicalText, ...notices].filter(Boolean).join("\n\n");
-          if (session.completion.publicationLimitExceeded() || !publicationFits(canonicalText)) {
-            canonicalText = PUBLICATION_LIMIT_MESSAGE;
-            incomplete = true;
-          }
-          const formCallId = pendingStepForm?.toolCallId;
-          const pairedHistory: ModelMessage[] = pendingStepMessages.flatMap<ModelMessage>(message => {
-            if (message.role === "tool") return [message];
-            if (message.role !== "assistant" || !Array.isArray(message.content)) return [];
-            const content = message.content.filter(part => !(part.type === "tool-call" && part.toolName === "ask_user_input" && part.toolCallId === formCallId));
-            return content.length ? [{ ...message, content }] : [];
-          });
-          pendingStepMessages = [...pairedHistory, ...(canonicalText ? [{ role: "assistant" as const, content: canonicalText }] : [])];
-          if (pendingStepForm) {
-            const { toolCallId, ...input } = pendingStepForm;
-            pendingStepMessages.push({ role: "assistant", content: [{ type: "tool-call", toolName: "ask_user_input", toolCallId, input }] });
+          const sources = numberSources([...context.messages, ...savedSteps]);
+          let text = assistantText(finalMessages);
+          const incomplete = !text;
+          if (incomplete) text = OUT_OF_STEPS;
+          let unsupported = unsupportedNumbers(text, sources);
+          if (unsupported.length) {
+            const repaired = await generateText({
+              model, system: BERTHWISE_INSTRUCTIONS, abortSignal, maxRetries: 0,
+              messages: [...context.messages, ...savedSteps, { role: "assistant", content: text }, { role: "user", content: repairRequest(unsupported) }],
+            });
+            text = repaired.text.trim();
+            unsupported = unsupportedNumbers(text, sources);
+            if (unsupported.length || !text) text = hasCards(savedSteps) ? UNCHECKED_SUMMARY_WITH_CARDS : UNCHECKED_SUMMARY;
+            console.info("berthwise_answer_repaired", { runId: claim!.runId, stillUnsupported: unsupported.length });
           }
           const completionRequest = {
             op: "complete",
-            args: {
-              runId: claim!.runId,
-              fence: claim!.fence,
-              responseMessages: pendingStepMessages,
-              form: pendingStepForm,
-              ...(authorizationProposal ? { authorizationProposal } : {}),
-              ...(authorizationContinuation?.length ? { authorizationContinuation } : {}),
-              ...(authorizationProposal&&remainingObligations?{remainingObligations}:{}),
-              finishReason: completion && !incomplete ? "stop" : finishReason,
-              ...(incomplete ? { incomplete: true } : {}),
-            },
+            args: { runId: claim!.runId, fence: claim!.fence, responseMessages: [{ role: "assistant", content: text }], ...(incomplete ? { incomplete: true } : {}) },
           };
-          // Review payload and text share the existing bridge capacity. If the
-          // complete packet does not fit, fail explicitly; never remove terms.
           assertPublicationFits(completionRequest);
-          const completed = await callMigrationBridge<{ publicText?: string }>(manager, completionRequest);
+          await callMigrationBridge(manager, completionRequest);
           persisted = true;
-          publishedText = completed.publicText ?? canonicalText;
-          console.info("portia_run_completed", {
-            runId: claim!.runId,
-            modelAlias: context.modelAlias,
-            elapsedMs: Date.now() - requestStartedAt,
-            modelSteps: steps.length,
-            state: pendingStepForm ? "waiting" : incomplete ? "incomplete" : "completed",
+          publishedText = text;
+          console.info("berthwise_run_completed", {
+            runId: claim!.runId, modelAlias: context.modelAlias, elapsedMs: Date.now() - requestStartedAt, modelSteps: steps.length,
+            inputTokens: steps.reduce((sum, step) => sum + (step.usage.inputTokens ?? 0), 0),
+            outputTokens: steps.reduce((sum, step) => sum + (step.usage.outputTokens ?? 0), 0),
+            state: incomplete ? "incomplete" : "completed",
           });
         } catch (error) {
-          if (!abortSignal.aborted) {
-            checkpointFailure = error;
-            controller.abort(error);
-          }
+          if (!abortSignal.aborted) { checkpointFailure = error; controller.abort(error); }
         }
       },
     });
 
     const stream = toUIMessageStream({
-      stream: publicChatStream(persistedAnswerStream(result.stream, { isPersisted: () => persisted, text: () => publishedText, form: () => pendingStepForm, abortSignal }), {
-        abortSignal,
-        result,
-        onFailure: error => { responseFailure = error; },
+      stream: publicChatStream(publishedAnswerStream(result.stream, { isPersisted: () => persisted, text: () => publishedText, abortSignal }), {
+        abortSignal, result, onFailure: error => { responseFailure = error; },
       }),
       sendReasoning: false,
       generateMessageId: () => claim!.runId,
-      messageMetadata: ({ part }) =>
-        part.type === "start"
-          ? {
-              conversationId: claim!.conversationId,
-              runId: claim!.runId,
-              revision: claim!.revision,
-            }
-          : undefined,
+      messageMetadata: ({ part }) => part.type === "start" ? { conversationId: claim!.conversationId, runId: claim!.runId, revision: claim!.revision } : undefined,
       onError: responseErrorMessage,
     });
-
-    const finalizedStream = withStreamFinalizer(stream, finalizeRun);
-
     return createUIMessageStreamResponse({
-      stream: finalizedStream,
-      headers: {
-        "Cache-Control": "no-store",
-        "X-Content-Type-Options": "nosniff",
-      },
+      stream: withStreamFinalizer(stream, finalizeRun),
+      headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" },
     });
   } catch (error) {
     await finalizeRun({ kind: "route-error", error });
     const serviceFailure = authFailureResponse(error); if (serviceFailure) return serviceFailure;
     const status = error instanceof Error && /Unauthenticated|Authentication/i.test(error.message) ? 401 : 409;
     return Response.json(
-      { error: error instanceof PublicationLimitError ? claim?.authorizationExecution ? PUBLICATION_LIMIT_AFTER_APPROVAL_MESSAGE : PUBLICATION_LIMIT_MESSAGE : status === 401 ? "Unauthenticated." : claim?.authorizationExecution ? "Approval was accepted, but no quotation result was published. Check Memory for approved memory operations before retrying; those may already have been applied." : "Unable to start the migration response." },
+      { error: error instanceof PublicationLimitError ? PUBLICATION_LIMIT_MESSAGE : status === 401 ? "Unauthenticated." : "Unable to start the response." },
       { status, headers: { "Cache-Control": "no-store" } },
     );
   }

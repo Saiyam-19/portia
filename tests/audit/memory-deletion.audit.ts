@@ -40,7 +40,7 @@ it('does not fence an independent active run after empty-chat deletion',async()=
   const run=await t.mutation(internal.migration.claimQuestion,{ownerId:a.ownerId,conversationId:null,requestId:'a',payloadHash:'a',question:'Keep running',modelAlias:'model-1',expectedRevision:null});
   const empty=await a.client.mutation(api.migration.createConversation,{});
   await a.client.mutation(api.migration.deleteConversation,{conversationId:empty});
-  await expect(t.mutation(internal.migration.completeRun,{ownerId:a.ownerId,runId:run.runId,fence:run.fence,responseMessages:[{role:'assistant',content:'Independent result'}],form:null,finishReason:'stop'})).resolves.toBeDefined();
+  await expect(t.mutation(internal.migration.completeRun,{ownerId:a.ownerId,runId:run.runId,fence:run.fence,responseMessages:[{role:'assistant',content:'Independent result'}]})).resolves.toBeDefined();
 });
 
 it.each(['true','false'])('deletion revokes root under saturated memory queue (enabled=%s)',async enabled=>{

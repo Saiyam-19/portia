@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Plisto — Port Charge Intelligence",
+  title: "Berthwise — Port costs, before you berth",
   description:
     "Instant port charge calculations, AI-powered port insights, and comprehensive tariff data for maritime operators.",
 };

@@ -1,14 +1,11 @@
 import { migrationChatRequestSchema, type ModelAlias } from "./contracts";
 
-/** A correction resolves the pending form atomically through the existing contract. */
 export function makeQuestionRequest(input: {
   requestId: string; conversationId: string; expectedRevision: number;
-  modelAlias: ModelAlias; text: string; pendingToolCallId?: string;
+  modelAlias: ModelAlias; text: string;
 }) {
-  const { text, pendingToolCallId, ...base } = input;
-  return migrationChatRequestSchema.parse(pendingToolCallId
-    ? { ...base, kind: "form", toolCallId: pendingToolCallId, values: {}, cancelled: true, note: text }
-    : { ...base, kind: "question", question: text });
+  const { text, ...base } = input;
+  return migrationChatRequestSchema.parse({ ...base, kind: "question", question: text });
 }
 
 export function migrationRunState(
@@ -35,7 +32,6 @@ type RunMetadata = { runId?: string; revision?: number } | undefined;
 type QuestionDraftAction =
   | { type: "edit"; value: string }
   | { type: "question"; text: string; revision: number }
-  | { type: "form" }
   | { type: "transport-failed" }
   | { type: "observe"; metadata: RunMetadata }
   | { type: "saved"; runId: string; status: string | null; transportBusy: boolean };
@@ -48,7 +44,6 @@ export function questionDraftReducer(state: QuestionDraftState, action: Question
     input: action.text,
     pending: { text: action.text, editVersion: state.editVersion, revision: action.revision },
   };
-  if (action.type === "form") return state.pending ? { ...state, pending: null } : state;
   const pending = state.pending;
   if (!pending) return state;
   if (action.type === "observe") {
@@ -57,7 +52,7 @@ export function questionDraftReducer(state: QuestionDraftState, action: Question
   }
   if (action.type === "saved") {
     if (action.transportBusy || action.runId !== pending.runId) return state;
-    if (action.status === "completed" || action.status === "waiting") {
+    if (action.status === "completed") {
       return { ...state, input: state.editVersion === pending.editVersion ? "" : state.input, pending: null };
     }
     if (!["error", "cancelled", "expired"].includes(action.status ?? "")) return state;

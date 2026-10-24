@@ -17,7 +17,7 @@ it.each(['ECONNRESET','ENOTFOUND','UND_ERR_SOCKET'])('preserves %s classificatio
   const model = withSafeModelErrors(new MockLanguageModelV4({doGenerate:async()=>{throw Object.assign(new Error('private source'),{code});}}));
   const error = await model.doGenerate({prompt:[]}).then(()=>null,error=>error);
   expect(String(error)).not.toContain('private source');
-  expect(responseErrorMessage(error)).toContain('temporarily busy');
+  expect(responseErrorMessage(error)).toContain('is busy right now');
 });
 
 it.each([

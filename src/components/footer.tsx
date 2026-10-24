@@ -31,7 +31,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-slate-800 mt-12 pt-8 text-sm text-center">
-          © {new Date().getFullYear()} Plisto. All rights reserved.
+          © {new Date().getFullYear()} Berthwise. All rights reserved.
         </div>
       </div>
     </footer>

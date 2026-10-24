@@ -58,5 +58,5 @@ it('preserves genuine provider failure while hiding private exception details',a
   const result=await createMigrationMainAgent({alias:'model-1',mainModel:withSafeModelErrors(model)}).stream({prompt:'Synthetic',abortSignal:outer.signal});
   const reader=publicChatStream(result.stream,{abortSignal:outer.signal,result,onFailure:error=>failures.push(error)}).getReader();
   const parts=[];while(true){const next=await reader.read();if(next.done)break;parts.push(next.value);}
-  expect(failures.length).toBeGreaterThan(0);expect(responseErrorMessage(failures[0])).toContain('temporarily busy');expect(JSON.stringify(parts)).not.toContain('PRIVATE_PROVIDER_BODY');
+  expect(failures.length).toBeGreaterThan(0);expect(responseErrorMessage(failures[0])).toContain('is busy right now');expect(JSON.stringify(parts)).not.toContain('PRIVATE_PROVIDER_BODY');
 });

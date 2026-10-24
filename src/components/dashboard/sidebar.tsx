@@ -61,7 +61,7 @@ export default function Sidebar({ email, name }: { email: string; name: string }
     <SidebarPrimitive className="border-sidebar-border/60" aria-label="Chat navigation">
       <SidebarHeader className="gap-5 px-4 pt-5 pb-3">
         <div className="flex items-center justify-between px-1">
-          <Link href="/dashboard" onClick={closeMobile} className="flex items-center gap-2.5 rounded-md text-xl font-semibold tracking-tight focus-visible:outline-2 focus-visible:outline-ring" aria-label="Plisto home">
+          <Link href="/dashboard" onClick={closeMobile} className="flex items-center gap-2.5 rounded-md text-xl font-semibold tracking-tight focus-visible:outline-2 focus-visible:outline-ring" aria-label="Berthwise home">
             <Anchor className="size-5 text-brand" strokeWidth={1.8} aria-hidden="true" />plisto
           </Link>
           {isMobile ? <Button variant="ghost" size="icon-lg" onClick={closeMobile} aria-label="Close sidebar"><X /></Button> : <SidebarTrigger className="size-8 text-muted-foreground" />}

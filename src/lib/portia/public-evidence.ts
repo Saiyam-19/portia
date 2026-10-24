@@ -5,7 +5,7 @@ import redi from "../../../data/reviewed-tariffs/full-scope-2026/gac-redi-2023.j
 import jsw from "../../../data/reviewed-tariffs/full-scope-2026/jsw-dec2025-indexed.json";
 import oct from "../../../data/reviewed-tariffs/full-scope-2026/oct-evidence.json";
 import { Components, combineTariffResults, componentValidationFailure, dateOf } from "./published-components";
-import { safe } from "./quotes";
+import { safe } from "../berthwise/text";
 import type { TariffInput, TariffResult } from "./tariff-types";
 
 const D = TariffNumber;

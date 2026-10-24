@@ -8,19 +8,16 @@ import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import ToolNotification from './tool-notification'
-import FormCard from './form-card'
+import ResultCard from './result-card'
 import type { Segment } from './chat-view'
 
 interface Props {
   role: 'user' | 'assistant'
   segments: Segment[]
   streaming?: boolean
-  formDisabled?: boolean
-  onFormSubmit?: (toolCallId: string, data: Record<string, string>, note: string) => void
-  onFormCancel?: (toolCallId: string, note: string) => void
 }
 
-export default function Message({ role, segments, streaming, formDisabled, onFormSubmit, onFormCancel }: Props) {
+export default function Message({ role, segments, streaming }: Props) {
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle')
   const content = segments.map(segment => segment.kind === 'text' ? segment.content : '').join('\n')
   if (role === 'user') {
@@ -36,8 +33,8 @@ export default function Message({ role, segments, streaming, formDisabled, onFor
     catch { setCopyState('error') }
   }
   return (
-    <article aria-label="Plisto response" className="group/message min-w-0">
-      <div className="mb-3 flex items-center gap-2 text-xs font-medium"><Anchor className="size-4 text-brand" aria-hidden="true" />Plisto</div>
+    <article aria-label="Berthwise response" className="group/message min-w-0">
+      <div className="mb-3 flex items-center gap-2 text-xs font-medium"><Anchor className="size-4 text-brand" aria-hidden="true" />Berthwise</div>
       <div className="space-y-4 text-sm leading-7">
         {segments.map((segment, index) => {
           if (segment.kind === 'text') return (
@@ -55,7 +52,7 @@ export default function Message({ role, segments, streaming, formDisabled, onFor
             </div>
           )
           if (segment.kind === 'tool') return <ToolNotification key={segment.id} tool={segment.tool} label={segment.label} status={segment.status} />
-          if (segment.kind === 'card') return <FormCard key={segment.formCard.toolCallId} formCard={segment.formCard} disabled={formDisabled} onSubmit={(data, note) => onFormSubmit?.(segment.formCard.toolCallId, data, note)} onCancel={note => onFormCancel?.(segment.formCard.toolCallId, note)} />
+          if (segment.kind === 'card') return <ResultCard key={segment.id} card={segment.card} />
           return null
         })}
         {streaming && !hasRunningTool && <div role="status" className="flex items-center gap-2 text-xs text-muted-foreground"><Loader2 className="size-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />{content ? 'Writing response…' : 'Working on it…'}</div>}

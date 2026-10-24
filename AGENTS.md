@@ -23,3 +23,9 @@ Reuse the existing MCP daemon; do not start duplicate workers or interrupt other
 Use text search for literals, configuration, non-code files, and missing or stale
 graph coverage. If MCP tools are unavailable, report that limitation and use source reads.
 <!-- codebase-memory-mcp:end -->
+
+<!-- berthwise-scope:start -->
+# Product scope and plan
+
+The only plan for this agent is [docs/berthwise-plan.md](docs/berthwise-plan.md). Read it before planning or building anything. Work that does not trace back to its scope (section 1) needs the product owner's approval first. Supplier quotes, their comparisons and approval forms are out of scope.
+<!-- berthwise-scope:end -->

@@ -1,18 +1,7 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 import { memoryOperation } from "./memoryValidators";
-import {
-  vConversationState,
-  vFormField,
-  vFormStatus,
-  vFormValues,
-  vFinishReason,
-  vModelAlias,
-  vAuthorization,
-  vQuoteApproval,
-  vRunStatus,
-  vRemainingObligations,
-} from "./validators";
+import { vConversationState, vFinishReason, vModelAlias, vRunStatus } from "./validators";
 
 export default defineSchema({
   memoryNamespaces: defineTable({
@@ -45,12 +34,9 @@ export default defineSchema({
     nextFence: v.number(),
     state: vConversationState,
     activeRunId: v.optional(v.id("migrationRuns")),
-    pendingFormId: v.optional(v.id("migrationForms")),
     creationRequestId: v.optional(v.string()),
     creationPayloadHash: v.optional(v.string()),
     initialIntent: v.optional(v.object({requestId:v.string(),question:v.string(),modelAlias:vModelAlias})),
-    quoteApprovals: v.optional(v.array(vQuoteApproval)),
-    comparisonApprovals: v.optional(v.array(v.string())),
     lastError: v.optional(v.string()),
     updatedAt: v.number(),
   })
@@ -72,16 +58,8 @@ export default defineSchema({
     promptOrder: v.optional(v.number()),
     promptStepOrder: v.optional(v.number()),
     memoryEpoch: v.optional(v.number()),
-    authorization: v.optional(vAuthorization),
-    authorizationDeclined: v.optional(v.boolean()),
-    authorizationResolutionReason: v.optional(v.union(v.literal("approved"),v.literal("rejected"),v.literal("cancelled"),v.literal("note"),v.literal("submitted"))),
-    authorizationContinuation: v.optional(v.array(v.object({payload:v.string(),toolCallId:v.string(),title:v.string(),description:v.optional(v.string()),fields:v.array(vFormField),reviewGroup:v.string()}))),
-    remainingObligations:v.optional(vRemainingObligations),
-    // Version 1 exposes only canonical assistant strings; model arrays stay private.
-    publicTextVersion: v.optional(v.literal(1)),
     checkpointStep: v.optional(v.number()),
     checkpointHash: v.optional(v.string()),
-    checkpointHasText: v.optional(v.boolean()),
     checkpointFinishReason: v.optional(vFinishReason),
     errorCode: v.optional(v.string()),
     startedAt: v.number(),
@@ -93,25 +71,4 @@ export default defineSchema({
     .index("by_conversation_and_prompt_position", ["conversationId", "promptOrder", "promptStepOrder"])
     .index("by_owner_and_status", ["ownerId", "status"]),
 
-  migrationForms: defineTable({
-    conversationId: v.id("migrationConversations"),
-    ownerId: v.string(),
-    runId: v.id("migrationRuns"),
-    fence: v.number(),
-    toolCallId: v.string(),
-    title: v.string(),
-    description: v.optional(v.string()),
-    fields: v.array(vFormField),
-    status: vFormStatus,
-    values: v.optional(vFormValues),
-    note: v.optional(v.string()),
-    resolutionReason: v.optional(v.union(v.literal("approved"),v.literal("rejected"),v.literal("cancelled"),v.literal("note"),v.literal("submitted"))),
-    authorization: v.optional(vAuthorization),
-    continuation: v.optional(v.array(v.object({payload:v.string(),toolCallId:v.string(),title:v.string(),description:v.optional(v.string()),fields:v.array(vFormField),reviewGroup:v.string()}))),
-    remainingObligations:v.optional(vRemainingObligations),
-    createdAt: v.number(),
-    resolvedAt: v.optional(v.number()),
-  })
-    .index("by_conversation_and_status", ["conversationId", "status"])
-    .index("by_conversation_and_tool_call_id", ["conversationId", "toolCallId"]),
 });

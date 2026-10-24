@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { migrationChatRequestSchema, formInputSchema } from '../../src/lib/migration/contracts';
+import { migrationChatRequestSchema } from '../../src/lib/migration/contracts';
 import { calculateTariffExpression } from '../../src/lib/migration/calculator';
 import { calculateChargeBatch } from '../../src/lib/migration/calculator-batch';
 import { checkedFacts } from '../../src/lib/memory/format';
@@ -18,15 +18,6 @@ describe('hostile request boundaries', () => {
   ])('rejects %s', (_name, patch) => expect(migrationChatRequestSchema.safeParse({ ...question, ...patch }).success).toBe(false));
   it('accepts 4000 characters and trims boundary whitespace', () => {
     expect(migrationChatRequestSchema.parse({ ...question, question: ' '+ 'x'.repeat(4000)+' ' })).toHaveProperty('question', 'x'.repeat(4000));
-  });
-  it.each(['__proto__', 'a.b', 'a/b', '1field', '', 'x'.repeat(41)])('rejects unsafe field name %s', name => {
-    expect(formInputSchema.safeParse({ title: 'Fields', fields: [{ name, label: 'Value', type: 'text', required: true }] }).success).toBe(false);
-  });
-  it('rejects duplicate names, empty forms and missing radio choices', () => {
-    const field = { name: 'vessel', label: 'Vessel', type: 'text', required: true };
-    for (const fields of [[], [field, field], [{ ...field, type: 'radio', options: ['only'] }], Array.from({ length: 9 }, (_, i) => ({ ...field, name: 'v'+i }))]) {
-      expect(formInputSchema.safeParse({ title: 'Fields', fields }).success).toBe(false);
-    }
   });
 });
 

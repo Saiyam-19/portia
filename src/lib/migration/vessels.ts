@@ -1,7 +1,7 @@
 import "server-only";
 import { z } from "zod";
 import { supportRetrySchema } from "../memory/input";
-import { safe } from "../portia/quotes";
+import { safe } from "../berthwise/text";
 
 const VESSEL_BASE = "https://api.vesselapi.com";
 const MANUAL_FALLBACK = "Vessel lookup is not configured. Ask the user for vessel particulars (GRT, DWT, LOA and draught).";

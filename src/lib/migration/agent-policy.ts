@@ -1,6 +1,6 @@
 import { isStepCount } from "ai";
 
-export const MIGRATION_AGENT_MAX_STEPS = 12;
+export const MIGRATION_AGENT_MAX_STEPS = 8;
 export const MIGRATION_AGENT_MAX_OUTPUT_TOKENS = 4_096;
 
 // Enforced on provider output before conversation publication buffering.

@@ -1,17 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { migrationRunState, makeQuestionRequest } from "../../src/lib/migration/client-state";
 
-describe("free-text corrections while a form is pending", () => {
+describe("question requests", () => {
   const base = { requestId: "a122fbae-303b-45a5-90f3-7f112025dc50", conversationId: "chat", expectedRevision: 2, modelAlias: "model-1" as const, text: "Correction: GT is 14860; stay is 42 hours." };
-  it("resolves the existing form and preserves the correction verbatim in one request", () => {
-    expect(makeQuestionRequest({ ...base, pendingToolCallId: "details" })).toEqual({ kind: "form", requestId: base.requestId, conversationId: "chat", expectedRevision: 2, modelAlias: "model-1", toolCallId: "details", values: {}, cancelled: true, note: base.text });
+  it("sends the text verbatim as a question", () => {
+    expect(makeQuestionRequest(base)).toEqual({ kind: "question", requestId: base.requestId, conversationId: "chat", expectedRevision: 2, modelAlias: "model-1", question: base.text });
   });
-  it("uses the ordinary question path without a pending form", () => {
-    expect(makeQuestionRequest(base)).toMatchObject({ kind: "question", question: base.text });
-  });
-  it("rejects an oversized correction rather than truncating it or sending an invalid body", () => {
-    expect(() => makeQuestionRequest({ ...base, pendingToolCallId: "details", text: "x".repeat(2001) })).toThrow();
-    expect(makeQuestionRequest({ ...base, text: "x".repeat(2001) }).kind).toBe("question");
+  it("rejects an oversized question rather than truncating it", () => {
+    expect(() => makeQuestionRequest({ ...base, text: "x".repeat(4001) })).toThrow();
   });
 });
 
@@ -52,7 +48,7 @@ describe('durable question draft acknowledgement', () => {
     expect(next.input).toBe('Recalculate berth charges');
     expect(next.pending).not.toBeNull();
   });
-  it.each(['completed', 'waiting'])('clears an unchanged draft only after matching durable %s acknowledgement', status => {
+  it.each(['completed'])('clears an unchanged draft only after matching durable %s acknowledgement', status => {
     const state = submittedDraft();
     expect(questionDraftReducer(state, { type: 'saved', runId: 'different-run', status, transportBusy: false })).toBe(state);
     expect(questionDraftReducer(state, { type: 'saved', runId: 'my-run', status, transportBusy: true })).toBe(state);
