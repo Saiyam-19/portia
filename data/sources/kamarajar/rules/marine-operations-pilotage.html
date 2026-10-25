@@ -1,0 +1,1448 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Port Operations - Kamarajar Port Limited</title>
+
+
+  <link rel="stylesheet" href="https://www.kamarajarport.in/public/frontend/assets/fonts/inter/inter.css">
+
+  <link rel="stylesheet" href="https://www.kamarajarport.in/public/frontend/assets/bootstrap/css/bootstrap.min.css">
+
+  <link rel="stylesheet" href="https://www.kamarajarport.in/public/frontend/assets/bootstrap-icons/font/bootstrap-icons.css">
+
+  <link rel="stylesheet" href="https://www.kamarajarport.in/public/frontend/assets/fontawesome/css/all.min.css">
+
+  <link rel="stylesheet" href="https://www.kamarajarport.in/public/frontend/assets/css/style.css">
+  <link rel="stylesheet" href="https://www.kamarajarport.in/public/custom/css/custom.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://kamarajarport.in/public/public/favicon.png?v=1774345987" sizes="32x32">
+  <link rel="shortcut icon" type="image/png" href="https://kamarajarport.in/public/public/favicon.png?v=1774345987"></head>
+<script>
+// Apply saved theme
+if (localStorage.getItem("theme") === "dark") {
+    document.body.classList.add("dark-mode");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    document.querySelector(".bi-brightness-high").addEventListener("click", () => {
+        document.body.classList.remove("dark-mode");
+        localStorage.setItem("theme", "light");
+    });
+
+    document.querySelector(".bi-moon").addEventListener("click", () => {
+        document.body.classList.add("dark-mode");
+        localStorage.setItem("theme", "dark");
+    });
+
+});
+</script>
+<body>
+    <div class="utility-bar py-1">
+  <div class="container d-flex justify-content-between align-items-center small">
+    <div class="tools d-flex align-items-center gap-3">
+      <span id="currentDateTime" class="fw-bold me-3" style="font-size: 13px;">
+        <span id="dateTimeText"></span>
+      </span>
+      <span data-key="tool.fontDecrease">A-</span>
+      <span data-key="tool.fontNormal">A</span>
+      <span data-key="tool.fontIncrease">A+</span>
+      <i class="bi bi-brightness-high" title="Toggle light mode" data-i18n-attrs="title:tool.light"></i>
+      <i class="bi bi-moon" title="Toggle dark mode" data-i18n-attrs="title:tool.dark"></i>     
+    </div>
+    <div class="d-flex align-items-center gap-1">
+      <i class="fa fa-arrows-h" aria-hidden="true"></i>
+      <a href="#main-content" class="text-dark hero-text" data-en="Skip to Main Content" data-hi="मुख्य सामग्री पर जाएँ" title="Skip to Main Content">Skip to Main Content</a>
+        <i class="fa fa-desktop" aria-hidden="true"></i>
+      <a href="https://kamarajarport.in/public/screen-reader-access" class="text-dark hero-text" data-en="Screen Reader Access" data-hi="स्क्रीन रीडर एक्सेस
+    " title="स्क्रीन रीडर एक्सेस">Screen Reader Access</a>
+      <a href="https://kamarajarport.in/public/sitemap" class="text-dark hero-text" data-en="Sitemap" data-hi="साइट मानचित्र" data-ta="தள வரைபடம்" title="Sitemap">Sitemap</a>
+      <a href="https://kamarajarport.in/public/help" class="text-dark hero-text" data-en="Help" data-hi="सहायता" data-ta="உதவி" title="Help">Help</a>
+      <div class="dropdown">
+        <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="langDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Change Language">
+          <span id="currentLang" class="lang-label">English</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
+          <li><button class="dropdown-item lang-switch" data-lang="en" title="Switch to English">English</button></li>
+          <li><button class="dropdown-item lang-switch" data-lang="hi" title="Switch to Hindi">हिंदी</button></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="govt-bar py-2">
+  <div class="container d-flex justify-content-between align-items-center small text-white">
+    <div class="d-flex gap-4">
+      <span class="hero-text" data-en="Government of India" data-hi="भारत सरकार" data-ta="இந்திய அரசு">Government of India</span>
+      <span class="hide-mobile hero-text" data-en="Ministry of Ports, Shipping & Waterways" data-hi="बंदरगाह, नौवहन और जलमार्ग मंत्रालय" data-ta="துறைமுகங்கள், கப்பல் போக்குவரத்து மற்றும் நீர்வழிகள் அமைச்சகம்">Ministry of Ports, Shipping & Waterways</span>
+    </div>
+    <div class="d-flex gap-4">   
+      <a href="https://kamarajarport.in/public/rfid" class="text-white hero-text" data-en="RFID" data-hi="आरएफआईडी" data-ta="தொடர்பு" title="RFID">RFID</a>
+      <a href="https://kamarajarport.in/public/citizens-corner" class="text-white hero-text" data-en="Citizen's Corner" data-hi="नागरिक का कोना" title="Citizen's Corner" >Citizen's Corner</a>
+      <a href="https://kamarajarport.in/public/rti" class="text-white hero-text" data-en="RTI" data-hi="आरटीआई" data-ta="தகவல் உரிமை" title="RTI" >RTI</a>
+     <!-- <a href="#" class="text-white hero-text" data-en="Feedback" data-hi="प्रतिक्रिया" data-ta="கருத்து" title="Feedback">Feedback</a>-->
+      <a href="https://kamarajarport.in/public/contact-us" class="text-white hero-text" data-en="Contact" data-hi="संपर्क" data-ta="தொடர்பு" title="Contact">Contact</a>
+    </div>
+  </div>
+</div>
+
+<header class="ipa-header py-3">
+  <div class="container">
+    <div class="row align-items-center">
+      <!-- Logo and Title Section -->
+      <div class="col-lg-3 col-md-4 col-6">
+        <div class="left-block d-flex align-items-center gap-3">
+          <a href="https://kamarajarport.in/public" title="Go to Home Page"><img src="https://kamarajarport.in/public/public/frontend/assets/images/logowithname.png" title="Kamarajar Port Limited" class="logo-dark" style="width: 500px; height: 80px;"></a>    
+        </div>
+      </div>
+            <script>
+        var currentLanguage = localStorage.getItem('selectedLanguage') || 'en';
+      </script>
+      <div class="col-lg-8 col-md-6 d-none d-lg-block">
+                <nav class="main-nav d-flex justify-content-center flex-wrap gap-3" style="gap: 0 !important;" aria-label="Main navigation">
+                                  <!--  -->
+                        <a class="nav-link " 
+               href="https://kamarajarport.in/public/#" 
+               title="Home"
+               >
+                <span class="menu-name" data-en="Home" data-hi="घर" data-ta="Home">Home</span>
+            </a>
+                                              <!--  -->
+                        <a class="nav-link " 
+               href="https://kamarajarport.in/public/about" 
+               title="Company"
+               >
+                <span class="menu-name" data-en="Company" data-hi="कंपनी" data-ta="Company">Company</span>
+            </a>
+                                              <!--  -->
+                        <a class="nav-link " 
+               href="https://kamarajarport.in/public/financial-performances" 
+               title="Financial Performance"
+               >
+                <span class="menu-name" data-en="Financial Performance" data-hi="वित्तीय प्रदर्शन" data-ta="Financial Performance">Financial Performance</span>
+            </a>
+                                              <!--  -->
+                        <a class="nav-link active" 
+               href="https://kamarajarport.in/public/port-operations" 
+               title="Port Operations"
+               >
+                <span class="menu-name" data-en="Port Operations" data-hi="बंदरगाह संचालन" data-ta="Port Operations">Port Operations</span>
+            </a>
+                                              <!--  -->
+                        <a class="nav-link " 
+               href="https://kamarajarport.in/public/ehs" 
+               title="HSE"
+               >
+                <span class="menu-name" data-en="HSE" data-hi="एच एस ई" data-ta="HSE">HSE</span>
+            </a>
+                                              <!--  -->
+                        <a class="nav-link " 
+               href="https://kamarajarport.in/public/vigilance" 
+               title="Vigilance"
+               >
+                <span class="menu-name" data-en="Vigilance" data-hi="सतर्कता" data-ta="Vigilance">Vigilance</span>
+            </a>
+                                              <!--  -->
+                        <a class="nav-link " 
+               href="https://kamarajarport.in/public/investors" 
+               title="Investors"
+               >
+                <span class="menu-name" data-en="Investors" data-hi="निवेशकों" data-ta="Investors">Investors</span>
+            </a>
+                                              <!--  -->
+                                              <!--  -->
+                        <a class="nav-link " 
+               href="https://kamarajarport.in/public/csr" 
+               title="CSR"
+               >
+                <span class="menu-name" data-en="CSR" data-hi="सीएसआर" data-ta="CSR">CSR</span>
+            </a>
+                              </nav>
+              </div>
+
+      <div class="col-lg-1 col-md-2 col-6" style="margin-left: -70px;">
+        <div class="d-flex align-items-center gap-2">
+          <img src="https://kamarajarport.in/public/public/frontend/assets/images/logotwo.png" class="logo-dark" style="width: 100px; height: 80px;" title="Sagarmala">
+          <img src="https://kamarajarport.in/public/public/frontend/assets/images/25.png" class="logo-dark" style="width: 100px; height: 80px;" title="Kamarajar Port 25yrs Celebration">
+          <div class="mobile-icons d-flex d-lg-none gap-2">
+            <button class="mobile-icon-btn" aria-label="Search" title="Search">
+              <i class="bi bi-search"></i>
+            </button>
+            <button class="mobile-icon-btn" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-controls="mobileMenu" aria-label="Open menu" title="Open menu">
+              <i class="bi bi-list"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">  
+  <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="mobileMenuLabel">Indian Ports</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close" title="Close menu"></button>
+  </div>
+
+  <div class="offcanvas-body">
+      <div class="accordion" id="accordionMenu">
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/#" class="accordion-button no-arrow d-block link " >
+                    <span class="menu-name" data-en="Home" data-hi="घर" data-ta="Home">Home</span>
+                </a>
+            </h2>
+        </div>
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/about" class="accordion-button no-arrow d-block link " >
+                    <span class="menu-name" data-en="Company" data-hi="कंपनी" data-ta="Company">Company</span>
+                </a>
+            </h2>
+        </div>
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/financial-performances" class="accordion-button no-arrow d-block link " >
+                    <span class="menu-name" data-en="Financial Performance" data-hi="वित्तीय प्रदर्शन" data-ta="Financial Performance">Financial Performance</span>
+                </a>
+            </h2>
+        </div>
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/port-operations" class="accordion-button no-arrow d-block link active" >
+                    <span class="menu-name" data-en="Port Operations" data-hi="बंदरगाह संचालन" data-ta="Port Operations">Port Operations</span>
+                </a>
+            </h2>
+        </div>
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/ehs" class="accordion-button no-arrow d-block link " >
+                    <span class="menu-name" data-en="HSE" data-hi="एच एस ई" data-ta="HSE">HSE</span>
+                </a>
+            </h2>
+        </div>
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/vigilance" class="accordion-button no-arrow d-block link " >
+                    <span class="menu-name" data-en="Vigilance" data-hi="सतर्कता" data-ta="Vigilance">Vigilance</span>
+                </a>
+            </h2>
+        </div>
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/investors" class="accordion-button no-arrow d-block link " >
+                    <span class="menu-name" data-en="Investors" data-hi="निवेशकों" data-ta="Investors">Investors</span>
+                </a>
+            </h2>
+        </div>
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/citizens-corner" class="accordion-button no-arrow d-block link " >
+                    <span class="menu-name" data-en="Citizen&#039;s Corner" data-hi="नागरिक का कोना" data-ta="Citizen&#039;s Corner">Citizen&#039;s Corner</span>
+                </a>
+            </h2>
+        </div>
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/csr" class="accordion-button no-arrow d-block link " >
+                    <span class="menu-name" data-en="CSR" data-hi="सीएसआर" data-ta="CSR">CSR</span>
+                </a>
+            </h2>
+        </div>
+              </div>
+  </div>
+</div>
+<script>
+    const now = new Date();
+
+    const day = now.getDate();
+    const year = now.getFullYear();
+
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+
+    const weekdayNames = [
+        "Sunday", "Monday", "Tuesday", "Wednesday",
+        "Thursday", "Friday", "Saturday"
+    ];
+
+    const formattedDate =
+        day + " " +
+        monthNames[now.getMonth()] + " , " +
+        year + ", " +
+        weekdayNames[now.getDay()];
+
+    document.getElementById('dateTimeText').textContent = formattedDate;
+</script>
+ 
+
+    <main id="main-content">
+        
+<section class="port-operations-page-section py-5">
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="col-lg-3 col-md-4">
+                <div class="sidebar-menu">
+    <h5 class="sidebar-title">In This Section</h5>
+        <ul class="list-unstyled sidebar-list">
+                                
+            <li class="sidebar-item ">
+                                                        
+                    <a href="https://kamarajarport.in/public/port-operations/terminals-and-berths"  title="Terminals and Berths"
+                       class="sidebar-link d-flex align-items-center " 
+                       >
+                        <i class="bi bi-chevron-right me-2"></i>
+                        <span class="menu-name"
+                              data-en="Terminals and Berths" 
+                              data-hi="टर्मिनल और बर्थ" 
+                              data-ta="Terminals and Berths">
+                            Terminals and Berths
+                        </span>
+                    </a>
+                            </li>
+                                
+            <li class="sidebar-item has-submenu">
+                                    <a href="javascript:void(0);" 
+                       class="sidebar-link dropdown-toggle d-flex align-items-center justify-content-between" 
+                       data-bs-toggle="collapse" 
+                       data-bs-target="#submenu-111" 
+                       aria-expanded="false">
+                        <span class="d-flex align-items-center">
+                            <i class="bi bi-chevron-right me-2"></i>
+                            <span class="menu-name" 
+                                  data-en="Marine Services" 
+                                  data-hi="समुद्री सेवाएँ" 
+                                  data-ta="Marine Services">
+                                Marine Services
+                            </span>                                                 
+                        </span>
+
+                        <!-- <i class="bi bi-chevron-down submenu-arrow"></i> -->
+                    </a>
+                    <ul class="list-unstyled sidebar-submenu collapse" id="submenu-111">
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/marine-operations-pilotage"  title="Marine Services"
+                                   class="sidebar-sublink d-flex align-items-center active" 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Pilotage" 
+                                          data-hi="मार्गदर्शन" 
+                                          data-ta="Pilotage">
+                                          Pilotage
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamaraj-dev.indusnettechnologies.com/port-operations/terminals-and-berths#bunkering-operation"  title="Marine Services"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Bunkering Operation" 
+                                          data-hi="बंकरिंग ऑपरेशन" 
+                                          data-ta="Bunkering Operation">
+                                          Bunkering Operation
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/vtms"  title="Marine Services"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Vessel Traffic Management System" 
+                                          data-hi="पोत यातायात प्रबंधन प्रणाली" 
+                                          data-ta="Vessel Traffic Management System">
+                                          Vessel Traffic Management System
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/arr-dep"  title="Marine Services"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="ARR &amp; DEP Procedure for Ships" 
+                                          data-hi="जहाजों के लिए आगमन &amp; प्रस्थान प्रक्रिया" 
+                                          data-ta="ARR &amp; DEP Procedure for Ships">
+                                          ARR &amp; DEP Procedure for Ships
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/marine-crafts"  title="Marine Services"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Marine Crafts" 
+                                          data-hi="समुद्री शिल्प" 
+                                          data-ta="Marine Crafts">
+                                          Marine Crafts
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/survey-dredging"  title="Marine Services"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Survey &amp; Dredging" 
+                                          data-hi="सर्वेक्षण एवं ड्रेजिंग" 
+                                          data-ta="Survey &amp; Dredging">
+                                          Survey &amp; Dredging
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/security-policy"  title="Marine Services"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Security Policy" 
+                                          data-hi="सुरक्षा नीति" 
+                                          data-ta="Security Policy">
+                                          Security Policy
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/sts"  title="Marine Services"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="STS" 
+                                          data-hi="अनुसूचित जनजातियों" 
+                                          data-ta="STS">
+                                          STS
+                                    </span>
+                                </a>
+                            </li>
+                                            </ul>
+                            </li>
+                                
+            <li class="sidebar-item ">
+                                                        
+                    <a href="https://kamarajarport.in/public/port-operations/vessels-in-port"  title="Vessels in Port"
+                       class="sidebar-link d-flex align-items-center " 
+                       >
+                        <i class="bi bi-chevron-right me-2"></i>
+                        <span class="menu-name"
+                              data-en="Vessels in Port" 
+                              data-hi="बंदरगाह में जहाज" 
+                              data-ta="Vessels in Port">
+                            Vessels in Port
+                        </span>
+                    </a>
+                            </li>
+                                
+            <li class="sidebar-item ">
+                                                        
+                    <a href="https://kamarajarport.in/public/port-operations/scale-of-rates"  title="Scale of Rates"
+                       class="sidebar-link d-flex align-items-center " 
+                       >
+                        <i class="bi bi-chevron-right me-2"></i>
+                        <span class="menu-name"
+                              data-en="Scale of Rates" 
+                              data-hi="दरों का पैमाना" 
+                              data-ta="Scale of Rates">
+                            Scale of Rates
+                        </span>
+                    </a>
+                            </li>
+                                
+            <li class="sidebar-item has-submenu">
+                                    <a href="javascript:void(0);" 
+                       class="sidebar-link dropdown-toggle d-flex align-items-center justify-content-between" 
+                       data-bs-toggle="collapse" 
+                       data-bs-target="#submenu-78" 
+                       aria-expanded="false">
+                        <span class="d-flex align-items-center">
+                            <i class="bi bi-chevron-right me-2"></i>
+                            <span class="menu-name" 
+                                  data-en="Connectivity" 
+                                  data-hi="कनेक्टिविटी" 
+                                  data-ta="Connectivity">
+                                Connectivity
+                            </span>                                                 
+                        </span>
+
+                        <!-- <i class="bi bi-chevron-down submenu-arrow"></i> -->
+                    </a>
+                    <ul class="list-unstyled sidebar-submenu collapse" id="submenu-78">
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/roads"  title="Connectivity"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Roads" 
+                                          data-hi="सड़कें" 
+                                          data-ta="Roads">
+                                          Roads
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/rails"  title="Connectivity"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Rails" 
+                                          data-hi="रेल" 
+                                          data-ta="Rails">
+                                          Rails
+                                    </span>
+                                </a>
+                            </li>
+                                            </ul>
+                            </li>
+                                
+            <li class="sidebar-item has-submenu">
+                                    <a href="javascript:void(0);" 
+                       class="sidebar-link dropdown-toggle d-flex align-items-center justify-content-between" 
+                       data-bs-toggle="collapse" 
+                       data-bs-target="#submenu-73" 
+                       aria-expanded="false">
+                        <span class="d-flex align-items-center">
+                            <i class="bi bi-chevron-right me-2"></i>
+                            <span class="menu-name" 
+                                  data-en="Port Statistics" 
+                                  data-hi="पोर्ट सांख्यिकी" 
+                                  data-ta="Port Statistics">
+                                Port Statistics
+                            </span>                                                 
+                        </span>
+
+                        <!-- <i class="bi bi-chevron-down submenu-arrow"></i> -->
+                    </a>
+                    <ul class="list-unstyled sidebar-submenu collapse" id="submenu-73">
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/performance-indicator"  title="Port Statistics"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Performance Indicators" 
+                                          data-hi="प्रदर्शन सूचक" 
+                                          data-ta="Performance Indicators">
+                                          Performance Indicators
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/cargo-handled"  title="Port Statistics"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Cargo Handled" 
+                                          data-hi="कार्गो संभाला" 
+                                          data-ta="Cargo Handled">
+                                          Cargo Handled
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/vessels-handled"  title="Port Statistics"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Vessels Handled" 
+                                          data-hi="संभाले गए जहाज" 
+                                          data-ta="Vessels Handled">
+                                          Vessels Handled
+                                    </span>
+                                </a>
+                            </li>
+                                            </ul>
+                            </li>
+                                
+            <li class="sidebar-item ">
+                                                        
+                    <a href="https://kamarajarport.in/public/port-operations/modern-facilities"  title="Modern Facilities"
+                       class="sidebar-link d-flex align-items-center " 
+                       >
+                        <i class="bi bi-chevron-right me-2"></i>
+                        <span class="menu-name"
+                              data-en="Modern Facilities" 
+                              data-hi="आधुनिक सुविधाएं" 
+                              data-ta="Modern Facilities">
+                            Modern Facilities
+                        </span>
+                    </a>
+                            </li>
+                                
+            <li class="sidebar-item ">
+                                                        
+                    <a href="https://kamarajarport.in/public/port-operations/landuse-plan"  title="Landuse Plan"
+                       class="sidebar-link d-flex align-items-center " 
+                       >
+                        <i class="bi bi-chevron-right me-2"></i>
+                        <span class="menu-name"
+                              data-en="Landuse Plan" 
+                              data-hi="भूमि-उपयोग योजना" 
+                              data-ta="Landuse Plan">
+                            Landuse Plan
+                        </span>
+                    </a>
+                            </li>
+            </ul>
+    </div>
+
+<style>
+.sidebar-menu {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.sidebar-title {
+    font-weight: 600;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #0047d6;
+    color: #001489;
+}
+
+.sidebar-list {
+    margin: 0;
+    padding: 0;
+}
+
+.sidebar-item {
+    margin-bottom: 5px;
+}
+
+.sidebar-link {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 10px 15px;
+    color: #333;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.sidebar-link:hover {
+    background: #e9ecef;
+    color: #0047d6;
+    padding-left: 20px;
+}
+
+.sidebar-link.active {
+    background: #e9ecef;
+    color: #0047d6;
+    padding-left: 20px;
+}
+
+.sidebar-link.dropdown-toggle .submenu-arrow {
+    transition: transform 0.3s ease;
+}
+
+.sidebar-link.dropdown-toggle:not(.collapsed) .submenu-arrow {
+    transform: rotate(180deg);
+}
+
+.sidebar-submenu {
+    margin-left: 15px;
+    margin-top: 5px;
+}
+
+.sidebar-subitem {
+    margin-bottom: 3px;
+}
+
+.sidebar-sublink {
+    display: flex;
+    align-items: center;
+    padding: 8px 15px;
+    color: #666;
+    text-decoration: none;
+    font-size: 0.9rem;
+    border-left: 2px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.sidebar-sublink:hover {
+    color: #0047d6;
+    border-left-color: #0047d6;
+    padding-left: 20px;
+}
+
+.sidebar-sublink.active {
+    color: #0047d6;
+    border-left-color: #0047d6;
+    padding-left: 20px;
+}
+
+.sidebar-sublink i {
+    min-width: 20px; /* fixes alignment of the chevron */
+}
+</style>            </div>
+
+            
+            <div class="col-lg-9 col-md-8">
+
+                
+                
+                
+                
+                    <h4 class="fw-bold mb-3 hero-text content-title"
+                        data-en="Marine Operations Pilotage"
+                        data-hi="समुद्री संचालन पायलट">
+                        Marine Operations Pilotage
+                    </h4>
+                    <hr>
+
+                    <div class="content-text port-operations-content-text">
+                        <div class="lang-en">
+                            <p style="margin-top:20px;margin-bottom:15px;font-size:15.2px;color:#212529;line-height:1.6;text-align:justify">The port provides round the clock pilotage services to all ocean-going vessels calling at the Port, ensuring safe navigation, efficient berthing, and smooth marine operations.</p>
+
+<h6 style="margin-top:15px;margin-bottom:15px;color:rgb(41 39 39);font-size:18.4px;font-family:'Open Sans',sans-serif"><strong>Marine Operations – Pilotage</strong></h6>
+<p style="margin-top:20px;margin-bottom:15px;font-size:15.2px;color:#212529;line-height:1.6;text-align:justify">A total of 4 hired tugs are deployed on round the clock duty to support vessel movements:<br><br>a) Three (3) tugs of 50 tonnes Bollard Pull from M/s Ocean Sparkle Ltd.<br>b) One (1) tug of 60 tonnes Bollard Pull from M/s Ocean Sparkle Ltd.<br><br>All tugs are equipped with fire-fighting equipment and facilities to deploy oil spill dispersants for containing marine pollution.<br><br>Additionally, the port operates:<br>c) Two (2) Pilot Launches and One (1) Patrolling Launch (Speed Boat).</p>
+
+<h6 style="margin-top:15px;margin-bottom:15px;color:rgb(41 39 39);font-size:18.4px;font-family:'Open Sans',sans-serif"><strong>Marine Operations &amp; Equipments – Tugs</strong></h6>
+<div style="margin-top:20px;overflow-x:auto">
+   <table style="width:100%;border-collapse:collapse;font-size:14px;border:1px solid #e4e6ef">
+      <thead style="background-color:#142457;color:#fff">
+         <tr>
+            <th style="padding:10px;text-align:center">Name</th>
+            <th style="padding:10px;text-align:center">Year of Built</th>
+            <th style="padding:10px;text-align:center">BHP</th>
+            <th style="padding:10px;text-align:center">Bollard Pull</th>
+            <th style="padding:10px;text-align:center">Ownership</th>
+         </tr>
+      </thead>
+      <tbody>
+         <tr style="border-bottom:1px dashed #e4e6ef">
+            <td style="padding:10px">Ocean Thunder</td>
+            <td style="padding:10px">2012</td>
+            <td style="padding:10px">1838 x 2</td>
+            <td style="padding:10px">60 Tons</td>
+            <td style="padding:10px">Hired</td>
+         </tr>
+         <tr style="border-bottom:1px dashed #e4e6ef">
+            <td style="padding:10px">Ocean Star</td>
+            <td style="padding:10px">2017</td>
+            <td style="padding:10px">2000 x 2</td>
+            <td style="padding:10px">50 Tons</td>
+            <td style="padding:10px">Hired</td>
+         </tr>
+         <tr style="border-bottom:1px dashed #e4e6ef">
+            <td style="padding:10px">Ocean Success</td>
+            <td style="padding:10px">2017</td>
+            <td style="padding:10px">2000 x 2</td>
+            <td style="padding:10px">50 Tons</td>
+            <td style="padding:10px">Hired</td>
+         </tr>
+         <tr>
+            <td style="padding:10px">Ocean Liberty</td>
+            <td style="padding:10px">2014</td>
+            <td style="padding:10px">1471 x 2</td>
+            <td style="padding:10px">50 Tons</td>
+            <td style="padding:10px">Hired</td>
+         </tr>
+      </tbody>
+   </table>
+</div>
+
+<h6 style="margin-top:15px;margin-bottom:15px;color:rgb(41 39 39);font-size:18.4px;"><strong>Pilot Launches</strong></h6>
+<div style="margin-top:20px;overflow-x:auto">
+   <table style="width:100%;border-collapse:collapse;font-size:14px;border:1px solid #e4e6ef">
+      <thead style="background-color:#142457;color:#fff">
+         <tr>
+            <th style="padding:10px;text-align:center">Name</th>
+            <th style="padding:10px;text-align:center">Year of Built</th>
+            <th style="padding:10px;text-align:center">BHP</th>
+            <th style="padding:10px;text-align:center">Ownership</th>
+         </tr>
+      </thead>
+      <tbody>
+         <tr style="border-bottom:1px dashed #e4e6ef">
+            <td style="padding:10px">ABS – Dhruva</td>
+            <td style="padding:10px">2021</td>
+            <td style="padding:10px">750 x 2</td>
+            <td style="padding:10px">Hired</td>
+         </tr>
+         <tr>
+            <td style="padding:10px">ABS – Dhanika</td>
+            <td style="padding:10px">2021</td>
+            <td style="padding:10px">750 x 2</td>
+            <td style="padding:10px">Hired</td>
+         </tr>
+      </tbody>
+   </table>
+</div>
+
+<h6 style="margin-top:15px;margin-bottom:15px;color:rgb(41 39 39);font-size:18.4px;"><strong>Mooring Launches</strong></h6>
+<div style="margin-top:20px;overflow-x:auto">
+   <table style="width:100%;border-collapse:collapse;font-size:14px;border:1px solid #e4e6ef">
+      <thead style="background-color:#142457;color:#fff">
+         <tr>
+            <th style="padding:10px;text-align:center">Name</th>
+            <th style="padding:10px;text-align:center">Year of Built</th>
+            <th style="padding:10px;text-align:center">BHP</th>
+            <th style="padding:10px;text-align:center">Ownership</th>
+         </tr>
+      </thead>
+      <tbody>
+         <tr style="border-bottom:1px dashed #e4e6ef">
+            <td style="padding:10px">Jalsashree – 1</td>
+            <td style="padding:10px">2021</td>
+            <td style="padding:10px">120 x 2</td>
+            <td style="padding:10px">Hired</td>
+         </tr>
+         <tr>
+            <td style="padding:10px">Jalsashree – 2</td>
+            <td style="padding:10px">2021</td>
+            <td style="padding:10px">120 x 2</td>
+            <td style="padding:10px">Hired</td>
+         </tr>
+      </tbody>
+   </table>
+</div>
+
+<h6 style="margin-top:15px;margin-bottom:15px;color:rgb(41 39 39);font-size:18.4px;"><strong>Security Patrol Launches</strong></h6>
+<div style="margin-top:20px;overflow-x:auto">
+   <table style="width:100%;border-collapse:collapse;font-size:14px;border:1px solid #e4e6ef">
+      <thead style="background-color:#142457;color:#fff">
+         <tr>
+            <th style="padding:10px;text-align:center">Name</th>
+            <th style="padding:10px;text-align:center">Year of Built</th>
+            <th style="padding:10px;text-align:center">BHP</th>
+            <th style="padding:10px;text-align:center">Ownership</th>
+         </tr>
+      </thead>
+      <tbody>
+         <tr>
+            <td style="padding:10px">Jalsashree – 5</td>
+            <td style="padding:10px">2024</td>
+            <td style="padding:10px">700 x 2</td>
+            <td style="padding:10px">Hired</td>
+         </tr>
+      </tbody>
+   </table>
+</div>
+                        </div>
+                        <div class="lang-hi d-none">
+                            <p style="margin-top:20px;margin-bottom:15px;font-size:15.2px;color:#212529;line-height:1.6;text-align:justify">बंदरगाह सभी समुद्रगामी जहाजों को 24x7 पायलटेज सेवाएं प्रदान करता है, जिससे सुरक्षित नौवहन, कुशल बर्थिंग और सुचारु समुद्री संचालन सुनिश्चित होता है।</p>
+
+<h6 style="margin-top:15px;margin-bottom:15px;color:rgb(41 39 39);font-size:18.4px;"><strong>समुद्री संचालन – पायलटेज</strong></h6>
+<p style="margin-top:20px;margin-bottom:15px;font-size:15.2px;color:#212529;line-height:1.6;text-align:justify">जहाजों की आवाजाही के समर्थन हेतु कुल 4 किराए पर ली गई टग नौकाएं चौबीसों घंटे तैनात रहती हैं:<br><br>a) 50 टन बोलार्ड पुल क्षमता वाली तीन (3) टग – M/s Ocean Sparkle Ltd. से<br>b) 60 टन बोलार्ड पुल क्षमता वाली एक (1) टग – M/s Ocean Sparkle Ltd. से<br><br>सभी टग अग्निशमन उपकरणों से सुसज्जित हैं तथा समुद्री प्रदूषण को नियंत्रित करने के लिए ऑयल स्पिल डिस्पर्सेंट तैनात करने की सुविधा से युक्त हैं।<br><br>इसके अतिरिक्त, बंदरगाह संचालित करता है:<br>c) दो (2) पायलट लॉन्च और एक (1) पेट्रोलिंग लॉन्च (स्पीड बोट)।</p>
+
+<h6 style="margin-top:15px;margin-bottom:15px;color:rgb(41 39 39);font-size:18.4px;"><strong>समुद्री संचालन एवं उपकरण – टग</strong></h6>
+<div style="margin-top:20px;overflow-x:auto">
+   <table style="width:100%;border-collapse:collapse;font-size:14px;border:1px solid #e4e6ef">
+      <thead style="background-color:#142457;color:#fff">
+         <tr>
+            <th style="padding:10px;text-align:center">नाम</th>
+            <th style="padding:10px;text-align:center">निर्माण वर्ष</th>
+            <th style="padding:10px;text-align:center">BHP</th>
+            <th style="padding:10px;text-align:center">बोलार्ड पुल</th>
+            <th style="padding:10px;text-align:center">स्वामित्व</th>
+         </tr>
+      </thead>
+      <tbody>
+         <tr style="border-bottom:1px dashed #e4e6ef">
+            <td style="padding:10px">Ocean Thunder</td>
+            <td style="padding:10px">2012</td>
+            <td style="padding:10px">1838 x 2</td>
+            <td style="padding:10px">60 टन</td>
+            <td style="padding:10px">किराए पर</td>
+         </tr>
+         <tr style="border-bottom:1px dashed #e4e6ef">
+            <td style="padding:10px">Ocean Star</td>
+            <td style="padding:10px">2017</td>
+            <td style="padding:10px">2000 x 2</td>
+            <td style="padding:10px">50 टन</td>
+            <td style="padding:10px">किराए पर</td>
+         </tr>
+         <tr style="border-bottom:1px dashed #e4e6ef">
+            <td style="padding:10px">Ocean Success</td>
+            <td style="padding:10px">2017</td>
+            <td style="padding:10px">2000 x 2</td>
+            <td style="padding:10px">50 टन</td>
+            <td style="padding:10px">किराए पर</td>
+         </tr>
+         <tr>
+            <td style="padding:10px">Ocean Liberty</td>
+            <td style="padding:10px">2014</td>
+            <td style="padding:10px">1471 x 2</td>
+            <td style="padding:10px">50 टन</td>
+            <td style="padding:10px">किराए पर</td>
+         </tr>
+      </tbody>
+   </table>
+</div>
+
+<h6 style="margin-top:15px;margin-bottom:15px;color:rgb(41 39 39);font-size:18.4px;"><strong>पायलट लॉन्च</strong></h6>
+<div style="margin-top:20px;overflow-x:auto">
+   <table style="width:100%;border-collapse:collapse;font-size:14px;border:1px solid #e4e6ef">
+      <thead style="background-color:#142457;color:#fff">
+         <tr>
+            <th style="padding:10px;text-align:center">नाम</th>
+            <th style="padding:10px;text-align:center">निर्माण वर्ष</th>
+            <th style="padding:10px;text-align:center">BHP</th>
+            <th style="padding:10px;text-align:center">स्वामित्व</th>
+         </tr>
+      </thead>
+      <tbody>
+         <tr style="border-bottom:1px dashed #e4e6ef">
+            <td style="padding:10px">ABS – Dhruva</td>
+            <td style="padding:10px">2021</td>
+            <td style="padding:10px">750 x 2</td>
+            <td style="padding:10px">किराए पर</td>
+         </tr>
+         <tr>
+            <td style="padding:10px">ABS – Dhanika</td>
+            <td style="padding:10px">2021</td>
+            <td style="padding:10px">750 x 2</td>
+            <td style="padding:10px">किराए पर</td>
+         </tr>
+      </tbody>
+   </table>
+</div>
+
+<h6 style="margin-top:15px;margin-bottom:15px;color:rgb(41 39 39);font-size:18.4px;"><strong>मूरिंग लॉन्च</strong></h6>
+<div style="margin-top:20px;overflow-x:auto">
+   <table style="width:100%;border-collapse:collapse;font-size:14px;border:1px solid #e4e6ef">
+      <thead style="background-color:#142457;color:#fff">
+         <tr>
+            <th style="padding:10px;text-align:center">नाम</th>
+            <th style="padding:10px;text-align:center">निर्माण वर्ष</th>
+            <th style="padding:10px;text-align:center">BHP</th>
+            <th style="padding:10px;text-align:center">स्वामित्व</th>
+         </tr>
+      </thead>
+      <tbody>
+         <tr style="border-bottom:1px dashed #e4e6ef">
+            <td style="padding:10px">Jalsashree – 1</td>
+            <td style="padding:10px">2021</td>
+            <td style="padding:10px">120 x 2</td>
+            <td style="padding:10px">किराए पर</td>
+         </tr>
+         <tr>
+            <td style="padding:10px">Jalsashree – 2</td>
+            <td style="padding:10px">2021</td>
+            <td style="padding:10px">120 x 2</td>
+            <td style="padding:10px">किराए पर</td>
+         </tr>
+      </tbody>
+   </table>
+</div>
+
+<h6 style="margin-top:15px;margin-bottom:15px;color:rgb(41 39 39);font-size:18.4px;"><strong>सुरक्षा पेट्रोल लॉन्च</strong></h6>
+<div style="margin-top:20px;overflow-x:auto">
+   <table style="width:100%;border-collapse:collapse;font-size:14px;border:1px solid #e4e6ef">
+      <thead style="background-color:#142457;color:#fff">
+         <tr>
+            <th style="padding:10px;text-align:center">नाम</th>
+            <th style="padding:10px;text-align:center">निर्माण वर्ष</th>
+            <th style="padding:10px;text-align:center">BHP</th>
+            <th style="padding:10px;text-align:center">स्वामित्व</th>
+         </tr>
+      </thead>
+      <tbody>
+         <tr>
+            <td style="padding:10px">Jalsashree – 5</td>
+            <td style="padding:10px">2024</td>
+            <td style="padding:10px">700 x 2</td>
+            <td style="padding:10px">किराए पर</td>
+         </tr>
+      </tbody>
+   </table>
+</div>
+                        </div>
+                    </div>
+
+                
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<script>
+function showTerminal(id, titleEn, titleHi) {
+
+    document.getElementById('pageTitle')?.classList.add('d-none');
+    document.getElementById('pageHr')?.classList.add('d-none');
+    document.getElementById('terminalCards').classList.add('d-none');
+
+    document.getElementById('terminalHeader').classList.remove('d-none');
+    document.getElementById('terminalHr').classList.remove('d-none');
+    document.getElementById('terminalContent').classList.remove('d-none');
+
+    // Set title in the currently active language
+    var currentLang = localStorage.getItem('selectedLanguage') || 'en';
+    var titleEl = document.getElementById('terminalTitle');
+    titleEl.innerText = currentLang === 'hi' ? (titleHi || titleEn) : titleEn;
+    titleEl.setAttribute('data-en', titleEn);
+    titleEl.setAttribute('data-hi', titleHi || titleEn);
+
+    // Hide all terminal sections, then show the selected one
+    document.querySelectorAll('#terminalContent .terminal-section')
+        .forEach(function(el) { el.classList.add('d-none'); });
+    document.querySelectorAll('#terminalContent #' + id)
+        .forEach(function(el) { el.classList.remove('d-none'); });
+}
+
+function showTerminalCards() {
+
+    document.getElementById('pageTitle')?.classList.remove('d-none');
+    document.getElementById('pageHr')?.classList.remove('d-none');
+    document.getElementById('terminalCards').classList.remove('d-none');
+
+    document.getElementById('terminalHeader').classList.add('d-none');
+    document.getElementById('terminalHr').classList.add('d-none');
+    document.getElementById('terminalContent').classList.add('d-none');
+
+    document.querySelectorAll('#terminalContent .terminal-section')
+        .forEach(function(el) { el.classList.add('d-none'); });
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+    var hash = window.location.hash.substring(1);
+
+    if (hash) {
+        var terminalNames = {
+            'container-terminal-phase-1':           { en: 'Container Terminal',          hi: 'कंटेनर टर्मिनल' },
+            'marine-liquid-terminal-1':  { en: 'Marine Liquid Terminal',      hi: 'मरीन लिक्विड टर्मिनल' },
+            'common-user-coal-terminal': { en: 'Common User Coal Terminal',   hi: 'सामान्य उपयोगकर्ता कोयला टर्मिनल' },
+            'general-cargo-berth-1':     { en: 'General Cargo Berth 1',       hi: 'सामान्य कार्गो बर्थ 1' },
+            'bunkering-operation':       { en: 'Bunkering Operation',         hi: 'बंकरिंग ऑपरेशन' },
+            'lng-terminal':       { en: 'LNG Terminal',         hi: 'एलएनजी टर्मिनल' },
+            'multi-cargo-terminal':       { en: 'Multi Cargo Terminal',         hi: 'मल्टी कार्गो टर्मिनल' },            
+        };
+
+        if (terminalNames[hash]) {
+            setTimeout(function() {
+                showTerminal(hash, terminalNames[hash].en, terminalNames[hash].hi);
+            }, 100);
+        }
+    }
+});                                    
+</script>
+ 
+    </main>
+
+    <style>
+.visitor-counter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.digit-box {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 32px;
+    height: 38px;
+    background-color: #0d6efd;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 4px;
+    font-size: 16px;
+}
+</style>
+<footer class="ipa-footer pt-5 pb-4">
+    <div class="container">
+
+        
+        <div class="row gy-5">
+
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="footer-logo-text">
+                    <div class="footer-logo-row mb-2 d-flex align-items-center gap-2">
+                        <a href="https://kamarajarport.in/public" title="Go to Home Page"><img src="https://kamarajarport.in/public/public/frontend/assets/images/logowithoutbackgroundd.png"
+                             class="footer-logo" title="Kamarajar Port Limited Logo"></a>
+                        <a href="https://kamarajarport.in/public" title="Go to Home Page"><p class="fw-bold footer-logo-text-title">
+                            KAMARAJAR PORT LIMITED
+                        </p></a>
+                    </div>
+                    <p class="footer-description px-1">
+                        ( A Company of Chennai Port Authority )<br>
+                        ( Ministry of Ports, Shipping & Waterways - Government of India )<br>
+                    </p>
+                </div>
+            </div>
+
+                                                                                <div class="col-lg-2 col-md-6">
+                        <h5 class="fw-bold footer-heading"></h5>
+                        <ul class="footer-list">
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/Help" 
+                                       title="Help"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Help"
+                                              data-hi="मदद"
+                                              data-ta="Help">
+                                            Help
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/hyper-linking-policy" 
+                                       title="Hyper Linking Policy"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Hyper Linking Policy"
+                                              data-hi="हाइपर लिंकिंग नीति"
+                                              data-ta="Hyper Linking Policy">
+                                            Hyper Linking Policy
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/disclaimer" 
+                                       title="Disclaimer"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Disclaimer"
+                                              data-hi="अस्वीकरण"
+                                              data-ta="Disclaimer">
+                                            Disclaimer
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://nlpmarine.gov.in/" 
+                                       title="NLP Marine"
+                                        target="_blank" >
+                                        <span class="menu-name"
+                                              data-en="NLP Marine"
+                                              data-hi="NLP Marine"
+                                              data-ta="NLP Marine">
+                                            NLP Marine
+                                        </span>
+                                    </a>
+                                </li>
+                                                    </ul>
+                    </div>
+                                                                                    <div class="col-lg-2 col-md-6">
+                        <h5 class="fw-bold footer-heading"></h5>
+                        <ul class="footer-list">
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/FAQ" 
+                                       title="FAQ&#039;s"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="FAQ&#039;s"
+                                              data-hi="अक्सर पूछे जाने वाले प्रश्न"
+                                              data-ta="FAQ&#039;s">
+                                            FAQ&#039;s
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/copyright-policy" 
+                                       title="Copyright Policy"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Copyright Policy"
+                                              data-hi="कॉपीराइट नीति"
+                                              data-ta="Copyright Policy">
+                                            Copyright Policy
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/gallery" 
+                                       title="Gallery"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Gallery"
+                                              data-hi="गैलरी"
+                                              data-ta="Gallery">
+                                            Gallery
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/download-forms" 
+                                       title="Download Forms"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Download Forms"
+                                              data-hi="फॉर्म डाउनलोड करें"
+                                              data-ta="Download Forms">
+                                            Download Forms
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/web-information-manager" 
+                                       title="Web Information Manager"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Web Information Manager"
+                                              data-hi="वेब सूचना प्रबंधक"
+                                              data-ta="Web Information Manager">
+                                            Web Information Manager
+                                        </span>
+                                    </a>
+                                </li>
+                                                    </ul>
+                    </div>
+                                                                                    <div class="col-lg-2 col-md-6">
+                        <h5 class="fw-bold footer-heading"></h5>
+                        <ul class="footer-list">
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/privacy-policy" 
+                                       title="Privacy Policy"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Privacy Policy"
+                                              data-hi="गोपनीयता नीति"
+                                              data-ta="Privacy Policy">
+                                            Privacy Policy
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/terms-and-condtions" 
+                                       title="Terms &amp; Conditions"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Terms &amp; Conditions"
+                                              data-hi="नियम एवं शर्तें"
+                                              data-ta="Terms &amp; Conditions">
+                                            Terms &amp; Conditions
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://mausam.imd.gov.in/chennai/" 
+                                       title="Weather"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Weather"
+                                              data-hi="मौसम"
+                                              data-ta="Weather">
+                                            Weather
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/bill-payment-status" 
+                                       title="Bill Payment Status"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Bill Payment Status"
+                                              data-hi="बिल भुगतान स्थिति"
+                                              data-ta="Bill Payment Status">
+                                            Bill Payment Status
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/archive" 
+                                       title="Archive"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Archive"
+                                              data-hi="पुरालेख"
+                                              data-ta="Archive">
+                                            Archive
+                                        </span>
+                                    </a>
+                                </li>
+                                                    </ul>
+                    </div>
+                            
+            
+            
+        <div class="col-lg-3 col-md-6">
+            <h5 class="fw-bold footer-heading hero-text"
+                data-en="Contact Us"
+                data-hi="संपर्क करें">
+                Contact Us
+            </h5>
+
+            <ul class="footer-list">
+                                    <li class="d-flex align-items-start mb-2">
+                        <i class="bi bi-geo-alt me-2" title="Address"></i>
+                        <div class="footer-address"
+                            data-en="&lt;h6&gt;Jawahar Building,&lt;/h6&gt;&lt;h6&gt;No. 17, Rajaji Salai, Chennai - 600001&lt;/h6&gt;"
+                            data-hi="&lt;h6&gt;जवाहर बिल्डिंग,&lt;/h6&gt;&lt;h6&gt;नंबर: 17, राजाजी सलाई, चेन्नई - 600001&lt;/h6&gt;"
+                            data-ta="&lt;h6&gt;Jawahar Building,&lt;/h6&gt;&lt;h6&gt;No. 17, Rajaji Salai, Chennai - 600001&lt;/h6&gt;">
+                            <h6>Jawahar Building,</h6><h6>No. 17, Rajaji Salai, Chennai - 600001</h6>
+                        </div>
+                    </li>
+                    <li class="d-flex align-items-center mb-2">
+                        <i class="bi bi-telephone me-2" title="Phone"></i>
+                        <span> +91-44-25251666</span>
+                    </li>
+                   <!-- <li class="d-flex align-items-center">
+                        <i class="bi bi-envelope me-2" title="Email"></i>
+                        <span>kpl[at]gmail[dot]com</span>
+                    </li>-->
+                            </ul>
+        </div>
+
+        </div>
+
+        
+        <hr class="footer-divider">
+
+        
+        <div class="row align-items-center py-2">
+
+            <div class="col-md-5 text-start">
+                <p class="m-0 footer-copy">
+                    Copyright ©  2026, All rights reserved by  Kamarajar Port Limited .
+                </p>
+            </div>
+            <div class="col-md-3 text-end">
+                <span class="ms-3">
+                    Last Updated On :
+                    <span id="lastUpdatedDate"></span>
+                </span>
+            </div>
+            <div class="col-md-4 text-end footer-bottom-links">
+                <span class="ms-3 visitor-counter">
+                    Visitors Count 
+                                            <span class="digit-box">2</span>
+                                            <span class="digit-box">8</span>
+                                            <span class="digit-box">9</span>
+                                            <span class="digit-box">8</span>
+                                            <span class="digit-box">5</span>
+                                            <span class="digit-box">4</span>
+                                    </span>
+            </div>
+        </div>
+
+        
+        <!-- <div class="badge-row text-center mt-4">
+            <img src="https://kamarajarport.in/public/public/frontend/assets/images/one.jpeg" class="badge-img" title="Government of India badge" alt="Government badge">
+            <img src="https://kamarajarport.in/public/public/frontend/assets/images/nic.jpeg" class="badge-img" title="NIC badge" alt="NIC badge">
+            <img src="https://kamarajarport.in/public/public/frontend/assets/images/digital.jpeg" class="badge-img" title="Digital India badge" alt="Digital India badge">
+        </div> -->
+
+    </div> 
+</footer>
+
+<script>
+document.addEventListener('click', function(e) {
+    var link = e.target.closest('a');
+    if (!link) return;
+
+    try {
+        var linkHost = new URL(link.href).host;
+        var currentHost = window.location.host;
+
+        if (linkHost && linkHost !== currentHost) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+
+            if (confirm('This site has been redirected to external website, Do you want to continue ?')) {
+                if (link.target === '_blank' || link.target === '_new') {
+                    window.open(link.href, '_blank', 'noopener,noreferrer');
+                } else {
+                    window.location.href = link.href;
+                }
+            }
+            return false;
+        }
+    } catch (err) {}
+}, true);
+
+// 👇 FIX HERE
+document.addEventListener('DOMContentLoaded', function () {
+    const now = new Date();
+
+    const day = now.getDate();
+    const year = now.getFullYear();
+
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+
+    const formattedDate = `${day}-${monthNames[now.getMonth()]}-${year}`;
+
+    document.getElementById('lastUpdatedDate').textContent = formattedDate;
+});
+</script>
+ 
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://www.kamarajarport.in/public/frontend/assets/js/main.js"></script>
+
+<script>
+  const reveals = document.querySelectorAll('.section-card, .quick-card, .stats-section, .news-card');
+  if (reveals.length){
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e =>{ if (e.isIntersecting) e.target.classList.add('reveal-show'); });
+    }, {threshold: .12});
+    reveals.forEach(r => io.observe(r));
+  }
+
+  function animateCounters(){
+    document.querySelectorAll('[data-target]').forEach(el => {
+      const target = parseFloat(el.getAttribute('data-target'));
+      if (isNaN(target)) return;
+      const duration = 1300;
+      let start = 0;
+      const step = target / (duration / 20);
+      const t = setInterval(()=>{ start += step; if (start >= target){ el.textContent = (String(target).includes('.')?target.toFixed(1):Math.round(target)); clearInterval(t);} else el.textContent = (String(target).includes('.')?start.toFixed(1):Math.round(start)); },20);
+    });
+  }
+  const statsEl = document.querySelector('.stats-section');
+  if (statsEl){
+    const statsObserver = new IntersectionObserver(entries => { if(entries[0].isIntersecting){ animateCounters(); statsObserver.disconnect(); } }, {threshold:.3});
+    statsObserver.observe(statsEl);
+  }
+</script>
+</body>
+</html>

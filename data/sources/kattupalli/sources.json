@@ -33,6 +33,33 @@
       "sha256": "8f6e31bd57ac8e1327dee72f68c87630e37f546775b4522e1841c3748c4d9faf",
       "pages": 1,
       "pagesWithoutText": []
+    },
+    {
+      "file": "data/sources/kattupalli/rules/gangway-safety-net-2025.pdf",
+      "title": "Readiness of Gangway with Safety Net",
+      "issuer": "Marine Infrastructure Developer Private Limited (Kattupalli Port)",
+      "url": "https://www.adaniports.com/-/media/project/ports/portsandterminals/kattupalli-port-documents/public-notices/tc-15---readiness-of-gangway-with-safety-net---midpl-kattupalli-port.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/kattupalli/rules/gangway-safety-net-2025.md",
+      "sha256": "6aec63f204afc203fd765a2c9744d099051c903d745b9b3660c3833b4604b3ab",
+      "kind": "rules",
+      "pages": 1,
+      "pagesWithoutText": [],
+      "publishedOn": "2025-12-16"
+    },
+    {
+      "file": "data/sources/kattupalli/rules/entry-inwards-boarding-discharge-2025.pdf",
+      "title": "Public Notice regarding Entry Inwards, Boarding of Vessel and Discharge of Cargo",
+      "issuer": "Marine Infrastructure Developer Private Limited (Kattupalli Port); Chennai Customs",
+      "url": "https://www.adaniports.com/-/media/project/ports/portsandterminals/kattupalli-port-documents/public-notices/ta-13-of-2025-public-notice-reg-entry-inwards-boarding-of-vessel-and-discharge-of-cargo.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/kattupalli/rules/entry-inwards-boarding-discharge-2025.md",
+      "sha256": "9e9a561656c942f6cd90c5170e6e6a5dac180c37c9f100fceb5978f3da848a62",
+      "kind": "rules",
+      "pages": 4,
+      "pagesWithoutText": [],
+      "notes": "Operator advisory with appended Chennai Customs notice. Contains office-role email addresses, including a generic Customs Gmail address.",
+      "publishedOn": "2025-12-04"
     }
   ]
 }

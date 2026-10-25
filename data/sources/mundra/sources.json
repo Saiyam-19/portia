@@ -34,6 +34,39 @@
       "sha256": "83dfbd510c965ff12c81862d8807bf242cc0bec261529f2c09690cad0fc34404",
       "pages": 2,
       "pagesWithoutText": []
+    },
+    {
+      "file": "data/sources/mundra/rules/draft-declaration-2026-10.pdf",
+      "title": "DRAFT AT BERTH AND CHANNEL DEPTH FOR THE MONTH OF OCTOBER 2026",
+      "issuer": "Adani Ports and Special Economic Zone Limited (Mundra)",
+      "url": "https://www.adaniports.com/-/media/project/ports/portsandterminals/mundra-documents/marine-documents/draft-declaration-oct-2026.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/mundra/rules/draft-declaration-2026-10.md",
+      "sha256": "18dd676e5088df5d084f4bc37765b665b1953c5ded10891e66aebcbc10d098ea",
+      "kind": "rules",
+      "pages": 2,
+      "pagesWithoutText": [],
+      "notes": "Date-specific daily draft limits; not a perpetual vessel-acceptance guarantee. Supplements the existing BPTS.",
+      "validFrom": "2026-10-01",
+      "validTo": "2026-10-31",
+      "pagesTextCorrectedVisually": [
+        1,
+        2
+      ]
+    },
+    {
+      "file": "data/sources/mundra/rules/vessel-declaration-pre-arrival-ndc.pdf",
+      "title": "Standard procedure for vessel declaration, submission of Pre-arrival documentation and NDC at APSEZL, Mundra",
+      "issuer": "Adani Ports and Special Economic Zone Limited (Mundra)",
+      "url": "https://www.adaniports.com/-/media/project/ports/portsandterminals/mundra-documents/marine-documents/standard-procedure-for-vessel-declarations-ndc-and-submission-of-documents.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/mundra/rules/vessel-declaration-pre-arrival-ndc.md",
+      "sha256": "6bf959de634ac6d6b23421e7c4db054823a20ae85b0f7e5ee33963dcb44f9437",
+      "kind": "rules",
+      "pages": 5,
+      "pagesWithoutText": [],
+      "notes": "Undated procedure currently listed under Marine Documents. Generic department/office contacts only. Complements existing BPTS with required documents and recipients.",
+      "currentListingUrl": "https://www.adaniports.com/ports-and-terminals/mundra-port/download"
     }
   ]
 }

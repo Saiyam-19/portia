@@ -11,6 +11,43 @@
       "sha256": "98ae0d5f90ffa0c3dc725f3aee555ae3d20caee1a65b569fe37f7a12c6d60f0f",
       "pages": 22,
       "pagesWithoutText": []
+    },
+    {
+      "file": "data/sources/jaigarh/rules/berthing-policy-2022.pdf",
+      "title": "JSW JAIGARH PORT LIMITED - Berthing Policy, Rev 0",
+      "issuer": "JSW Jaigarh Port Limited",
+      "url": "https://jswin.s3.ap-south-1.amazonaws.com/jswinfrastructure/uploads/2026/02/JSW-Jaigarh-Port-Berthing-Policy.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/jaigarh/rules/berthing-policy-2022.md",
+      "sha256": "d2db3bcdb900cd3113ac750c6fef5723140e54be5f79cd32baa32a6affa73ae0",
+      "kind": "rules",
+      "pages": 4,
+      "pagesWithoutText": [],
+      "publishedOn": "2022-08-25"
+    },
+    {
+      "file": "data/sources/jaigarh/rules/port-infrastructure.html",
+      "title": "Jaigarh Port Infrastructure",
+      "issuer": "JSW Group",
+      "url": "https://www.jswholdings.in/infrastructure/jaigarh-port-infrastructure",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/jaigarh/rules/port-infrastructure.md",
+      "sha256": "3f23030189e2a04d839927038ca072c443974cafe4a731fc95974aa5291ba28b",
+      "kind": "rules",
+      "pages": 1,
+      "notes": "Undated current group webpage. Berth 6A is 384m in its table but 343m in prose. A single 17.5m port draft is stated, not separate permissible drafts or LOA/beam for every berth."
+    },
+    {
+      "file": "data/sources/jaigarh/rules/port-overview.html",
+      "title": "Jaigarh Port - Flagship Port Enabling High-capacity, All-weather Operations",
+      "issuer": "JSW Infrastructure Limited",
+      "url": "https://www.jswinfrastructure.in/ports/jaigarh-port",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/jaigarh/rules/port-overview.md",
+      "sha256": "c7af20c53e833aa09d415c9fbf125191549cd26c324bd891bad9dc4b45236f42",
+      "kind": "rules",
+      "pages": 1,
+      "notes": "Undated current operator page; 24/7 all-weather operations, cargo types and general draft. Seven-berth claim is not a vessel-by-vessel acceptance guarantee."
     }
   ]
 }

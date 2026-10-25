@@ -1,0 +1,1979 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Port Operations - Kamarajar Port Limited</title>
+
+
+  <link rel="stylesheet" href="https://www.kamarajarport.in/public/frontend/assets/fonts/inter/inter.css">
+
+  <link rel="stylesheet" href="https://www.kamarajarport.in/public/frontend/assets/bootstrap/css/bootstrap.min.css">
+
+  <link rel="stylesheet" href="https://www.kamarajarport.in/public/frontend/assets/bootstrap-icons/font/bootstrap-icons.css">
+
+  <link rel="stylesheet" href="https://www.kamarajarport.in/public/frontend/assets/fontawesome/css/all.min.css">
+
+  <link rel="stylesheet" href="https://www.kamarajarport.in/public/frontend/assets/css/style.css">
+  <link rel="stylesheet" href="https://www.kamarajarport.in/public/custom/css/custom.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://kamarajarport.in/public/public/favicon.png?v=1774345987" sizes="32x32">
+  <link rel="shortcut icon" type="image/png" href="https://kamarajarport.in/public/public/favicon.png?v=1774345987"></head>
+<script>
+// Apply saved theme
+if (localStorage.getItem("theme") === "dark") {
+    document.body.classList.add("dark-mode");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    document.querySelector(".bi-brightness-high").addEventListener("click", () => {
+        document.body.classList.remove("dark-mode");
+        localStorage.setItem("theme", "light");
+    });
+
+    document.querySelector(".bi-moon").addEventListener("click", () => {
+        document.body.classList.add("dark-mode");
+        localStorage.setItem("theme", "dark");
+    });
+
+});
+</script>
+<body>
+    <div class="utility-bar py-1">
+  <div class="container d-flex justify-content-between align-items-center small">
+    <div class="tools d-flex align-items-center gap-3">
+      <span id="currentDateTime" class="fw-bold me-3" style="font-size: 13px;">
+        <span id="dateTimeText"></span>
+      </span>
+      <span data-key="tool.fontDecrease">A-</span>
+      <span data-key="tool.fontNormal">A</span>
+      <span data-key="tool.fontIncrease">A+</span>
+      <i class="bi bi-brightness-high" title="Toggle light mode" data-i18n-attrs="title:tool.light"></i>
+      <i class="bi bi-moon" title="Toggle dark mode" data-i18n-attrs="title:tool.dark"></i>     
+    </div>
+    <div class="d-flex align-items-center gap-1">
+      <i class="fa fa-arrows-h" aria-hidden="true"></i>
+      <a href="#main-content" class="text-dark hero-text" data-en="Skip to Main Content" data-hi="मुख्य सामग्री पर जाएँ" title="Skip to Main Content">Skip to Main Content</a>
+        <i class="fa fa-desktop" aria-hidden="true"></i>
+      <a href="https://kamarajarport.in/public/screen-reader-access" class="text-dark hero-text" data-en="Screen Reader Access" data-hi="स्क्रीन रीडर एक्सेस
+    " title="स्क्रीन रीडर एक्सेस">Screen Reader Access</a>
+      <a href="https://kamarajarport.in/public/sitemap" class="text-dark hero-text" data-en="Sitemap" data-hi="साइट मानचित्र" data-ta="தள வரைபடம்" title="Sitemap">Sitemap</a>
+      <a href="https://kamarajarport.in/public/help" class="text-dark hero-text" data-en="Help" data-hi="सहायता" data-ta="உதவி" title="Help">Help</a>
+      <div class="dropdown">
+        <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="langDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Change Language">
+          <span id="currentLang" class="lang-label">English</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
+          <li><button class="dropdown-item lang-switch" data-lang="en" title="Switch to English">English</button></li>
+          <li><button class="dropdown-item lang-switch" data-lang="hi" title="Switch to Hindi">हिंदी</button></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="govt-bar py-2">
+  <div class="container d-flex justify-content-between align-items-center small text-white">
+    <div class="d-flex gap-4">
+      <span class="hero-text" data-en="Government of India" data-hi="भारत सरकार" data-ta="இந்திய அரசு">Government of India</span>
+      <span class="hide-mobile hero-text" data-en="Ministry of Ports, Shipping & Waterways" data-hi="बंदरगाह, नौवहन और जलमार्ग मंत्रालय" data-ta="துறைமுகங்கள், கப்பல் போக்குவரத்து மற்றும் நீர்வழிகள் அமைச்சகம்">Ministry of Ports, Shipping & Waterways</span>
+    </div>
+    <div class="d-flex gap-4">   
+      <a href="https://kamarajarport.in/public/rfid" class="text-white hero-text" data-en="RFID" data-hi="आरएफआईडी" data-ta="தொடர்பு" title="RFID">RFID</a>
+      <a href="https://kamarajarport.in/public/citizens-corner" class="text-white hero-text" data-en="Citizen's Corner" data-hi="नागरिक का कोना" title="Citizen's Corner" >Citizen's Corner</a>
+      <a href="https://kamarajarport.in/public/rti" class="text-white hero-text" data-en="RTI" data-hi="आरटीआई" data-ta="தகவல் உரிமை" title="RTI" >RTI</a>
+     <!-- <a href="#" class="text-white hero-text" data-en="Feedback" data-hi="प्रतिक्रिया" data-ta="கருத்து" title="Feedback">Feedback</a>-->
+      <a href="https://kamarajarport.in/public/contact-us" class="text-white hero-text" data-en="Contact" data-hi="संपर्क" data-ta="தொடர்பு" title="Contact">Contact</a>
+    </div>
+  </div>
+</div>
+
+<header class="ipa-header py-3">
+  <div class="container">
+    <div class="row align-items-center">
+      <!-- Logo and Title Section -->
+      <div class="col-lg-3 col-md-4 col-6">
+        <div class="left-block d-flex align-items-center gap-3">
+          <a href="https://kamarajarport.in/public" title="Go to Home Page"><img src="https://kamarajarport.in/public/public/frontend/assets/images/logowithname.png" title="Kamarajar Port Limited" class="logo-dark" style="width: 500px; height: 80px;"></a>    
+        </div>
+      </div>
+            <script>
+        var currentLanguage = localStorage.getItem('selectedLanguage') || 'en';
+      </script>
+      <div class="col-lg-8 col-md-6 d-none d-lg-block">
+                <nav class="main-nav d-flex justify-content-center flex-wrap gap-3" style="gap: 0 !important;" aria-label="Main navigation">
+                                  <!--  -->
+                        <a class="nav-link " 
+               href="https://kamarajarport.in/public/#" 
+               title="Home"
+               >
+                <span class="menu-name" data-en="Home" data-hi="घर" data-ta="Home">Home</span>
+            </a>
+                                              <!--  -->
+                        <a class="nav-link " 
+               href="https://kamarajarport.in/public/about" 
+               title="Company"
+               >
+                <span class="menu-name" data-en="Company" data-hi="कंपनी" data-ta="Company">Company</span>
+            </a>
+                                              <!--  -->
+                        <a class="nav-link " 
+               href="https://kamarajarport.in/public/financial-performances" 
+               title="Financial Performance"
+               >
+                <span class="menu-name" data-en="Financial Performance" data-hi="वित्तीय प्रदर्शन" data-ta="Financial Performance">Financial Performance</span>
+            </a>
+                                              <!--  -->
+                        <a class="nav-link active" 
+               href="https://kamarajarport.in/public/port-operations" 
+               title="Port Operations"
+               >
+                <span class="menu-name" data-en="Port Operations" data-hi="बंदरगाह संचालन" data-ta="Port Operations">Port Operations</span>
+            </a>
+                                              <!--  -->
+                        <a class="nav-link " 
+               href="https://kamarajarport.in/public/ehs" 
+               title="HSE"
+               >
+                <span class="menu-name" data-en="HSE" data-hi="एच एस ई" data-ta="HSE">HSE</span>
+            </a>
+                                              <!--  -->
+                        <a class="nav-link " 
+               href="https://kamarajarport.in/public/vigilance" 
+               title="Vigilance"
+               >
+                <span class="menu-name" data-en="Vigilance" data-hi="सतर्कता" data-ta="Vigilance">Vigilance</span>
+            </a>
+                                              <!--  -->
+                        <a class="nav-link " 
+               href="https://kamarajarport.in/public/investors" 
+               title="Investors"
+               >
+                <span class="menu-name" data-en="Investors" data-hi="निवेशकों" data-ta="Investors">Investors</span>
+            </a>
+                                              <!--  -->
+                                              <!--  -->
+                        <a class="nav-link " 
+               href="https://kamarajarport.in/public/csr" 
+               title="CSR"
+               >
+                <span class="menu-name" data-en="CSR" data-hi="सीएसआर" data-ta="CSR">CSR</span>
+            </a>
+                              </nav>
+              </div>
+
+      <div class="col-lg-1 col-md-2 col-6" style="margin-left: -70px;">
+        <div class="d-flex align-items-center gap-2">
+          <img src="https://kamarajarport.in/public/public/frontend/assets/images/logotwo.png" class="logo-dark" style="width: 100px; height: 80px;" title="Sagarmala">
+          <img src="https://kamarajarport.in/public/public/frontend/assets/images/25.png" class="logo-dark" style="width: 100px; height: 80px;" title="Kamarajar Port 25yrs Celebration">
+          <div class="mobile-icons d-flex d-lg-none gap-2">
+            <button class="mobile-icon-btn" aria-label="Search" title="Search">
+              <i class="bi bi-search"></i>
+            </button>
+            <button class="mobile-icon-btn" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-controls="mobileMenu" aria-label="Open menu" title="Open menu">
+              <i class="bi bi-list"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">  
+  <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="mobileMenuLabel">Indian Ports</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close" title="Close menu"></button>
+  </div>
+
+  <div class="offcanvas-body">
+      <div class="accordion" id="accordionMenu">
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/#" class="accordion-button no-arrow d-block link " >
+                    <span class="menu-name" data-en="Home" data-hi="घर" data-ta="Home">Home</span>
+                </a>
+            </h2>
+        </div>
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/about" class="accordion-button no-arrow d-block link " >
+                    <span class="menu-name" data-en="Company" data-hi="कंपनी" data-ta="Company">Company</span>
+                </a>
+            </h2>
+        </div>
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/financial-performances" class="accordion-button no-arrow d-block link " >
+                    <span class="menu-name" data-en="Financial Performance" data-hi="वित्तीय प्रदर्शन" data-ta="Financial Performance">Financial Performance</span>
+                </a>
+            </h2>
+        </div>
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/port-operations" class="accordion-button no-arrow d-block link active" >
+                    <span class="menu-name" data-en="Port Operations" data-hi="बंदरगाह संचालन" data-ta="Port Operations">Port Operations</span>
+                </a>
+            </h2>
+        </div>
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/ehs" class="accordion-button no-arrow d-block link " >
+                    <span class="menu-name" data-en="HSE" data-hi="एच एस ई" data-ta="HSE">HSE</span>
+                </a>
+            </h2>
+        </div>
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/vigilance" class="accordion-button no-arrow d-block link " >
+                    <span class="menu-name" data-en="Vigilance" data-hi="सतर्कता" data-ta="Vigilance">Vigilance</span>
+                </a>
+            </h2>
+        </div>
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/investors" class="accordion-button no-arrow d-block link " >
+                    <span class="menu-name" data-en="Investors" data-hi="निवेशकों" data-ta="Investors">Investors</span>
+                </a>
+            </h2>
+        </div>
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/citizens-corner" class="accordion-button no-arrow d-block link " >
+                    <span class="menu-name" data-en="Citizen&#039;s Corner" data-hi="नागरिक का कोना" data-ta="Citizen&#039;s Corner">Citizen&#039;s Corner</span>
+                </a>
+            </h2>
+        </div>
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/csr" class="accordion-button no-arrow d-block link " >
+                    <span class="menu-name" data-en="CSR" data-hi="सीएसआर" data-ta="CSR">CSR</span>
+                </a>
+            </h2>
+        </div>
+              </div>
+  </div>
+</div>
+<script>
+    const now = new Date();
+
+    const day = now.getDate();
+    const year = now.getFullYear();
+
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+
+    const weekdayNames = [
+        "Sunday", "Monday", "Tuesday", "Wednesday",
+        "Thursday", "Friday", "Saturday"
+    ];
+
+    const formattedDate =
+        day + " " +
+        monthNames[now.getMonth()] + " , " +
+        year + ", " +
+        weekdayNames[now.getDay()];
+
+    document.getElementById('dateTimeText').textContent = formattedDate;
+</script>
+ 
+
+    <main id="main-content">
+        
+<section class="port-operations-page-section py-5">
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="col-lg-3 col-md-4">
+                <div class="sidebar-menu">
+    <h5 class="sidebar-title">In This Section</h5>
+        <ul class="list-unstyled sidebar-list">
+                                
+            <li class="sidebar-item ">
+                                                        
+                    <a href="https://kamarajarport.in/public/port-operations/terminals-and-berths"  title="Terminals and Berths"
+                       class="sidebar-link d-flex align-items-center active" 
+                       >
+                        <i class="bi bi-chevron-right me-2"></i>
+                        <span class="menu-name"
+                              data-en="Terminals and Berths" 
+                              data-hi="टर्मिनल और बर्थ" 
+                              data-ta="Terminals and Berths">
+                            Terminals and Berths
+                        </span>
+                    </a>
+                            </li>
+                                
+            <li class="sidebar-item has-submenu">
+                                    <a href="javascript:void(0);" 
+                       class="sidebar-link dropdown-toggle d-flex align-items-center justify-content-between" 
+                       data-bs-toggle="collapse" 
+                       data-bs-target="#submenu-111" 
+                       aria-expanded="false">
+                        <span class="d-flex align-items-center">
+                            <i class="bi bi-chevron-right me-2"></i>
+                            <span class="menu-name" 
+                                  data-en="Marine Services" 
+                                  data-hi="समुद्री सेवाएँ" 
+                                  data-ta="Marine Services">
+                                Marine Services
+                            </span>                                                 
+                        </span>
+
+                        <!-- <i class="bi bi-chevron-down submenu-arrow"></i> -->
+                    </a>
+                    <ul class="list-unstyled sidebar-submenu collapse" id="submenu-111">
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/marine-operations-pilotage"  title="Marine Services"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Pilotage" 
+                                          data-hi="मार्गदर्शन" 
+                                          data-ta="Pilotage">
+                                          Pilotage
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamaraj-dev.indusnettechnologies.com/port-operations/terminals-and-berths#bunkering-operation"  title="Marine Services"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Bunkering Operation" 
+                                          data-hi="बंकरिंग ऑपरेशन" 
+                                          data-ta="Bunkering Operation">
+                                          Bunkering Operation
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/vtms"  title="Marine Services"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Vessel Traffic Management System" 
+                                          data-hi="पोत यातायात प्रबंधन प्रणाली" 
+                                          data-ta="Vessel Traffic Management System">
+                                          Vessel Traffic Management System
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/arr-dep"  title="Marine Services"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="ARR &amp; DEP Procedure for Ships" 
+                                          data-hi="जहाजों के लिए आगमन &amp; प्रस्थान प्रक्रिया" 
+                                          data-ta="ARR &amp; DEP Procedure for Ships">
+                                          ARR &amp; DEP Procedure for Ships
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/marine-crafts"  title="Marine Services"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Marine Crafts" 
+                                          data-hi="समुद्री शिल्प" 
+                                          data-ta="Marine Crafts">
+                                          Marine Crafts
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/survey-dredging"  title="Marine Services"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Survey &amp; Dredging" 
+                                          data-hi="सर्वेक्षण एवं ड्रेजिंग" 
+                                          data-ta="Survey &amp; Dredging">
+                                          Survey &amp; Dredging
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/security-policy"  title="Marine Services"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Security Policy" 
+                                          data-hi="सुरक्षा नीति" 
+                                          data-ta="Security Policy">
+                                          Security Policy
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/sts"  title="Marine Services"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="STS" 
+                                          data-hi="अनुसूचित जनजातियों" 
+                                          data-ta="STS">
+                                          STS
+                                    </span>
+                                </a>
+                            </li>
+                                            </ul>
+                            </li>
+                                
+            <li class="sidebar-item ">
+                                                        
+                    <a href="https://kamarajarport.in/public/port-operations/vessels-in-port"  title="Vessels in Port"
+                       class="sidebar-link d-flex align-items-center " 
+                       >
+                        <i class="bi bi-chevron-right me-2"></i>
+                        <span class="menu-name"
+                              data-en="Vessels in Port" 
+                              data-hi="बंदरगाह में जहाज" 
+                              data-ta="Vessels in Port">
+                            Vessels in Port
+                        </span>
+                    </a>
+                            </li>
+                                
+            <li class="sidebar-item ">
+                                                        
+                    <a href="https://kamarajarport.in/public/port-operations/scale-of-rates"  title="Scale of Rates"
+                       class="sidebar-link d-flex align-items-center " 
+                       >
+                        <i class="bi bi-chevron-right me-2"></i>
+                        <span class="menu-name"
+                              data-en="Scale of Rates" 
+                              data-hi="दरों का पैमाना" 
+                              data-ta="Scale of Rates">
+                            Scale of Rates
+                        </span>
+                    </a>
+                            </li>
+                                
+            <li class="sidebar-item has-submenu">
+                                    <a href="javascript:void(0);" 
+                       class="sidebar-link dropdown-toggle d-flex align-items-center justify-content-between" 
+                       data-bs-toggle="collapse" 
+                       data-bs-target="#submenu-78" 
+                       aria-expanded="false">
+                        <span class="d-flex align-items-center">
+                            <i class="bi bi-chevron-right me-2"></i>
+                            <span class="menu-name" 
+                                  data-en="Connectivity" 
+                                  data-hi="कनेक्टिविटी" 
+                                  data-ta="Connectivity">
+                                Connectivity
+                            </span>                                                 
+                        </span>
+
+                        <!-- <i class="bi bi-chevron-down submenu-arrow"></i> -->
+                    </a>
+                    <ul class="list-unstyled sidebar-submenu collapse" id="submenu-78">
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/roads"  title="Connectivity"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Roads" 
+                                          data-hi="सड़कें" 
+                                          data-ta="Roads">
+                                          Roads
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/rails"  title="Connectivity"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Rails" 
+                                          data-hi="रेल" 
+                                          data-ta="Rails">
+                                          Rails
+                                    </span>
+                                </a>
+                            </li>
+                                            </ul>
+                            </li>
+                                
+            <li class="sidebar-item has-submenu">
+                                    <a href="javascript:void(0);" 
+                       class="sidebar-link dropdown-toggle d-flex align-items-center justify-content-between" 
+                       data-bs-toggle="collapse" 
+                       data-bs-target="#submenu-73" 
+                       aria-expanded="false">
+                        <span class="d-flex align-items-center">
+                            <i class="bi bi-chevron-right me-2"></i>
+                            <span class="menu-name" 
+                                  data-en="Port Statistics" 
+                                  data-hi="पोर्ट सांख्यिकी" 
+                                  data-ta="Port Statistics">
+                                Port Statistics
+                            </span>                                                 
+                        </span>
+
+                        <!-- <i class="bi bi-chevron-down submenu-arrow"></i> -->
+                    </a>
+                    <ul class="list-unstyled sidebar-submenu collapse" id="submenu-73">
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/performance-indicator"  title="Port Statistics"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Performance Indicators" 
+                                          data-hi="प्रदर्शन सूचक" 
+                                          data-ta="Performance Indicators">
+                                          Performance Indicators
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/cargo-handled"  title="Port Statistics"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Cargo Handled" 
+                                          data-hi="कार्गो संभाला" 
+                                          data-ta="Cargo Handled">
+                                          Cargo Handled
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/vessels-handled"  title="Port Statistics"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Vessels Handled" 
+                                          data-hi="संभाले गए जहाज" 
+                                          data-ta="Vessels Handled">
+                                          Vessels Handled
+                                    </span>
+                                </a>
+                            </li>
+                                            </ul>
+                            </li>
+                                
+            <li class="sidebar-item ">
+                                                        
+                    <a href="https://kamarajarport.in/public/port-operations/modern-facilities"  title="Modern Facilities"
+                       class="sidebar-link d-flex align-items-center " 
+                       >
+                        <i class="bi bi-chevron-right me-2"></i>
+                        <span class="menu-name"
+                              data-en="Modern Facilities" 
+                              data-hi="आधुनिक सुविधाएं" 
+                              data-ta="Modern Facilities">
+                            Modern Facilities
+                        </span>
+                    </a>
+                            </li>
+                                
+            <li class="sidebar-item ">
+                                                        
+                    <a href="https://kamarajarport.in/public/port-operations/landuse-plan"  title="Landuse Plan"
+                       class="sidebar-link d-flex align-items-center " 
+                       >
+                        <i class="bi bi-chevron-right me-2"></i>
+                        <span class="menu-name"
+                              data-en="Landuse Plan" 
+                              data-hi="भूमि-उपयोग योजना" 
+                              data-ta="Landuse Plan">
+                            Landuse Plan
+                        </span>
+                    </a>
+                            </li>
+            </ul>
+    </div>
+
+<style>
+.sidebar-menu {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.sidebar-title {
+    font-weight: 600;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #0047d6;
+    color: #001489;
+}
+
+.sidebar-list {
+    margin: 0;
+    padding: 0;
+}
+
+.sidebar-item {
+    margin-bottom: 5px;
+}
+
+.sidebar-link {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 10px 15px;
+    color: #333;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.sidebar-link:hover {
+    background: #e9ecef;
+    color: #0047d6;
+    padding-left: 20px;
+}
+
+.sidebar-link.active {
+    background: #e9ecef;
+    color: #0047d6;
+    padding-left: 20px;
+}
+
+.sidebar-link.dropdown-toggle .submenu-arrow {
+    transition: transform 0.3s ease;
+}
+
+.sidebar-link.dropdown-toggle:not(.collapsed) .submenu-arrow {
+    transform: rotate(180deg);
+}
+
+.sidebar-submenu {
+    margin-left: 15px;
+    margin-top: 5px;
+}
+
+.sidebar-subitem {
+    margin-bottom: 3px;
+}
+
+.sidebar-sublink {
+    display: flex;
+    align-items: center;
+    padding: 8px 15px;
+    color: #666;
+    text-decoration: none;
+    font-size: 0.9rem;
+    border-left: 2px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.sidebar-sublink:hover {
+    color: #0047d6;
+    border-left-color: #0047d6;
+    padding-left: 20px;
+}
+
+.sidebar-sublink.active {
+    color: #0047d6;
+    border-left-color: #0047d6;
+    padding-left: 20px;
+}
+
+.sidebar-sublink i {
+    min-width: 20px; /* fixes alignment of the chevron */
+}
+</style>            </div>
+
+            
+            <div class="col-lg-9 col-md-8">
+
+                
+                
+                
+                
+                    
+                    <h4 id="pageTitle"
+                        class="fw-bold mb-3 hero-text content-title"
+                        data-en="Terminals and Berths"
+                        data-hi="टर्मिनल और बर्थ">
+                        Terminals and Berths
+                    </h4>
+                    <hr id="pageHr">
+
+                    
+                    <div id="terminalHeader"
+                         class="d-none mb-3 d-flex justify-content-between align-items-center">
+
+                        <h4 id="terminalTitle"
+                            class="fw-bold mb-0 hero-text"
+                            data-en=""
+                            data-hi=""></h4>
+
+                        <button class="btn btn-outline-primary hero-text"
+                                data-en="← Back to Terminals"
+                                data-hi="← टर्मिनल पर वापस जाएँ"
+                                onclick="showTerminalCards()">
+                            ← Back to Terminals
+                        </button>
+                    </div>
+                    <hr id="terminalHr" class="d-none">
+
+                    
+                    <section id="terminalCards" class="py-4">
+                        <div class="row g-3">
+
+                            
+                                                            <div class="col-md-6 col-lg-4">
+                                    <div class="section-card terminal-card"
+                                         style="--card-color: #0d6efd"
+                                         onclick="showTerminal('coal-berths-1-2','Coal Berths 1 &amp; 2','कोल बर्थ 1 और 2')">
+
+                                        <div class="icon-wrap">
+                                            ⚓
+                                        </div>
+
+                                        <h6 class="hero-text"
+                                            data-en="Coal Berths 1 &amp; 2"
+                                            data-hi="कोल बर्थ 1 और 2">
+                                            Coal Berths 1 &amp; 2
+                                        </h6>
+
+                                        <span class="card-link hero-text"
+                                              data-en="Explore →"
+                                              data-hi="देखें →">
+                                            Explore →
+                                        </span>
+                                    </div>
+                                </div>
+                                                            <div class="col-md-6 col-lg-4">
+                                    <div class="section-card terminal-card"
+                                         style="--card-color: #198754"
+                                         onclick="showTerminal('marine-liquid-terminal-1','Marine Liquid Terminal','मरीन लिक्विड टर्मिनल')">
+
+                                        <div class="icon-wrap">
+                                            🛢️
+                                        </div>
+
+                                        <h6 class="hero-text"
+                                            data-en="Marine Liquid Terminal"
+                                            data-hi="मरीन लिक्विड टर्मिनल">
+                                            Marine Liquid Terminal
+                                        </h6>
+
+                                        <span class="card-link hero-text"
+                                              data-en="Explore →"
+                                              data-hi="देखें →">
+                                            Explore →
+                                        </span>
+                                    </div>
+                                </div>
+                                                            <div class="col-md-6 col-lg-4">
+                                    <div class="section-card terminal-card"
+                                         style="--card-color: #fd7e14"
+                                         onclick="showTerminal('common-user-coal-terminal','Common User Coal Terminal','सामान्य उपयोगकर्ता कोयला टर्मिनल')">
+
+                                        <div class="icon-wrap">
+                                            🏗️
+                                        </div>
+
+                                        <h6 class="hero-text"
+                                            data-en="Common User Coal Terminal"
+                                            data-hi="सामान्य उपयोगकर्ता कोयला टर्मिनल">
+                                            Common User Coal Terminal
+                                        </h6>
+
+                                        <span class="card-link hero-text"
+                                              data-en="Explore →"
+                                              data-hi="देखें →">
+                                            Explore →
+                                        </span>
+                                    </div>
+                                </div>
+                                                            <div class="col-md-6 col-lg-4">
+                                    <div class="section-card terminal-card"
+                                         style="--card-color: #20c997"
+                                         onclick="showTerminal('general-cargo-berth-1','General Cargo Berth 1','सामान्य कार्गो बर्थ 1')">
+
+                                        <div class="icon-wrap">
+                                            📦
+                                        </div>
+
+                                        <h6 class="hero-text"
+                                            data-en="General Cargo Berth 1"
+                                            data-hi="सामान्य कार्गो बर्थ 1">
+                                            General Cargo Berth 1
+                                        </h6>
+
+                                        <span class="card-link hero-text"
+                                              data-en="Explore →"
+                                              data-hi="देखें →">
+                                            Explore →
+                                        </span>
+                                    </div>
+                                </div>
+                                                            <div class="col-md-6 col-lg-4">
+                                    <div class="section-card terminal-card"
+                                         style="--card-color: #0dcaf0"
+                                         onclick="showTerminal('container-terminal-phase-1','Container Terminal','कंटेनर टर्मिनल')">
+
+                                        <div class="icon-wrap">
+                                            🚢
+                                        </div>
+
+                                        <h6 class="hero-text"
+                                            data-en="Container Terminal"
+                                            data-hi="कंटेनर टर्मिनल">
+                                            Container Terminal
+                                        </h6>
+
+                                        <span class="card-link hero-text"
+                                              data-en="Explore →"
+                                              data-hi="देखें →">
+                                            Explore →
+                                        </span>
+                                    </div>
+                                </div>
+                                                            <div class="col-md-6 col-lg-4">
+                                    <div class="section-card terminal-card"
+                                         style="--card-color: #dc3545"
+                                         onclick="showTerminal('lng-terminal','LNG Terminal','एलएनजी टर्मिनल')">
+
+                                        <div class="icon-wrap">
+                                            🔥
+                                        </div>
+
+                                        <h6 class="hero-text"
+                                            data-en="LNG Terminal"
+                                            data-hi="एलएनजी टर्मिनल">
+                                            LNG Terminal
+                                        </h6>
+
+                                        <span class="card-link hero-text"
+                                              data-en="Explore →"
+                                              data-hi="देखें →">
+                                            Explore →
+                                        </span>
+                                    </div>
+                                </div>
+                                                            <div class="col-md-6 col-lg-4">
+                                    <div class="section-card terminal-card"
+                                         style="--card-color: #6610f2"
+                                         onclick="showTerminal('general-cargo-berth-2','General Cargo Berth 2','सामान्य कार्गो बर्थ 2')">
+
+                                        <div class="icon-wrap">
+                                            📦
+                                        </div>
+
+                                        <h6 class="hero-text"
+                                            data-en="General Cargo Berth 2"
+                                            data-hi="सामान्य कार्गो बर्थ 2">
+                                            General Cargo Berth 2
+                                        </h6>
+
+                                        <span class="card-link hero-text"
+                                              data-en="Explore →"
+                                              data-hi="देखें →">
+                                            Explore →
+                                        </span>
+                                    </div>
+                                </div>
+                                                            <div class="col-md-6 col-lg-4">
+                                    <div class="section-card terminal-card"
+                                         style="--card-color: #a1811e"
+                                         onclick="showTerminal('multi-cargo-terminal','Multi Cargo Terminal','मल्टी कार्गो टर्मिनल')">
+
+                                        <div class="icon-wrap">
+                                            🏗
+                                        </div>
+
+                                        <h6 class="hero-text"
+                                            data-en="Multi Cargo Terminal"
+                                            data-hi="मल्टी कार्गो टर्मिनल">
+                                            Multi Cargo Terminal
+                                        </h6>
+
+                                        <span class="card-link hero-text"
+                                              data-en="Explore →"
+                                              data-hi="देखें →">
+                                            Explore →
+                                        </span>
+                                    </div>
+                                </div>
+                            
+                        </div>
+                    </section>
+
+                    
+                    <div id="terminalContent"
+                         class="content-text port-operations-content-text d-none">
+                        <div class="lang-en">
+                            <section id="terminals-berths">
+   <div class="terminal-content-wrap">
+      <section id="cargo-handling-terminals">
+
+         <section id="coal-berths-1-2" class="terminal-section d-none" aria-label="Coal Berths 1 and 2">
+            <p>Coal Berth-1 and Coal Berth-2 at Kamarajar Port are dedicated facilities developed to handle bulk coal cargo, primarily catering to the thermal power sector (on captive user basis). The berths are equipped with mechanised coal handling systems to ensure efficient and continuous cargo evacuation. Coal Berths 1 & 2, with a handling capacity of 8 MTPA each, can accommodate two coal carriers of up to 77,000 DWT, 280 m long, and handle thermal coal for the thermal power plants of TANGEDCO and its JV companies. Unloaded coal is moved directly through the conveyor system to the stackyard located in the adjoining North Chennai Thermal Power Station (NCTPS), from where a part of it is moved further to Mettur through rail connectivity. TANGEDCO has invested in, and is operating and maintaining, all top-side facilities such as shore unloaders and the conveyor system for handling thermal coal.</p>
+            <div class="terminal-image"><img src="https://kamaraj-dev.indusnettechnologies.com/public/frontend/assets/images/coal-berths.webp" alt="Coal Berths 1 and 2 at Kamarajar Port with coal carriers and shore unloaders" title="Coal Berths 1 & 2" loading="lazy"></div>
+            <h4>Terminal / Berth Details</h4>
+            <p>Berth Name: Coal Berth – 1 & Coal Berth – 2</p>
+            <p>Cargo Type: Coal</p>
+            <p>Shore-Based Unloaders: 2 Nos. (2,000 TPH each) for gearless vessels</p>
+            <p>Hoppers: 1 hopper for self-unloading vessels</p>
+            <p>6 hoppers for geared vessels</p>
+            <p>Conveyor System: 2 conveyors (4,000 TPH each) linked to NCTPS</p>
+            <p>Present Handling Capacity: 16 MMTPA</p>
+            <p>Length: 280 m</p>
+            <p>Depth: 16.00 m</p>
+            <p>Draft: 14.50 m</p>
+            <h4>Facilities & Connectivity</h4>
+            <ul>
+               <li>Fully mechanised coal unloading system</li>
+               <li>Dedicated hoppers for geared and self-unloading vessels</li>
+               <li>High-capacity conveyor system for direct evacuation</li>
+               <li>Seamless connectivity to North Chennai Thermal Power Station (NCTPS)</li>
+               <li>Designed for efficient handling of bulk coal cargo</li>
+            </ul>
+            <h4>Key Highlights</h4>
+            <ul>
+               <li>Dedicated coal handling infrastructure</li>
+               <li>High unloading capacity for faster vessel turnaround</li>
+               <li>Designed to support power sector requirements</li>
+            </ul>
+         </section>
+
+         <section id="marine-liquid-terminal-1" class="terminal-section d-none" aria-label="Marine Liquid Terminal">
+            <p><strong>Operated by Ennore Tank Terminal Private Limited (ETTPL)</strong></p>
+            <p>Marine Liquid Terminal, with a cargo handling capacity of 3 MTPA (expandable up to 6 MTPA), was developed on BOT basis by ETTPL, and commercial operations commenced on 16th January 2009. To meet the demand in the trade, the BOT operator developed additional storage tanks and installed LPG handling equipment. Berthing facility is available for petroleum, LPG, chemical, gas and vegetable oil tankers. To mitigate the congestion of vessels, M/s. ETTPL laid additional dock lines and installed marine unloading arms, thereby reducing the vessel waiting time. The tank farm is located on a 33-acre leased plot at about 3.7 km from the berth. Multiple pipelines transfer products between vessels and shore tanks. Storage tanks inside the port premises: 64 tanks with a total capacity of 2,54,000 KL for petroleum, chemicals and safe class cargo. The jetty and storage tank terminal are fully operational.</p>
+            <div class="terminal-image"><img src="https://kamaraj-dev.indusnettechnologies.com/public/frontend/assets/images/marine-liquid.webp" alt="Marine Liquid Terminal jetty and tank farm at Kamarajar Port" title="Marine Liquid Terminal" loading="lazy"></div>
+            <ul>
+               <li>
+                  <strong>Facilities:</strong>
+                  <ul>
+                     <li>
+                        <strong>1. Jetty:</strong>
+                        <ul>
+                           <li>
+                              <strong>Berth Details:</strong>
+                              <ul>
+                                 <li>Berth: MLT-1</li>
+                                 <li>Length: 360 m</li>
+                                 <li>Draft: 13.50 m</li>
+                                 <li>Beam: No restriction</li>
+                                 <li>Depth: 15 metres (BCD)</li>
+                              </ul>
+                           </li>
+                           <li>Unique jetty design, namely a continuous quay jetty, located on the northern breakwater at a distance of 1.3 km from the shore</li>
+                           <li>Approach trestle connecting the northern breakwater and the liquid jetty</li>
+                           <li>Jetty capable of handling petroleum, petrochemicals, chemicals, vegetable oil and very large LPG tankers</li>
+                           <li>Designed to berth tankers of 150,000 DWT and above, with provision to receive larger tankers in future</li>
+                           <li>Pipeline trestle of 12 metres for carrying pipelines to the storage tank farm</li>
+                           <li>6 Nos. of marine unloading arms for various groups of products, namely LPG, POL and black oils</li>
+                           <li>Fire protection system as per OISD 156 norms</li>
+                        </ul>
+                     </li>
+                     <li>
+                        <strong>2. Tank Terminal:</strong>
+                        <ul>
+                           <li>Enclosure – 1 – 60,000 KL</li>
+                           <li>Enclosure – 2 – 23,300 KL</li>
+                           <li>Enclosure – 3 – 28,290 KL</li>
+                           <li>Enclosure – 4 – 18,370 KL</li>
+                           <li>Enclosure – 5 – 32,100 KL</li>
+                           <li>Enclosure – 6 – 55,555 KL</li>
+                           <li>Enclosure – 7 – 31,850 KL</li>
+                           <li>Enclosure – 8 – 5,000 KL</li>
+                           <li><strong>Total – 254,398 KL</strong></li>
+                           <li>There are 64 storage tanks of various sizes, ranging from 860 KL to 12,300 KL, suitable for all kinds of liquid products.</li>
+                           <li>The storage terminal is equipped for both import and export operations.</li>
+                        </ul>
+                     </li>
+                     <li>
+                        <strong>3. Docklines:</strong>
+                        <ul>
+                           <li>Nine pipelines for transfer of products between the vessels and shore tanks</li>
+                           <li>2 Nos. 24-inch dia mild steel pipeline</li>
+                           <li>1 No. 16-inch dia mild steel pipeline</li>
+                           <li>2 Nos. 12-inch dia mild steel pipeline</li>
+                           <li>1 No. 8-inch dia stainless steel (SS 316 L) pipeline</li>
+                           <li>2 Nos. 18-inch cryogenic pipeline for propane and butane</li>
+                           <li>2 Nos. 10-inch pipeline for speciality chemicals</li>
+                           <li>All pipelines are piggable.</li>
+                           <li>Scope for providing more pipelines based on user requirements.</li>
+                        </ul>
+                     </li>
+                  </ul>
+               </li>
+            </ul>
+         </section>
+
+         <section id="operational-excellence" class="terminal-section d-none" aria-label="Operational Excellence">
+            <p>Kamarajar Port has established itself as a leader in operational excellence, continuously enhancing infrastructure to meet evolving global trade demands.</p>
+            <div class="terminal-image"><img src="https://kamaraj-dev.indusnettechnologies.com/public/frontend/assets/images/operational.webp" alt="Cargo handling operations at Kamarajar Port" title="Operational Excellence" loading="lazy"></div>
+            <ul>
+               <li>Specialised cargo terminals</li>
+               <li>Advanced mechanised handling systems</li>
+               <li>Seamless road and rail connectivity</li>
+               <li>Efficient vessel turnaround time</li>
+               <li>Environment protection and sustainability focus</li>
+            </ul>
+         </section>
+
+         <section id="common-user-coal-terminal" class="terminal-section d-none" aria-label="Common User Coal Terminal">
+            <p><strong>Operated by Ennore Coal Terminal Private Limited (ECTPL)</strong></p>
+            <p>The Common User Coal Terminal is operated by Ennore Coal Terminal Private Limited (ECTPL), a part of JSW Group, which was awarded a licence by Kamarajar Port Ltd. for a Common User Coal Terminal at Ennore on BOT basis for a period of 30 years. This coal terminal successfully commenced operations on 11.03.2021 with state-of-the-art fully automated equipment, conveyor systems, yard and evacuation systems, with a capacity to handle 11 MTPA. To handle cape size vessels, the operator extended the berth length by 22.5 m with a draft of 16 m. The stackyard area of 48.0 Ha is located about 2.5 km from the port compound wall.</p>
+            <div class="terminal-image"><img src="https://kamaraj-dev.indusnettechnologies.com/public/frontend/assets/images/common-coal.webp" alt="Common User Coal Terminal with ship unloaders and conveyor system" title="Common User Coal Terminal" loading="lazy"></div>
+            <ul>
+               <li>Dedicated all-weather, 24x7 operating Common User Coal Terminal.</li>
+               <li>Length of berth – 347.5 metres, width – 30 metres</li>
+               <li>Depth – 18.00 m, draft – 16.00 m</li>
+               <li>Two ship unloaders of 1750 TPH each, fully equipped with closed conveyor system.</li>
+               <li>Two stacker reclaimers, with 1750 TPH each for stacking and 1000 TPH each for reclaiming cargo.</li>
+               <li>Wagon loading system with in-motion weighbridge for rake handling and cargo evacuation. The in-motion wagon loading station is installed for loading one full rake of 59 wagons (3500 T).</li>
+               <li>Truck loading stations are provided for evacuation through trucks.</li>
+               <li>The conveyor system is installed with a dust suppression mechanism to reduce pollution.</li>
+               <li>Dedicated and wall-protected plots for safe storage of cargo, with 2 Nos. of tare weighbridges and 3 Nos. of gross weighbridges.</li>
+               <li>Fully equipped with all environment protection measures.</li>
+            </ul>
+         </section>
+
+         <section id="general-cargo-berth-1" class="terminal-section d-none" aria-label="General Cargo Berth 1">
+            <div class="terminal-content">
+               <p>General Cargo Berth-1 was commissioned in 2012 with a capacity of 3 MMTPA to handle import and export of automobiles and general cargo.</p>
+               <p>The berth has a length of 278 m and a depth of 12 m.</p>
+               <p>Draft - 10.00 m</p>
+            </div>
+            <div class="terminal-image"><img src="https://kamaraj-dev.indusnettechnologies.com/public/frontend/assets/images/general-cargo1.webp" alt="General Cargo Berth 1 handling automobiles and general cargo" title="General Cargo Berth 1" loading="lazy"></div>
+         </section>
+
+         <section id="container-terminal-phase-1" class="terminal-section d-none" aria-label="Container Terminal Phase 1">
+            <p><strong>Operated by Adani Ennore Container Terminal Private Limited</strong></p>
+            <p>The Common User Container Terminal at Kamarajar Port has been developed under a Design–Build–Finance–Operate–Transfer (DBFOT) model pursuant to a concession agreement executed between Kamarajar Port Limited and Adani Ennore Container Terminal Private Limited on 15 March 2014, with a handling capacity of 1.40 million TEUs per annum under PPP mode in a phased manner. The total backup area for the container terminal is 36.5 Ha. The project involves development, operation, maintenance, and transfer of a modern container handling facility with a designed capacity of 16.80 MMTPA, developed at an estimated cost of ₹1,270 crore. Phase-I of the project, with a capacity of 9.60 MMTPA, was commissioned in October 2017. The terminal functions as a common user facility and plays a key role in enhancing containerised cargo handling capability and hinterland connectivity at Kamarajar Port. The commercial operations of the container terminal (Phase – 1) began from the financial year 2017-18.</p>
+            <div class="terminal-image"><img src="https://kamaraj-dev.indusnettechnologies.com/public/frontend/assets/images/container.webp" alt="Container Terminal at Kamarajar Port with quay cranes and container stacks" title="Container Terminal" loading="lazy"></div>
+            <ul>
+               <li><strong>Terminal:</strong> AECTPL</li>
+               <li><strong>Phase:</strong> Phase-1</li>
+               <li>
+                  <strong>Specifications:</strong>
+                  <ul>
+                     <li>Quay Length (Mtrs.): 400</li>
+                     <li>Draft (Mtrs.): 15</li>
+                     <li>Depth (Mtrs.): 16.70</li>
+                     <li>Capacity (in million TEUs): 0.8</li>
+                     <li>Reefer Plugs (Nos.): 280 - expandable 30</li>
+                     <li>RMQCs (Nos.): 4</li>
+                     <li>RTGCs (Nos.): 12</li>
+                     <li>RMGCs (Nos.): -</li>
+                     <li>Tractor Trailers: 24+7</li>
+                     <li>Total Area in Hectares: 20</li>
+                     <li>Reach Stackers: 2+2</li>
+                     <li>Railway Siding Tracks for ICD handling: 1</li>
+                     <li>Maximum Permissible LOA of the Vessel: 366 Mtrs</li>
+                  </ul>
+               </li>
+            </ul>
+         </section>
+
+         <section id="lng-terminal" class="terminal-section d-none" aria-label="LNG Terminal">
+            <p><strong>Operated by Indian Oil LNG Private Limited</strong></p>
+            <p>M/s. IOCL, lead partner of the JV, has set up the LNG terminal with re-gasification facilities. The re-gasification terminal consists of 2 tanks, each of gross capacity 1,80,000 cubic metres. The terminal was commissioned on 26.02.2019 and the cost of the project is 3834.15 crore.</p>
+            <p>The LNG Terminal at Kamarajar Port has been developed on a captive user basis pursuant to a concession agreement executed on 31 July 2015 between Kamarajar Port Limited and Indian Oil LNG Private Limited. The project involves the design, engineering, financing, construction, operation, and maintenance of an LNG port and regasification facility, including marine infrastructure such as a dedicated LNG jetty and associated offshore facilities.</p>
+            <p>The terminal has a present capacity of 5 MTPA (expandable up to 10 MTPA) of LNG, with supporting port infrastructure provided by Kamarajar Port Limited, and plays a strategic role in strengthening LNG import capability and gas-based energy infrastructure on the east coast.</p>
+            <div class="terminal-image"><img src="https://kamaraj-dev.indusnettechnologies.com/public/frontend/assets/images/lng.webp" alt="LNG Terminal with storage tanks and jetty at Kamarajar Port" title="LNG Terminal" loading="lazy"></div>
+            <ul>
+               <li><strong>Terminal:</strong> Indian Oil LNG Private Limited</li>
+               <li>
+                  <strong>Capacity:</strong>
+                  <ul>
+                     <li>Present Capacity: 5 MTPA (expandable up to 10 MTPA)</li>
+                     <li>Re-gasification Terminal: 2 tanks, each of 1,80,000 cubic metres gross capacity</li>
+                  </ul>
+               </li>
+               <li>
+                  <strong>Berth / Marine Infrastructure Details:</strong>
+                  <ul>
+                     <li>Dedicated LNG jetty with approach trestle and berthing facilities</li>
+                     <li>
+                        Designed to accommodate LNG vessels up to:
+                        <ul>
+                           <li>Maximum LOA: 362 metres</li>
+                           <li>Maximum Depth: 15.00 metres</li>
+                           <li>Maximum Draft: 12.50 metres</li>
+                        </ul>
+                     </li>
+                     <li>LNG basin and approach channel connected to the common user outer channel</li>
+                     <li>Fendering, mooring and marine safety systems as per LNG standards</li>
+                  </ul>
+               </li>
+               <li>
+                  <strong>Terminal / Equipment Details:</strong>
+                  <ul>
+                     <li>LNG jetty and marine facilities for safe berthing of LNG carriers</li>
+                     <li>LNG unloading arms and transfer systems</li>
+                     <li>Cryogenic pipelines connecting jetty to onshore facilities</li>
+                     <li>LNG storage tanks (onshore regasification facilities)</li>
+                     <li>Regasification units and associated utilities</li>
+                     <li>Firefighting, safety, and emergency response systems</li>
+                     <li>Navigational aids and marine safety infrastructure</li>
+                  </ul>
+               </li>
+            </ul>
+         </section>
+
+         <section id="general-cargo-berth-2" class="terminal-section d-none" aria-label="General Cargo Berth 2">
+            <div class="terminal-content">
+               <p>General Cargo Berth-2 was developed at a cost of Rs. 206 crore and commissioned in January 2024 with a capacity of 3 MMTPA, to handle import and export of automobiles, machinery and general cargo.</p>
+               <p>The berth has a length of 330 m, a width of 33.25 m and a depth of 16 m, with capacity to handle around 3,00,000 automobile units annually. The terminal has additional facilities such as parking yards, an automatic car washing facility, pre-delivery inspection (PDI), etc.</p>
+               <p>Draft - 14.50 m</p>
+            </div>
+            <div class="terminal-image"><img src="https://kamaraj-dev.indusnettechnologies.com/public/frontend/assets/images/general-cargo2.webp" alt="General Cargo Berth 2 with automobile parking yard" title="General Cargo Berth 2" loading="lazy"></div>
+         </section>
+
+      </section>
+
+      <section id="bunkering-operation" class="terminal-section d-none" aria-label="Bunkering Operation">
+         <p><strong>Kamarajar Port – Marine Fuel – Supplied by IOCL</strong></p>
+         <p>Bunkering operations at Kamarajar Port are carried out within the port limits for vessels calling at the port, at berth and at anchorage. Indian Oil Corporation Limited (IOCL), a leading bunker fuels supplier in India, supplies 100% of the bunker requirement of vessels calling at Kamarajar Port.</p>
+         <p>The fuels supplied by them are:</p>
+         <div class="terminal-image"><img src="https://kamaraj-dev.indusnettechnologies.com/public/frontend/assets/images/bunkering.webp" alt="Bunkering of a vessel with marine fuel at Kamarajar Port" title="Bunkering Operation" loading="lazy"></div>
+         <ul>
+            <li>
+               <strong>0.5% Sulphur Fuel Oil (VLSFO)</strong>
+               <ul>
+                  <li>Indian Oil supplies VLSFO produced from low sulphur residue components coming from the refining processes.</li>
+                  <li>The viscosity of VLSFO is in the 220–300 cSt range.</li>
+                  <li>Specs: ISO 8217:2024 RMG 380</li>
+               </ul>
+            </li>
+            <li>
+               <strong>0.1% Low Sulphur MGO</strong>
+               <ul>
+                  <li>LSMGO (HFHSD) is a differentiated grade specifically made for the distillate fuel needs of merchant vessels.</li>
+                  <li>Specs: ISO 8217:2024 DMA & MIL-DTL-16844M</li>
+               </ul>
+            </li>
+            <li>
+               <strong>3.5% Sulphur Fuel Oil (HSFO)</strong>
+               <ul>
+                  <li>Indian Oil supplies HSFO produced from the residue components coming from refining processes.</li>
+                  <li>Viscosity of HSFO is below 180 cSt (max 180 cSt).</li>
+                  <li>This fuel is suitable for vessels having scrubbers.</li>
+                  <li>Specs: ISO 8217:2024 RME 180</li>
+               </ul>
+            </li>
+         </ul>
+         <p><strong>Brochure:</strong> <a href="https://kamaraj-dev.indusnettechnologies.com/storage/app/public/files/IOC01292026154007.pdf" target="_blank" rel="noopener noreferrer">Click here to download the marine fuel brochure of IOCL with contact details (PDF, opens in a new tab).</a></p>
+      </section>
+   </div>
+</section>
+
+<section id="multi-cargo-terminal" class="terminal-section d-none" aria-label="Multi Cargo Terminal">
+   <p><strong>Operated by Ennore Bulk Terminal Private Limited (EBTPL)</strong></p>
+   <p>The terminal is operated by Ennore Bulk Terminal Private Limited (EBTPL), a part of JSW Group, which was awarded a licence by Kamarajar Port Ltd. for a Common User Multi Cargo Terminal at Ennore on DBFOT basis for a period of 30 years.</p>
+   <p>This Multi Cargo Terminal commenced operations on 05.08.2017 with state-of-the-art equipment, warehouses, open yard and other amenities, with a capacity to handle 2 MTPA.</p>
+   <div class="terminal-image">
+      <img src="https://kamaraj-dev.indusnettechnologies.com/public/frontend/assets/images/multi-cargo.webp" alt="Multi Cargo Terminal with harbour mobile cranes and warehouses" title="Multi Cargo Terminal" loading="lazy">
+   </div>
+   <ul>
+      <li>Handles a variety of commodities such as steel products, project cargo, river sand, barites, gypsum, limestone, dolomite, rice, wheat, pulses, fertilizers, granite and other commodities.</li>
+      <li>
+         <strong>Berth Dimensions:</strong>
+         <ul>
+            <li>Length – 270 metres</li>
+            <li>Depth – 16.00 metres</li>
+            <li>Draft – 14.50 metres</li>
+         </ul>
+      </li>
+      <li>2 Nos. harbour mobile cranes – Liebherr LHM 425 equipped with 42 CBM grabs.</li>
+      <li>4 Nos. covered warehouses totalling 16,800 sq. m.</li>
+      <li>Neem coating system available for urea handling.</li>
+      <li>Concrete storage yards and dedicated railway siding.</li>
+      <li>Total backup area for the terminal – 13.5 Ha.</li>
+      <li>Cargo evacuation through both road and rail connectivity.</li>
+   </ul>
+</section>
+                        </div>
+                        <div class="lang-hi d-none">
+                            <section id="terminals-berths-hi" lang="hi">
+   <div class="terminal-content-wrap">
+      <section id="cargo-handling-terminals-hi">
+
+         <section id="coal-berths-1-2-hi" class="terminal-section d-none" aria-label="कोल बर्थ 1 और 2">
+            <p>कामराजर पोर्ट पर कोल बर्थ-1 और कोल बर्थ-2 थोक कोयला कार्गो को संभालने के लिए विकसित समर्पित सुविधाएँ हैं, जो मुख्यतः ताप विद्युत क्षेत्र (कैप्टिव उपयोगकर्ता आधार पर) की आवश्यकताओं को पूरा करती हैं। कार्गो की कुशल और निरंतर निकासी सुनिश्चित करने के लिए बर्थ यंत्रीकृत कोयला हैंडलिंग प्रणालियों से सुसज्जित हैं। प्रत्येक 8 MTPA क्षमता वाले कोल बर्थ 1 और 2, 77,000 DWT तक के दो कोयला जहाज़ों (280 मीटर लंबे) को समायोजित कर सकते हैं और TANGEDCO तथा उसकी संयुक्त उद्यम कंपनियों के ताप विद्युत संयंत्रों के लिए थर्मल कोयले का संचालन करते हैं। उतारा गया कोयला कन्वेयर प्रणाली के माध्यम से सीधे निकटवर्ती नॉर्थ चेन्नई थर्मल पावर स्टेशन (NCTPS) के स्टैकयार्ड तक पहुँचाया जाता है, जहाँ से उसका एक हिस्सा रेल संपर्क के माध्यम से आगे मेट्टूर भेजा जाता है। थर्मल कोयले के संचालन के लिए शोर अनलोडर, कन्वेयर प्रणाली आदि सभी टॉप-साइड सुविधाओं में TANGEDCO ने निवेश किया है और वही उनका संचालन व रखरखाव करता है।</p>
+            <div class="terminal-image"><img src="https://kamaraj-dev.indusnettechnologies.com/public/frontend/assets/images/coal-berths.webp" alt="कामराजर पोर्ट के कोल बर्थ 1 और 2, कोयला जहाज़ और शोर अनलोडर के साथ" title="कोल बर्थ 1 और 2" loading="lazy"></div>
+            <h4>टर्मिनल / बर्थ का विवरण</h4>
+            <p>बर्थ का नाम: कोल बर्थ – 1 और कोल बर्थ – 2</p>
+            <p>कार्गो का प्रकार: कोयला</p>
+            <p>शोर-आधारित अनलोडर: बिना गियर वाले जहाज़ों के लिए 2 नग (प्रत्येक 2,000 TPH)</p>
+            <p>हॉपर: स्व-अनलोडिंग जहाज़ों के लिए 1 हॉपर</p>
+            <p>गियर वाले जहाज़ों के लिए 6 हॉपर</p>
+            <p>कन्वेयर प्रणाली: NCTPS से जुड़े 2 कन्वेयर (प्रत्येक 4,000 TPH)</p>
+            <p>वर्तमान हैंडलिंग क्षमता: 16 MMTPA</p>
+            <p>लंबाई: 280 मी.</p>
+            <p>गहराई: 16.00 मी.</p>
+            <p>ड्राफ्ट: 14.50 मी.</p>
+            <h4>सुविधाएँ एवं संपर्क व्यवस्था</h4>
+            <ul>
+               <li>पूर्णतः यंत्रीकृत कोयला अनलोडिंग प्रणाली</li>
+               <li>गियर वाले और स्व-अनलोडिंग जहाज़ों के लिए समर्पित हॉपर</li>
+               <li>सीधी निकासी के लिए उच्च क्षमता वाली कन्वेयर प्रणाली</li>
+               <li>नॉर्थ चेन्नई थर्मल पावर स्टेशन (NCTPS) से निर्बाध संपर्क</li>
+               <li>थोक कोयला कार्गो के कुशल संचालन के लिए डिज़ाइन किया गया</li>
+            </ul>
+            <h4>मुख्य विशेषताएँ</h4>
+            <ul>
+               <li>समर्पित कोयला हैंडलिंग बुनियादी ढाँचा</li>
+               <li>जहाज़ों के तेज़ टर्नअराउंड के लिए उच्च अनलोडिंग क्षमता</li>
+               <li>विद्युत क्षेत्र की आवश्यकताओं को पूरा करने के लिए डिज़ाइन किया गया</li>
+            </ul>
+         </section>
+
+         <section id="marine-liquid-terminal-1-hi" class="terminal-section d-none" aria-label="मरीन लिक्विड टर्मिनल">
+            <p><strong>एन्नोर टैंक टर्मिनल प्राइवेट लिमिटेड (ETTPL) द्वारा संचालित</strong></p>
+            <p>3 MTPA कार्गो हैंडलिंग क्षमता (6 MTPA तक विस्तार योग्य) वाला मरीन लिक्विड टर्मिनल ETTPL द्वारा BOT आधार पर विकसित किया गया और इसका वाणिज्यिक संचालन 16 जनवरी 2009 से शुरू हुआ। व्यापार की माँग को पूरा करने के लिए BOT ऑपरेटर ने अतिरिक्त भंडारण टैंक विकसित किए और LPG हैंडलिंग उपकरण स्थापित किए। यहाँ पेट्रोलियम, LPG, रसायन, गैस और वनस्पति तेल टैंकरों के लिए बर्थिंग सुविधा उपलब्ध है। जहाज़ों की भीड़ कम करने के लिए M/s. ETTPL ने अतिरिक्त डॉक लाइनें बिछाईं और मरीन अनलोडिंग आर्म्स स्थापित किए, जिससे जहाज़ों का प्रतीक्षा समय घटा। टैंक फार्म बर्थ से लगभग 3.7 कि.मी. की दूरी पर 33 एकड़ के पट्टे वाले भूखंड में स्थित है। जहाज़ और तट के टैंकों के बीच उत्पादों के स्थानांतरण के लिए कई पाइपलाइनें हैं। पोर्ट परिसर के भीतर भंडारण टैंक – पेट्रोलियम, रसायन और सेफ क्लास कार्गो के लिए कुल 2,54,000 KL क्षमता के 64 टैंक। जेटी और भंडारण टैंक टर्मिनल पूर्णतः चालू हैं।</p>
+            <div class="terminal-image"><img src="https://kamaraj-dev.indusnettechnologies.com/public/frontend/assets/images/marine-liquid.webp" alt="कामराजर पोर्ट का मरीन लिक्विड टर्मिनल, जेटी और टैंक फार्म" title="मरीन लिक्विड टर्मिनल" loading="lazy"></div>
+            <ul>
+               <li>
+                  <strong>सुविधाएँ:</strong>
+                  <ul>
+                     <li>
+                        <strong>1. जेटी:</strong>
+                        <ul>
+                           <li>
+                              <strong>बर्थ का विवरण:</strong>
+                              <ul>
+                                 <li>बर्थ: MLT-1</li>
+                                 <li>लंबाई: 360 मी.</li>
+                                 <li>ड्राफ्ट: 13.50 मी.</li>
+                                 <li>बीम: कोई प्रतिबंध नहीं</li>
+                                 <li>गहराई: 15 मीटर (BCD)</li>
+                              </ul>
+                           </li>
+                           <li>जेटी का अत्यंत विशिष्ट डिज़ाइन, अर्थात् निरंतर क्वे जेटी, जो तट से 1.3 कि.मी. की दूरी पर उत्तरी ब्रेकवाटर पर स्थित है</li>
+                           <li>उत्तरी ब्रेकवाटर और लिक्विड जेटी को जोड़ने वाला एप्रोच ट्रेस्टल</li>
+                           <li>जेटी पेट्रोलियम, पेट्रोकेमिकल, रसायन, वनस्पति तेल और बहुत बड़े LPG टैंकरों को संभालने में सक्षम है</li>
+                           <li>150,000 DWT और उससे अधिक के टैंकरों को बर्थ करने के लिए डिज़ाइन की गई, भविष्य में बड़े टैंकरों को स्वीकार करने की व्यवस्था के साथ</li>
+                           <li>स्टोरेज टैंक-फार्म तक पाइपलाइन ले जाने के लिए 12 मीटर का पाइपलाइन ट्रेस्टल</li>
+                           <li>LPG, POL और ब्लैक ऑयल जैसे उत्पाद समूहों के लिए 6 मरीन अनलोडिंग आर्म्स</li>
+                           <li>OISD 156 मानकों के अनुसार अग्नि सुरक्षा प्रणाली</li>
+                        </ul>
+                     </li>
+                     <li>
+                        <strong>2. टैंक टर्मिनल:</strong>
+                        <ul>
+                           <li>एन्क्लोज़र – 1 – 60,000 KL</li>
+                           <li>एन्क्लोज़र – 2 – 23,300 KL</li>
+                           <li>एन्क्लोज़र – 3 – 28,290 KL</li>
+                           <li>एन्क्लोज़र – 4 – 18,370 KL</li>
+                           <li>एन्क्लोज़र – 5 – 32,100 KL</li>
+                           <li>एन्क्लोज़र – 6 – 55,555 KL</li>
+                           <li>एन्क्लोज़र – 7 – 31,850 KL</li>
+                           <li>एन्क्लोज़र – 8 – 5,000 KL</li>
+                           <li><strong>कुल – 254,398 KL</strong></li>
+                           <li>860 KL से 12,300 KL तक के विभिन्न आकारों के 64 भंडारण टैंक हैं, जो सभी प्रकार के तरल उत्पादों के लिए उपयुक्त हैं।</li>
+                           <li>भंडारण टर्मिनल आयात और निर्यात दोनों कार्यों के लिए सुसज्जित है।</li>
+                        </ul>
+                     </li>
+                     <li>
+                        <strong>डॉकलाइनें:</strong>
+                        <ul>
+                           <li>जहाज़ों और तट के टैंकों के बीच उत्पादों के स्थानांतरण के लिए नौ पाइपलाइनें</li>
+                           <li>2 नग 24 इंच व्यास की माइल्ड स्टील पाइपलाइन</li>
+                           <li>1 नग 16 इंच व्यास की माइल्ड स्टील पाइपलाइन</li>
+                           <li>2 नग 12 इंच व्यास की माइल्ड स्टील पाइपलाइन</li>
+                           <li>1 नग 8 इंच व्यास की स्टेनलेस स्टील (SS 316 L) पाइपलाइन</li>
+                           <li>प्रोपेन और ब्यूटेन के लिए 2 नग 18 इंच की क्रायोजेनिक पाइपलाइन</li>
+                           <li>स्पेशियलिटी रसायनों के लिए 2 नग 10 इंच की पाइपलाइन</li>
+                           <li>सभी पाइपलाइनें पिगेबल हैं।</li>
+                           <li>उपयोगकर्ता की आवश्यकता के अनुसार और पाइपलाइनें उपलब्ध कराने की गुंजाइश है।</li>
+                        </ul>
+                     </li>
+                  </ul>
+               </li>
+            </ul>
+         </section>
+
+         <section id="operational-excellence-hi" class="terminal-section d-none" aria-label="परिचालन उत्कृष्टता">
+            <p>कामराजर पोर्ट ने स्वयं को परिचालन उत्कृष्टता में अग्रणी के रूप में स्थापित किया है और वैश्विक व्यापार की बदलती माँगों को पूरा करने के लिए अपने बुनियादी ढाँचे को निरंतर उन्नत करता रहता है।</p>
+            <div class="terminal-image"><img src="https://kamaraj-dev.indusnettechnologies.com/public/frontend/assets/images/operational.webp" alt="कामराजर पोर्ट पर कार्गो हैंडलिंग संचालन" title="परिचालन उत्कृष्टता" loading="lazy"></div>
+            <ul>
+               <li>विशेषीकृत कार्गो टर्मिनल</li>
+               <li>उन्नत यंत्रीकृत हैंडलिंग प्रणालियाँ</li>
+               <li>निर्बाध सड़क और रेल संपर्क</li>
+               <li>जहाज़ों का कुशल टर्नअराउंड समय</li>
+               <li>पर्यावरण संरक्षण और सततता पर ध्यान</li>
+            </ul>
+         </section>
+
+         <section id="common-user-coal-terminal-hi" class="terminal-section d-none" aria-label="कॉमन यूज़र कोल टर्मिनल">
+            <p><strong>एन्नोर कोल टर्मिनल प्राइवेट लिमिटेड (ECTPL) द्वारा संचालित</strong></p>
+            <p>कॉमन यूज़र कोल टर्मिनल का संचालन एन्नोर कोल टर्मिनल प्राइवेट लिमिटेड (ECTPL) द्वारा किया जाता है, जो JSW समूह का हिस्सा है। कामराजर पोर्ट लिमिटेड ने एन्नोर में कॉमन यूज़र कोल टर्मिनल के लिए 30 वर्षों की अवधि हेतु BOT आधार पर इसे लाइसेंस प्रदान किया था। इस कोल टर्मिनल ने 11.03.2021 को अत्याधुनिक पूर्णतः स्वचालित उपकरणों और कन्वेयर प्रणालियों, यार्ड तथा निकासी प्रणालियों के साथ सफलतापूर्वक संचालन शुरू किया, जिसकी हैंडलिंग क्षमता 11 MTPA है। केप साइज़ जहाज़ों को संभालने के लिए ऑपरेटर ने बर्थ की लंबाई 16 मीटर ड्राफ्ट के साथ 22.5 मीटर बढ़ाई। 48.0 हेक्टेयर का स्टैकयार्ड क्षेत्र पोर्ट की चारदीवारी से लगभग 2.5 कि.मी. की दूरी पर स्थित है।</p>
+            <div class="terminal-image"><img src="https://kamaraj-dev.indusnettechnologies.com/public/frontend/assets/images/common-coal.webp" alt="कॉमन यूज़र कोल टर्मिनल, शिप अनलोडर और कन्वेयर प्रणाली के साथ" title="कॉमन यूज़र कोल टर्मिनल" loading="lazy"></div>
+            <ul>
+               <li>समर्पित, सभी मौसमों में 24x7 चालू रहने वाला कॉमन यूज़र कोल टर्मिनल।</li>
+               <li>बर्थ की लंबाई – 347.5 मीटर, चौड़ाई – 30 मीटर</li>
+               <li>गहराई – 18.00 मी., ड्राफ्ट – 16.00 मी.</li>
+               <li>बंद कन्वेयर प्रणाली से पूर्णतः सुसज्जित, प्रत्येक 1750 TPH के दो शिप अनलोडर।</li>
+               <li>दो स्टैकर रिक्लेमर, प्रत्येक की स्टैकिंग क्षमता 1750 TPH और कार्गो रिक्लेमिंग क्षमता 1000 TPH।</li>
+               <li>रेक हैंडलिंग और कार्गो निकासी के लिए इन-मोशन वेब्रिज के साथ वैगन लोडिंग प्रणाली। 59 वैगनों (3500 टन) के एक पूर्ण रेक की लोडिंग के लिए इन-मोशन वैगन लोडिंग स्टेशन स्थापित है।</li>
+               <li>ट्रकों के माध्यम से निकासी के लिए ट्रक लोडिंग स्टेशन उपलब्ध हैं।</li>
+               <li>प्रदूषण कम करने के लिए कन्वेयर प्रणाली में धूल दमन व्यवस्था स्थापित है।</li>
+               <li>कार्गो के सुरक्षित भंडारण के लिए 2 टेयर वेब्रिज और 3 ग्रॉस वेब्रिज के साथ समर्पित और दीवार-सुरक्षित भूखंड।</li>
+               <li>सभी पर्यावरण संरक्षण उपायों से पूर्णतः सुसज्जित।</li>
+            </ul>
+         </section>
+
+         <section id="general-cargo-berth-1-hi" class="terminal-section d-none" aria-label="जनरल कार्गो बर्थ 1">
+            <div class="terminal-content">
+               <p>जनरल कार्गो बर्थ-1 को 2012 में 3 MMTPA क्षमता के साथ चालू किया गया, ताकि ऑटोमोबाइल और सामान्य कार्गो का आयात-निर्यात संभाला जा सके।</p>
+               <p>बर्थ की लंबाई 278 मी. और गहराई 12 मी. है।</p>
+               <p>ड्राफ्ट - 10.00 मी.</p>
+            </div>
+            <div class="terminal-image"><img src="https://kamaraj-dev.indusnettechnologies.com/public/frontend/assets/images/general-cargo1.webp" alt="जनरल कार्गो बर्थ 1, ऑटोमोबाइल और सामान्य कार्गो का संचालन" title="जनरल कार्गो बर्थ 1" loading="lazy"></div>
+         </section>
+
+         <section id="container-terminal-phase-1-hi" class="terminal-section d-none" aria-label="कंटेनर टर्मिनल चरण 1">
+            <p><strong>अदानी एन्नोर कंटेनर टर्मिनल प्राइवेट लिमिटेड द्वारा संचालित</strong></p>
+            <p>कामराजर पोर्ट पर कॉमन यूज़र कंटेनर टर्मिनल को डिज़ाइन–बिल्ड–फाइनेंस–ऑपरेट–ट्रांसफर (DBFOT) मॉडल के अंतर्गत, कामराजर पोर्ट लिमिटेड और अदानी एन्नोर कंटेनर टर्मिनल प्राइवेट लिमिटेड के बीच 15 मार्च 2014 को हुए रियायत समझौते के अनुसार विकसित किया गया है। PPP मोड में चरणबद्ध तरीके से इसकी हैंडलिंग क्षमता 1.40 मिलियन TEU प्रति वर्ष है। कंटेनर टर्मिनल का कुल बैकअप क्षेत्र 36.5 हेक्टेयर है। इस परियोजना में 16.80 MMTPA की डिज़ाइन क्षमता वाली आधुनिक कंटेनर हैंडलिंग सुविधा का विकास, संचालन, रखरखाव और हस्तांतरण शामिल है, जिसे अनुमानित ₹1,270 करोड़ की लागत से विकसित किया गया। 9.60 MMTPA क्षमता वाला परियोजना का चरण-I अक्टूबर 2017 में चालू किया गया। यह टर्मिनल कॉमन यूज़र सुविधा के रूप में कार्य करता है और कामराजर पोर्ट पर कंटेनरीकृत कार्गो हैंडलिंग क्षमता तथा हिंटरलैंड संपर्क को बढ़ाने में महत्वपूर्ण भूमिका निभाता है। कंटेनर टर्मिनल (चरण – 1) का वाणिज्यिक संचालन वित्त वर्ष 2017-18 से शुरू हुआ।</p>
+            <div class="terminal-image"><img src="https://kamaraj-dev.indusnettechnologies.com/public/frontend/assets/images/container.webp" alt="कामराजर पोर्ट का कंटेनर टर्मिनल, क्वे क्रेन और कंटेनर स्टैक के साथ" title="कंटेनर टर्मिनल" loading="lazy"></div>
+            <ul>
+               <li><strong>टर्मिनल:</strong> AECTPL</li>
+               <li><strong>चरण:</strong> चरण-1</li>
+               <li>
+                  <strong>विनिर्देश:</strong>
+                  <ul>
+                     <li>क्वे की लंबाई (मीटर): 400</li>
+                     <li>ड्राफ्ट (मीटर): 15</li>
+                     <li>गहराई (मीटर): 16.70</li>
+                     <li>क्षमता (मिलियन TEU में): 0.8</li>
+                     <li>रीफर प्लग (संख्या): 280 - 30 तक विस्तार योग्य</li>
+                     <li>RMQC (संख्या): 4</li>
+                     <li>RTGC (संख्या): 12</li>
+                     <li>RMGC (संख्या): -</li>
+                     <li>ट्रैक्टर ट्रेलर: 24+7</li>
+                     <li>कुल क्षेत्रफल (हेक्टेयर में): 20</li>
+                     <li>रीच स्टैकर: 2+2</li>
+                     <li>ICD हैंडलिंग के लिए रेलवे साइडिंग ट्रैक: 1</li>
+                     <li>जहाज़ की अधिकतम स्वीकार्य LOA: 366 मीटर</li>
+                  </ul>
+               </li>
+            </ul>
+         </section>
+
+         <section id="lng-terminal-hi" class="terminal-section d-none" aria-label="एलएनजी टर्मिनल">
+            <p><strong>इंडियन ऑयल LNG प्राइवेट लिमिटेड द्वारा संचालित</strong></p>
+            <p>संयुक्त उद्यम की प्रमुख भागीदार M/s. IOCL ने पुनर्गैसीकरण सुविधाओं के साथ LNG टर्मिनल स्थापित किया है। पुनर्गैसीकरण टर्मिनल में प्रत्येक 1,80,000 घन मीटर सकल क्षमता वाले 2 टैंक हैं। टर्मिनल 26.02.2019 को चालू किया गया और परियोजना की लागत 3834.15 करोड़ है।</p>
+            <p>कामराजर पोर्ट पर LNG टर्मिनल को कामराजर पोर्ट लिमिटेड और इंडियन ऑयल LNG प्राइवेट लिमिटेड के बीच 31 जुलाई 2015 को हुए रियायत समझौते के अनुसार कैप्टिव उपयोगकर्ता आधार पर विकसित किया गया है। परियोजना में LNG पोर्ट और पुनर्गैसीकरण सुविधा की डिज़ाइन, इंजीनियरिंग, वित्तपोषण, निर्माण, संचालन और रखरखाव शामिल है, जिसमें समर्पित LNG जेटी और संबद्ध ऑफशोर सुविधाओं जैसा समुद्री बुनियादी ढाँचा भी सम्मिलित है।</p>
+            <p>टर्मिनल की वर्तमान क्षमता 5 MTPA LNG (10 MTPA तक विस्तार योग्य) है, जिसके लिए सहायक पोर्ट बुनियादी ढाँचा कामराजर पोर्ट लिमिटेड द्वारा उपलब्ध कराया गया है। यह पूर्वी तट पर LNG आयात क्षमता और गैस आधारित ऊर्जा बुनियादी ढाँचे को मज़बूत करने में रणनीतिक भूमिका निभाता है।</p>
+            <div class="terminal-image"><img src="https://kamaraj-dev.indusnettechnologies.com/public/frontend/assets/images/lng.webp" alt="कामराजर पोर्ट का LNG टर्मिनल, भंडारण टैंक और जेटी के साथ" title="एलएनजी टर्मिनल" loading="lazy"></div>
+            <ul>
+               <li><strong>टर्मिनल:</strong> इंडियन ऑयल LNG प्राइवेट लिमिटेड</li>
+               <li>
+                  <strong>क्षमता:</strong>
+                  <ul>
+                     <li>वर्तमान क्षमता: 5 MTPA (10 MTPA तक विस्तार योग्य)</li>
+                     <li>पुनर्गैसीकरण टर्मिनल: प्रत्येक 1,80,000 घन मीटर सकल क्षमता के 2 टैंक</li>
+                  </ul>
+               </li>
+               <li>
+                  <strong>बर्थ / समुद्री बुनियादी ढाँचे का विवरण:</strong>
+                  <ul>
+                     <li>एप्रोच ट्रेस्टल और बर्थिंग सुविधाओं के साथ समर्पित LNG जेटी</li>
+                     <li>
+                        LNG जहाज़ों को समायोजित करने के लिए डिज़ाइन किया गया, अधिकतम:
+                        <ul>
+                           <li>अधिकतम LOA: 362 मीटर</li>
+                           <li>अधिकतम गहराई: 15.00 मीटर</li>
+                           <li>अधिकतम ड्राफ्ट: 12.50 मीटर</li>
+                        </ul>
+                     </li>
+                     <li>कॉमन यूज़र बाहरी चैनल से जुड़ा LNG बेसिन और एप्रोच चैनल</li>
+                     <li>LNG मानकों के अनुसार फेंडरिंग, मूरिंग और समुद्री सुरक्षा प्रणालियाँ</li>
+                  </ul>
+               </li>
+               <li>
+                  <strong>टर्मिनल / उपकरण का विवरण:</strong>
+                  <ul>
+                     <li>LNG वाहकों की सुरक्षित बर्थिंग के लिए LNG जेटी और समुद्री सुविधाएँ</li>
+                     <li>LNG अनलोडिंग आर्म्स और ट्रांसफर प्रणालियाँ</li>
+                     <li>जेटी को तटीय सुविधाओं से जोड़ने वाली क्रायोजेनिक पाइपलाइनें</li>
+                     <li>LNG भंडारण टैंक (तटीय पुनर्गैसीकरण सुविधाएँ)</li>
+                     <li>पुनर्गैसीकरण इकाइयाँ और संबद्ध उपयोगिताएँ</li>
+                     <li>अग्निशमन, सुरक्षा और आपातकालीन प्रतिक्रिया प्रणालियाँ</li>
+                     <li>नौवहन सहायक उपकरण और समुद्री सुरक्षा बुनियादी ढाँचा</li>
+                  </ul>
+               </li>
+            </ul>
+         </section>
+
+         <section id="general-cargo-berth-2-hi" class="terminal-section d-none" aria-label="जनरल कार्गो बर्थ 2">
+            <div class="terminal-content">
+               <p>जनरल कार्गो बर्थ-2 को 206 करोड़ रुपये की लागत से विकसित किया गया और जनवरी 2024 में 3 MMTPA क्षमता के साथ चालू किया गया, ताकि ऑटोमोबाइल, मशीनरी और सामान्य कार्गो का आयात-निर्यात संभाला जा सके।</p>
+               <p>बर्थ की लंबाई 330 मी., चौड़ाई 33.25 मी. और गहराई 16 मी. है, तथा यह प्रति वर्ष लगभग 3,00,000 ऑटोमोबाइल इकाइयों को संभालने में सक्षम है। टर्मिनल में पार्किंग यार्ड, स्वचालित कार वॉशिंग सुविधा, प्री-डिलीवरी निरीक्षण (PDI) आदि अतिरिक्त सुविधाएँ भी हैं।</p>
+               <p>ड्राफ्ट - 14.50 मी.</p>
+            </div>
+            <div class="terminal-image"><img src="https://kamaraj-dev.indusnettechnologies.com/public/frontend/assets/images/general-cargo2.webp" alt="जनरल कार्गो बर्थ 2, ऑटोमोबाइल पार्किंग यार्ड के साथ" title="जनरल कार्गो बर्थ 2" loading="lazy"></div>
+         </section>
+
+      </section>
+
+      <section id="bunkering-operation-hi" class="terminal-section d-none" aria-label="बंकरिंग संचालन">
+         <p><strong>कामराजर पोर्ट – समुद्री ईंधन – IOCL द्वारा आपूर्ति</strong></p>
+         <p>कामराजर पोर्ट पर बंकरिंग संचालन पोर्ट सीमा के भीतर, बर्थ और एंकरेज पर आने वाले जहाज़ों के लिए किया जाता है। भारत की अग्रणी बंकर ईंधन आपूर्तिकर्ता इंडियन ऑयल कॉर्पोरेशन लिमिटेड (IOCL) कामराजर पोर्ट पर आने वाले जहाज़ों की 100% बंकर आवश्यकता की आपूर्ति करती है।</p>
+         <p>उनके द्वारा आपूर्ति किए जाने वाले ईंधन हैं:</p>
+         <div class="terminal-image"><img src="https://kamaraj-dev.indusnettechnologies.com/public/frontend/assets/images/bunkering.webp" alt="कामराजर पोर्ट पर जहाज़ में समुद्री ईंधन की बंकरिंग" title="बंकरिंग संचालन" loading="lazy"></div>
+         <ul>
+            <li>
+               <strong>0.5% सल्फर फ्यूल ऑयल (VLSFO)</strong>
+               <ul>
+                  <li>इंडियन ऑयल रिफाइनिंग प्रक्रियाओं से प्राप्त निम्न सल्फर अवशेष घटकों से निर्मित VLSFO की आपूर्ति करता है।</li>
+                  <li>VLSFO की श्यानता 220–300 cSt की सीमा में है।</li>
+                  <li>विनिर्देश: ISO 8217:2024 RMG 380</li>
+               </ul>
+            </li>
+            <li>
+               <strong>0.1% निम्न सल्फर MGO</strong>
+               <ul>
+                  <li>LSMGO (HFHSD) एक विशिष्ट ग्रेड है, जो विशेष रूप से व्यापारिक जहाज़ों की डिस्टिलेट ईंधन आवश्यकताओं के लिए बनाया गया है।</li>
+                  <li>विनिर्देश: ISO 8217:2024 DMA और MIL-DTL-16844M</li>
+               </ul>
+            </li>
+            <li>
+               <strong>3.5% सल्फर फ्यूल ऑयल (HSFO)</strong>
+               <ul>
+                  <li>इंडियन ऑयल रिफाइनिंग प्रक्रियाओं से प्राप्त अवशेष घटकों से निर्मित HSFO की आपूर्ति करता है।</li>
+                  <li>HSFO की श्यानता 180 cSt से कम है (अधिकतम 180 cSt)।</li>
+                  <li>यह ईंधन स्क्रबर वाले जहाज़ों के लिए उपयुक्त है।</li>
+                  <li>विनिर्देश: ISO 8217:2024 RME 180</li>
+               </ul>
+            </li>
+         </ul>
+         <p><strong>ब्रोशर:</strong> <a href="https://kamaraj-dev.indusnettechnologies.com/storage/app/public/files/IOC01292026154007.pdf" target="_blank" rel="noopener noreferrer">संपर्क विवरण सहित IOCL का समुद्री ईंधन ब्रोशर डाउनलोड करने के लिए यहाँ क्लिक करें (PDF, नए टैब में खुलेगा)।</a></p>
+      </section>
+   </div>
+</section>
+
+<section id="multi-cargo-terminal-hi" class="terminal-section d-none" lang="hi" aria-label="मल्टी कार्गो टर्मिनल">
+   <p><strong>एन्नोर बल्क टर्मिनल प्राइवेट लिमिटेड (EBTPL) द्वारा संचालित</strong></p>
+   <p>
+      इस टर्मिनल का संचालन एन्नोर बल्क टर्मिनल प्राइवेट लिमिटेड (EBTPL) द्वारा किया जाता है, जो JSW समूह का हिस्सा है।
+      कामराजर पोर्ट लिमिटेड ने एन्नोर में कॉमन यूज़र मल्टी कार्गो टर्मिनल के लिए 30 वर्षों की अवधि हेतु
+      DBFOT आधार पर इसे लाइसेंस प्रदान किया था।
+   </p>
+   <p>
+      इस मल्टी कार्गो टर्मिनल ने 05.08.2017 को अत्याधुनिक उपकरणों, गोदामों, खुले यार्ड और अन्य सुविधाओं के साथ
+      संचालन शुरू किया, जिसकी हैंडलिंग क्षमता 2 MTPA है।
+   </p>
+   <div class="terminal-image">
+      <img src="https://kamaraj-dev.indusnettechnologies.com/public/frontend/assets/images/multi-cargo.webp" alt="मल्टी कार्गो टर्मिनल, हार्बर मोबाइल क्रेन और गोदामों के साथ" title="मल्टी कार्गो टर्मिनल" loading="lazy">
+   </div>
+   <ul>
+      <li>इस्पात उत्पाद, प्रोजेक्ट कार्गो, नदी की रेत, बैराइट्स, जिप्सम, चूना पत्थर, डोलोमाइट, चावल, गेहूँ, दालें, उर्वरक, ग्रेनाइट और अन्य वस्तुओं सहित विभिन्न प्रकार की वस्तुओं का संचालन।</li>
+      <li>
+         <strong>बर्थ के आयाम:</strong>
+         <ul>
+            <li>लंबाई – 270 मीटर</li>
+            <li>गहराई – 16.00 मीटर</li>
+            <li>ड्राफ्ट – 14.50 मीटर</li>
+         </ul>
+      </li>
+      <li>42 CBM ग्रैब से सुसज्जित 2 नग हार्बर मोबाइल क्रेन – Liebherr LHM 425।</li>
+      <li>कुल 16,800 वर्ग मीटर के 4 नग ढके हुए गोदाम।</li>
+      <li>यूरिया हैंडलिंग के लिए नीम कोटिंग प्रणाली उपलब्ध।</li>
+      <li>कंक्रीट भंडारण यार्ड और समर्पित रेलवे साइडिंग।</li>
+      <li>टर्मिनल का कुल बैकअप क्षेत्र – 13.5 हेक्टेयर।</li>
+      <li>सड़क और रेल दोनों संपर्क के माध्यम से कार्गो की निकासी।</li>
+   </ul>
+</section>
+                        </div>
+                    </div>
+
+                
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<script>
+function showTerminal(id, titleEn, titleHi) {
+
+    document.getElementById('pageTitle')?.classList.add('d-none');
+    document.getElementById('pageHr')?.classList.add('d-none');
+    document.getElementById('terminalCards').classList.add('d-none');
+
+    document.getElementById('terminalHeader').classList.remove('d-none');
+    document.getElementById('terminalHr').classList.remove('d-none');
+    document.getElementById('terminalContent').classList.remove('d-none');
+
+    // Set title in the currently active language
+    var currentLang = localStorage.getItem('selectedLanguage') || 'en';
+    var titleEl = document.getElementById('terminalTitle');
+    titleEl.innerText = currentLang === 'hi' ? (titleHi || titleEn) : titleEn;
+    titleEl.setAttribute('data-en', titleEn);
+    titleEl.setAttribute('data-hi', titleHi || titleEn);
+
+    // Hide all terminal sections, then show the selected one
+    document.querySelectorAll('#terminalContent .terminal-section')
+        .forEach(function(el) { el.classList.add('d-none'); });
+    document.querySelectorAll('#terminalContent #' + id)
+        .forEach(function(el) { el.classList.remove('d-none'); });
+}
+
+function showTerminalCards() {
+
+    document.getElementById('pageTitle')?.classList.remove('d-none');
+    document.getElementById('pageHr')?.classList.remove('d-none');
+    document.getElementById('terminalCards').classList.remove('d-none');
+
+    document.getElementById('terminalHeader').classList.add('d-none');
+    document.getElementById('terminalHr').classList.add('d-none');
+    document.getElementById('terminalContent').classList.add('d-none');
+
+    document.querySelectorAll('#terminalContent .terminal-section')
+        .forEach(function(el) { el.classList.add('d-none'); });
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+    var hash = window.location.hash.substring(1);
+
+    if (hash) {
+        var terminalNames = {
+            'container-terminal-phase-1':           { en: 'Container Terminal',          hi: 'कंटेनर टर्मिनल' },
+            'marine-liquid-terminal-1':  { en: 'Marine Liquid Terminal',      hi: 'मरीन लिक्विड टर्मिनल' },
+            'common-user-coal-terminal': { en: 'Common User Coal Terminal',   hi: 'सामान्य उपयोगकर्ता कोयला टर्मिनल' },
+            'general-cargo-berth-1':     { en: 'General Cargo Berth 1',       hi: 'सामान्य कार्गो बर्थ 1' },
+            'bunkering-operation':       { en: 'Bunkering Operation',         hi: 'बंकरिंग ऑपरेशन' },
+            'lng-terminal':       { en: 'LNG Terminal',         hi: 'एलएनजी टर्मिनल' },
+            'multi-cargo-terminal':       { en: 'Multi Cargo Terminal',         hi: 'मल्टी कार्गो टर्मिनल' },            
+        };
+
+        if (terminalNames[hash]) {
+            setTimeout(function() {
+                showTerminal(hash, terminalNames[hash].en, terminalNames[hash].hi);
+            }, 100);
+        }
+    }
+});                                    
+</script>
+ 
+    </main>
+
+    <style>
+.visitor-counter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.digit-box {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 32px;
+    height: 38px;
+    background-color: #0d6efd;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 4px;
+    font-size: 16px;
+}
+</style>
+<footer class="ipa-footer pt-5 pb-4">
+    <div class="container">
+
+        
+        <div class="row gy-5">
+
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="footer-logo-text">
+                    <div class="footer-logo-row mb-2 d-flex align-items-center gap-2">
+                        <a href="https://kamarajarport.in/public" title="Go to Home Page"><img src="https://kamarajarport.in/public/public/frontend/assets/images/logowithoutbackgroundd.png"
+                             class="footer-logo" title="Kamarajar Port Limited Logo"></a>
+                        <a href="https://kamarajarport.in/public" title="Go to Home Page"><p class="fw-bold footer-logo-text-title">
+                            KAMARAJAR PORT LIMITED
+                        </p></a>
+                    </div>
+                    <p class="footer-description px-1">
+                        ( A Company of Chennai Port Authority )<br>
+                        ( Ministry of Ports, Shipping & Waterways - Government of India )<br>
+                    </p>
+                </div>
+            </div>
+
+                                                                                <div class="col-lg-2 col-md-6">
+                        <h5 class="fw-bold footer-heading"></h5>
+                        <ul class="footer-list">
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/Help" 
+                                       title="Help"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Help"
+                                              data-hi="मदद"
+                                              data-ta="Help">
+                                            Help
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/hyper-linking-policy" 
+                                       title="Hyper Linking Policy"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Hyper Linking Policy"
+                                              data-hi="हाइपर लिंकिंग नीति"
+                                              data-ta="Hyper Linking Policy">
+                                            Hyper Linking Policy
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/disclaimer" 
+                                       title="Disclaimer"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Disclaimer"
+                                              data-hi="अस्वीकरण"
+                                              data-ta="Disclaimer">
+                                            Disclaimer
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://nlpmarine.gov.in/" 
+                                       title="NLP Marine"
+                                        target="_blank" >
+                                        <span class="menu-name"
+                                              data-en="NLP Marine"
+                                              data-hi="NLP Marine"
+                                              data-ta="NLP Marine">
+                                            NLP Marine
+                                        </span>
+                                    </a>
+                                </li>
+                                                    </ul>
+                    </div>
+                                                                                    <div class="col-lg-2 col-md-6">
+                        <h5 class="fw-bold footer-heading"></h5>
+                        <ul class="footer-list">
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/FAQ" 
+                                       title="FAQ&#039;s"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="FAQ&#039;s"
+                                              data-hi="अक्सर पूछे जाने वाले प्रश्न"
+                                              data-ta="FAQ&#039;s">
+                                            FAQ&#039;s
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/copyright-policy" 
+                                       title="Copyright Policy"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Copyright Policy"
+                                              data-hi="कॉपीराइट नीति"
+                                              data-ta="Copyright Policy">
+                                            Copyright Policy
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/gallery" 
+                                       title="Gallery"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Gallery"
+                                              data-hi="गैलरी"
+                                              data-ta="Gallery">
+                                            Gallery
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/download-forms" 
+                                       title="Download Forms"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Download Forms"
+                                              data-hi="फॉर्म डाउनलोड करें"
+                                              data-ta="Download Forms">
+                                            Download Forms
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/web-information-manager" 
+                                       title="Web Information Manager"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Web Information Manager"
+                                              data-hi="वेब सूचना प्रबंधक"
+                                              data-ta="Web Information Manager">
+                                            Web Information Manager
+                                        </span>
+                                    </a>
+                                </li>
+                                                    </ul>
+                    </div>
+                                                                                    <div class="col-lg-2 col-md-6">
+                        <h5 class="fw-bold footer-heading"></h5>
+                        <ul class="footer-list">
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/privacy-policy" 
+                                       title="Privacy Policy"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Privacy Policy"
+                                              data-hi="गोपनीयता नीति"
+                                              data-ta="Privacy Policy">
+                                            Privacy Policy
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/terms-and-condtions" 
+                                       title="Terms &amp; Conditions"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Terms &amp; Conditions"
+                                              data-hi="नियम एवं शर्तें"
+                                              data-ta="Terms &amp; Conditions">
+                                            Terms &amp; Conditions
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://mausam.imd.gov.in/chennai/" 
+                                       title="Weather"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Weather"
+                                              data-hi="मौसम"
+                                              data-ta="Weather">
+                                            Weather
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/bill-payment-status" 
+                                       title="Bill Payment Status"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Bill Payment Status"
+                                              data-hi="बिल भुगतान स्थिति"
+                                              data-ta="Bill Payment Status">
+                                            Bill Payment Status
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/archive" 
+                                       title="Archive"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Archive"
+                                              data-hi="पुरालेख"
+                                              data-ta="Archive">
+                                            Archive
+                                        </span>
+                                    </a>
+                                </li>
+                                                    </ul>
+                    </div>
+                            
+            
+            
+        <div class="col-lg-3 col-md-6">
+            <h5 class="fw-bold footer-heading hero-text"
+                data-en="Contact Us"
+                data-hi="संपर्क करें">
+                Contact Us
+            </h5>
+
+            <ul class="footer-list">
+                                    <li class="d-flex align-items-start mb-2">
+                        <i class="bi bi-geo-alt me-2" title="Address"></i>
+                        <div class="footer-address"
+                            data-en="&lt;h6&gt;Jawahar Building,&lt;/h6&gt;&lt;h6&gt;No. 17, Rajaji Salai, Chennai - 600001&lt;/h6&gt;"
+                            data-hi="&lt;h6&gt;जवाहर बिल्डिंग,&lt;/h6&gt;&lt;h6&gt;नंबर: 17, राजाजी सलाई, चेन्नई - 600001&lt;/h6&gt;"
+                            data-ta="&lt;h6&gt;Jawahar Building,&lt;/h6&gt;&lt;h6&gt;No. 17, Rajaji Salai, Chennai - 600001&lt;/h6&gt;">
+                            <h6>Jawahar Building,</h6><h6>No. 17, Rajaji Salai, Chennai - 600001</h6>
+                        </div>
+                    </li>
+                    <li class="d-flex align-items-center mb-2">
+                        <i class="bi bi-telephone me-2" title="Phone"></i>
+                        <span> +91-44-25251666</span>
+                    </li>
+                   <!-- <li class="d-flex align-items-center">
+                        <i class="bi bi-envelope me-2" title="Email"></i>
+                        <span>kpl[at]gmail[dot]com</span>
+                    </li>-->
+                            </ul>
+        </div>
+
+        </div>
+
+        
+        <hr class="footer-divider">
+
+        
+        <div class="row align-items-center py-2">
+
+            <div class="col-md-5 text-start">
+                <p class="m-0 footer-copy">
+                    Copyright ©  2026, All rights reserved by  Kamarajar Port Limited .
+                </p>
+            </div>
+            <div class="col-md-3 text-end">
+                <span class="ms-3">
+                    Last Updated On :
+                    <span id="lastUpdatedDate"></span>
+                </span>
+            </div>
+            <div class="col-md-4 text-end footer-bottom-links">
+                <span class="ms-3 visitor-counter">
+                    Visitors Count 
+                                            <span class="digit-box">2</span>
+                                            <span class="digit-box">8</span>
+                                            <span class="digit-box">9</span>
+                                            <span class="digit-box">8</span>
+                                            <span class="digit-box">5</span>
+                                            <span class="digit-box">2</span>
+                                    </span>
+            </div>
+        </div>
+
+        
+        <!-- <div class="badge-row text-center mt-4">
+            <img src="https://kamarajarport.in/public/public/frontend/assets/images/one.jpeg" class="badge-img" title="Government of India badge" alt="Government badge">
+            <img src="https://kamarajarport.in/public/public/frontend/assets/images/nic.jpeg" class="badge-img" title="NIC badge" alt="NIC badge">
+            <img src="https://kamarajarport.in/public/public/frontend/assets/images/digital.jpeg" class="badge-img" title="Digital India badge" alt="Digital India badge">
+        </div> -->
+
+    </div> 
+</footer>
+
+<script>
+document.addEventListener('click', function(e) {
+    var link = e.target.closest('a');
+    if (!link) return;
+
+    try {
+        var linkHost = new URL(link.href).host;
+        var currentHost = window.location.host;
+
+        if (linkHost && linkHost !== currentHost) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+
+            if (confirm('This site has been redirected to external website, Do you want to continue ?')) {
+                if (link.target === '_blank' || link.target === '_new') {
+                    window.open(link.href, '_blank', 'noopener,noreferrer');
+                } else {
+                    window.location.href = link.href;
+                }
+            }
+            return false;
+        }
+    } catch (err) {}
+}, true);
+
+// 👇 FIX HERE
+document.addEventListener('DOMContentLoaded', function () {
+    const now = new Date();
+
+    const day = now.getDate();
+    const year = now.getFullYear();
+
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+
+    const formattedDate = `${day}-${monthNames[now.getMonth()]}-${year}`;
+
+    document.getElementById('lastUpdatedDate').textContent = formattedDate;
+});
+</script>
+ 
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://www.kamarajarport.in/public/frontend/assets/js/main.js"></script>
+
+<script>
+  const reveals = document.querySelectorAll('.section-card, .quick-card, .stats-section, .news-card');
+  if (reveals.length){
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e =>{ if (e.isIntersecting) e.target.classList.add('reveal-show'); });
+    }, {threshold: .12});
+    reveals.forEach(r => io.observe(r));
+  }
+
+  function animateCounters(){
+    document.querySelectorAll('[data-target]').forEach(el => {
+      const target = parseFloat(el.getAttribute('data-target'));
+      if (isNaN(target)) return;
+      const duration = 1300;
+      let start = 0;
+      const step = target / (duration / 20);
+      const t = setInterval(()=>{ start += step; if (start >= target){ el.textContent = (String(target).includes('.')?target.toFixed(1):Math.round(target)); clearInterval(t);} else el.textContent = (String(target).includes('.')?start.toFixed(1):Math.round(start)); },20);
+    });
+  }
+  const statsEl = document.querySelector('.stats-section');
+  if (statsEl){
+    const statsObserver = new IntersectionObserver(entries => { if(entries[0].isIntersecting){ animateCounters(); statsObserver.disconnect(); } }, {threshold:.3});
+    statsObserver.observe(statsEl);
+  }
+</script>
+</body>
+</html>
