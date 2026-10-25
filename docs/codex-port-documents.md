@@ -32,7 +32,7 @@ For each port in the table below:
 | `paradip` | Paradip Port Authority | |
 | `deendayal` | Deendayal Port Authority (Kandla and Vadinar) | |
 | `chennai` | Chennai Port Authority | |
-| `kamarajar` | Kamarajar Port (Ennore) | Its website's TLS certificate had expired in October 2026; note it if so |
+| `kamarajar` | Kamarajar Port (Ennore) | Its website's TLS certificate had expired and downloads returned "403 Forbidden" on 25 October 2026; note it if so. Also try to save, with `"kind": "tariff"`: **Trade Notice No. 6 of 21 May 2016** (anchorage charges at the coal berths) and the **berth hire tariffs of the container terminals** (Adani Ennore Container Terminal, Chennai International Terminals). |
 | `mundra` | Adani Mundra Port | The existing Berthing Policy and Tariff Structure already covers berths and timings; add only what is missing |
 | `hazira` | Adani Hazira Port | Same as Mundra |
 | `kattupalli` | Adani Kattupalli Port | Same as Mundra |
