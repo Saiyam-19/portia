@@ -93,7 +93,8 @@ export function describeTariff(port: PortBook, options: Filter & { date: string 
   let changes: TariffView["changes"];
   if (previous) {
     const before = chargesOf(port, previous, options);
-    const text = (view?: ChargeView) => view?.rates.map(rate => `${rate.appliesTo}: ${rate.text}`).join(" | ");
+    // Name who a rate applies to only when the charge has more than one.
+    const text = (view?: ChargeView) => view?.rates.map(rate => view.rates.length > 1 ? `${rate.appliesTo}: ${rate.text}` : rate.text).join(" | ");
     const items: NonNullable<TariffView["changes"]>["items"] = [];
     for (const now of charges) {
       const then = before.find(item => item.id === now.id) ?? before.find(item => item.type === now.type && item.label === now.label);

@@ -88,6 +88,6 @@ describe("rule-book calculator (hand-checked against Example Port)", () => {
   });
 
   it("states the date it assumed", () => {
-    expect(estimate(port, { grt: "32450", hours: "48", berth: "north-quay" }, "2026-10-25").assumptions).toContain("Call date assumed to be today (2026-10-25).");
+    expect(estimate(port, { grt: "32450", hours: "48", berth: "north-quay" }, "2026-10-25").assumptions).toContain("Call date assumed to be today, 25 October 2026.");
   });
 });

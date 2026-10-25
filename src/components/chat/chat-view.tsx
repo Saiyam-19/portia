@@ -12,6 +12,7 @@ import { initialQuestionDraft, makeQuestionRequest, migrationRunState, questionD
 import type { MigrationChatRequest } from '@/lib/migration/contracts'
 import { cardOf, type ToolCard } from '@/lib/berthwise/cards'
 import Message from './message'
+import { FollowUpContext } from './result-card'
 import Composer from './composer'
 import ModelSelector from './model-selector'
 import WorkspaceHeader from '@/components/dashboard/workspace-header'
@@ -23,7 +24,7 @@ import { ArrowDown, Loader2, Trash2 } from 'lucide-react'
 export type Segment = { kind: 'text'; content: string } | { kind: 'tool'; id: string; tool: string; label: string; status: 'running' | 'done' | 'error' } | { kind: 'card'; id: string; card: ToolCard }
 type ChatMessage = { id: string; role: 'user' | 'assistant'; segments: Segment[]; streaming?: boolean; interrupted?: boolean }
 type LiveMessage = UIMessage<{ conversationId?: string; runId?: string; revision?: number }>
-const TOOL_LABELS: Record<string, string> = { calculate: 'Calculating', calculate_elapsed_time: 'Working out time alongside', estimate_port_call: 'Estimating port charges', compare_ports: 'Comparing ports', compare_tariffs: 'Comparing tariffs', search_port_documents: 'Reading port documents', search_company_documents: 'Reading your documents', fleet: 'Checking your fleet', remember_memory: 'Saving to memory', recall_memory: 'Recalling saved memory', forget_memory: 'Removing from memory', write_scratchpad: 'Saving working notes', read_scratchpad: 'Reading working notes' }
+const TOOL_LABELS: Record<string, string> = { calculate: 'Calculating', calculate_elapsed_time: 'Working out time alongside', estimate_port_call: 'Reading the port rate schedules', compare_ports: 'Comparing ports', port_tariff: 'Reading the port rate schedule', list_ports: 'Checking which ports are covered', search_port_documents: 'Reading port documents', search_company_documents: 'Reading your documents', fleet: 'Checking your fleet', remember_memory: 'Saving to memory', recall_memory: 'Recalling saved memory', forget_memory: 'Removing from memory', write_scratchpad: 'Saving working notes', read_scratchpad: 'Reading working notes' }
 const parseCard = (json: string): ToolCard | undefined => { try { return cardOf(JSON.parse(json)) } catch { return undefined } }
 
 export default function ChatView({ conversationId, initialMessage, initialRequestId, initialModel = 'model-1' }: { conversationId: string; initialMessage?: string; initialRequestId?: string; initialModel?: ChatModel }) {
@@ -47,6 +48,11 @@ export default function ChatView({ conversationId, initialMessage, initialReques
   const bottomRef = useRef<HTMLDivElement>(null)
   const followRef = useRef(true)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  // A card's follow-up button fills the message box; the user finishes and sends it.
+  const followUp = useCallback((text: string) => {
+    dispatchDraft({ type: 'edit', value: text })
+    requestAnimationFrame(() => { const field = textareaRef.current; if (field) { field.focus(); field.setSelectionRange(text.length, text.length) } })
+  }, [])
   const initialSent = useRef(false)
   const sending = useRef(false)
   const { messages, sendMessage, status, stop, setMessages, clearError } = useChat<LiveMessage>({
@@ -182,7 +188,9 @@ export default function ChatView({ conversationId, initialMessage, initialReques
             {history.status === 'CanLoadMore' && <Button variant="ghost" onClick={() => { followRef.current = false; history.loadMore(40) }}>Load earlier messages</Button>}
             {history.status === 'LoadingMore' && <p role="status" className="text-xs text-muted-foreground">Loading earlier messages…</p>}
             {items.length === 0 && <p className="py-20 text-center text-sm text-muted-foreground">Start with a port, a vessel, or a question.</p>}
-            {items.map(message => <div key={message.id}><Message role={message.role} segments={message.segments} streaming={message.streaming} />{message.interrupted && <p className="mt-2 text-xs text-destructive">Interrupted · partial</p>}</div>)}
+            <FollowUpContext.Provider value={initialIntent || running ? undefined : followUp}>
+              {items.map(message => <div key={message.id}><Message role={message.role} segments={message.segments} streaming={message.streaming} />{message.interrupted && <p className="mt-2 text-xs text-destructive">Interrupted · partial</p>}</div>)}
+            </FollowUpContext.Provider>
             {running && !transportBusy && <div role="status" className="text-xs text-muted-foreground">Working on your question…</div>}
             {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
             <div ref={bottomRef} />

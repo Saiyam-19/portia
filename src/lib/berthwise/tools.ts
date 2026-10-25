@@ -5,6 +5,7 @@ import { z } from "zod";
 import { portBooks, resolvePort, type PortMatch } from "./rulebook/books";
 import { estimate, money, versionFor, type Estimate, type EstimateRequest } from "./rulebook/calculate";
 import { coverage, describeTariff, type TariffView } from "./rulebook/describe";
+import { CHARGE_GROUPS, type ComparisonCard, type CoverageCard, type EstimateCall, type EstimateCard, type TariffCard, type TariffComparisonCard } from "./card-types";
 import { chargeTypeSchema, statusSchema, vesselTypeSchema, type ChargeType, type PortBook } from "./rulebook/schema";
 
 /** Berthwise business tools. Each returns { card, summary }: the card is drawn on
@@ -147,7 +148,7 @@ export function businessTools(): ToolSet {
         const vessel = voyage ? sameShip(matches.map(m => m.port), ship, calls.map(c => c.date)) : ship;
         const results = calls.map((call, index) => {
           const result = estimate(matches[index]!.port, request(matches[index]!, vessel, call, charges));
-          const role = voyage ? (index === 0 ? "departure" : "arrival") : undefined;
+          const role: EstimateCall["role"] = voyage ? (index === 0 ? "departure" : "arrival") : undefined;
           const fx = exchangeNote(matches[index]!.port, result.version.effectiveFrom || today());
           return { ...(role ? { role } : {}), estimate: result, ...(fx ? { exchangeRate: fx } : {}), notes: versionFor(matches[index]!.port, call.date ?? today())?.notes.map(n => n.text) ?? [] };
         });
@@ -157,7 +158,7 @@ export function businessTools(): ToolSet {
           calls: results.map(r => ({ port: r.estimate.port.name, total: inRupees(r.estimate.totals, rate) })),
           ...(voyageTotals ? { voyage: inRupees(voyageTotals, rate) } : {}),
         } : undefined;
-        const card = { kind: "estimate", ship: { ...vessel }, calls: results, ...(voyageTotals ? { voyageTotals } : {}), ...(rupees ? { inRupees: rupees } : {}) };
+        const card: EstimateCard = { kind: "estimate", ship: { ...vessel }, calls: results, ...(voyageTotals ? { voyageTotals } : {}), ...(rupees ? { inRupees: rupees } : {}) };
         const summary = [
           `Estimate for ${describeShip(vessel) || "the ship"}.`,
           ...results.map(r => summarise(r.estimate, r.role)),
@@ -187,7 +188,7 @@ export function businessTools(): ToolSet {
         const when = date ?? today();
         if (view === "tariff") {
           const views = matches.map(m => describeTariff(m.port, { date: when, status: vessel.status, vesselType: vessel.type, ...(m.terminal ? { terminal: m.terminal } : {}) }));
-          const card = { kind: "tariff-comparison", ship: vessel, date: when, ports: views.map((v, i) => v ?? { port: { id: matches[i]!.port.id, name: matches[i]!.port.name }, missing: `No schedule we hold covers ${when}.` }) };
+          const card: TariffComparisonCard = { kind: "tariff-comparison", ship: vessel, date: when, ports: views.map((v, i) => v ?? { port: { id: matches[i]!.port.id, name: matches[i]!.port.name }, missing: `No schedule we hold covers ${when}.` }) };
           const summary = `Tariff comparison for a ${describeShip(vessel)} on ${when}: ` + views.map((v, i) => v
             ? `${v.port.name} (schedule from ${v.version.effectiveFrom}): ${v.charges.map(c => `${c.label}: ${c.rates.map(r => r.text).join(" / ")}`).join("; ")}`
             : `${matches[i]!.port.name}: no schedule for this date`).join(". ");
@@ -195,21 +196,12 @@ export function businessTools(): ToolSet {
         }
         const charges: ChargeType[] | undefined = view === "berth-hire" ? ["berth-hire"] : undefined;
         const results = matches.map(m => estimate(m.port, request(m, vessel, { ...details, date }, charges)));
-        const groups: Array<{ key: string; label: string; types: ChargeType[] }> = [
-          { key: "port-dues", label: "Port dues", types: ["port-dues"] },
-          { key: "pilotage", label: "Pilotage and towage", types: ["pilotage", "towage", "pilotage-towage"] },
-          { key: "berth-hire", label: "Berth hire", types: ["berth-hire"] },
-          { key: "mooring", label: "Mooring", types: ["mooring"] },
-          { key: "anchorage", label: "Anchorage", types: ["anchorage"] },
-          { key: "wharfage", label: "Wharfage", types: ["wharfage"] },
-          { key: "other", label: "Other charges", types: ["other"] },
-        ];
-        const rows = groups.map(group => ({
+        const rows = CHARGE_GROUPS.map(group => ({
           key: group.key, label: group.label,
           cells: results.map(result => {
             const lines = result.lines.filter(line => group.types.includes(line.type));
             if (lines.length) return { totals: addTotals(lines.map(line => [{ currency: line.currency, amount: line.amount, display: line.display }])), lines: lines.map(line => line.label) };
-            const missing = result.notCovered.find(item => group.types.includes(item.type as ChargeType));
+            const missing = result.notCovered.find(item => group.types.includes(item.type));
             return missing ? { missing: missing.reason } : undefined;
           }),
         })).filter(row => row.cells.some(Boolean));
@@ -220,7 +212,7 @@ export function businessTools(): ToolSet {
         const ranking = complete && currencies.size === 1 && !currencies.has(undefined)
           ? comparable.map((total, index) => ({ port: results[index]!.port.name, total: total! })).sort((a, b) => new Decimal(a.total.amount).cmp(b.total.amount))
           : undefined;
-        const card = {
+        const card: ComparisonCard = {
           kind: "comparison", view, ship: vessel, ...(date ? { date } : {}), hoursAlongside: details.hoursAlongside,
           ports: results.map(result => ({ port: result.port, terminal: result.terminal, berth: result.berth, version: result.version, totals: result.totals, assumptions: result.assumptions, questions: result.questions, notCovered: result.notCovered, checkedOn: result.checkedOn })),
           rows, estimates: results, ...(ranking ? { ranking } : {}), ...(rate ? { usdToInr: rate } : {}),
@@ -252,7 +244,8 @@ export function businessTools(): ToolSet {
         const summary = `${view.port.name} schedule ${view.version.id} (from ${view.version.effectiveFrom}${view.version.effectiveTo ? ` to ${view.version.effectiveTo}` : ""}, checked ${view.checkedOn}): `
           + view.charges.map(charge => `${charge.label}: ${charge.rates.map(rate => `${rate.appliesTo}: ${rate.text}`).join(" / ")}`).join("; ")
           + (view.changes ? `. Changes since ${view.changes.since.effectiveFrom}: ${view.changes.items.map(item => `${item.label}: ${item.before ?? "new"} -> ${item.after ?? "removed"}`).join("; ") || "none"}` : "");
-        return { card: { kind: "tariff", ...view }, summary: summary.slice(0, 4000) };
+        const card: TariffCard = { kind: "tariff", ...view };
+        return { card, summary: summary.slice(0, 4000) };
       },
     }),
 
@@ -261,8 +254,9 @@ export function businessTools(): ToolSet {
       inputSchema: z.object({}).strict(),
       execute: async () => {
         const rows = coverage(portBooks(), today());
+        const card: CoverageCard = { kind: "coverage", date: today(), ports: rows };
         return {
-          card: { kind: "coverage", date: today(), ports: rows },
+          card,
           summary: `Ports covered: ${rows.map(row => `${row.name} (schedule from ${row.inForce?.effectiveFrom ?? "none in force"}, checked ${row.checkedOn})`).join("; ")}.`,
         };
       },

@@ -57,7 +57,7 @@ export function versionFor(port: PortBook, date: string): RuleVersion | undefine
 export function estimate(port: PortBook, request: EstimateRequest, today = new Date().toISOString().slice(0, 10)): Estimate {
   const date = request.date ?? today;
   const assumptions: string[] = [], questions: string[] = [], notCovered: Estimate["notCovered"] = [], lines: EstimateLine[] = [];
-  if (!request.date) assumptions.push(`Call date assumed to be today (${date}).`);
+  if (!request.date) assumptions.push(`Call date assumed to be today, ${new Date(`${date}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })}.`);
   const version = versionFor(port, date);
   const base = { port: { id: port.id, name: port.name }, checkedOn: port.checkedOn };
   if (!version) {

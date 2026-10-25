@@ -7,7 +7,7 @@ import { useTheme } from 'next-themes'
 import { usePaginatedQuery } from 'convex/react'
 import { api } from '../../../convex/_generated/api'
 import { migrationAuthClient } from '@/lib/migration/auth-client'
-import { Anchor, SquarePen, Search, LogOut, ChevronsUpDown, Sun, Moon, Monitor, Check, X } from 'lucide-react'
+import { Anchor, SquarePen, Search, LogOut, ChevronsUpDown, Sun, Moon, Monitor, Check, X, MapPin } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -62,12 +62,15 @@ export default function Sidebar({ email, name }: { email: string; name: string }
       <SidebarHeader className="gap-5 px-4 pt-5 pb-3">
         <div className="flex items-center justify-between px-1">
           <Link href="/dashboard" onClick={closeMobile} className="flex items-center gap-2.5 rounded-md text-xl font-semibold tracking-tight focus-visible:outline-2 focus-visible:outline-ring" aria-label="Berthwise home">
-            <Anchor className="size-5 text-brand" strokeWidth={1.8} aria-hidden="true" />plisto
+            <Anchor className="size-5 text-brand" strokeWidth={1.8} aria-hidden="true" />berthwise
           </Link>
           {isMobile ? <Button variant="ghost" size="icon-lg" onClick={closeMobile} aria-label="Close sidebar"><X /></Button> : <SidebarTrigger className="size-8 text-muted-foreground" />}
         </div>
         <Button asChild variant="outline" className="h-10 w-full justify-start gap-2.5 border-border/70 bg-background/60 text-sm shadow-none">
           <Link href="/dashboard" onClick={closeMobile}><SquarePen className="size-4 text-brand" aria-hidden="true" />New conversation</Link>
+        </Button>
+        <Button asChild variant="ghost" className="h-9 w-full justify-start gap-2.5 px-3 text-sm font-normal text-sidebar-foreground">
+          <Link href="/dashboard/coverage" onClick={closeMobile} aria-current={pathname === '/dashboard/coverage' ? 'page' : undefined}><MapPin className="size-4 text-brand" aria-hidden="true" />Ports covered</Link>
         </Button>
         <InputGroup className="h-9 border-transparent bg-transparent dark:bg-transparent">
           <InputGroupAddon><Search className="size-4" aria-hidden="true" /></InputGroupAddon>
