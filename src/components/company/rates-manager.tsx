@@ -15,7 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { AGREED_CHARGES, type AgreedRate } from '@/lib/berthwise/agreed-rates'
 import { PORT_IDS, PORT_NAMES } from '@/lib/berthwise/port-list'
 
-type Draft = { portId: string; chargeType: string; kind: 'discount' | 'fixed'; percent: string; amount: string; currency: string; note: string }
+type Draft = { id?: string; portId: string; chargeType: string; kind: 'discount' | 'fixed'; percent: string; amount: string; currency: string; note: string }
 const EMPTY: Draft = { portId: '', chargeType: '', kind: 'discount', percent: '', amount: '', currency: 'USD', note: '' }
 const errorText = (error: unknown) => error instanceof ConvexError ? String((error.data as { message?: string })?.message ?? 'The rate could not be saved.') : 'The rate could not be saved. Check your connection and try again.'
 const chargeLabel = (value: string) => AGREED_CHARGES.find(charge => charge.value === value)?.label ?? value
@@ -35,7 +35,7 @@ export default function RatesManager() {
 
   const edit = (rate?: AgreedRate) => {
     setError(''); setNotice(''); setConfirming(null)
-    setDraft(rate ? { portId: rate.portId, chargeType: rate.chargeType, kind: rate.kind === 'fixed' ? 'fixed' : 'discount', percent: rate.percent ?? '', amount: rate.amount ?? '', currency: rate.currency ?? 'USD', note: rate.note ?? '' } : EMPTY)
+    setDraft(rate ? { id: rate.id, portId: rate.portId, chargeType: rate.chargeType, kind: rate.kind === 'fixed' ? 'fixed' : 'discount', percent: rate.percent ?? '', amount: rate.amount ?? '', currency: rate.currency ?? 'USD', note: rate.note ?? '' } : EMPTY)
   }
   const submit = async (event: FormEvent) => {
     event.preventDefault()
@@ -44,7 +44,7 @@ export default function RatesManager() {
     const rate = draft.kind === 'discount'
       ? { kind: 'discount', portId: draft.portId, chargeType: draft.chargeType, percent: draft.percent, ...(draft.note.trim() ? { note: draft.note } : {}) }
       : { kind: 'fixed', portId: draft.portId, chargeType: draft.chargeType, amount: draft.amount, currency: draft.currency, ...(draft.note.trim() ? { note: draft.note } : {}) }
-    try { await saveRate({ rate }); setNotice('Agreed rate saved.'); setDraft(null) }
+    try { await saveRate({ ...(draft.id ? { id: draft.id as Id<'agreedRates'> } : {}), rate }); setNotice('Agreed rate saved.'); setDraft(null) }
     catch (caught) { setError(errorText(caught)) }
     finally { setSaving(false) }
   }

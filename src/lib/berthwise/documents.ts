@@ -23,7 +23,7 @@ const SAME: Record<string, string[]> = {
   ship: ["vessel"], vessel: ["ship"], entry: ["arrival", "enter", "berth"], arrival: ["entry", "arrive"], compulsory: ["mandatory"], mandatory: ["compulsory"],
 };
 // Words that say little about which page answers a question.
-const VAGUE = new Set(["rule", "requirement", "information", "detail", "policy", "port", "regulation", "procedure", "guideline", "please", "tell", "know", "need", "about"]);
+const VAGUE = new Set(["rule", "requirement", "information", "detail", "policy", "port", "regulation", "procedure", "guideline", "please", "tell", "know", "need", "about", "state", "explain", "describe", "list", "give", "mention", "show", "whether", "also"]);
 
 const stem = (word: string) => word.length > 4 && word.endsWith("ies") ? word.slice(0, -3) + "y" : word.length > 3 && word.endsWith("s") && !word.endsWith("ss") ? word.slice(0, -1) : word;
 export function terms(text: string): string[] {
@@ -92,9 +92,13 @@ export function searchDocuments(query: string, options: { port?: string; kind?: 
   const all = [...new Set(terms(query))].filter(word => !own.has(word));
   const asked = all.filter(word => !VAGUE.has(word)).length ? all.filter(word => !VAGUE.has(word)) : all;
   if (!asked.length) return [];
-  // Each searched word, with the other words that mean the same; a match on either counts once.
-  const weights = new Map<string, { weight: number; origin: string }>(asked.map(word => [word, { weight: 1, origin: word }]));
-  for (const word of asked) for (const other of SAME[word] ?? []) if (!weights.has(stem(other))) weights.set(stem(other), { weight: 0.5, origin: word });
+  // Each searched idea, with the words that mean the same; "compulsory or mandatory" is one idea,
+  // and a match on any of its words counts once.
+  const origin = new Map<string, string>();
+  for (const word of asked) origin.set(word, asked.find(other => other !== word && (SAME[other] ?? []).map(stem).includes(word) && asked.indexOf(other) < asked.indexOf(word)) ?? word);
+  const weights = new Map<string, { weight: number; origin: string }>(asked.map(word => [word, { weight: 1, origin: origin.get(word)! }]));
+  for (const word of asked) for (const other of SAME[word] ?? []) if (!weights.has(stem(other))) weights.set(stem(other), { weight: 0.5, origin: origin.get(word)! });
+  const ideas = new Set(origin.values()).size;
   const pool = index.chunks.filter(chunk => (!options.port || chunk.doc.port === options.port) && (!options.kind || chunk.doc.kind === options.kind));
   const total = index.chunks.length;
   const scored = pool.map(chunk => {
@@ -109,12 +113,14 @@ export function searchDocuments(query: string, options: { port?: string; kind?: 
     }
     return { chunk, score, matched: found.size };
   }).filter(item => item.score > 0).sort((a, b) => b.score - a.score);
-  // Short questions need every word; longer ones at least two of them, or 40%.
-  const needed = asked.length <= 2 ? asked.length : Math.max(2, Math.ceil(asked.length * 0.4));
+  // Short questions need every idea; longer ones at least two, or a third of them. If no page
+  // clears that, the best pages with two ideas are offered and the reader judges from the text.
+  const needed = ideas <= 2 ? ideas : Math.max(2, Math.ceil(ideas / 3));
+  const bar = scored.some(item => item.matched >= needed) ? needed : Math.min(2, ideas);
   const seen = new Set<string>();
   const results: Excerpt[] = [];
   for (const item of scored) {
-    if (item.matched < needed) continue;
+    if (item.matched < bar) continue;
     const key = `${item.chunk.doc.markdown}#${item.chunk.page}`;
     if (seen.has(key)) continue;
     seen.add(key);

@@ -66,9 +66,10 @@ function sections(text: string, size: number): Page[] {
   return pages;
 }
 
-/** Passages of at most about PASSAGE_CHARS, split at line breaks, keeping their page number. */
-export function passages(pages: Page[]): Passage[] {
-  const out: Passage[] = [];
+/** Passages of at most about PASSAGE_CHARS, split at line breaks, keeping their page number.
+ * A file longer than MAX_PASSAGES passages is cut short; `readThrough` says where. */
+export function passages(pages: Page[]): Passage[] & { readThrough?: number } {
+  const out: Passage[] & { readThrough?: number } = [];
   for (const { page, text } of pages) {
     const clean = text.replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n").trim();
     if (clean.length < 10) continue;
@@ -81,7 +82,11 @@ export function passages(pages: Page[]): Passage[] {
       }
     }
     if (current.trim()) out.push({ page, order: out.length, text: current.trim() });
-    if (out.length >= MAX_PASSAGES) return out.slice(0, MAX_PASSAGES);
+    if (out.length >= MAX_PASSAGES) {
+      const kept: Passage[] & { readThrough?: number } = out.slice(0, MAX_PASSAGES);
+      kept.readThrough = kept.at(-1)!.page;
+      return kept;
+    }
   }
   return out;
 }

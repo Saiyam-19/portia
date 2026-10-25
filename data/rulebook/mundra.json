@@ -138,7 +138,8 @@
             "page": 30,
             "section": "IV.A",
             "quote": "|**$ 0.024344 Per GT of Vessel**<br>[Except SPM/<br>LNG/MCOT/STS] /Per VCN**.**|Minimum Charges**$ 400**per vessel is applicable.<br>(Port Dues is payable per VCN and is valid for a maximum<br>of 15 days)|"
-          }
+          },
+          "validDays": "15"
         },
         {
           "id": "port-dues-lng",
@@ -168,7 +169,8 @@
             "page": 42,
             "section": "DD",
             "quote": "|1<br>Port dues|**$ 0.06192**Per GT (Port Dues is payable per<br>vessel call and is valid for a maximum of 15 days)|"
-          }
+          },
+          "validDays": "15"
         },
         {
           "id": "pilotage-towage",

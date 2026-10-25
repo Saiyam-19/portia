@@ -84,7 +84,8 @@
               "|**Foreign Vessel**<br>**(Once in 30 days in case of each vessel)**|**US$ 0.168**|",
               "|**Coastal Vessel**<br>**(Once in 30 days in case of each vessel)**|**US$ 0.065**|"
             ]
-          }
+          },
+          "validDays": "30"
         },
         {
           "id": "port-dues",
@@ -190,9 +191,11 @@
               "|**Coastal Vessel**|**US$ 0.198**|",
               "|**All Liquid Bulk Vessels**|**US$ 0.366**|",
               "|**Gas Tankers**|**US$ 0.354**|",
-              "|**Ro-Ro Vessels**|**US$ 0.238**|"
+              "|**Ro-Ro Vessels**|**US$ 0.238**|",
+              "|**Other than Container Vessels**<br>**(Once in 30 days in case of each vessel)**|**Per GRT**|"
             ]
-          }
+          },
+          "validDays": "30"
         },
         {
           "id": "pilotage-towage-container",

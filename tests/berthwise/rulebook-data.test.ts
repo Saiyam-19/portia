@@ -52,7 +52,7 @@ function problems(file: string): string[] {
       // Converted tables sometimes split a figure across cells ("32|,289").
       const inQuote = quotes.flatMap(snippet => extractNumbers(snippet.replace(/(\d)\|,(\d{3})/g, "$1,$2")));
       if (charge.rates.some(rate => rate.minimumPer || rate.minimumHours) &&!["grt-hour", "grt-day", "loa-hour", "loa-day", "hour"].includes(charge.basis)) issues.push(`${at}: minimumPer and minimumHours need a time-based basis`);
-      const figures = [...charge.rates.flatMap(rate => [...rate.bands.flatMap(band => [band.rate, ...(band.base ? [band.base] : []), ...(band.minimumAmount ? [band.minimumAmount] : [])]), ...(rate.minimumAmount ? [rate.minimumAmount] : []), ...(rate.maximumAmount ? [rate.maximumAmount] : [])])];
+      const figures = [...(charge.validDays ? [charge.validDays] : []), ...charge.rates.flatMap(rate => [...rate.bands.flatMap(band => [band.rate, ...(band.base ? [band.base] : []), ...(band.minimumAmount ? [band.minimumAmount] : [])]), ...(rate.minimumAmount ? [rate.minimumAmount] : []), ...(rate.maximumAmount ? [rate.maximumAmount] : [])])];
       // A zero rate stands for a printed "lump sum" band whose minimum is the charge.
       for (const figure of figures) if (Number(figure) !== 0 && !inQuote.some(found => sameNumber(found, figure))) issues.push(`${at}: figure ${figure} is not in its quote`);
       if ((charge.basis === "percent") !== Boolean(charge.percentOf)) issues.push(`${at}: basis "percent" and percentOf go together`);

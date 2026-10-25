@@ -95,9 +95,11 @@
             "quote": [
               "|**Port dues for LNG Vessels**|USD 0.3881 per GRT|",
               "|**Port dues for non-LNG Vessels**|USD 0.02982 Per GRT of Vessel|",
-              "||(Minimum Charges USD 235 per vessel applicable.)|"
+              "||(Minimum Charges USD 235 per vessel applicable.)|",
+              "**Port Dues are applicable per VCN, and the maximum validity is 15 days. After 15 days period, the vessel (if it stays) will be charged for another 15 days.**"
             ]
-          }
+          },
+          "validDays": "15"
         },
         {
           "id": "pilotage-towage",

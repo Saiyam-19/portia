@@ -14,7 +14,7 @@ export const read = internalAction({
   handler: async (ctx, args) => {
     const doc = await ctx.runQuery(internal.companyDocs.forReading, { documentId: args.documentId });
     if (!doc) return null;
-    const finish = (result: { error?: string; pages?: number; passages?: number }) =>
+    const finish = (result: { error?: string; note?: string; pages?: number; passages?: number }) =>
       ctx.runMutation(internal.companyDocs.finishReading, { documentId: args.documentId, storageId: doc.storageId, ...result });
     try {
       const blob = await ctx.storage.get(doc.storageId);
@@ -30,7 +30,8 @@ export const read = internalAction({
         const saved = await ctx.runMutation(internal.companyDocs.savePassages, { documentId: args.documentId, storageId: doc.storageId, passages: found.slice(start, start + BATCH) });
         if (!saved) return null;
       }
-      await finish({ pages: pages.length, passages: found.length });
+      const unit = format === "pdf" ? "pages" : format === "xlsx" ? "sheets" : "sections";
+      await finish({ pages: pages.length, passages: found.length, ...(found.readThrough !== undefined ? { note: `Only the first ${found.readThrough} ${unit} could be read; the rest of this file is too long. Split it into smaller files to search all of it.` } : {}) });
     } catch {
       await finish({ error: "This file couldn't be read. Check that it opens on your computer, then upload it again." });
     }

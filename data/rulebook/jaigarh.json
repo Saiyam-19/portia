@@ -118,7 +118,8 @@
               "|Upto 35000|$ 0.33|$ 0.33|$ 0.45|$ 0.33|",
               "Minimum Charges $ 2000 per vessel is applicable (Port dues applicable per call and maximum validity is 30 days)"
             ]
-          }
+          },
+          "validDays": "30"
         },
         {
           "id": "pilotage-towage",

@@ -85,6 +85,8 @@ export function estimate(port: PortBook, request: EstimateRequest, today = new D
   // Anchorage and wharfage are added only when asked for or when their inputs are given.
   const wanted = new Set<ChargeType>(request.charges?.length ? request.charges : version.charges.map(charge => charge.type)
     .filter(type => (type !== "wharfage" || request.cargo) && (type !== "anchorage" || request.anchorageHours)));
+  // A cargo was given, so its charges belong in the bill, whether or not we can price them.
+  if (request.cargo?.tonnes || request.cargo?.teu) wanted.add("wharfage");
   const known = { status, vesselType, terminal, berth, cargoClass: request.cargo?.class };
   // Only charges with a rate row for this ship (or one that a question would settle) take part.
   const fits = (charge: Charge) => { const row = pickRate(charge, known); return Boolean(row.rate || row.question); };
@@ -96,7 +98,12 @@ export function estimate(port: PortBook, request: EstimateRequest, today = new D
     const cover = selected.find(charge => charge.includes.includes(type));
     if (cover) { assumptions.push(`${title(type)} is included in ${cover.label.toLowerCase()}.`); continue; }
     const ofType = version.charges.filter(charge => charge.type === type);
-    if (!ofType.length) { notCovered.push({ type, reason: `${title(type)} isn't in the ${port.name} rate schedule we hold.` }); continue; }
+    if (!ofType.length) {
+      notCovered.push({ type, reason: type === "wharfage"
+        ? `Cargo charges (wharfage) at ${port.name} aren't in our rule book yet, so they aren't included.`
+        : `${title(type)} isn't in the ${port.name} rate schedule we hold.` });
+      continue;
+    }
     // A charge for another terminal or berth (e.g. Vadinar's buoy mooring at Kandla) says nothing about this call.
     const unfit = ofType.filter(charge => charge.rates.some(rate => atPlace(rate, known)));
     if (!unfit.length) continue;
@@ -276,10 +283,16 @@ function priceLine(charge: Charge, rate: Charge["rates"][number], version: RuleV
   if (band.minimumAmount) floor(band.minimumAmount, " for this size");
   if (rate.minimumAmount) floor(rate.minimumAmount, "");
   if (rate.maximumAmount && amount.gt(rate.maximumAmount)) { amount = new D(rate.maximumAmount); steps.push(`capped at ${c} ${rate.maximumAmount}`); }
+  // Dues valid for a set number of days are paid again for each further period started in port.
+  const inPort = new D(sizes.hours ?? 0).plus(sizes.anchorageHours ?? 0);
+  if (charge.validDays && inPort.gt(0)) {
+    const periods = Decimal.max(inPort.div(new D(charge.validDays).mul(24)).ceil(), 1);
+    if (periods.gt(1)) { amount = amount.mul(periods); steps.push(`charged ${plain(periods)} times, once for each ${plain(charge.validDays)} days or part of them in port`); }
+  }
   const document = version.documents.find(item => item.id === charge.source.document) ?? version.documents[0]!;
   return {
     chargeId: charge.id, type: charge.type, label: charge.label, currency: c, amount: amount.toString(), display: money(amount, c),
-    working: steps.join(" × ").replace(/ × (charged at|minimum charge|capped at)/g, "; $1"),
+    working: steps.join(" × ").replace(/ × (charged at|minimum charge|capped at|charged \d)/g, "; $1"),
     conditions: charge.conditions,
     source: { title: document.title, url: document.url, page: String(charge.source.page), ...(charge.source.section ? { section: charge.source.section } : {}) },
   };

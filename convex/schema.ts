@@ -82,9 +82,11 @@ export default defineSchema({
   companyDocuments: defineTable({
     ownerId: v.string(), title: v.string(), fileName: v.string(), format: v.string(), size: v.number(),
     storageId: v.id("_storage"), status: v.union(v.literal("processing"), v.literal("ready"), v.literal("failed")),
-    error: v.optional(v.string()), pages: v.optional(v.number()), passages: v.optional(v.number()),
+    error: v.optional(v.string()), note: v.optional(v.string()), pages: v.optional(v.number()), passages: v.optional(v.number()),
     createdAt: v.number(), updatedAt: v.number(),
-  }).index("by_owner", ["ownerId", "createdAt"]),
+  }).index("by_owner", ["ownerId", "createdAt"]).index("by_storage", ["storageId"]),
+  // One per upload URL handed out; an upload must use one issued to the same account just before it.
+  uploadGrants: defineTable({ ownerId: v.string(), issuedAt: v.number() }).index("by_owner", ["ownerId", "issuedAt"]),
   companyPassages: defineTable({
     ownerId: v.string(), documentId: v.id("companyDocuments"), storageId: v.id("_storage"), page: v.number(), order: v.number(), text: v.string(),
   }).index("by_document", ["documentId", "order"]).searchIndex("search_text", { searchField: "text", filterFields: ["ownerId"] }),

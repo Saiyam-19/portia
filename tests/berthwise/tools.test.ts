@@ -17,6 +17,8 @@ describe("port names", () => {
     expect(resolvePort("Ennore port")).toMatchObject({ port: { id: "kamarajar" } });
     expect(resolvePort("Port of Paradeep")).toMatchObject({ port: { id: "paradip" } });
     expect(resolvePort("Colombo")).toBeUndefined();
+    expect(resolvePort("Mumbai Main Port Trust (MBPT) / Mumbai Port Authority (MbPA) / Mumbai Port, excluding JNPT/Nhava Sheva.")).toMatchObject({ port: { id: "mumbai" } });
+    expect(resolvePort("Mundra or Hazira")).toEqual({ candidates: expect.arrayContaining(["Adani Mundra Port (APSEZ)"]) });
   });
 });
 
@@ -102,6 +104,13 @@ describe("compare_ports", () => {
     const pilotage = result.card.rows.find((row: { key: string }) => row.key === "pilotage");
     expect(pilotage.cells.every(Boolean)).toBe(true);
     expect(result.card.ranking.map((item: { port: string }) => item.port)).toHaveLength(2);
+  });
+
+  it("never ranks a bill with an unpriced charge as cheapest (Codex finding 5)", async () => {
+    const result = await run("compare_ports", { ports: ["Pipavav", "Hazira"], view: "whole-bill", ship: { grt: "70000", type: "tanker" }, hoursAlongside: "24", date });
+    expect(result.card.ranking).toBeUndefined();
+    expect(result.card.notRanked).toContain("Gujarat Pipavav Port (APM Terminals Pipavav) has no price for");
+    expect(result.summary).toContain("Don't say which port is cheaper");
   });
 
   it("compares tariffs without ship figures", async () => {

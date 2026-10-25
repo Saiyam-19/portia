@@ -75,6 +75,7 @@ export const chargeSchema = z.object({
   timeRounding: z.enum(["started-hour", "started-half-day", "started-day", "exact"]).optional(),
   freeHours: decimal.optional().describe("Hours at the start of the stay that are not charged."),
   minimumQuantity: decimal.optional().describe("Smallest quantity charged, e.g. a minimum of 1,000 GRT."),
+  validDays: decimal.optional().describe("The charge covers this many days in port and is charged again for each further period started (\"valid for 15 days\")."),
   includes: z.array(chargeTypeSchema).default([]).describe("Charges already covered by this one, e.g. towage inside a combined pilotage charge."),
   percentOf: z.array(id).min(1).optional().describe("With basis \"percent\": the ids of the charges this one is a percentage of, e.g. a 10% surcharge on port dues."),
   rates: z.array(rateSchema).min(1),

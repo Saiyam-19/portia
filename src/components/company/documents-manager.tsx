@@ -11,7 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { ACCEPT, DOCUMENT_TYPES, documentFormat, uploadProblem } from '@/lib/berthwise/company-doc-rules'
 
 type Upload = { key: string; name: string; progress: number; error?: string }
-type Doc = { id: string; title: string; fileName: string; format: string; size: number; status: string; error?: string; pages?: number; updatedAt: number }
+type Doc = { id: string; title: string; fileName: string; format: string; size: number; status: string; error?: string; note?: string; pages?: number; updatedAt: number }
 
 const size = (bytes: number) => bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`
 const errorText = (error: unknown) => error instanceof ConvexError ? String((error.data as { message?: string })?.message ?? 'The upload failed.') : error instanceof Error ? error.message : 'The upload failed.'
@@ -121,6 +121,7 @@ export default function DocumentsManager() {
                         : doc.status === 'ready' ? `Ready${doc.pages ? ` · ${doc.pages} ${doc.format === 'xlsx' ? (doc.pages === 1 ? 'sheet' : 'sheets') : doc.format === 'pdf' ? (doc.pages === 1 ? 'page' : 'pages') : (doc.pages === 1 ? 'section' : 'sections')}` : ''}`
                           : <span className="text-destructive">{doc.error ?? 'Couldn’t be read.'}</span>}
                     </p>
+                    {doc.note && <p className="text-xs leading-5 text-destructive">{doc.note}</p>}
                   </div>
                   {confirming === doc.id
                     ? <span className="inline-flex items-center gap-1"><Button size="sm" variant="destructive" onClick={() => void remove(doc)}>Delete</Button><Button size="sm" variant="ghost" onClick={() => setConfirming(null)}>Keep</Button></span>

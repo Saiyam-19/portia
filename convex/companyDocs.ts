@@ -9,13 +9,31 @@ import { MAX_DOCUMENTS, MAX_DOCUMENT_BYTES, documentFormat } from "../src/lib/be
 
 const vDocument = v.object({
   id: v.string(), title: v.string(), fileName: v.string(), format: v.string(), size: v.number(),
-  status: v.string(), error: v.optional(v.string()), pages: v.optional(v.number()), createdAt: v.number(), updatedAt: v.number(),
+  status: v.string(), error: v.optional(v.string()), note: v.optional(v.string()), pages: v.optional(v.number()), createdAt: v.number(), updatedAt: v.number(),
 });
+
+const GRANT_MS = 60 * 60 * 1000;
 
 export const generateUploadUrl = mutation({
   args: {}, returns: v.string(),
-  handler: async (ctx) => { await requireAccount(ctx); return await ctx.storage.generateUploadUrl(); },
+  handler: async (ctx) => {
+    const ownerId = await requireAccount(ctx);
+    // Forget slots nobody used, then hand out a new one.
+    for (const old of await ctx.db.query("uploadGrants").withIndex("by_owner", q => q.eq("ownerId", ownerId).lt("issuedAt", Date.now() - GRANT_MS)).take(50)) await ctx.db.delete(old._id);
+    await ctx.db.insert("uploadGrants", { ownerId, issuedAt: Date.now() });
+    return await ctx.storage.generateUploadUrl();
+  },
 });
+
+/** A file may be attached only by the account that was handed the upload URL just before
+ * it was stored, and only once, so a leaked file id can't expose another company's document. */
+async function claimUpload(ctx: MutationCtx, ownerId: string, storageId: Id<"_storage">, storedAt: number): Promise<boolean> {
+  if (await ctx.db.query("companyDocuments").withIndex("by_storage", q => q.eq("storageId", storageId)).first()) return false;
+  const grant = await ctx.db.query("uploadGrants").withIndex("by_owner", q => q.eq("ownerId", ownerId).gte("issuedAt", storedAt - GRANT_MS).lte("issuedAt", storedAt)).first();
+  if (!grant) return false;
+  await ctx.db.delete(grant._id);
+  return true;
+}
 
 /** Records an uploaded file (or replaces an earlier one) and starts reading it. */
 export const addDocument = mutation({
@@ -24,7 +42,7 @@ export const addDocument = mutation({
   handler: async (ctx, args) => {
     const ownerId = await requireAccount(ctx);
     const stored = await ctx.db.system.get(args.storageId);
-    if (!stored) fail("NOT_FOUND", "The upload was not found. Try again.");
+    if (!stored || !await claimUpload(ctx, ownerId, args.storageId, stored._creationTime)) fail("NOT_FOUND", "The upload was not found. Try again.");
     const format = documentFormat(args.fileName);
     const problem = !format ? "Only PDF, Word (.docx), Excel (.xlsx), CSV and text files can be uploaded."
       : stored.size > MAX_DOCUMENT_BYTES ? "The file is larger than 20 MB." : stored.size === 0 ? "The file is empty." : undefined;
@@ -35,7 +53,7 @@ export const addDocument = mutation({
       const old = await ctx.db.get(args.replaceId);
       if (!old || old.ownerId !== ownerId) { await ctx.storage.delete(args.storageId); fail("NOT_FOUND", "Document not found."); }
       await removeContent(ctx, old._id, old.storageId);
-      await ctx.db.patch(old._id, { fileName: args.fileName.slice(0, 200), title, format: format!, size: stored.size, storageId: args.storageId, status: "processing", error: undefined, pages: undefined, passages: undefined, updatedAt: now });
+      await ctx.db.patch(old._id, { fileName: args.fileName.slice(0, 200), title, format: format!, size: stored.size, storageId: args.storageId, status: "processing", error: undefined, note: undefined, pages: undefined, passages: undefined, updatedAt: now });
       await ctx.scheduler.runAfter(0, internal.companyDocsNode.read, { documentId: old._id });
       return old._id;
     }
@@ -55,7 +73,7 @@ export const listDocuments = query({
     const documents = await ctx.db.query("companyDocuments").withIndex("by_owner", q => q.eq("ownerId", ownerId)).order("desc").take(MAX_DOCUMENTS);
     return documents.map(doc => ({
       id: doc._id, title: doc.title, fileName: doc.fileName, format: doc.format, size: doc.size, status: doc.status,
-      createdAt: doc.createdAt, updatedAt: doc.updatedAt, ...(doc.error ? { error: doc.error } : {}), ...(doc.pages !== undefined ? { pages: doc.pages } : {}),
+      createdAt: doc.createdAt, updatedAt: doc.updatedAt, ...(doc.error ? { error: doc.error } : {}), ...(doc.note ? { note: doc.note } : {}), ...(doc.pages !== undefined ? { pages: doc.pages } : {}),
     }));
   },
 });
@@ -123,7 +141,7 @@ export const savePassages = internalMutation({
 });
 
 export const finishReading = internalMutation({
-  args: { documentId: v.id("companyDocuments"), storageId: v.id("_storage"), error: v.optional(v.string()), pages: v.optional(v.number()), passages: v.optional(v.number()) },
+  args: { documentId: v.id("companyDocuments"), storageId: v.id("_storage"), error: v.optional(v.string()), note: v.optional(v.string()), pages: v.optional(v.number()), passages: v.optional(v.number()) },
   returns: v.null(),
   handler: async (ctx, args) => {
     const doc = await ctx.db.get(args.documentId);
@@ -131,7 +149,7 @@ export const finishReading = internalMutation({
     if (args.error) for (const passage of await ctx.db.query("companyPassages").withIndex("by_document", q => q.eq("documentId", doc._id)).collect()) await ctx.db.delete(passage._id);
     await ctx.db.patch(doc._id, args.error
       ? { status: "failed", error: args.error, updatedAt: Date.now() }
-      : { status: "ready", pages: args.pages, passages: args.passages, updatedAt: Date.now() });
+      : { status: "ready", pages: args.pages, passages: args.passages, note: args.note, updatedAt: Date.now() });
     return null;
   },
 });

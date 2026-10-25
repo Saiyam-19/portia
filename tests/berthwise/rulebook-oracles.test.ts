@@ -42,6 +42,22 @@ describe("rule book against the earlier reviewed engine", () => {
     expect(estimate(book("kamarajar"), { date: "2026-03-01", status: "foreign", vesselType: "container", grt: "50000", hours: "24", charges: ["berth-hire"] }).lines).toEqual([]);
   });
 
+  it("charges port dues again for each validity period started (Codex finding 7)", () => {
+    const hazira = (hours: string) => estimate(book("hazira"), { date: "2026-10-25", status: "foreign", vesselType: "bulk", grt: "30000", hours, charges: ["port-dues"] }).lines[0]!;
+    expect(hazira("384")).toMatchObject({ amount: "1789.2" });
+    expect(hazira("384").working).toContain("charged 2 times, once for each 15 days or part of them in port");
+    expect(hazira("360").amount).toBe("894.6");
+    // Chennai: once in thirty days; Paradip charges once per entry however long the stay.
+    expect(estimate(book("chennai"), { date: "2026-10-25", status: "foreign", vesselType: "bulk", grt: "30000", hours: "721", charges: ["port-dues"] }).lines[0]!.amount).toBe("23130");
+    expect(estimate(book("paradip"), { date: "2026-10-25", status: "foreign", vesselType: "bulk", grt: "30000", hours: "721", charges: ["port-dues"] }).lines[0]!.amount).toBe("12240");
+  });
+
+  it("says cargo charges aren't included when a cargo is given (Codex finding 2)", () => {
+    const result = estimate(book("paradip"), { date: "2026-10-25", status: "foreign", vesselType: "bulk", grt: "30000", hours: "24", cargo: { class: "salt", tonnes: "10000" } });
+    expect(result.totals).toEqual([expect.objectContaining({ amount: "40858.32" })]);
+    expect(result.notCovered).toContainEqual({ type: "wharfage", reason: "Cargo charges (wharfage) at Paradip Port Authority aren't in our rule book yet, so they aren't included." });
+  });
+
   it("NSIGT berth hire in rupees for a foreign ship", () => {
     const totals = amount("jnpa", { terminal: "nsigt", vesselType: "container", grt: "31200", hours: "18", charges: ["berth-hire"] });
     expect(totals).toEqual([{ currency: "INR", amount: "1149932.16", display: "11,49,932.16" }]);

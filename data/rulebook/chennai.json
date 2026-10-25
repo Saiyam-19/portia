@@ -226,9 +226,11 @@
               "|2|Container vessels|8.8261|0.3337|",
               "|3|RoRo vessels|11.0099|0.4163|",
               "|4|Bulk / Break Bulk vessels|10.1941|0.3855|",
-              "|6|Vessels not covered under Sl.No.1 to 5 above|12.2331|0.4625|"
+              "|6|Vessels not covered under Sl.No.1 to 5 above|12.2331|0.4625|",
+              "- (2) In case a vessel remains in the Port for more than 30 days, the port dues shall be payable once in thirty days from the day of entry until the vessel leaves the port."
             ]
-          }
+          },
+          "validDays": "30"
         },
         {
           "id": "pilotage",

@@ -58,7 +58,8 @@ export function applyAgreedRates(estimate: Estimate, rates: AgreedRate[]): Agree
         sums.set(currency, (sums.get(currency) ?? new Decimal(0)).minus(published).plus(agreed));
         rows.push({ chargeType: charge.value, label: charge.label, basis: `${rate.percent}% off the published rate`, published: total(currency, published), agreed: total(currency, agreed), ...(rate.note ? { note: rate.note } : {}) });
       }
-    } else if (rate.kind === "fixed" && rate.amount && rate.currency) {
+    } else if (rate.kind === "fixed" && rate.amount && rate.currency && lines.length) {
+      // A fixed amount replaces a charge in this estimate; it never adds one that isn't there.
       const same = lines.filter(line => line.currency === rate.currency);
       const published = same.reduce((sum, line) => sum.plus(line.amount), new Decimal(0));
       for (const line of lines.filter(item => item.currency !== rate.currency)) sums.set(line.currency, (sums.get(line.currency) ?? new Decimal(0)).minus(line.amount));

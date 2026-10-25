@@ -11,6 +11,8 @@ describe("port document search", () => {
   it("finds the page that answers an everyday port question", () => {
     expect(searchDocuments("permissible draft at berths", { port: "chennai" })[0]).toMatchObject({ page: 1, document: { title: "BERTH DETAILS - Permissible Draft at Berths as on 01.01.2026", kind: "rules" } });
     expect(searchDocuments("pilotage compulsory", { port: "mumbai" })[0]!.text).toContain("Pilotage in and out of the harbour is compulsory");
+    // A long, wordy question as a model writes it still finds the page.
+    expect(searchDocuments("Is pilotage compulsory or mandatory for vessels entering or leaving Mumbai Port? State exemptions if any.", { port: "mumbai", kind: "rules", portNames: ["Mumbai", "Mumbai Port Authority"] })[0]!.document.title).toBe("Pilotage");
     expect(searchDocuments("documents required before arrival", { port: "mundra" }).length).toBeGreaterThan(0);
   });
 

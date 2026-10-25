@@ -26,14 +26,19 @@ export const listAgreedRates = query({
 
 /** Adds or replaces the agreed rate for one charge at one port. */
 export const saveAgreedRate = mutation({
-  args: { rate: v.any() }, returns: v.string(),
+  args: { id: v.optional(v.id("agreedRates")), rate: v.any() }, returns: v.string(),
   handler: async (ctx, args) => {
     const ownerId = await requireAccount(ctx);
     const parsed = agreedRateSchema.safeParse(args.rate);
     if (!parsed.success) fail("INVALID_RATE", parsed.error.issues.map(issue => `${issue.path.join(".") || "rate"}: ${issue.message}`).join("; "));
     const rate = parsed.data!;
-    const existing = (await ctx.db.query("agreedRates").withIndex("by_owner_and_port", q => q.eq("ownerId", ownerId).eq("portId", rate.portId)).take(50))
+    // Editing one agreement (even to another port or charge) replaces it, not adds a second.
+    const edited = args.id ? await ctx.db.get(args.id) : null;
+    if (args.id && (!edited || edited.ownerId !== ownerId)) fail("NOT_FOUND", "Agreed rate not found.");
+    const same = (await ctx.db.query("agreedRates").withIndex("by_owner_and_port", q => q.eq("ownerId", ownerId).eq("portId", rate.portId)).take(50))
       .find(item => item.chargeType === rate.chargeType);
+    if (edited && same && same._id !== edited._id) await ctx.db.delete(same._id);
+    const existing = edited ?? same;
     const fields = {
       ownerId, portId: rate.portId, chargeType: rate.chargeType, kind: rate.kind, updatedAt: Date.now(),
       percent: rate.kind === "discount" ? rate.percent : undefined, amount: rate.kind === "fixed" ? rate.amount : undefined,

@@ -1,5 +1,5 @@
 import "server-only";
-import { tool, type ModelMessage, type ToolSet } from "ai";
+import { tool, type ToolSet } from "ai";
 import Decimal from "decimal.js";
 import { z } from "zod";
 import { portBooks, resolvePort, type PortMatch } from "./rulebook/books";
@@ -7,6 +7,7 @@ import { estimate, money, versionFor, type Estimate, type EstimateRequest } from
 import { coverage, describeTariff, type TariffView } from "./rulebook/describe";
 import { CHARGE_GROUPS, type CompanyExcerptsCard, type ComparisonCard, type CoverageCard, type DocumentExcerptsCard, type EstimateCall, type EstimateCard, type FleetCard, type ShipCard, type TariffCard, type TariffComparisonCard } from "./card-types";
 import { searchDocuments } from "./documents";
+import { keepRate, keepShip, keepStay, readConversation, type Conversation } from "./user-input";
 import { fleetShipSchema, findShip, type FleetAccess, type FleetShip } from "./fleet";
 import { applyAgreedRates, type AgreedRate } from "./agreed-rates";
 import type { CompanyAccess } from "./account-access";
@@ -45,7 +46,7 @@ const stay = {
 };
 
 const callSchema = z.object({
-  port: z.string().min(1).max(120).describe("Port, terminal or berth as the user wrote it, e.g. 'Nhava Sheva', 'Kandla', 'NSICT'."),
+  port: z.string().min(1).max(120).describe("Just the port, terminal or berth name as the user wrote it, e.g. 'Nhava Sheva', 'Kandla', 'NSICT'."),
   terminal: z.string().min(1).max(120).optional(),
   berth: z.string().min(1).max(120).optional(),
   date: dateText.optional(),
@@ -66,55 +67,13 @@ const meant = (text?: string) => { const value = text?.trim(); return value && !
 const positive = (text?: string) => text !== undefined && Number(text) > 0 ? text : undefined;
 const validImo = (imo?: string) => imo && /^\d{7}$/.test(imo) && !/^0+$/.test(imo) ? imo : undefined;
 
-/** Ship particulars must come from the user, never from the model: a tonnage, length or
- * IMO number is kept only if the user wrote that figure ("45k" counts as 45,000), and a
- * trade or type only if the user's words name it. Without a conversation (direct calls), nothing is dropped. */
-const userText = (messages: ModelMessage[] | undefined) => (messages ?? []).filter(message => message.role === "user")
-  .map(message => typeof message.content === "string" ? message.content : message.content.map(part => part.type === "text" ? part.text : "").join(" ")).join("\n");
-
-function userSaid(ship: Ship, messages: ModelMessage[] | undefined): Ship {
-  const text = userText(messages);
-  if (!text.trim()) return ship;
-  // Each figure the user wrote, with the words around it, so a GRT isn't reused as an NRT or a length.
-  const written = [...text.matchAll(/(\d{1,3}(?:,\d{2,3})+|\d+(?:\.\d+)?)\s*(k\b)?/gi)].map(match => ({
-    value: Number(match[1]!.replace(/,/g, "")) * (match[2] ? 1000 : 1),
-    around: text.slice(Math.max(0, match.index! - 12), match.index! + match[0].length + 12).toLowerCase(),
-  }));
-  const LABEL: Record<"grt" | "nrt" | "loa", RegExp> = {
-    grt: /\b(?:grt|gt|gross|tons?|tonnes?|tonnage)\b/, nrt: /\b(?:nrt|nt|net)\b/, loa: /\b(?:loa|length|long|m|metres?|meters?)\b/,
-  };
-  const figure = (value: string | undefined, field: "grt" | "nrt" | "loa") =>
-    value !== undefined && written.some(item => item.value === Number(value) && LABEL[field].test(item.around)) ? value : undefined;
-  const words = text.toLowerCase();
-  const TYPE_WORDS: Record<string, RegExp> = {
-    "general-cargo": /general[ -]cargo|break[ -]?bulk|multipurpose/, bulk: /bulk|bulker/, container: /container|box ?ship/, tanker: /tanker|crude|product carrier/,
-    vlcc: /vlcc|very large crude/, chemical: /chemical/, lng: /\blng\b/, lpg: /\blpg\b|gas carrier/, "ro-ro": /ro-?ro|car carrier|pctc/, passenger: /passenger|cruise|ferry/, other: /./,
-  };
-  const status = ship.status && (ship.status === "coastal" ? /coastal/ : /foreign|international|overseas|import|export/).test(words) ? ship.status : undefined;
-  const type = ship.type && TYPE_WORDS[ship.type]!.test(words) ? ship.type : undefined;
-  const kept = { name: ship.name, imo: ship.imo && text.includes(ship.imo) ? ship.imo : undefined, grt: figure(ship.grt, "grt"), nrt: figure(ship.nrt, "nrt"), loa: figure(ship.loa, "loa"), type, status };
-  return Object.fromEntries(Object.entries(kept).filter(([, value]) => value !== undefined)) as Ship;
-}
-
 function cleanShip(ship: Ship): Ship {
   const name = meant(ship.name), imo = validImo(ship.imo), grt = positive(ship.grt), nrt = positive(ship.nrt), loa = positive(ship.loa);
   return { ...(name ? { name } : {}), ...(imo ? { imo } : {}), ...(grt ? { grt } : {}), ...(nrt ? { nrt } : {}), ...(loa ? { loa } : {}), ...(ship.type ? { type: ship.type } : {}), ...(ship.status ? { status: ship.status } : {}) };
 }
-/** An exchange rate is used only when the user wrote it; the model must never supply one. */
-function userRate(rate: string | undefined, messages?: ModelMessage[]): string | undefined {
-  const text = userText(messages);
-  if (!rate || !positive(rate)) return undefined;
-  if (!text.trim()) return rate;
-  return [...text.matchAll(/\d+(?:\.\d+)?/g)].some(match => Number(match[0]) === Number(rate)) ? rate : undefined;
-}
-
-/** Drops zeros and placeholders, and anchorage, tugs or cargo the user never mentioned. */
-function cleanStay<T extends Stay>(stay: T, messages?: ModelMessage[]): T {
-  const text = userText(messages).toLowerCase();
-  const mentions = (pattern: RegExp) => !text.trim() || pattern.test(text);
-  if (!mentions(/anchor|wait/)) stay = { ...stay, anchorageHours: undefined };
-  if (!mentions(/\btugs?\b/)) stay = { ...stay, tugs: undefined };
-  if (!mentions(/tonnes?|\bteu|\bmt\b|wharfage|containers?|cargo of|metric tons?/)) stay = { ...stay, cargo: undefined };
+/** Drops zeros and placeholders, and what the user never said (see user-input.ts). */
+function cleanStay<T extends Stay>(given: T, heard?: Conversation): T {
+  const stay = keepStay(given, heard);
   const cargo = stay.cargo && (positive(stay.cargo.tonnes) || positive(stay.cargo.teu))
     ? { ...(meant(stay.cargo.class) ? { class: stay.cargo.class } : {}), ...(positive(stay.cargo.tonnes) ? { tonnes: stay.cargo.tonnes } : {}), ...(positive(stay.cargo.teu) ? { teu: stay.cargo.teu } : {}) } : undefined;
   const { hoursAlongside, anchorageHours, tugs, cargo: _cargo, ...rest } = stay;
@@ -215,6 +174,7 @@ function summarise(result: Estimate, role?: string) {
   ].filter(Boolean).join(" ");
 }
 
+const title = (type: string) => { const text = type.replace(/-/g, " "); return text[0]!.toUpperCase() + text.slice(1).toLowerCase(); };
 const exchangeNote = (port: PortBook, date: string) => versionFor(port, date)?.exchangeRate;
 
 /** Fills in what the user didn't say from their saved ship, when they name one. */
@@ -246,9 +206,10 @@ export function businessTools(options: { fleet?: FleetAccess; company?: CompanyA
         usdToInr,
       }).strict(),
       execute: async ({ ship: given, calls: asked, charges, usdToInr: offered }, { messages }) => {
-        const rate = userRate(offered, messages);
-        const { ship, filled } = await withFleet(userSaid(cleanShip(given), messages), fleet);
-        const calls = asked.map(call => cleanStay(call, messages));
+        const heard = readConversation(messages);
+        const rate = keepRate(offered, heard);
+        const { ship, filled } = await withFleet(keepShip(cleanShip(given), heard), fleet);
+        const calls = asked.map(call => cleanStay(call, heard));
         const places = calls.map(place);
         const failed = places.find((item): item is { error: string } => "error" in item);
         if (failed) return { error: failed.error };
@@ -299,9 +260,10 @@ export function businessTools(options: { fleet?: FleetAccess; company?: CompanyA
         usdToInr,
       }).strict(),
       execute: async ({ ports, view, ship: given, date, usdToInr: offered, ...asked }, { messages }) => {
-        const rate = userRate(offered, messages);
-        const { ship } = await withFleet(userSaid(cleanShip(given), messages), fleet);
-        const details = cleanStay(asked, messages);
+        const heard = readConversation(messages);
+        const rate = keepRate(offered, heard);
+        const { ship } = await withFleet(keepShip(cleanShip(given), heard), fleet);
+        const details = cleanStay(asked, heard);
         const places = ports.map(name => place({ port: name }));
         const failed = places.find((item): item is { error: string } => "error" in item);
         if (failed) return { error: failed.error };
@@ -335,7 +297,12 @@ export function businessTools(options: { fleet?: FleetAccess; company?: CompanyA
         const totals = results.map(result => result.totals);
         const comparable = rate ? totals.map(list => inRupees(list, rate) ?? list[0]) : totals.map(list => list.length === 1 ? list[0] : undefined);
         const currencies = new Set(comparable.map(total => total?.currency));
-        const complete = results.every(result => !result.questions.length);
+        // Only whole bills can be ranked: no open question and no charge left unpriced at any port.
+        const gaps = results.flatMap(result => [
+          ...result.questions.map(() => `${result.port.name} still needs an answer`),
+          ...result.notCovered.map(item => `${result.port.name} has ${item.type === "all" ? "no schedule for this date" : `no price for ${title(String(item.type))}`}`),
+        ]);
+        const complete = !gaps.length;
         const ranking = complete && currencies.size === 1 && !currencies.has(undefined)
           ? comparable.map((total, index) => ({ port: results[index]!.port.name, total: total! })).sort((a, b) => new Decimal(a.total.amount).cmp(b.total.amount))
           : undefined;
@@ -343,7 +310,7 @@ export function businessTools(options: { fleet?: FleetAccess; company?: CompanyA
           kind: "comparison", view, ship: vessel, ...(date ? { date } : {}), hoursAlongside: details.hoursAlongside,
           ports: results.map(result => ({ port: result.port, terminal: result.terminal, berth: result.berth, version: result.version, totals: result.totals, assumptions: result.assumptions, questions: result.questions, notCovered: result.notCovered, checkedOn: result.checkedOn })),
           rows, estimates: results, ...(ranking ? { ranking } : {}), ...(rate ? { usdToInr: rate } : {}),
-          ...(!ranking ? { notRanked: !complete ? "Some ports still need answers before they can be ranked." : "The totals are in different currencies; give an exchange rate to rank them." } : {}),
+          ...(!ranking ? { notRanked: !complete ? `The totals aren't comparable: ${[...new Set(gaps)].join("; ")}.` : "The totals are in different currencies; give an exchange rate to rank them." } : {}),
         };
         const summary = [
           `${view === "berth-hire" ? "Berth hire" : "Whole-bill"} comparison for a ${describeShip(vessel)}${details.hoursAlongside ? `, ${details.hoursAlongside} hours alongside` : ""}.`,
@@ -439,7 +406,7 @@ export function businessTools(options: { fleet?: FleetAccess; company?: CompanyA
         inputSchema: fleetShipSchema,
         execute: async (given, { messages }) => {
           // Keep only what the user actually gave: a zero, placeholder or guess is no particular.
-          const clean = userSaid(cleanShip(given), messages);
+          const clean = keepShip(cleanShip(given), readConversation(messages));
           if (!clean.name || !clean.grt) return { error: "A ship needs at least its name and gross tonnage (GRT) to be saved. Ask the user for them." };
           const input = { ...clean, name: clean.name, grt: clean.grt } as typeof given;
           let result: { id: string; created: boolean };

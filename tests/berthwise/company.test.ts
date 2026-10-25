@@ -12,7 +12,7 @@ import { api, components } from "../../convex/_generated/api";
 import schema from "../../convex/schema";
 import { applyAgreedRates, type AgreedRate } from "../../src/lib/berthwise/agreed-rates";
 import { uploadProblem } from "../../src/lib/berthwise/company-doc-rules";
-import { extractPages, passages } from "../../src/lib/berthwise/company-docs";
+import { extractPages, MAX_PASSAGES, passages } from "../../src/lib/berthwise/company-docs";
 import { portBooks } from "../../src/lib/berthwise/rulebook/books";
 import { estimate } from "../../src/lib/berthwise/rulebook/calculate";
 import { businessTools } from "../../src/lib/berthwise/tools";
@@ -52,6 +52,11 @@ describe("reading company documents", () => {
   it("splits long pages into passages and refuses unsupported files", () => {
     const found = passages([{ page: 3, text: "a".repeat(4000) }]);
     expect(found.map(item => [item.page, item.text.length])).toEqual([[3, 1500], [3, 1500], [3, 1000]]);
+    // A file too long to read in full says where reading stopped (Codex finding 8).
+    const long = passages(Array.from({ length: 1100 }, (_, i) => ({ page: i + 1, text: "b".repeat(2900) })));
+    expect(long).toHaveLength(MAX_PASSAGES);
+    expect(long.readThrough).toBe(1000);
+    expect(found.readThrough).toBeUndefined();
     expect(uploadProblem({ name: "deck.pptx", size: 10 })).toContain("only PDF");
     expect(uploadProblem({ name: "huge.pdf", size: 21 * 1024 * 1024 })).toBe("huge.pdf is larger than 20 MB.");
   });
@@ -61,8 +66,12 @@ describe("company documents in Convex", () => {
   it("reads an upload in the background and finds it only for its own account", async () => {
     vi.useFakeTimers();
     const t = setup(); const a = await account(t, "a@example.com"); const b = await account(t, "b@example.com");
+    await a.mutation(api.companyDocs.generateUploadUrl, {});
     const storageId = await t.run(ctx => ctx.storage.store(new Blob(["Charter party clause 14: demurrage at USD 18,000 per day pro rata.\n\nLaytime is 72 hours, Sundays and holidays excepted."], { type: "text/plain" })));
     const id = await a.mutation(api.companyDocs.addDocument, { storageId, fileName: "charter_party_2026.txt" });
+    // Another account that learns the file id can't attach it.
+    await b.mutation(api.companyDocs.generateUploadUrl, {});
+    await expect(b.mutation(api.companyDocs.addDocument, { storageId, fileName: "stolen.txt" })).rejects.toThrow("The upload was not found");
     expect(await a.query(api.companyDocs.listDocuments, {})).toEqual([expect.objectContaining({ id, title: "charter party 2026", status: "processing" })]);
     await t.finishAllScheduledFunctions(vi.runAllTimers);
     expect(await a.query(api.companyDocs.listDocuments, {})).toEqual([expect.objectContaining({ status: "ready", pages: 1 })]);
@@ -78,12 +87,20 @@ describe("company documents in Convex", () => {
   it("marks a file it can't read as failed, with a plain reason", async () => {
     vi.useFakeTimers();
     const t = setup(); const a = await account(t, "a@example.com");
+    await a.mutation(api.companyDocs.generateUploadUrl, {});
     const storageId = await t.run(ctx => ctx.storage.store(new Blob(["not really a pdf"], { type: "application/pdf" })));
     await a.mutation(api.companyDocs.addDocument, { storageId, fileName: "scan.pdf" });
     await t.finishAllScheduledFunctions(vi.runAllTimers);
     expect(await a.query(api.companyDocs.listDocuments, {})).toEqual([expect.objectContaining({ status: "failed", error: expect.stringContaining("couldn't be read") })]);
+    await a.mutation(api.companyDocs.generateUploadUrl, {});
     const other = await t.run(ctx => ctx.storage.store(new Blob(["x"])));
     await expect(a.mutation(api.companyDocs.addDocument, { storageId: other, fileName: "deck.pptx" })).rejects.toThrow("Only PDF");
+    // An orphaned upload from another account, stored before this account's slot, isn't claimable either.
+    const orphan = await t.run(ctx => ctx.storage.store(new Blob(["someone else's file"], { type: "text/plain" })));
+    vi.advanceTimersByTime(1000);
+    const c = await account(t, "c@example.com");
+    await c.mutation(api.companyDocs.generateUploadUrl, {});
+    await expect(c.mutation(api.companyDocs.addDocument, { storageId: orphan, fileName: "orphan.txt" })).rejects.toThrow("The upload was not found");
   });
 });
 
@@ -96,6 +113,11 @@ describe("agreed rates", () => {
     await expect(a.mutation(api.agreedRates.saveAgreedRate, { rate: { kind: "discount", portId: "paradip", chargeType: "berth-hire", percent: "150" } })).rejects.toThrow("between 0 and 100");
     await expect(a.mutation(api.agreedRates.saveAgreedRate, { rate: { kind: "fixed", portId: "colombo", chargeType: "pilotage", amount: "1", currency: "USD" } })).rejects.toThrow("portId");
     expect(await b.query(api.agreedRates.listAgreedRates, {})).toEqual([]);
+    // Editing an agreement to another port replaces it rather than adding a second (Codex finding 9).
+    const [saved] = await a.query(api.agreedRates.listAgreedRates, {});
+    await a.mutation(api.agreedRates.saveAgreedRate, { id: saved!.id as never, rate: { kind: "discount", portId: "jnpa", chargeType: "berth-hire", percent: "10" } });
+    expect((await a.query(api.agreedRates.listAgreedRates, {})).map(rate => rate.portId)).toEqual(["jnpa"]);
+    await expect(b.mutation(api.agreedRates.saveAgreedRate, { id: saved!.id as never, rate: { kind: "discount", portId: "jnpa", chargeType: "berth-hire", percent: "1" } })).rejects.toThrow("Agreed rate not found");
   });
 
   it("show beside the published figures in an estimate", async () => {
@@ -114,6 +136,9 @@ describe("agreed rates", () => {
     ]);
     expect(Number(agreed.totals[0]!.amount)).toBeCloseTo(Number(result.totals[0]!.amount) - published["berth-hire"]! * 0.1 - published["pilotage-towage"]! + 20000, 6);
     expect(applyAgreedRates(result, [rates[2]!])).toBeUndefined();
+    // A fixed pilotage agreement doesn't add pilotage to a berth-hire-only estimate (Codex finding 6).
+    const berthOnly = estimate(paradip, { date: "2026-10-25", status: "foreign", vesselType: "bulk", grt: "30000", hours: "24", charges: ["berth-hire"] });
+    expect(applyAgreedRates(berthOnly, [rates[1]!])).toBeUndefined();
   });
 
   it("reach the chat: estimates and the company document search", async () => {

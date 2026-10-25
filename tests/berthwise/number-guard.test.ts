@@ -22,6 +22,12 @@ describe("number guard", () => {
     expect(unsupportedNumbers("Exactly USD 21,339.125.", [tool])).toEqual(["21339.125"]);
   });
 
+  it("never allows money or measurements without a source, however small", () => {
+    expect(unsupportedNumbers("Pilotage costs USD 2,000; berth depth is 12 metres.", [])).toEqual(["2000", "12"]);
+    expect(unsupportedNumbers("A minimum of ₹ 25 applies, and 15 GRT ships are exempt; draft 9 m.", [])).toEqual(["25", "15", "9"]);
+    expect(unsupportedNumbers("It needs 2 tugs, 3 movements and page 13 of the 2026 schedule, clause 14.", [])).toEqual([]);
+  });
+
   it("always allows small counts, days and years", () => {
     expect(unsupportedNumbers("2 tugs, 18 October 2026, inward and outward", [])).toEqual([]);
   });
