@@ -28,7 +28,13 @@ export type TariffComparisonCard = {
 };
 export type CoverageCard = { kind: "coverage"; date: string; ports: CoverageRow[] };
 
-export type BerthwiseCard = EstimateCard | ComparisonCard | TariffCard | TariffComparisonCard | CoverageCard;
+export type DocumentExcerpt = {
+  port: { id: string; name: string }; title: string; issuer: string; url: string; page: number;
+  kind: "tariff" | "rules"; publishedOn?: string; retrievedOn: string; excerpt: string;
+};
+export type DocumentExcerptsCard = { kind: "document-excerpts"; question: string; port?: { id: string; name: string }; results: DocumentExcerpt[] };
+
+export type BerthwiseCard = EstimateCard | ComparisonCard | TariffCard | TariffComparisonCard | CoverageCard | DocumentExcerptsCard;
 
 /** Charge types grouped the way people read a port bill. */
 export const CHARGE_GROUPS: Array<{ key: string; label: string; types: string[] }> = [

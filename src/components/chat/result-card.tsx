@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { ToolCard } from '@/lib/berthwise/cards'
 import {
-  CHARGE_GROUPS, type ComparisonCard, type ComparisonCell, type CoverageCard, type EstimateCall, type EstimateCard,
+  CHARGE_GROUPS, type ComparisonCard, type ComparisonCell, type CoverageCard, type DocumentExcerptsCard, type EstimateCall, type EstimateCard,
   type ShipView, type TariffCard, type TariffComparisonCard, type Total,
 } from '@/lib/berthwise/card-types'
 import type { TariffView } from '@/lib/berthwise/rulebook/describe'
@@ -22,6 +22,7 @@ export default function ResultCard({ card }: { card: ToolCard }) {
     case 'tariff': return <TariffCardView card={card as unknown as TariffCard} />
     case 'tariff-comparison': return <TariffComparisonView card={card as unknown as TariffComparisonCard} />
     case 'coverage': return <CoverageView card={card as unknown as CoverageCard} />
+    case 'document-excerpts': return <ExcerptsView card={card as unknown as DocumentExcerptsCard} />
     default: return null
   }
 }
@@ -435,6 +436,34 @@ function CoverageView({ card }: { card: CoverageCard }) {
           ))}
         </Disclosure>
       )}
+    </Frame>
+  )
+}
+
+/* ---------- Port document excerpts ---------- */
+
+function ExcerptsView({ card }: { card: DocumentExcerptsCard }) {
+  const title = card.port ? `From ${shortName(card.port.name)}'s documents` : 'From the port documents'
+  return (
+    <Frame label={title} title={title} meta={`Searched for “${card.question}”`}>
+      {card.results.length === 0
+        ? <p className="text-muted-foreground">Nothing in the documents we hold matches this.</p>
+        : (
+          <ul className="divide-y divide-border rounded-xl border border-border">
+            {card.results.map((hit, index) => (
+              <li key={index} className="space-y-1.5 px-4 py-3">
+                <p className="flex flex-wrap items-baseline justify-between gap-x-3">
+                  <span className="font-medium">{hit.title}</span>
+                  <span className="text-xs"><SourceLink source={{ title: hit.title, url: hit.url, page: String(hit.page) }} /></span>
+                </p>
+                <p className="text-xs leading-5 text-muted-foreground">{[!card.port && shortName(hit.port.name), hit.issuer, hit.publishedOn ? `dated ${day(hit.publishedOn)}` : `retrieved ${day(hit.retrievedOn)}`].filter(Boolean).join(' · ')}</p>
+                <Disclosure summary="Show the page text">
+                  <pre className="max-h-80 overflow-auto rounded-lg bg-muted p-3 text-xs leading-5 whitespace-pre-wrap text-foreground" tabIndex={0}>{hit.excerpt}</pre>
+                </Disclosure>
+              </li>
+            ))}
+          </ul>
+        )}
     </Frame>
   )
 }

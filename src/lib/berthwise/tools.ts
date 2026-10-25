@@ -5,7 +5,8 @@ import { z } from "zod";
 import { portBooks, resolvePort, type PortMatch } from "./rulebook/books";
 import { estimate, money, versionFor, type Estimate, type EstimateRequest } from "./rulebook/calculate";
 import { coverage, describeTariff, type TariffView } from "./rulebook/describe";
-import { CHARGE_GROUPS, type ComparisonCard, type CoverageCard, type EstimateCall, type EstimateCard, type TariffCard, type TariffComparisonCard } from "./card-types";
+import { CHARGE_GROUPS, type ComparisonCard, type CoverageCard, type DocumentExcerptsCard, type EstimateCall, type EstimateCard, type TariffCard, type TariffComparisonCard } from "./card-types";
+import { searchDocuments } from "./documents";
 import { chargeTypeSchema, statusSchema, vesselTypeSchema, type ChargeType, type PortBook } from "./rulebook/schema";
 
 /** Berthwise business tools. Each returns { card, summary }: the card is drawn on
@@ -246,6 +247,31 @@ export function businessTools(): ToolSet {
           + (view.changes ? `. Changes since ${view.changes.since.effectiveFrom}: ${view.changes.items.map(item => `${item.label}: ${item.before ?? "new"} -> ${item.after ?? "removed"}`).join("; ") || "none"}` : "");
         const card: TariffCard = { kind: "tariff", ...view };
         return { card, summary: summary.slice(0, 4000) };
+      },
+    }),
+
+    search_port_documents: tool({
+      description: "Search the ports' own documents (berth particulars, berthing policies, pilotage and navigation rules, arrival documents and declarations, working timings, and the rate schedules' conditions). Returns whole pages with their title, date and page number. Answer only from what they say, and cite the document and page.",
+      inputSchema: z.object({
+        question: z.string().min(2).max(300).describe("What to look for, in the document's likely words, e.g. 'permissible draft at berths' or 'documents required before arrival'."),
+        port: z.string().min(1).max(120).optional().describe("Port, terminal or berth as the user wrote it. Leave out to search every port."),
+        kind: z.enum(["rules", "tariff"]).optional().describe("rules: berths, rules and procedures. tariff: the rate schedules' wording. Leave out for both."),
+      }).strict(),
+      execute: async ({ question, port: name, kind }) => {
+        const found = name ? place({ port: name }) : undefined;
+        if (found && "error" in found) return { error: found.error };
+        const port = found && "match" in found ? found.match.port : undefined;
+        const names = new Map(portBooks().map(book => [book.id, book.name]));
+        const results = searchDocuments(question, { ...(port ? { port: port.id } : {}), ...(kind ? { kind } : {}) }).map(hit => ({
+          port: { id: hit.document.port, name: names.get(hit.document.port) ?? hit.document.port },
+          title: hit.document.title, issuer: hit.document.issuer, url: hit.document.url, page: hit.page, kind: hit.document.kind,
+          ...(hit.document.publishedOn ? { publishedOn: hit.document.publishedOn } : {}), retrievedOn: hit.document.retrievedOn, excerpt: hit.text,
+        }));
+        const card: DocumentExcerptsCard = { kind: "document-excerpts", question, ...(port ? { port: { id: port.id, name: port.name } } : {}), results };
+        const summary = results.length
+          ? `Document excerpts for "${question}"${port ? ` at ${port.name}` : ""}: ` + results.map((hit, i) => `[${i + 1}] ${hit.title} (${hit.port.name}${hit.publishedOn ? `, ${hit.publishedOn}` : ""}), page ${hit.page}: ${hit.excerpt.replace(/\s+/g, " ").slice(0, 600)}`).join(" ")
+          : `Nothing in our documents${port ? ` for ${port.name}` : ""} matches "${question}".`;
+        return { card, summary };
       },
     }),
 
