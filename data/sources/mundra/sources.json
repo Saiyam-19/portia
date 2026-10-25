@@ -22,6 +22,18 @@
       "sha256": "496cb605f53f84cc5c1b435e04777e16653ac8a3f98856ebdb341ea5824ddb93",
       "pages": 1,
       "pagesWithoutText": []
+    },
+    {
+      "file": "data/sources/mundra/fuel-surcharge-2022-05-24.pdf",
+      "title": "Mundra circular APSEZL/Marine/05/2022 introducing the fuel surcharge on pilotage, 24 May 2022",
+      "issuer": "Adani Ports and SEZ (Mundra)",
+      "url": "https://www.adaniports.com/-/media/Project/Ports/PortsAndTerminals/Mundra-Documents/Trade-Notices/Trade-notice-052022-Fuel-Surcharge-due-to-hike-in-the-fuel-prices.pdf",
+      "retrievedOn": "2026-10-25",
+      "publishedOn": "2022-05-24",
+      "markdown": "data/sources/mundra/fuel-surcharge-2022-05-24.md",
+      "sha256": "83dfbd510c965ff12c81862d8807bf242cc0bec261529f2c09690cad0fc34404",
+      "pages": 2,
+      "pagesWithoutText": []
     }
   ]
 }

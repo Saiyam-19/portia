@@ -87,7 +87,7 @@ describe("compare_ports", () => {
 describe("port_tariff and list_ports", () => {
   it("shows what changed since the previous schedule", async () => {
     const result = await run("port_tariff", { port: "Paradip", date, vesselType: "bulk", status: "foreign" });
-    expect(result.card.version.effectiveFrom).toBe("2026-10-11");
+    expect(result.card.version.effectiveFrom).toBe("2026-10-10");
     expect(result.card.changes.since.effectiveFrom).toBe("2026-05-01");
     expect(result.card.changes.items.map((item: { label: string }) => item.label)).toContain("Port dues");
   });

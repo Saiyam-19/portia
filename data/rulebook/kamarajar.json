@@ -737,7 +737,7 @@
           }
         },
         {
-          "text": "Dry bulk ships at anchorage pay nothing for the first 48 hours, then per GT: Rs. 0.023 / US$ 0.001 from 49 to 96 hours, Rs. 0.046 / US$ 0.002 from 97 to 144 hours and Rs. 0.092 / US$ 0.004 beyond 144 hours. The table doesn't say whether this is per hour or for the whole period, so anchorage is not priced.",
+          "text": "Dry bulk ships at anchorage pay nothing for the first 48 hours, then per GT: Rs. 0.023 / US$ 0.001 from 49 to 96 hours, Rs. 0.046 / US$ 0.002 from 97 to 144 hours and Rs. 0.092 / US$ 0.004 beyond 144 hours. The Scale of Rates doesn't say 'per hour'; Trade Notice 6 of 21 May 2016, which introduced these slabs, is reported to say 'per GRT per hour or part thereof', but the port's website refused downloads on 25 October 2026, so anchorage is not priced until it is checked.",
           "source": {
             "document": "sor-consolidated",
             "page": 8,

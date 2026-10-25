@@ -15,7 +15,7 @@
   "versions": [
     {
       "id": "chennai-sor-2026",
-      "effectiveFrom": "2026-07-11",
+      "effectiveFrom": "2026-07-10",
       "effectiveTo": "2027-04-30",
       "documents": [
         {
@@ -914,11 +914,7 @@
       ],
       "notes": [
         {
-          "text": "Notified in the Tamil Nadu Government Gazette of 10 June 2026 and in force 'after expiry of 30 days from the date of notification', so entered as effective from 11 July 2026; subject to annual indexation from 1 May.",
-          "source": {
-            "document": "tn-gazette-2026-sor",
-            "page": 2
-          }
+          "text": "Notified in the Tamil Nadu Government Gazette of 10 June 2026 and in force 'after expiry of 30 days from the date of notification' (clause 2.9 of the Tariff Policy 2021). The port has not published a start date; Paradip Port reads the same clause as day 30 (10 September to 10 October 2026), so this is entered from 10 July 2026. Subject to annual indexation from 1 May."
         },
         {
           "text": "Pilotage rates are per GRT by size band, with no statement that they apply incrementally, so the whole tonnage is charged at its band's rate.",
@@ -958,9 +954,6 @@
             "page": 16,
             "section": "2.3.5"
           }
-        },
-        {
-          "text": "A second reading counted the 30 days to 10 July 2026. Calls on 10 July 2026 may fall under either schedule."
         }
       ]
     }

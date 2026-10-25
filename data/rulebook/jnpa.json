@@ -403,6 +403,7 @@
                 "terminals": [
                   "gti",
                   "nsict",
+                  "nsft",
                   "jsw-jnpt-liquid"
                 ]
               },
@@ -421,6 +422,7 @@
                 "terminals": [
                   "gti",
                   "nsict",
+                  "nsft",
                   "jsw-jnpt-liquid"
                 ]
               },
@@ -608,7 +610,7 @@
           }
         },
         {
-          "text": "NSIGT and BMCT charge their own berth hire in rupees (also for foreign ships). The NSFT tariff does not mention berth hire at all, so berth hire at NSFT is not priced; if JNPA charges it there, JNPA's all-berths rate (US$ 0.0053 / Rs. 0.1309 per GRT per hour) would apply."
+          "text": "NSIGT and BMCT charge their own berth hire in rupees (also for foreign ships). NSFT's tariff covers container handling only and has no ship charges (no port dues, pilotage or berth hire), so, as at GTI and NSICT, JNPA's all-berths berth hire is applied at NSFT."
         }
       ]
     }

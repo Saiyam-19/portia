@@ -81,6 +81,17 @@
           "markdown": "data/sources/mundra/fuel-surcharge-2026-10-01.md",
           "sha256": "496cb605f53f84cc5c1b435e04777e16653ac8a3f98856ebdb341ea5824ddb93",
           "retrievedOn": "2026-10-25"
+        },
+        {
+          "id": "fuel-surcharge-2022-05-24",
+          "title": "Mundra circular APSEZL/Marine/05/2022 introducing the fuel surcharge on pilotage, 24 May 2022",
+          "issuer": "Adani Ports and SEZ (Mundra)",
+          "url": "https://www.adaniports.com/-/media/Project/Ports/PortsAndTerminals/Mundra-Documents/Trade-Notices/Trade-notice-052022-Fuel-Surcharge-due-to-hike-in-the-fuel-prices.pdf",
+          "file": "data/sources/mundra/fuel-surcharge-2022-05-24.pdf",
+          "markdown": "data/sources/mundra/fuel-surcharge-2022-05-24.md",
+          "sha256": "83dfbd510c965ff12c81862d8807bf242cc0bec261529f2c09690cad0fc34404",
+          "publishedOn": "2022-05-24",
+          "retrievedOn": "2026-10-25"
         }
       ],
       "defaults": {
@@ -272,7 +283,8 @@
             }
           ],
           "conditions": [
-            "Changes with fuel prices, usually twice a month; this is the rate from 1 October 2026."
+            "Changes with fuel prices, usually twice a month; this is the rate from 1 October 2026.",
+            "Charged on every ship calling at Mundra, LNG carriers included (circular of 24 May 2022)."
           ],
           "source": {
             "document": "fuel-surcharge-2026-10-01",
@@ -592,6 +604,13 @@
           "source": {
             "document": "bpts-2026-06-15",
             "page": 31
+          }
+        },
+        {
+          "text": "The circular that introduced the fuel surcharge applies it 'for all the vessel coming at Mundra port', so LNG carriers pay it too. (Hazira's tariff, by contrast, exempts LNG ships.)",
+          "source": {
+            "document": "fuel-surcharge-2022-05-24",
+            "page": 1
           }
         }
       ]

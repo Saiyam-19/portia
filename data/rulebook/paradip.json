@@ -15,7 +15,7 @@
     {
       "id": "paradip-indexed-2026-27",
       "effectiveFrom": "2026-05-01",
-      "effectiveTo": "2026-10-10",
+      "effectiveTo": "2026-10-09",
       "documents": [
         {
           "id": "sor-indexed-2026-27",
@@ -210,11 +210,7 @@
       ],
       "notes": [
         {
-          "text": "This indexed schedule (0.65% indexation from 1 May 2026) is replaced by the new Scale of Rates published in the Odisha Gazette on 10 September 2026; it is entered as ending on 10 October 2026.",
-          "source": {
-            "document": "sor-indexed-2026-27",
-            "page": 1
-          }
+          "text": "This indexed schedule (0.65% indexation from 1 May 2026) is replaced by the new Scale of Rates from 10 October 2026, so it is entered as ending on 9 October 2026."
         },
         {
           "text": "The 'Above 75,000 GRT' pilotage row is split across lines in the document; it is read as US$ 45,025.50 + US$ 0.3575 per GRT over 75,000 GRT, which matches the earlier bands.",
@@ -243,7 +239,7 @@
     },
     {
       "id": "paradip-sor-2026",
-      "effectiveFrom": "2026-10-11",
+      "effectiveFrom": "2026-10-10",
       "documents": [
         {
           "id": "sor-2026-new-18092026",
@@ -444,11 +440,7 @@
       ],
       "notes": [
         {
-          "text": "The new Scale of Rates was notified in the Odisha Gazette (No. 4210) on 10 September 2026 and takes effect 'after 30 days from notification in State Gazette'. Counting 30 days from 10 September, it is entered as effective from 11 October 2026.",
-          "source": {
-            "document": "sor-2026-new-18092026",
-            "page": 4
-          }
+          "text": "The new Scale of Rates was notified in the Odisha Gazette (No. 4210) on 10 September 2026 to take effect 'after 30 days from notification'. Paradip Port's own tariff page lists it as 'Scale of Rate w.e.f. 10/10/2026' (paradipport.gov.in, checked 25 October 2026), so it is entered from 10 October 2026."
         },
         {
           "text": "The pilotage minimum (US$ 858 / Rs. 21,110) is stated for the first band; it is applied to the whole charge, which makes no difference above 30,000 GRT.",
@@ -480,9 +472,6 @@
             "page": 29,
             "section": "2.6"
           }
-        },
-        {
-          "text": "A second reading counted the 30 days to 10 October 2026. Calls on 10 October 2026 may fall under either schedule."
         }
       ]
     }
