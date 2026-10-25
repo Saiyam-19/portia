@@ -95,8 +95,11 @@ export function estimate(port: PortBook, request: EstimateRequest, today = new D
     if (selected.some(charge => charge.type === type)) continue;
     const cover = selected.find(charge => charge.includes.includes(type));
     if (cover) { assumptions.push(`${title(type)} is included in ${cover.label.toLowerCase()}.`); continue; }
-    const unfit = version.charges.filter(charge => charge.type === type);
-    if (!unfit.length) { notCovered.push({ type, reason: `${title(type)} isn't in the ${port.name} rate schedule we hold.` }); continue; }
+    const ofType = version.charges.filter(charge => charge.type === type);
+    if (!ofType.length) { notCovered.push({ type, reason: `${title(type)} isn't in the ${port.name} rate schedule we hold.` }); continue; }
+    // A charge for another terminal or berth (e.g. Vadinar's buoy mooring at Kandla) says nothing about this call.
+    const unfit = ofType.filter(charge => charge.rates.some(rate => atPlace(rate, known)));
+    if (!unfit.length) continue;
     // e.g. an LNG terminal's own pilotage replaces the port's pilotage with tugs.
     const replaced = unfit.every(charge => selected.some(other => parts(other).some(part => parts(charge).includes(part))));
     if (!replaced) notCovered.push({ type, reason: `${unfit[0]!.label} has no rate for a ${status} ${vesselType.replace("-", " ")} ship in this schedule.` });
@@ -147,6 +150,9 @@ function nameOf(port: PortBook, id: string) {
 const timeBased = (charge: Charge) => ["grt-hour", "grt-day", "loa-hour", "loa-day", "hour"].includes(charge.basis);
 
 type Known = { status: Status; vesselType: VesselType; terminal?: string; berth?: string; cargoClass?: string };
+const atPlace = (rate: Charge["rates"][number], known: Known) =>
+  (!rate.when.terminals || known.terminal === undefined || rate.when.terminals.includes(known.terminal))
+  && (!rate.when.berths || known.berth === undefined || rate.when.berths.includes(known.berth));
 function pickRate(charge: Charge, known: Known): { rate?: Charge["rates"][number]; question?: (port: PortBook) => string } {
   const undecided = new Set<"terminal" | "berth" | "cargoClass">();
   const matches = charge.rates.filter(rate => {

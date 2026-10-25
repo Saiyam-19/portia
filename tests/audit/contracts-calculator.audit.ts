@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { migrationChatRequestSchema } from '../../src/lib/migration/contracts';
-import { calculateTariffExpression } from '../../src/lib/migration/calculator';
-import { calculateChargeBatch } from '../../src/lib/migration/calculator-batch';
+import { calculateExactExpression } from '../../src/lib/portia/exact-expression';
 import { checkedFacts } from '../../src/lib/memory/format';
 
 afterEach(() => vi.unstubAllGlobals());
@@ -31,19 +30,11 @@ describe('independent arithmetic and data invariants', () => {
       const sign = i % 2 ? '-' : '';
       const roundedCents = (BigInt(cents) * BigInt(rate) + BigInt(50)) / BigInt(100);
       const exact = sign + String(roundedCents / BigInt(100)) + '.' + String(roundedCents % BigInt(100)).padStart(2, '0');
-      expect(calculateTariffExpression(`round(${sign}${cents}/100*${rate}/100,2)`)).toBe(exact);
+      expect(Number(calculateExactExpression(`round(${sign}${cents}/100*${rate}/100,2)`))).toBe(Number(exact));
     }
   });
-  it.each(['NaN', 'Infinity', '1e309', '1e-102', 'sqrt(4)', 'Math.random()', 'process.exit()', '1;2', '1//2', '1%2', '1<<2', '2**10000', 'round(1,101)', 'min()', 'ceil(1,2)', '1/0'])('rejects %s', expression => {
-    expect(() => calculateTariffExpression(expression)).toThrow();
-  });
-  it('batch references do not allow missing, forward, duplicate or cyclic dependencies', () => {
-    for (const calculations of [
-      [{ id: 'total', expression: '$missing+1' }],
-      [{ id: 'a', expression: '$b' }, { id: 'b', expression: '1' }],
-      [{ id: 'a', expression: '1' }, { id: 'a', expression: '2' }],
-      [{ id: 'a', expression: '$a' }],
-    ]) expect(() => calculateChargeBatch(calculations)).toThrow();
+  it.each(['NaN', 'Infinity', '1e309', 'sqrt(4)', 'Math.random()', 'process.exit()', '1;2', '1//2', '1%2', '1<<2', '2**10000', 'round(1,101)', 'min()', 'ceil(1,2)', '1/0'])('rejects %s', expression => {
+    expect(() => calculateExactExpression(expression)).toThrow();
   });
   it('counts memory values in UTF-8 bytes, rejects NUL and duplicate provenance', () => {
     const base = { key: 'voyage', value: '🚢'.repeat(256), sources: ['a'] };

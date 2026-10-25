@@ -1,8 +1,0 @@
-{
-  "version": 1,
-  "status": "scoped-rule-explanation-approved",
-  "sourceReviewSha256": "f978edb79d36742b07162cd2cfc81e678e36bd630666209a8001e3327046a928",
-  "reviewedOn": "2026-10-15",
-  "scope": "Bounded dated rule explanation only; no complete quote or current-call applicability approval. Original review retained in docs/portia-reliability/source-approvals.",
-  "conditions": "All unresolved conditions in the reviewed explanation remain pending."
-}
