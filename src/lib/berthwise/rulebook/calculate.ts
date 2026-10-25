@@ -107,10 +107,18 @@ export function estimate(port: PortBook, request: EstimateRequest, today = new D
 
   const asked = new Set<string>();
   const ask = (question: string) => { if (!asked.has(question)) { asked.add(question); questions.push(question); } };
-  for (const charge of selected) {
+  // A percentage of other charges (e.g. a surcharge on port dues) is priced once those are.
+  const ordered = [...selected.filter(charge => charge.basis !== "percent"), ...selected.filter(charge => charge.basis === "percent")];
+  for (const charge of ordered) {
     const row = pickRate(charge, known);
     if (row.question) { ask(row.question(port)); continue; }
     if (!row.rate) { notCovered.push({ type: charge.type, reason: `${charge.label} has no rate for a ${status} ${vesselType.replace("-", " ")} ship in this schedule.` }); continue; }
+    if (charge.basis === "percent") {
+      const rate = row.rate;
+      const base = lines.filter(line => charge.percentOf?.includes(line.chargeId) && line.currency === rate.currency);
+      if (base.length) lines.push(percentLine(charge, rate, version, base));
+      continue;
+    }
     const perUnit = !["call", "hour"].includes(charge.basis);
     const sizeKey = charge.bandOn ?? SIZE[charge.basis]!;
     const needs = new Set<string>();
@@ -155,10 +163,12 @@ const atPlace = (rate: Charge["rates"][number], known: Known) =>
   && (!rate.when.berths || known.berth === undefined || rate.when.berths.includes(known.berth));
 function pickRate(charge: Charge, known: Known): { rate?: Charge["rates"][number]; question?: (port: PortBook) => string } {
   const undecided = new Set<"terminal" | "berth" | "cargoClass">();
+  // A VLCC is a tanker wherever the charge has no VLCC rate of its own.
+  const vesselType = known.vesselType === "vlcc" && !charge.rates.some(rate => rate.when.vesselTypes?.includes("vlcc")) ? "tanker" : known.vesselType;
   const matches = charge.rates.filter(rate => {
     const w = rate.when;
     if (w.status && !w.status.includes(known.status)) return false;
-    if (w.vesselTypes && !w.vesselTypes.includes(known.vesselType)) return false;
+    if (w.vesselTypes && !w.vesselTypes.includes(vesselType)) return false;
     for (const [field, list] of [["terminal", w.terminals], ["berth", w.berths], ["cargoClass", w.cargoClasses]] as const) {
       if (!list) continue;
       const value = known[field];
@@ -202,6 +212,21 @@ function minimumUnits(charge: Charge, per: "hour" | "day", hours: Decimal) {
   const charged = Decimal.max(hours.minus(charge.freeHours ?? 0), 0);
   if (per === "day") return charged.div(24).ceil();
   return charge.timeRounding === "started-hour" ? charged.ceil() : charged;
+}
+
+function percentLine(charge: Charge, rate: Charge["rates"][number], version: RuleVersion, base: EstimateLine[]): EstimateLine {
+  const c = rate.currency;
+  const of = base.reduce((sum, line) => sum.plus(line.amount), new D(0));
+  let amount = of.mul(rate.bands[0]!.rate).div(100);
+  const steps = [`${rate.bands[0]!.rate}% of ${base.map(line => line.label.toLowerCase()).join(" and ")} (${c} ${money(of, c)})`];
+  if (rate.minimumAmount && amount.lt(rate.minimumAmount)) { amount = new D(rate.minimumAmount); steps.push(`minimum charge ${c} ${rate.minimumAmount} applies`); }
+  if (rate.maximumAmount && amount.gt(rate.maximumAmount)) { amount = new D(rate.maximumAmount); steps.push(`capped at ${c} ${rate.maximumAmount}`); }
+  const document = version.documents.find(item => item.id === charge.source.document) ?? version.documents[0]!;
+  return {
+    chargeId: charge.id, type: charge.type, label: charge.label, currency: c, amount: amount.toString(), display: money(amount, c),
+    working: steps.join("; "), conditions: charge.conditions,
+    source: { title: document.title, url: document.url, page: String(charge.source.page), ...(charge.source.section ? { section: charge.source.section } : {}) },
+  };
 }
 
 function priceLine(charge: Charge, rate: Charge["rates"][number], version: RuleVersion, sizes: Record<string, string | undefined>, counts: { movements: number; tugs?: number }): EstimateLine {

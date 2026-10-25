@@ -55,6 +55,8 @@ function problems(file: string): string[] {
       const figures = [...charge.rates.flatMap(rate => [...rate.bands.flatMap(band => [band.rate, ...(band.base ? [band.base] : []), ...(band.minimumAmount ? [band.minimumAmount] : [])]), ...(rate.minimumAmount ? [rate.minimumAmount] : []), ...(rate.maximumAmount ? [rate.maximumAmount] : [])])];
       // A zero rate stands for a printed "lump sum" band whose minimum is the charge.
       for (const figure of figures) if (Number(figure) !== 0 && !inQuote.some(found => sameNumber(found, figure))) issues.push(`${at}: figure ${figure} is not in its quote`);
+      if ((charge.basis === "percent") !== Boolean(charge.percentOf)) issues.push(`${at}: basis "percent" and percentOf go together`);
+      for (const id of charge.percentOf ?? []) if (!version.charges.some(other => other.id === id && other.basis !== "percent")) issues.push(`${at}: percentOf ${id} is not a charge in this version`);
       for (const rate of charge.rates) {
         const limits = rate.bands.map(band => band.upTo);
         if (limits.slice(0, -1).some(limit => limit === undefined)) issues.push(`${at}: only the last band may omit upTo`);

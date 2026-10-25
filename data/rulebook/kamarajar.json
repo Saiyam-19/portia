@@ -10,7 +10,19 @@
     "KPL",
     "Kamarajar Port Limited"
   ],
-  "terminals": [],
+  "terminals": [
+    {
+      "id": "aectpl",
+      "name": "Adani Ennore Container Terminal (AECTPL)",
+      "aliases": [
+        "AECTPL",
+        "Adani Ennore Container Terminal",
+        "Ennore container terminal"
+      ],
+      "operator": "Adani Ennore Container Terminal Pvt Ltd",
+      "berths": []
+    }
+  ],
   "checkedOn": "2026-10-25",
   "versions": [
     {
@@ -742,6 +754,802 @@
             "document": "sor-consolidated",
             "page": 8,
             "section": "5"
+          }
+        }
+      ],
+      "effectiveTo": "2026-03-31"
+    },
+    {
+      "id": "kamarajar-sor-with-aectpl-2026-27",
+      "effectiveFrom": "2026-04-01",
+      "documents": [
+        {
+          "id": "sor-consolidated",
+          "title": "Kamarajar Port Limited Scale of Rates (consolidated with amendments)",
+          "issuer": "Kamarajar Port Limited",
+          "url": "https://www.kamarajarport.in/storage/app/public/scale_of_rates/rTphsHaUdS8DIST5zbB5GNi4fo4V0goUQOOeKUde.pdf",
+          "file": "data/sources/kamarajar/sor-consolidated.pdf",
+          "markdown": "data/sources/kamarajar/sor-consolidated.md",
+          "sha256": "d2f1e65cad478c1c2dfb1c423f7e32bad015d77003393233e0224c279beab0ae",
+          "retrievedOn": "2026-10-25"
+        },
+        {
+          "id": "sor-annex-2",
+          "title": "Kamarajar Port Limited scale of rates annex (second file on the Scale of Rates page)",
+          "issuer": "Kamarajar Port Limited",
+          "url": "https://www.kamarajarport.in/storage/app/public/scale_of_rates/TRk8mzphjxfdjmP67QEsPI5eGA98IDGnL32of6op.pdf",
+          "file": "data/sources/kamarajar/sor-annex-2.pdf",
+          "markdown": "data/sources/kamarajar/sor-annex-2.md",
+          "sha256": "67ccef39c53ac157bca094f4dd44f5d37777e12400d9971d48cb96acdc19d217",
+          "retrievedOn": "2026-10-25"
+        },
+        {
+          "id": "sor-annex-3",
+          "title": "Kamarajar Port Limited scale of rates annex (third file on the Scale of Rates page)",
+          "issuer": "Kamarajar Port Limited",
+          "url": "https://www.kamarajarport.in/storage/app/public/scale_of_rates/s49gIjpJ45QY95o6skCtNvegb2Sm4oX6LKsitTWk.pdf",
+          "file": "data/sources/kamarajar/sor-annex-3.pdf",
+          "markdown": "data/sources/kamarajar/sor-annex-3.md",
+          "sha256": "1bda53a5fc938743b2674d946a1153afe072680f78b510443c40548deef19c2b",
+          "retrievedOn": "2026-10-25"
+        },
+        {
+          "id": "aectpl-reference-tariff-2026-27",
+          "title": "Container Terminal - Reference Tariff for the year 2026-27",
+          "issuer": "Kamarajar Port Limited; published by Adani Ennore Container Terminal Private Limited",
+          "url": "https://www.adaniports.com/-/media/project/ports/portsandterminals/ennore-terminal/tariff/lr-279-aectpl-reference-tariff-for-the-fy-2026-27-10032026.pdf",
+          "file": "data/sources/kamarajar/rules/aectpl-reference-tariff-2026-27.pdf",
+          "markdown": "data/sources/kamarajar/rules/aectpl-reference-tariff-2026-27.md",
+          "sha256": "41324a62a69a26f81a114fd2511dffddb545389ea14b8d4b84604ffa9a39a8b4",
+          "publishedOn": "2026-03-10",
+          "retrievedOn": "2026-10-25"
+        }
+      ],
+      "defaults": {
+        "status": "foreign",
+        "vesselType": "bulk",
+        "movements": 2
+      },
+      "exchangeRate": "All US dollar denominated tariff will be recovered in Indian Rupees after conversion of charges in US dollar terms into its equivalent Indian Rupees at the Reference rate notified by the Reserve Bank of India or the market buying rate notified by State Bank of India as may be specified from time to time whichever is higher on date of arrival of the vessel.",
+      "charges": [
+        {
+          "id": "port-dues",
+          "type": "port-dues",
+          "label": "Port dues",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "bulk"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.424"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "bulk"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "12.37"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "tanker",
+                  "lng",
+                  "lpg",
+                  "chemical"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.424"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "tanker",
+                  "lng",
+                  "lpg",
+                  "chemical"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "12.37"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "ro-ro"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.339"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "ro-ro"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "9.90"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.3180"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "8.4138"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "general-cargo",
+                  "passenger",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.339"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "general-cargo",
+                  "passenger",
+                  "other"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "9.90"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Foreign ships pay on each entry; coastal ships pay once in 30 days, valid for three entries.",
+            "Half rate for ships calling only for provisions, water or bunkers; 75% in ballast leaving laden; 50% with no cargo work."
+          ],
+          "source": {
+            "document": "sor-consolidated",
+            "page": 4,
+            "section": "II.2",
+            "quote": [
+              "|1|Dry Bulk Vessels|12.37|0.424|",
+              "|2|Liquid Bulk Vessels|12.37|0.424|",
+              "|3|Pure CarCarrier Vessels|9.90|0.339|",
+              "|4|Container Vessels|8.4138|0.3180|",
+              "|5|Break Bulk & Other Vessels|9.90|0.339|"
+            ]
+          }
+        },
+        {
+          "id": "pilotage-towage",
+          "type": "pilotage-towage",
+          "label": "Pilotage and towage",
+          "basis": "grt",
+          "includes": [
+            "pilotage",
+            "towage",
+            "mooring"
+          ],
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "bulk"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "whole",
+              "minimumAmount": "1200",
+              "bands": [
+                {
+                  "upTo": "15000",
+                  "rate": "0.558"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "0.590"
+                },
+                {
+                  "upTo": "60000",
+                  "rate": "0.623"
+                },
+                {
+                  "rate": "0.656"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "bulk"
+                ]
+              },
+              "currency": "INR",
+              "bandMode": "whole",
+              "minimumAmount": "46800",
+              "bands": [
+                {
+                  "upTo": "15000",
+                  "rate": "16.18"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "17.14"
+                },
+                {
+                  "upTo": "60000",
+                  "rate": "18.09"
+                },
+                {
+                  "rate": "19.04"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "tanker",
+                  "lng",
+                  "lpg",
+                  "chemical"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "whole",
+              "minimumAmount": "1200",
+              "bands": [
+                {
+                  "upTo": "15000",
+                  "rate": "0.558"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "0.590"
+                },
+                {
+                  "upTo": "60000",
+                  "rate": "0.623"
+                },
+                {
+                  "rate": "0.656"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "tanker",
+                  "lng",
+                  "lpg",
+                  "chemical"
+                ]
+              },
+              "currency": "INR",
+              "bandMode": "whole",
+              "minimumAmount": "46800",
+              "bands": [
+                {
+                  "upTo": "15000",
+                  "rate": "16.18"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "17.14"
+                },
+                {
+                  "upTo": "60000",
+                  "rate": "18.09"
+                },
+                {
+                  "rate": "19.04"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "ro-ro"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "whole",
+              "minimumAmount": "960",
+              "bands": [
+                {
+                  "upTo": "15000",
+                  "rate": "0.446"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "0.473"
+                },
+                {
+                  "upTo": "60000",
+                  "rate": "0.499"
+                },
+                {
+                  "rate": "0.525"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "ro-ro"
+                ]
+              },
+              "currency": "INR",
+              "bandMode": "whole",
+              "minimumAmount": "37440",
+              "bands": [
+                {
+                  "upTo": "15000",
+                  "rate": "12.95"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "13.71"
+                },
+                {
+                  "upTo": "60000",
+                  "rate": "14.47"
+                },
+                {
+                  "rate": "15.23"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "general-cargo",
+                  "passenger",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "whole",
+              "minimumAmount": "960",
+              "bands": [
+                {
+                  "upTo": "15000",
+                  "rate": "0.446"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "0.473"
+                },
+                {
+                  "upTo": "60000",
+                  "rate": "0.499"
+                },
+                {
+                  "rate": "0.525"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "general-cargo",
+                  "passenger",
+                  "other"
+                ]
+              },
+              "currency": "INR",
+              "bandMode": "whole",
+              "minimumAmount": "37440",
+              "bands": [
+                {
+                  "upTo": "15000",
+                  "rate": "12.95"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "13.71"
+                },
+                {
+                  "upTo": "60000",
+                  "rate": "14.47"
+                },
+                {
+                  "rate": "15.23"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "whole",
+              "minimumAmount": "1200",
+              "bands": [
+                {
+                  "upTo": "10000",
+                  "rate": "0.4202"
+                },
+                {
+                  "upTo": "15000",
+                  "rate": "0.4817"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "0.5547"
+                },
+                {
+                  "upTo": "60000",
+                  "rate": "0.7882"
+                },
+                {
+                  "rate": "0.9123"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "INR",
+              "bandMode": "whole",
+              "minimumAmount": "46800",
+              "bands": [
+                {
+                  "upTo": "10000",
+                  "rate": "11.1037"
+                },
+                {
+                  "upTo": "15000",
+                  "rate": "12.7406"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "14.6694"
+                },
+                {
+                  "upTo": "60000",
+                  "rate": "20.8207"
+                },
+                {
+                  "rate": "24.1049"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Includes the port's pilot, the required tugs and launches, and mooring crew for one inward and one outward movement.",
+            "Cold moves cost double."
+          ],
+          "source": {
+            "document": "sor-consolidated",
+            "page": 6,
+            "section": "II.3",
+            "quote": [
+              "|Up to<br>10,000|-|-|-|-|-|-|11.1037|0.4202|-|-|",
+              "|10,001 –<br>15,000|-|-|-|-|-|-|12.7406|0.4817|-|-|",
+              "|Up to<br>15,000|16.18|0.558|16.18|0.558|12.95|0.446|-|-|12.95|0.446|",
+              "|15,001 –<br>30,000|17.14|0.590|17.14|0.590|13.71|0.473|14.6694|0.5547|13.71|0.473|",
+              "|30,001 to<br>60,000|18.09|0.623|18.09|0.623|14.47|0.499|20.8207|0.7882|14.47|0.499|",
+              "|60,001 &<br>above|19.04|0.656|19.04|0.656|15.23|0.525|24.1049|0.9123|15.23|0.525|",
+              "|Minimum<br>charges|46,800|1,200|46,800|1,200|37,440|960|46,800|1,200|37,440|960|"
+            ]
+          }
+        },
+        {
+          "id": "berth-hire",
+          "type": "berth-hire",
+          "label": "Berth hire",
+          "basis": "grt-hour",
+          "timeRounding": "started-hour",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "bulk",
+                  "tanker",
+                  "lng",
+                  "lpg",
+                  "chemical"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.010"
+                }
+              ],
+              "minimumAmount": "10.8",
+              "minimumPer": "hour"
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "bulk",
+                  "tanker",
+                  "lng",
+                  "lpg",
+                  "chemical"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "0.22"
+                }
+              ],
+              "minimumAmount": "296",
+              "minimumPer": "hour"
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "ro-ro",
+                  "general-cargo",
+                  "passenger",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.008"
+                }
+              ],
+              "minimumAmount": "8.64",
+              "minimumPer": "hour"
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "ro-ro",
+                  "general-cargo",
+                  "passenger",
+                  "other"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "0.18"
+                }
+              ],
+              "minimumAmount": "237",
+              "minimumPer": "hour"
+            }
+          ],
+          "conditions": [
+            "A minimum per hour applies (US$ 10.80 or 8.64 foreign; Rs. 296 or 237 coastal).",
+            "Berth hire stops 2 hours after the ship is ready to sail if it cannot sail for port reasons."
+          ],
+          "source": {
+            "document": "sor-consolidated",
+            "page": 7,
+            "section": "II.4",
+            "quote": [
+              "|0.22|0.18|0.010|0.008|",
+              "|296/-per hour|237/-per hour|10.8 per hour|8.64 per hour|"
+            ]
+          }
+        },
+        {
+          "id": "berth-hire-aectpl",
+          "type": "berth-hire",
+          "label": "Berth hire (Adani Ennore Container Terminal)",
+          "basis": "grt-hour",
+          "timeRounding": "started-hour",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.0204"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "0.7619"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Container ships berth at the Adani Ennore Container Terminal; this is its reference tariff for 1 April 2026 to 31 March 2027.",
+            "Charged per GT per hour or part thereof; stops 2 hours after the ship is ready to sail if the terminal or port keeps it alongside."
+          ],
+          "source": {
+            "document": "aectpl-reference-tariff-2026-27",
+            "page": 22,
+            "section": "Chapter III",
+            "quote": "| Any volume of GT | 0.0204 | 0.7619 |"
+          }
+        }
+      ],
+      "notes": [
+        {
+          "text": "Kamarajar Port Limited's consolidated Scale of Rates has no overall effective date; the latest amendment to vessel-related charges is for container vessels from 4 June 2019, and the latest amendment of any kind is from July 2025. No 2026 revision was found, so these rates may be out of date.",
+          "source": {
+            "document": "sor-consolidated",
+            "page": 1
+          }
+        },
+        {
+          "text": "Pilotage rates are per GT by size band with no statement that they apply incrementally, so the whole tonnage is charged at its band's rate.",
+          "source": {
+            "document": "sor-consolidated",
+            "page": 6
+          }
+        },
+        {
+          "text": "The two one-page annexes (coastal cars, granite blocks) are cargo promotions and are not entered.",
+          "source": {
+            "document": "sor-annex-2",
+            "page": 1
+          }
+        },
+        {
+          "text": "Dry bulk ships at anchorage pay nothing for the first 48 hours, then per GT: Rs. 0.023 / US$ 0.001 from 49 to 96 hours, Rs. 0.046 / US$ 0.002 from 97 to 144 hours and Rs. 0.092 / US$ 0.004 beyond 144 hours. The Scale of Rates doesn't say 'per hour'; Trade Notice 6 of 21 May 2016, which introduced these slabs, is reported to say 'per GRT per hour or part thereof', but the port's website refused downloads on 25 October 2026, so anchorage is not priced until it is checked.",
+          "source": {
+            "document": "sor-consolidated",
+            "page": 8,
+            "section": "5"
+          }
+        },
+        {
+          "text": "Container ships are charged berth hire at the Adani Ennore Container Terminal's reference tariff (US$ 0.0204 / Rs. 0.7619 per GT per hour or part thereof), valid 1 April 2026 to 31 March 2027. A reference tariff is the ceiling the terminal publishes under its concession; it may charge less.",
+          "source": {
+            "document": "aectpl-reference-tariff-2026-27",
+            "page": 22
           }
         }
       ]

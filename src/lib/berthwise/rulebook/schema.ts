@@ -9,7 +9,8 @@ const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD.");
 const id = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase words joined by hyphens.");
 
 export const statusSchema = z.enum(["foreign", "coastal"]);
-export const vesselTypeSchema = z.enum(["general-cargo", "bulk", "container", "tanker", "lng", "lpg", "chemical", "passenger", "ro-ro", "other"]);
+/** "vlcc" (very large crude carrier) is priced as a tanker wherever a charge has no VLCC rate of its own. */
+export const vesselTypeSchema = z.enum(["general-cargo", "bulk", "container", "tanker", "vlcc", "lng", "lpg", "chemical", "passenger", "ro-ro", "other"]);
 export const chargeTypeSchema = z.enum(["port-dues", "pilotage", "towage", "pilotage-towage", "berth-hire", "mooring", "anchorage", "wharfage", "other"]);
 export const currencySchema = z.enum(["INR", "USD"]);
 
@@ -25,6 +26,7 @@ export const basisSchema = z.enum([
   "hour",       // the rate is a fixed amount per hour alongside
   "tonne",      // rate × cargo tonnes
   "teu",        // rate × twenty-foot equivalent units
+  "percent",    // the rate is a percentage of the charges listed in percentOf
 ]);
 
 export const sourceRefSchema = z.object({
@@ -74,6 +76,7 @@ export const chargeSchema = z.object({
   freeHours: decimal.optional().describe("Hours at the start of the stay that are not charged."),
   minimumQuantity: decimal.optional().describe("Smallest quantity charged, e.g. a minimum of 1,000 GRT."),
   includes: z.array(chargeTypeSchema).default([]).describe("Charges already covered by this one, e.g. towage inside a combined pilotage charge."),
+  percentOf: z.array(id).min(1).optional().describe("With basis \"percent\": the ids of the charges this one is a percentage of, e.g. a 10% surcharge on port dues."),
   rates: z.array(rateSchema).min(1),
   conditions: z.array(z.string().max(300)).default([]).describe("Plain-English conditions a user should know, e.g. extra charges for night working."),
   source: sourceRefSchema,

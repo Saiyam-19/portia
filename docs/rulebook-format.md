@@ -66,6 +66,8 @@ For every port, enter the **vessel-related charges** a normal cargo ship pays:
 | "Minimum charge US$ 200 per call" | `minimumAmount: "200"` on that rate row |
 | "Minimum charges US$ 810 per day" / "subject to a minimum of US$ 9.82 per hour" on a time-based charge | `minimumAmount` plus `minimumPer: "day"` or `"hour"` on that rate row |
 | "Minimum for 24 hours" (a shorter stay is charged as 24 hours) | `minimumHours: "24"` on that rate row |
+| "Surcharge: 10% on port dues" | a separate charge with `basis: "percent"`, `percentOf: ["<port dues charge id>"]` and one band `{ "rate": "10" }` in the same currency |
+| A separate rate for very large crude carriers | a rate row with `vesselTypes: ["vlcc"]`; elsewhere a VLCC is priced as a tanker |
 | A minimum that depends on ship size | `minimumAmount` on each band; split bands where the minimum changes |
 | "Lump sum" for the smallest ships, with only a minimum printed | a band with `"rate": "0"` and that band's `minimumAmount` |
 | Charge applies to each inward and outward movement | `per: "movement"` |

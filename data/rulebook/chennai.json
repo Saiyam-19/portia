@@ -618,6 +618,42 @@
                   "foreign"
                 ],
                 "vesselTypes": [
+                  "vlcc"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "whole",
+              "minimumAmount": "909.62",
+              "bands": [
+                {
+                  "rate": "0.0080"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "vlcc"
+                ]
+              },
+              "currency": "INR",
+              "bandMode": "whole",
+              "minimumAmount": "24256",
+              "bands": [
+                {
+                  "rate": "0.2076"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
                   "tanker",
                   "lng",
                   "lpg",
@@ -794,14 +830,14 @@
             }
           ],
           "conditions": [
-            "A minimum charge per ship applies (US$ 909.62 foreign, Rs. 24,256 coastal).",
-            "VLCC tankers have a higher rate that is not applied automatically."
+            "A minimum charge per ship applies (US$ 909.62 foreign, Rs. 24,256 coastal)."
           ],
           "source": {
             "document": "tn-gazette-2026-sor",
             "page": 13,
             "section": "2.3.1",
             "quote": [
+              "|1|Very Large Crude Carrier (VLCC) - Tankers|0.2076|0.0080|",
               "|2|Tankers|0.1887|0.0072|",
               "|3|Container vessels|0.1249|0.0048|",
               "|4|RoRo vessels|0.1557|0.0060|",

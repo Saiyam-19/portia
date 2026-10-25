@@ -70,14 +70,42 @@
             }
           ],
           "conditions": [
-            "Payable for every entry, directly to the Tamil Nadu Maritime Board.",
-            "A 10% surcharge on port dues also applies and is not included here."
+            "Payable for every entry, directly to the Tamil Nadu Maritime Board."
           ],
           "source": {
             "document": "bpts-2025-10-15",
             "page": 26,
             "section": "IV.A",
-            "quote": "PORT DUES (Payable for every Entry) INR 10.40 Per GT SURCHARGE - Surcharge on Port Dues10% on Port Dues"
+            "quote": "PORT DUES (Payable for every Entry) INR 10.40 Per GT"
+          }
+        },
+        {
+          "id": "port-dues-surcharge",
+          "type": "port-dues",
+          "label": "Surcharge on port dues (Tamil Nadu Maritime Board)",
+          "basis": "percent",
+          "percentOf": [
+            "port-dues"
+          ],
+          "rates": [
+            {
+              "when": {},
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "10"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Payable with the port dues, directly to the Tamil Nadu Maritime Board."
+          ],
+          "source": {
+            "document": "bpts-2025-10-15",
+            "page": 26,
+            "section": "IV.A",
+            "quote": "SURCHARGE - Surcharge on Port Dues10% on Port Dues"
           }
         },
         {
@@ -128,6 +156,45 @@
                   "rate": "0.824"
                 }
               ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "INR",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "3000",
+                  "rate": "0",
+                  "minimumAmount": "41889"
+                },
+                {
+                  "upTo": "10000",
+                  "rate": "9.78",
+                  "minimumAmount": "41889"
+                },
+                {
+                  "upTo": "15000",
+                  "rate": "11.17"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "13.96"
+                },
+                {
+                  "upTo": "60000",
+                  "rate": "19.54"
+                },
+                {
+                  "rate": "22.35"
+                }
+              ]
             }
           ],
           "conditions": [
@@ -141,10 +208,10 @@
             "quote": [
               "|Upto 3,000 GT|LumpSum|USD 2,095|Lumpsum|INR 41,889|",
               "|3,001to10,000 GT|USD0.376|USD3,492|INR9.78|INR41,889|",
-              "|10,001to15,000 GT|USD0.433|",
-              "|15,001to 30,000 GT|USD0.502|",
-              "|30,001GTto 60,000T|USD0.712|",
-              "|Above 60,000 GT|USD0.824|"
+              "|10,001to15,000 GT|USD0.433|---|INR 11.17|---|",
+              "|15,001to 30,000 GT|USD0.502|---|INR 13.96|---|",
+              "|30,001GTto 60,000T|USD0.712|---|INR 19.54|---|",
+              "|Above 60,000 GT|USD0.824|---|INR 22.35|---|"
             ]
           }
         },
@@ -553,14 +620,6 @@
           }
         },
         {
-          "text": "Coastal pilotage rates for container ships are garbled in the converted table ('INR 1 1 . 17', 'INR 2 2 .3 5'), so coastal container pilotage is not entered.",
-          "source": {
-            "document": "bpts-2025-10-15",
-            "page": 26,
-            "section": "IV.B (i)"
-          }
-        },
-        {
           "text": "For ships up to 3,000 GT pilotage is a lump sum equal to the printed minimum; it is entered as a zero rate with that minimum.",
           "source": {
             "document": "bpts-2025-10-15",
@@ -569,15 +628,21 @@
           }
         },
         {
-          "text": "Port dues are payable to the Tamil Nadu Maritime Board in rupees for all ships, with a 10% surcharge that is not added automatically.",
+          "text": "Berth hire is printed per GT per hour without 'or part thereof', so exact hours are used; the minimum is per day and each started day counts."
+        },
+        {
+          "text": "Two coastal container pilotage rates (INR 11.17 and INR 22.35) are printed with odd letter-spacing; they were checked against the PDF and corrected in the Markdown copy.",
           "source": {
             "document": "bpts-2025-10-15",
-            "page": 26,
-            "section": "IV.A"
+            "page": 26
           }
         },
         {
-          "text": "Berth hire is printed per GT per hour without 'or part thereof', so exact hours are used; the minimum is per day and each started day counts."
+          "text": "Port dues and their 10% surcharge are payable in rupees to the Tamil Nadu Maritime Board for all ships, foreign-going ones included.",
+          "source": {
+            "document": "bpts-2025-10-15",
+            "page": 26
+          }
         }
       ]
     }

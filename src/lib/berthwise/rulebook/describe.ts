@@ -7,9 +7,9 @@ import type { Charge, PortBook, RuleVersion, Status, VesselType } from "./schema
 const UNIT: Record<string, string> = {
   grt: "per GRT", "grt-hour": "per GRT per hour", "grt-day": "per GRT per day", nrt: "per NRT",
   "loa-hour": "per metre of length per hour", "loa-day": "per metre of length per day",
-  call: "per call", hour: "per hour", tonne: "per tonne", teu: "per TEU",
+  call: "per call", hour: "per hour", tonne: "per tonne", teu: "per TEU", percent: "",
 };
-const SIZE_UNIT: Record<string, string> = { grt: "GRT", "grt-hour": "GRT", "grt-day": "GRT", nrt: "NRT", "loa-hour": "m", "loa-day": "m", call: "GRT", hour: "GRT", tonne: "tonnes", teu: "TEU" };
+const SIZE_UNIT: Record<string, string> = { grt: "GRT", "grt-hour": "GRT", "grt-day": "GRT", nrt: "NRT", "loa-hour": "m", "loa-day": "m", call: "GRT", hour: "GRT", tonne: "tonnes", teu: "TEU", percent: "" };
 const ROUNDING: Record<string, string> = { "started-hour": "each started hour counts", "started-half-day": "each started half day counts", "started-day": "each started day counts" };
 
 const figure = (value: string) => new Decimal(value).toNumber().toLocaleString("en-US", { maximumFractionDigits: 6 });
@@ -25,6 +25,7 @@ export type TariffView = {
 
 export function describeRate(charge: Charge, rate: Charge["rates"][number]): string {
   const c = rate.currency;
+  if (charge.basis === "percent") return `${rate.bands[0]!.rate}% of ${(charge.percentOf ?? []).map(id => id.replace(/-/g, " ")).join(" and ")}`;
   const unit = UNIT[charge.basis]!;
   const sizeUnit = charge.bandOn ? (charge.bandOn === "tonnes" ? "tonnes" : charge.bandOn.toUpperCase()) : SIZE_UNIT[charge.basis]!;
   const perUnit = !["call", "hour"].includes(charge.basis);

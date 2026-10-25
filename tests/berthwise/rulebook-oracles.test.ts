@@ -23,6 +23,25 @@ describe("rule book against the earlier reviewed engine", () => {
     expect(totals.map(total => [total.currency, Number(total.amount)])).toEqual([["USD", Number(expected)]]);
   });
 
+  it("adds Kattupalli's 10% surcharge on port dues", () => {
+    const result = estimate(book("kattupalli"), { date: "2026-10-25", grt: "30000", charges: ["port-dues"] });
+    expect(result.lines.map(line => [line.chargeId, line.currency, line.amount])).toEqual([["port-dues", "INR", "312000"], ["port-dues-surcharge", "INR", "31200"]]);
+    expect(result.lines[1]!.working).toBe("10% of port dues (payable to tamil nadu maritime board) (INR 3,12,000.00)");
+  });
+
+  it("uses Chennai's VLCC berth hire, and tanker rates elsewhere for a VLCC", () => {
+    const chennai = estimate(book("chennai"), { date: "2026-10-25", status: "foreign", vesselType: "vlcc", grt: "150000", hours: "24", charges: ["berth-hire", "port-dues"] });
+    expect(chennai.lines.map(line => [line.label, line.amount])).toEqual([["Port dues", "75675"], ["Berth hire", "28800"]]);
+    const paradip = estimate(book("paradip"), { date: "2026-10-25", status: "foreign", vesselType: "vlcc", grt: "150000", charges: ["port-dues"] });
+    expect(paradip.lines).toHaveLength(1);
+  });
+
+  it("prices container berth hire at Kamarajar from the container terminal's tariff since 1 April 2026", () => {
+    const now = estimate(book("kamarajar"), { date: "2026-10-25", status: "foreign", vesselType: "container", grt: "50000", hours: "24", charges: ["berth-hire"] });
+    expect(now.lines.map(line => [line.chargeId, line.amount])).toEqual([["berth-hire-aectpl", "24480"]]);
+    expect(estimate(book("kamarajar"), { date: "2026-03-01", status: "foreign", vesselType: "container", grt: "50000", hours: "24", charges: ["berth-hire"] }).lines).toEqual([]);
+  });
+
   it("NSIGT berth hire in rupees for a foreign ship", () => {
     const totals = amount("jnpa", { terminal: "nsigt", vesselType: "container", grt: "31200", hours: "18", charges: ["berth-hire"] });
     expect(totals).toEqual([{ currency: "INR", amount: "1149932.16", display: "11,49,932.16" }]);

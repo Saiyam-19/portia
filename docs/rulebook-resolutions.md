@@ -74,7 +74,9 @@ Checked on 25 October 2026.
 
 These need the port or the client to confirm. They are listed as known gaps for handover:
 
-- Kamarajar: container berth hire at the private container terminals, and whether its dry bulk anchorage slabs are per hour (2016 trade notice to be downloaded when the port's website works).
+- Kamarajar: whether its dry bulk anchorage slabs are per hour (the 2016 trade notice could not be found on an official site).
 - How Pipavav applies its tanker berth-hire minimum (only tankers under about 2,100 GRT are affected).
 
 Settled after the first write-up (25 October 2026): Paradip's and Chennai's start dates, berth hire at NSFT, and Mundra's fuel surcharge for LNG carriers.
+
+Settled later the same day: Kamarajar container berth hire (Adani Ennore Container Terminal reference tariff 2026-27, from 1 April 2026), Kattupalli coastal container pilotage (two rates read from the PDF), Kattupalli's 10% surcharge on port dues, and Chennai's VLCC berth hire. All 12 ports' questions for the client are in `docs/handover/port-questions.md`.
