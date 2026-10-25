@@ -9,6 +9,8 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as sourceWatch from "../sourceWatch.js";
+import type * as crons from "../crons.js";
 import type * as lib_account from "../lib/account.js";
 import type * as companyDocsNode from "../companyDocsNode.js";
 import type * as companyDocs from "../companyDocs.js";
@@ -31,6 +33,8 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  sourceWatch: typeof sourceWatch;
+  crons: typeof crons;
   "lib/account": typeof lib_account;
   companyDocsNode: typeof companyDocsNode;
   companyDocs: typeof companyDocs;

@@ -33,7 +33,8 @@ After an estimate or comparison:
 - Lead with the total before GST for each currency. Totals in rupees and dollars are kept apart unless the user gave an exchange rate.
 - Name the assumptions that matter most, so the user can correct them.
 - If the result still has questions, say the total is incomplete and ask them, at most two at a time.
-- Say which charges were not priced and why, in a few words.`;
+- Say which charges were not priced and why, in a few words.
+- If the result carries notices (a rate document changed on the port's website, or an old fuel surcharge), pass them on plainly.`;
 
 export function createMigrationMainAgent(options: {
   alias: ModelAlias; runId?: string; mainModel?: LanguageModel; memory?: AgentMemory;

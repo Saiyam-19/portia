@@ -10,6 +10,7 @@ import { searchDocuments } from "./documents";
 import { fleetShipSchema, findShip, type FleetAccess, type FleetShip } from "./fleet";
 import { applyAgreedRates, type AgreedRate } from "./agreed-rates";
 import type { CompanyAccess } from "./account-access";
+import { freshnessNotices, type SourceStatus } from "./rulebook/watch";
 import { chargeTypeSchema, statusSchema, vesselTypeSchema, type ChargeType, type PortBook } from "./rulebook/schema";
 
 /** Berthwise business tools. Each returns { card, summary }: the card is drawn on
@@ -150,8 +151,9 @@ async function withFleet(ship: Ship, fleet?: FleetAccess): Promise<{ ship: Ship;
 }
 const shipView = (ship: FleetShip) => [ship.name, ship.imo && `IMO ${ship.imo}`, `${Number(ship.grt).toLocaleString("en-US")} GRT`, ship.nrt && `${Number(ship.nrt).toLocaleString("en-US")} NRT`, ship.loa && `${ship.loa} m long`, ship.type?.replace("-", " "), ship.status && (ship.status === "foreign" ? "foreign-going" : "coastal")].filter(Boolean).join(", ");
 
-export function businessTools(options: { fleet?: FleetAccess; company?: CompanyAccess } = {}): ToolSet {
-  const { fleet, company } = options;
+export function businessTools(options: { fleet?: FleetAccess; company?: CompanyAccess; sources?: () => Promise<SourceStatus[]> } = {}): ToolSet {
+  const { fleet, company, sources } = options;
+  const statuses = async () => { try { return sources ? await sources() : []; } catch { return []; } };
   return {
     estimate_port_call: tool({
       description: "Itemised port-call charges (port dues, pilotage, towage, berth hire, mooring and other standard charges; anchorage and wharfage when their inputs are given) from the reviewed rule book, with the working and source page of every line and a total before GST. Give one call, or a departure and an arrival call for a voyage (both are priced for the same ship and added up). Missing facts are assumed and listed; anything that would change the price a lot comes back as a question.",
@@ -171,12 +173,14 @@ export function businessTools(options: { fleet?: FleetAccess; company?: CompanyA
         const vessel = voyage ? sameShip(matches.map(m => m.port), ship, calls.map(c => c.date)) : ship;
         let agreedRates: AgreedRate[] = [];
         try { agreedRates = company ? await company.agreedRates() : []; } catch { agreedRates = []; }
+        const changed = await statuses();
         const results = calls.map((call, index) => {
           const result = estimate(matches[index]!.port, request(matches[index]!, vessel, call, charges));
           const agreed = applyAgreedRates(result, agreedRates);
+          const notices = freshnessNotices(matches[index]!.port, result, changed, call.date ?? today());
           const role: EstimateCall["role"] = voyage ? (index === 0 ? "departure" : "arrival") : undefined;
           const fx = exchangeNote(matches[index]!.port, result.version.effectiveFrom || today());
-          return { ...(role ? { role } : {}), estimate: result, ...(agreed ? { agreed } : {}), ...(fx ? { exchangeRate: fx } : {}), notes: versionFor(matches[index]!.port, call.date ?? today())?.notes.map(n => n.text) ?? [] };
+          return { ...(role ? { role } : {}), estimate: result, ...(notices.length ? { notices } : {}), ...(agreed ? { agreed } : {}), ...(fx ? { exchangeRate: fx } : {}), notes: versionFor(matches[index]!.port, call.date ?? today())?.notes.map(n => n.text) ?? [] };
         });
         const voyageTotals = voyage ? addTotals(results.map(r => r.estimate.totals)) : undefined;
         const rupees = rate ? {
@@ -188,7 +192,7 @@ export function businessTools(options: { fleet?: FleetAccess; company?: CompanyA
         const summary = [
           `Estimate for ${describeShip(vessel) || "the ship"}.`,
           filled.length ? `From the user's fleet: ${filled.join(", ")}.` : "",
-          ...results.map(r => summarise(r.estimate, r.role) + (r.agreed ? ` With the company's agreed rates (${r.agreed.rows.map(row => `${row.label}: ${row.basis}`).join("; ")}): ${said(r.agreed.totals)}.` : "")),
+          ...results.map(r => summarise(r.estimate, r.role) + (r.notices ? ` Check: ${r.notices.join(" ")}` : "") + (r.agreed ? ` With the company's agreed rates (${r.agreed.rows.map(row => `${row.label}: ${row.basis}`).join("; ")}): ${said(r.agreed.totals)}.` : "")),
           voyageTotals ? `Voyage total before GST: ${said(voyageTotals)}.` : "",
           rupees ? `At ${rate} rupees per US dollar: ${rupees.calls.map(c => `${c.port} INR ${c.total?.display ?? "n/a"}`).join("; ")}${rupees.voyage ? `; voyage INR ${rupees.voyage.display}` : ""}.` : "",
         ].filter(Boolean).join(" ");

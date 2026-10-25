@@ -9,7 +9,7 @@ import type { AgreedView } from "./agreed-rates";
 export type Total = { currency: string; amount: string; display: string };
 export type ShipView = { name?: string; imo?: string; grt?: string; nrt?: string; loa?: string; type?: string; status?: string };
 
-export type EstimateCall = { role?: "departure" | "arrival"; estimate: Estimate; agreed?: AgreedView; exchangeRate?: string; notes: string[] };
+export type EstimateCall = { role?: "departure" | "arrival"; estimate: Estimate; notices?: string[]; agreed?: AgreedView; exchangeRate?: string; notes: string[] };
 export type EstimateCard = {
   kind: "estimate"; ship: ShipView; calls: EstimateCall[]; voyageTotals?: Total[]; fromFleet?: string[];
   inRupees?: { usdToInr: string; calls: Array<{ port: string; total?: Total }>; voyage?: Total };

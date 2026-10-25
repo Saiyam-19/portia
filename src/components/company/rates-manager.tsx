@@ -12,7 +12,8 @@ import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
-import { AGREED_CHARGES, PORT_IDS, PORT_NAMES, type AgreedRate } from '@/lib/berthwise/agreed-rates'
+import { AGREED_CHARGES, type AgreedRate } from '@/lib/berthwise/agreed-rates'
+import { PORT_IDS, PORT_NAMES } from '@/lib/berthwise/port-list'
 
 type Draft = { portId: string; chargeType: string; kind: 'discount' | 'fixed'; percent: string; amount: string; currency: string; note: string }
 const EMPTY: Draft = { portId: '', chargeType: '', kind: 'discount', percent: '', amount: '', currency: 'USD', note: '' }

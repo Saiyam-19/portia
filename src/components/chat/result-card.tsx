@@ -4,7 +4,7 @@ import { createContext, useContext, type ReactNode } from 'react'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { ArrowRight, CircleHelp, FileText } from 'lucide-react'
+import { ArrowRight, CircleAlert, CircleHelp, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { ToolCard } from '@/lib/berthwise/cards'
@@ -155,6 +155,12 @@ function CallView({ call, voyage }: { call: EstimateCall; voyage: boolean }) {
       {result.version.effectiveFrom
         ? <p className="text-xs leading-4 text-muted-foreground">{schedule(result.version, result.checkedOn)}</p>
         : null}
+      {call.notices && call.notices.length > 0 && (
+        <div className="rounded-xl bg-muted px-4 py-3 text-xs leading-5" role="note">
+          <p className="flex items-center gap-1.5 font-medium text-foreground"><CircleAlert className="size-3.5 text-brand" aria-hidden="true" />Check before relying on these rates</p>
+          <ul className="mt-1.5 space-y-1 text-foreground">{call.notices.map((notice, index) => <li key={index}>{notice}</li>)}</ul>
+        </div>
+      )}
       {result.lines.length > 0 && (
         <div className="overflow-hidden rounded-xl border border-border">
           <Table aria-label={`Charges at ${result.port.name}`}>

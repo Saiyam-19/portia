@@ -94,4 +94,10 @@ export default defineSchema({
     ownerId: v.string(), portId: v.string(), chargeType: v.string(), kind: v.union(v.literal("discount"), v.literal("fixed")),
     percent: v.optional(v.string()), amount: v.optional(v.string()), currency: v.optional(v.string()), note: v.optional(v.string()), updatedAt: v.number(),
   }).index("by_owner_and_port", ["ownerId", "portId"]),
+
+  // Monthly checks that each rate document we read is unchanged on the port's website.
+  sourceChecks: defineTable({
+    url: v.string(), portId: v.string(), documentId: v.string(), checkedAt: v.number(),
+    status: v.union(v.literal("same"), v.literal("changed"), v.literal("unreachable")), httpStatus: v.optional(v.number()), sha256: v.optional(v.string()),
+  }).index("by_url", ["url", "checkedAt"]),
 });

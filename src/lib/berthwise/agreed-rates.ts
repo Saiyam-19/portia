@@ -5,11 +5,8 @@ import type { Estimate } from "./rulebook/calculate";
 /** A company's agreed rates: a discount on a published charge, or a fixed amount per
  * call. Estimates show them beside the published figures; they never replace them. */
 
-export const PORT_IDS = ["mumbai", "jnpa", "jaigarh", "new-mangalore", "paradip", "deendayal", "chennai", "kamarajar", "mundra", "hazira", "kattupalli", "pipavav"] as const;
-export const PORT_NAMES: Record<(typeof PORT_IDS)[number], string> = {
-  mumbai: "Mumbai", jnpa: "JNPA (Nhava Sheva)", jaigarh: "Jaigarh", "new-mangalore": "New Mangalore", paradip: "Paradip", deendayal: "Deendayal (Kandla)",
-  chennai: "Chennai", kamarajar: "Kamarajar (Ennore)", mundra: "Mundra", hazira: "Hazira", kattupalli: "Kattupalli", pipavav: "Pipavav",
-};
+export { PORT_IDS, PORT_NAMES } from "./port-list";
+import { PORT_IDS } from "./port-list";
 export const AGREED_CHARGES: Array<{ value: string; label: string; types: string[] }> = [
   { value: "port-dues", label: "Port dues", types: ["port-dues"] },
   { value: "pilotage", label: "Pilotage (and towage where combined)", types: ["pilotage", "pilotage-towage"] },
