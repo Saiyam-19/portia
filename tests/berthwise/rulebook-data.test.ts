@@ -49,7 +49,9 @@ function problems(file: string): string[] {
       const text = markdown.get(doc.id);
       const quotes = Array.isArray(quote) ? quote : [quote];
       for (const snippet of quotes) if (text !== undefined && !text.includes(flat(snippet))) issues.push(`${at}: quote not found verbatim in ${doc.markdown}: ${snippet.slice(0, 60)}`);
-      const inQuote = quotes.flatMap(snippet => extractNumbers(snippet));
+      // Converted tables sometimes split a figure across cells ("32|,289").
+      const inQuote = quotes.flatMap(snippet => extractNumbers(snippet.replace(/(\d)\|,(\d{3})/g, "$1,$2")));
+      if (charge.rates.some(rate => rate.minimumPer || rate.minimumHours) &&!["grt-hour", "grt-day", "loa-hour", "loa-day", "hour"].includes(charge.basis)) issues.push(`${at}: minimumPer and minimumHours need a time-based basis`);
       const figures = [...charge.rates.flatMap(rate => [...rate.bands.flatMap(band => [band.rate, ...(band.base ? [band.base] : []), ...(band.minimumAmount ? [band.minimumAmount] : [])]), ...(rate.minimumAmount ? [rate.minimumAmount] : []), ...(rate.maximumAmount ? [rate.maximumAmount] : [])])];
       // A zero rate stands for a printed "lump sum" band whose minimum is the charge.
       for (const figure of figures) if (Number(figure) !== 0 && !inQuote.some(found => sameNumber(found, figure))) issues.push(`${at}: figure ${figure} is not in its quote`);

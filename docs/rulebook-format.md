@@ -61,8 +61,11 @@ For every port, enter the **vessel-related charges** a normal cargo ship pays:
 | "X per GRT per day or part thereof" | `basis: "grt-day"`, `timeRounding: "started-day"` |
 | "Up to 30,000 GRT: a per GRT; 30,001 to 60,000: b per GRT" (whole ship at the band's rate) | `bandMode: "whole"`, bands `{ "upTo": "30000", "rate": "a" }`, `{ "upTo": "60000", "rate": "b" }` |
 | "US$ 18,966 for the first 30,000 GRT + 0.5058 per additional GRT" | `bandMode: "excess"`, bands `{ "upTo": "30000", "rate": "<first-band rate>" }`, `{ "upTo": "60000", "base": "18966", "rate": "0.5058" }` |
+| "Less than 3,000 GRT" / "3,000 GRT and above" | `{ "upTo": "3000", "exclusive": true, ... }` then the next band |
 | "Minimum GRT 1,000" | `minimumQuantity: "1000"` |
 | "Minimum charge US$ 200 per call" | `minimumAmount: "200"` on that rate row |
+| "Minimum charges US$ 810 per day" / "subject to a minimum of US$ 9.82 per hour" on a time-based charge | `minimumAmount` plus `minimumPer: "day"` or `"hour"` on that rate row |
+| "Minimum for 24 hours" (a shorter stay is charged as 24 hours) | `minimumHours: "24"` on that rate row |
 | A minimum that depends on ship size | `minimumAmount` on each band; split bands where the minimum changes |
 | "Lump sum" for the smallest ships, with only a minimum printed | a band with `"rate": "0"` and that band's `minimumAmount` |
 | Charge applies to each inward and outward movement | `per: "movement"` |

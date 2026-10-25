@@ -262,7 +262,7 @@
           "type": "berth-hire",
           "label": "Berth hire",
           "basis": "grt-hour",
-          "timeRounding": "started-hour",
+          "timeRounding": "exact",
           "rates": [
             {
               "when": {
@@ -421,6 +421,17 @@
           "source": {
             "document": "tariff-2026-05",
             "page": 1
+          }
+        },
+        {
+          "text": "Berth hire is printed 'per GRT per hour' without 'or part thereof', so exact hours are used."
+        },
+        {
+          "text": "Pilotage carries an extra charge by ship age (keel laid), per GRT in USD: 0 for 0-5 years, 0.017744 for 5-10, 0.026616 for 10-15, 0.039924 for 15-20, 0.053232 for 20-25 and 0.0600 for 25 years or more (table J-8). We don't ask for ship age, so it is not added.",
+          "source": {
+            "document": "tariff-2026-05",
+            "page": 2,
+            "section": "J-8"
           }
         }
       ]

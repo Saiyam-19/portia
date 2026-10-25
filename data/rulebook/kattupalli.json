@@ -400,7 +400,7 @@
           "type": "berth-hire",
           "label": "Berth hire",
           "basis": "grt-hour",
-          "timeRounding": "started-hour",
+          "timeRounding": "exact",
           "rates": [
             {
               "when": {
@@ -416,7 +416,9 @@
                 {
                   "rate": "0.0039"
                 }
-              ]
+              ],
+              "minimumAmount": "805",
+              "minimumPer": "day"
             },
             {
               "when": {
@@ -432,7 +434,9 @@
                 {
                   "rate": "0.11"
                 }
-              ]
+              ],
+              "minimumAmount": "13420",
+              "minimumPer": "day"
             },
             {
               "when": {
@@ -456,7 +460,9 @@
                 {
                   "rate": "0.0054"
                 }
-              ]
+              ],
+              "minimumAmount": "805",
+              "minimumPer": "day"
             },
             {
               "when": {
@@ -480,11 +486,12 @@
                 {
                   "rate": "0.13"
                 }
-              ]
+              ],
+              "minimumAmount": "13420",
+              "minimumPer": "day"
             }
           ],
           "conditions": [
-            "A minimum of US$ 805 (foreign) or Rs. 13,420 (coastal) per day applies.",
             "Mediterranean mooring may be charged at twice the rate."
           ],
           "source": {
@@ -494,6 +501,45 @@
             "quote": [
               "|**$ 0.0039**per GT|**INR 0.11 **per GT per Hour|**$ 0.0054**per GT||",
               "|per Hour (Minimum<br>Charges**$ 805**per<br>day)|(Minimum Charges**INR**<br>**13,420**per day)|per Hour<br>(Minimum<br>Charges**$ 805**<br>per day)|**INR 0.13**per GT per Hour<br>(Minimum Charges<br>**INR 13,420**per day)|"
+            ]
+          }
+        },
+        {
+          "id": "anchorage-tnmb",
+          "type": "anchorage",
+          "label": "Anchorage fee (Tamil Nadu Maritime Board, after 30 days)",
+          "basis": "grt-day",
+          "timeRounding": "started-day",
+          "freeHours": "720",
+          "rates": [
+            {
+              "when": {},
+              "currency": "INR",
+              "minimumPer": "day",
+              "bands": [
+                {
+                  "upTo": "500",
+                  "rate": "0.90",
+                  "minimumAmount": "864"
+                },
+                {
+                  "rate": "0.90",
+                  "minimumAmount": "3456"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Payable to the Tamil Nadu Maritime Board, per day or part thereof, only after the first 30 days.",
+            "Ships lying idle at anchor without loading or unloading cargo pay from the day they enter port limits; that case is not priced here."
+          ],
+          "source": {
+            "document": "bpts-2025-10-15",
+            "page": 40,
+            "section": "1.4",
+            "quote": [
+              "|Vessels upto 500 GRT||0.90|864|",
+              "|Vessels above 500 GRT|Per day or part thereof|0.90|3456|"
             ]
           }
         }
@@ -531,20 +577,7 @@
           }
         },
         {
-          "text": "Anchorage fees are payable to the Tamil Nadu Maritime Board, per day and only after the first 30 days (or from entry for idle ships); they are not entered.",
-          "source": {
-            "document": "bpts-2025-10-15",
-            "page": 28,
-            "section": "IV.J"
-          }
-        },
-        {
-          "text": "The berth hire minimum is per day and cannot be expressed in the format; it is not applied and only matters for small ships.",
-          "source": {
-            "document": "bpts-2025-10-15",
-            "page": 27,
-            "section": "IV.F"
-          }
+          "text": "Berth hire is printed per GT per hour without 'or part thereof', so exact hours are used; the minimum is per day and each started day counts."
         }
       ]
     }

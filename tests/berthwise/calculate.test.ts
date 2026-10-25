@@ -58,6 +58,23 @@ describe("rule-book calculator (hand-checked against Example Port)", () => {
     expect(amounts(result)).toMatchObject({ "pilotage-towage": "19225", "fuel-surcharge": "6490" });
   });
 
+  it("scales a per-day or per-hour minimum with the stay", () => {
+    const berthHire = raw.versions[0]!.charges.find(charge => charge.id === "berth-hire")!;
+    const withMinimum = (minimumPer: "hour" | "day", minimumAmount: string) => portBookSchema.parse({ ...raw, versions: [{ ...raw.versions[0], charges: [{
+      ...berthHire, minimumQuantity: undefined, timeRounding: "exact",
+      rates: [{ when: {}, currency: "USD", bands: [{ rate: "0.0100" }], minimumAmount, minimumPer }] }] }] });
+    // 2,000 GRT × 0.01 × 30 hours = 600, below 810 × 2 started days.
+    const daily = estimate(withMinimum("day", "810"), { ...ship, grt: "2000", hours: "30" });
+    expect(daily.lines[0]).toMatchObject({ amount: "1620" });
+    expect(daily.lines[0]!.working).toBe("2,000 GRT × USD 0.0100 × 30 hours; minimum charge USD 810 per day × 2 days applies");
+    expect(estimate(withMinimum("hour", "9.82"), { ...ship, grt: "500", hours: "10.5" }).lines[0]).toMatchObject({ amount: "103.11" });
+    expect(estimate(withMinimum("day", "810"), { ...ship, grt: "32450", hours: "30" }).lines[0]).toMatchObject({ amount: "9735" });
+    const shortStay = portBookSchema.parse({ ...raw, versions: [{ ...raw.versions[0], charges: [{ ...berthHire, minimumQuantity: undefined,
+      rates: [{ when: {}, currency: "USD", bands: [{ rate: "0.0100" }], minimumHours: "24" }] }] }] });
+    expect(estimate(shortStay, { ...ship, grt: "2000", hours: "10" }).lines[0]).toMatchObject({ amount: "480", working: "2,000 GRT × USD 0.0100 × 24 hours (each started period counts) (charged for at least 24 hours)" });
+    expect(estimate(shortStay, { ...ship, grt: "2000", hours: "30" }).lines[0]).toMatchObject({ amount: "600" });
+  });
+
   it("does not price a ship larger than the schedule's largest band", () => {
     const capped = portBookSchema.parse({ ...raw, versions: [{ ...raw.versions[0], charges: [{ ...raw.versions[0]!.charges[0], rates: [{ when: {}, currency: "USD", bands: [{ upTo: "60000", rate: "0.4" }] }] }] }] });
     expect(estimate(capped, { ...ship, grt: "60001" }).notCovered).toEqual([{ type: "port-dues", reason: "Port dues: the schedule's rates stop at 60,000 GRT." }]);

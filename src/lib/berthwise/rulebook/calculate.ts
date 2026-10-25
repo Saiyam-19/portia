@@ -85,18 +85,25 @@ export function estimate(port: PortBook, request: EstimateRequest, today = new D
   // Anchorage and wharfage are added only when asked for or when their inputs are given.
   const wanted = new Set<ChargeType>(request.charges?.length ? request.charges : version.charges.map(charge => charge.type)
     .filter(type => (type !== "wharfage" || request.cargo) && (type !== "anchorage" || request.anchorageHours)));
+  const known = { status, vesselType, terminal, berth, cargoClass: request.cargo?.class };
+  // Only charges with a rate row for this ship (or one that a question would settle) take part.
+  const fits = (charge: Charge) => { const row = pickRate(charge, known); return Boolean(row.rate || row.question); };
   // A combined charge (e.g. pilotage with towage) answers a request for either part.
-  const selected = version.charges.filter(charge => wanted.has(charge.type) || charge.includes.some(type => wanted.has(type)));
-  const covering = (type: ChargeType) => selected.find(charge => charge.type !== type && charge.includes.includes(type));
+  const selected = version.charges.filter(charge => fits(charge) && (wanted.has(charge.type) || charge.includes.some(type => wanted.has(type))));
+  const parts = (charge: Charge) => [charge.type, ...charge.includes];
   for (const type of wanted) {
-    const cover = covering(type);
-    if (cover) assumptions.push(`${title(type)} is included in ${cover.label.toLowerCase()}.`);
-    else if (!selected.some(charge => charge.type === type)) notCovered.push({ type, reason: `${title(type)} isn't in the ${port.name} rate schedule we hold.` });
+    if (selected.some(charge => charge.type === type)) continue;
+    const cover = selected.find(charge => charge.includes.includes(type));
+    if (cover) { assumptions.push(`${title(type)} is included in ${cover.label.toLowerCase()}.`); continue; }
+    const unfit = version.charges.filter(charge => charge.type === type);
+    if (!unfit.length) { notCovered.push({ type, reason: `${title(type)} isn't in the ${port.name} rate schedule we hold.` }); continue; }
+    // e.g. an LNG terminal's own pilotage replaces the port's pilotage with tugs.
+    const replaced = unfit.every(charge => selected.some(other => parts(other).some(part => parts(charge).includes(part))));
+    if (!replaced) notCovered.push({ type, reason: `${unfit[0]!.label} has no rate for a ${status} ${vesselType.replace("-", " ")} ship in this schedule.` });
   }
 
   const asked = new Set<string>();
   const ask = (question: string) => { if (!asked.has(question)) { asked.add(question); questions.push(question); } };
-  const known = { status, vesselType, terminal, berth, cargoClass: request.cargo?.class };
   for (const charge of selected) {
     const row = pickRate(charge, known);
     if (row.question) { ask(row.question(port)); continue; }
@@ -185,6 +192,12 @@ function timeQuantity(charge: Charge, hours: Decimal) {
   }
 }
 
+function minimumUnits(charge: Charge, per: "hour" | "day", hours: Decimal) {
+  const charged = Decimal.max(hours.minus(charge.freeHours ?? 0), 0);
+  if (per === "day") return charged.div(24).ceil();
+  return charge.timeRounding === "started-hour" ? charged.ceil() : charged;
+}
+
 function priceLine(charge: Charge, rate: Charge["rates"][number], version: RuleVersion, sizes: Record<string, string | undefined>, counts: { movements: number; tugs?: number }): EstimateLine {
   const c = rate.currency;
   const sizeKey = charge.bandOn ?? SIZE[charge.basis]!;
@@ -192,7 +205,7 @@ function priceLine(charge: Charge, rate: Charge["rates"][number], version: RuleV
   const steps: string[] = [];
   if (charge.minimumQuantity && size.lt(charge.minimumQuantity)) { steps.push(`charged at the minimum ${plain(charge.minimumQuantity)} ${LABEL[sizeKey]}`); size = new D(charge.minimumQuantity); }
   const bands = rate.bands;
-  const index = bands.findIndex(band => !band.upTo || size.lte(band.upTo));
+  const index = bands.findIndex(band => !band.upTo || (band.exclusive ? size.lt(band.upTo) : size.lte(band.upTo)));
   const band = bands[index === -1 ? bands.length - 1 : index]!;
   const perUnitBasis = !["call", "hour"].includes(charge.basis);
   let amount: Decimal;
@@ -213,14 +226,24 @@ function priceLine(charge: Charge, rate: Charge["rates"][number], version: RuleV
     steps.unshift(`${c} ${band.rate}${charge.basis === "hour" ? " per hour" : " per call"}${bands.length > 1 ? ` (${plain(size)} ${LABEL[sizeKey]} band)` : ""}`);
   }
   if (timeBased(charge)) {
-    const time = timeQuantity(charge, new D((charge.type === "anchorage" ? sizes.anchorageHours : sizes.hours)!));
+    const stay = new D((charge.type === "anchorage" ? sizes.anchorageHours : sizes.hours)!);
+    const short = rate.minimumHours !== undefined && stay.lt(rate.minimumHours);
+    const time = timeQuantity(charge, short ? new D(rate.minimumHours!) : stay);
     amount = amount.mul(time.amount);
-    steps.push(`${plain(time.amount)} ${time.unit}${charge.timeRounding?.startsWith("started") ? " (each started period counts)" : ""}${charge.freeHours ? ` after ${charge.freeHours} free hours` : ""}`);
+    steps.push(`${plain(time.amount)} ${time.unit}${charge.timeRounding?.startsWith("started") ? " (each started period counts)" : ""}${charge.freeHours ? ` after ${charge.freeHours} free hours` : ""}${short ? ` (charged for at least ${plain(rate.minimumHours!)} hours)` : ""}`);
   }
   if (charge.per === "movement") { amount = amount.mul(counts.movements); steps.push(`${counts.movements} movements`); }
   if (charge.perTug) { amount = amount.mul(counts.tugs!); steps.push(`${counts.tugs} tugs`); }
-  if (band.minimumAmount && amount.lt(band.minimumAmount)) { amount = new D(band.minimumAmount); steps.push(`minimum charge ${c} ${band.minimumAmount} for this size applies`); }
-  if (rate.minimumAmount && amount.lt(rate.minimumAmount)) { amount = new D(rate.minimumAmount); steps.push(`minimum charge ${c} ${rate.minimumAmount} applies`); }
+  // A minimum "per hour" or "per day" grows with the stay; each started day counts.
+  const units = rate.minimumPer && timeBased(charge) ? minimumUnits(charge, rate.minimumPer, new D((charge.type === "anchorage" ? sizes.anchorageHours : sizes.hours)!)) : undefined;
+  const floor = (value: string, what: string) => {
+    const least = units ? new D(value).mul(units) : new D(value);
+    if (amount.gte(least)) return;
+    amount = least;
+    steps.push(units ? `minimum charge ${c} ${value} per ${rate.minimumPer}${what} × ${plain(units)} ${rate.minimumPer}s applies` : `minimum charge ${c} ${value}${what} applies`);
+  };
+  if (band.minimumAmount) floor(band.minimumAmount, " for this size");
+  if (rate.minimumAmount) floor(rate.minimumAmount, "");
   if (rate.maximumAmount && amount.gt(rate.maximumAmount)) { amount = new D(rate.maximumAmount); steps.push(`capped at ${c} ${rate.maximumAmount}`); }
   const document = version.documents.find(item => item.id === charge.source.document) ?? version.documents[0]!;
   return {

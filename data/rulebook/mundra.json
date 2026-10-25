@@ -9,7 +9,53 @@
     "Adani Mundra",
     "Adani Ports Mundra"
   ],
-  "terminals": [],
+  "terminals": [
+    {
+      "id": "mict",
+      "name": "Mundra International Container Terminal (MICT, DP World)",
+      "aliases": [
+        "MICT",
+        "DP World Mundra",
+        "CB-1",
+        "CB-2"
+      ],
+      "operator": "DP World",
+      "berths": []
+    },
+    {
+      "id": "amct",
+      "name": "Adani Mundra Container Terminal (AMCT)",
+      "aliases": [
+        "AMCT",
+        "CB-3",
+        "CB-4"
+      ],
+      "berths": []
+    },
+    {
+      "id": "acmtpl",
+      "name": "Adani CMA Mundra Terminal (ACMTPL)",
+      "aliases": [
+        "ACMTPL",
+        "CMA Mundra",
+        "SB-4",
+        "SB-5"
+      ],
+      "berths": []
+    },
+    {
+      "id": "aictpl",
+      "name": "Adani International Container Terminal (AICTPL)",
+      "aliases": [
+        "AICTPL",
+        "SB-6",
+        "SB-7",
+        "SB-8",
+        "SB-9"
+      ],
+      "berths": []
+    }
+  ],
   "checkedOn": "2026-10-25",
   "versions": [
     {
@@ -50,7 +96,19 @@
           "basis": "grt",
           "rates": [
             {
-              "when": {},
+              "when": {
+                "vesselTypes": [
+                  "general-cargo",
+                  "bulk",
+                  "container",
+                  "tanker",
+                  "lpg",
+                  "chemical",
+                  "passenger",
+                  "ro-ro",
+                  "other"
+                ]
+              },
               "currency": "USD",
               "minimumAmount": "400",
               "bands": [
@@ -72,6 +130,36 @@
           }
         },
         {
+          "id": "port-dues-lng",
+          "type": "port-dues",
+          "label": "Port dues (LNG terminal)",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {
+                "vesselTypes": [
+                  "lng"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.06192"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Valid for a maximum of 15 days."
+          ],
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 42,
+            "section": "DD",
+            "quote": "|1<br>Port dues|**$ 0.06192**Per GT (Port Dues is payable per<br>vessel call and is valid for a maximum of 15 days)|"
+          }
+        },
+        {
           "id": "pilotage-towage",
           "type": "pilotage-towage",
           "label": "Pilotage (with tugs)",
@@ -82,7 +170,19 @@
           ],
           "rates": [
             {
-              "when": {},
+              "when": {
+                "vesselTypes": [
+                  "general-cargo",
+                  "bulk",
+                  "container",
+                  "tanker",
+                  "lpg",
+                  "chemical",
+                  "passenger",
+                  "ro-ro",
+                  "other"
+                ]
+              },
               "currency": "USD",
               "bandMode": "whole",
               "bands": [
@@ -92,9 +192,10 @@
                   "minimumAmount": "2865"
                 },
                 {
-                  "upTo": "9999.99",
+                  "upTo": "10000",
                   "rate": "1.018862",
-                  "minimumAmount": "9065"
+                  "minimumAmount": "9065",
+                  "exclusive": true
                 },
                 {
                   "upTo": "15000",
@@ -122,6 +223,36 @@
               "|10,000<br>**$ 1.192852**perGT, for|Minimum**$ 18020**<br>Vessel from 15001 and above|",
               "|vessels with GT 10,000 and<br>above|1.Pilotage charges Includes one Berthing and one Un-berthing."
             ]
+          }
+        },
+        {
+          "id": "pilotage-lng",
+          "type": "pilotage",
+          "label": "Pilotage (LNG terminal)",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {
+                "vesselTypes": [
+                  "lng"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "1.125525"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "The LNG terminal tariff does not say whether tugs are included; other services are charged at the normal port tariff."
+          ],
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 42,
+            "section": "DD",
+            "quote": "|2<br>Pilotage|**$ 1.125525**Per GT|"
           }
         },
         {
@@ -156,7 +287,19 @@
           "basis": "grt",
           "rates": [
             {
-              "when": {},
+              "when": {
+                "vesselTypes": [
+                  "general-cargo",
+                  "bulk",
+                  "container",
+                  "tanker",
+                  "lpg",
+                  "chemical",
+                  "passenger",
+                  "ro-ro",
+                  "other"
+                ]
+              },
               "currency": "USD",
               "minimumAmount": "215",
               "bands": [
@@ -167,13 +310,17 @@
             }
           ],
           "conditions": [
-            "Not for LNG, SPM, STS or ships not using a berth."
+            "Not for LNG, SPM, STS or ships not using a berth.",
+            "Not charged to LNG carriers, ships at the single point mooring, ship-to-ship transfers or ships not using a berth."
           ],
           "source": {
             "document": "bpts-2026-06-15",
             "page": 31,
             "section": "IV.C",
-            "quote": "|**$ 0.042435**Per GT Per VCN<br>(Minimum Charges$215)|"
+            "quote": [
+              "|**$ 0.042435**Per GT Per VCN<br>(Minimum Charges$215)|",
+              "|<br>Mooring charges is not applicable to LNG, SPM, STS and vessels not<br>usingberth facilities.|"
+            ]
           }
         },
         {
@@ -216,7 +363,33 @@
                   "chemical",
                   "ro-ro",
                   "lng",
-                  "lpg"
+                  "lpg",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "10000",
+                  "rate": "400"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "600"
+                },
+                {
+                  "rate": "800"
+                }
+              ]
+            },
+            {
+              "when": {
+                "vesselTypes": [
+                  "container"
+                ],
+                "terminals": [
+                  "mict"
                 ]
               },
               "currency": "USD",
@@ -240,7 +413,7 @@
             "document": "bpts-2026-06-15",
             "page": 31,
             "section": "IV.E",
-            "quote": "|USD: 400 Up to 10000 GT<br>USD: 600 10001 to 30000 GT<br>USD: 800 More than 30000<br>GT|Charges applicable on Bulk, breakbulk, Liquid, RO-RO, Gas carriers,<br>MICT (DPW) berths"
+            "quote": "|USD: 400 Up to 10000 GT<br>USD: 600 10001 to 30000 GT<br>USD: 800 More than 30000<br>GT|Charges applicable on Bulk, breakbulk, Liquid, RO-RO, Gas carriers,<br>MICT (DPW) berths and arrives at anchorage/berth for miscellaneous<br>activities and will be charged under VRC to VOA.|"
           }
         },
         {
@@ -248,16 +421,30 @@
           "type": "berth-hire",
           "label": "Berth hire",
           "basis": "grt-hour",
-          "timeRounding": "started-hour",
+          "timeRounding": "exact",
           "rates": [
             {
-              "when": {},
+              "when": {
+                "vesselTypes": [
+                  "general-cargo",
+                  "bulk",
+                  "container",
+                  "tanker",
+                  "lpg",
+                  "chemical",
+                  "passenger",
+                  "ro-ro",
+                  "other"
+                ]
+              },
               "currency": "USD",
               "bands": [
                 {
                   "rate": "0.011584"
                 }
-              ]
+              ],
+              "minimumAmount": "810",
+              "minimumPer": "day"
             }
           ],
           "conditions": [
@@ -275,14 +462,54 @@
           }
         },
         {
+          "id": "berth-hire-lng",
+          "type": "berth-hire",
+          "label": "Berth hire (LNG terminal)",
+          "basis": "grt-day",
+          "timeRounding": "exact",
+          "rates": [
+            {
+              "when": {
+                "vesselTypes": [
+                  "lng"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.224353"
+                }
+              ]
+            }
+          ],
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 42,
+            "section": "DD",
+            "quote": "|3<br>Berth hire|**$ 0.224353**Per GT Per Day|"
+          }
+        },
+        {
           "id": "anchorage",
           "type": "anchorage",
           "label": "Anchorage",
           "basis": "grt-hour",
-          "timeRounding": "started-hour",
+          "timeRounding": "exact",
           "rates": [
             {
-              "when": {},
+              "when": {
+                "vesselTypes": [
+                  "general-cargo",
+                  "bulk",
+                  "container",
+                  "tanker",
+                  "lpg",
+                  "chemical",
+                  "passenger",
+                  "ro-ro",
+                  "other"
+                ]
+              },
               "currency": "USD",
               "bands": [
                 {
@@ -300,6 +527,34 @@
             "section": "IV.J",
             "quote": "|**$ 0.001343**per GT per hour.|"
           }
+        },
+        {
+          "id": "anchorage-lng",
+          "type": "anchorage",
+          "label": "Anchorage (LNG carriers)",
+          "basis": "grt-day",
+          "timeRounding": "exact",
+          "rates": [
+            {
+              "when": {
+                "vesselTypes": [
+                  "lng"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.0341"
+                }
+              ]
+            }
+          ],
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 42,
+            "section": "DD",
+            "quote": "|4<br>Anchorage|**$ 0.0341**Per GT Per Day|"
+          }
         }
       ],
       "notes": [
@@ -311,22 +566,6 @@
           }
         },
         {
-          "text": "Pilotage minimums change at 3,000 and 15,000 GT while the rate changes at 10,000 GT; bands are split so each carries its own minimum. 'Less than 10,000' is entered as up to 9,999.99 GT.",
-          "source": {
-            "document": "bpts-2026-06-15",
-            "page": 30,
-            "section": "IV.B"
-          }
-        },
-        {
-          "text": "The berth hire minimum of US$ 810 per day cannot be expressed per day in the format and is not applied; it only matters for ships under about 2,900 GT.",
-          "source": {
-            "document": "bpts-2026-06-15",
-            "page": 31,
-            "section": "IV.F"
-          }
-        },
-        {
           "text": "The tariff is in US dollars for all ships; there are no separate coastal rates.",
           "source": {
             "document": "bpts-2026-06-15",
@@ -334,11 +573,25 @@
           }
         },
         {
-          "text": "The environment protection charge lists bulk, break-bulk, liquid, Ro-Ro and gas carriers, plus ships at the MICT (DP World) berths. It is not applied to container ships at other terminals.",
+          "text": "'Less than 10,000' is entered as an exclusive limit at 10,000 GT.",
           "source": {
             "document": "bpts-2026-06-15",
-            "page": 31,
-            "section": "IV.E"
+            "page": 30,
+            "section": "IV.B"
+          }
+        },
+        {
+          "text": "LNG carriers are priced at the LNG terminal tariff (section DD) instead of the port's general rates. Berth hire and anchorage are printed per GT per hour (or per day at the LNG terminal) without 'or part thereof', so exact time is used. Calls at the single point mooring and the crude oil (VLCC) jetty are charged by contract and are not priced.",
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 42
+          }
+        },
+        {
+          "text": "The environment protection charge applies to bulk, break-bulk, liquid, Ro-Ro and gas carriers, ships at the MICT (DP World) container berths and ships calling for other activities. It is not applied to container ships at the other container terminals.",
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 31
           }
         }
       ]

@@ -181,7 +181,9 @@
                 {
                   "rate": "0.004019"
                 }
-              ]
+              ],
+              "minimumAmount": "8.10",
+              "minimumPer": "hour"
             },
             {
               "when": {
@@ -200,7 +202,9 @@
                 {
                   "rate": "0.10861"
                 }
-              ]
+              ],
+              "minimumAmount": "216.52",
+              "minimumPer": "hour"
             },
             {
               "when": {
@@ -220,7 +224,9 @@
                 {
                   "rate": "0.002824"
                 }
-              ]
+              ],
+              "minimumAmount": "9.82",
+              "minimumPer": "hour"
             },
             {
               "when": {
@@ -240,12 +246,13 @@
                 {
                   "rate": "0.07602"
                 }
-              ]
+              ],
+              "minimumAmount": "262.83",
+              "minimumPer": "hour"
             }
           ],
           "conditions": [
-            "Charged from all fast until all lines cast off, stopping 4 hours after the ship signals it is ready to sail.",
-            "A minimum per hour applies (USD 8.10 or 9.82 foreign, Rs. 216.52 or 262.83 coastal); it only matters for very small ships."
+            "Charged from all fast until all lines cast off, stopping 4 hours after the ship signals it is ready to sail."
           ],
           "source": {
             "document": "sor-2026-27",
@@ -260,14 +267,6 @@
       ],
       "notes": [
         {
-          "text": "Berth hire has a minimum per hour (for example USD 9.82 per hour for dry bulk). The format cannot apply a per-hour minimum, so it is not applied; it only affects ships smaller than about 3,500 GRT.",
-          "source": {
-            "document": "sor-2026-27",
-            "page": 27,
-            "section": "2.3.1"
-          }
-        },
-        {
           "text": "Passenger vessels' berth hire is set by separate notification and is not entered.",
           "source": {
             "document": "sor-2026-27",
@@ -280,6 +279,21 @@
           "source": {
             "document": "sor-2026-27",
             "page": 19
+          }
+        },
+        {
+          "text": "Anchorage before berthing is free for ships working cargo at the port. Ships that stay at anchorage after sailing from the berth pay Rs. 0.021 per GRT per hour (minimum Rs. 43.44 per hour); the foreign rate is printed as 'USD 0.00075 cents' (minimum USD 1.52 per hour), which is unclear, so anchorage is not priced.",
+          "source": {
+            "document": "sor-2026-27",
+            "page": 35,
+            "section": "2.5.2"
+          }
+        },
+        {
+          "text": "Ships at the single point mooring (SPM) have their own pilotage rate (US$ 0.3107 / Rs. 11.84 per GRT); SPM calls are not priced.",
+          "source": {
+            "document": "sor-2026-27",
+            "page": 37
           }
         }
       ]

@@ -347,7 +347,7 @@
           "type": "berth-hire",
           "label": "Berth hire",
           "basis": "grt-hour",
-          "timeRounding": "started-hour",
+          "timeRounding": "exact",
           "rates": [
             {
               "when": {
@@ -372,7 +372,9 @@
                 {
                   "rate": "0.01607"
                 }
-              ]
+              ],
+              "minimumAmount": "900",
+              "minimumPer": "day"
             },
             {
               "when": {
@@ -390,12 +392,13 @@
                 {
                   "rate": "0.01292"
                 }
-              ]
+              ],
+              "minimumAmount": "900",
+              "minimumPer": "day"
             }
           ],
           "conditions": [
-            "From first line ashore to all cast off.",
-            "A minimum of US$ 900 per day applies to all ships."
+            "From first line ashore to all cast off."
           ],
           "source": {
             "document": "bpts-rev14-2026-10",
@@ -405,7 +408,8 @@
               "||USD**0.00861**per GRT per hour* up to**15000 GT**|",
               "|**Berth Hire for Tankers**|USD**0.01344**per GRT per hour* from**15001 to 30000 GT**|",
               "||USD**0.01607**per GRT per hour* for more than**30001 GT**|",
-              "|**Berth Hire for other than tankers**|USD**0.01292**per GRT per hour*|"
+              "|**Berth Hire for other than tankers**|USD**0.01292**per GRT per hour*|",
+              "*Minimum charges USD **900** per day for all vessels. The charge is leviable on each call of vessel."
             ]
           }
         },
@@ -452,14 +456,6 @@
           }
         },
         {
-          "text": "LNG and LPG/chemical carriers are treated as tankers for berth hire. The berth hire minimum of US$ 900 per day cannot be expressed per day and is not applied; it only matters for small ships.",
-          "source": {
-            "document": "bpts-rev14-2026-10",
-            "page": 28,
-            "section": "IV.F"
-          }
-        },
-        {
           "text": "Additional pilotage by ship age is suspended from 1 April 2023 until further notice.",
           "source": {
             "document": "bpts-rev14-2026-10",
@@ -473,6 +469,9 @@
             "document": "bpts-rev14-2026-10",
             "page": 26
           }
+        },
+        {
+          "text": "LNG and LPG/chemical carriers are treated as tankers for berth hire ('Tankers' includes liquefied gases in the definitions). Berth hire is printed per GRT per hour without 'or part thereof', so exact hours are used; the US$ 900 minimum is per day, each started day counting as a full day (definition of 'Per day')."
         }
       ]
     }

@@ -307,7 +307,8 @@
                 {
                   "rate": "38.2328"
                 }
-              ]
+              ],
+              "minimumAmount": "32289"
             },
             {
               "when": {
@@ -374,7 +375,8 @@
                 {
                   "rate": "25.2862"
                 }
-              ]
+              ],
+              "minimumAmount": "32289"
             },
             {
               "when": {
@@ -441,7 +443,8 @@
                 {
                   "rate": "31.5420"
                 }
-              ]
+              ],
+              "minimumAmount": "32289"
             },
             {
               "when": {
@@ -510,7 +513,8 @@
                 {
                   "rate": "29.2056"
                 }
-              ]
+              ],
+              "minimumAmount": "32289"
             },
             {
               "when": {
@@ -579,7 +583,8 @@
                 {
                   "rate": "35.0467"
                 }
-              ]
+              ],
+              "minimumAmount": "32289"
             }
           ],
           "conditions": [
@@ -805,6 +810,106 @@
               "||Minimum Charges per vessel|Rs. 24,256/-|US$ 909.62|"
             ]
           }
+        },
+        {
+          "id": "anchorage",
+          "type": "anchorage",
+          "label": "Anchorage fee (first 48 hours free)",
+          "basis": "grt-hour",
+          "timeRounding": "started-hour",
+          "freeHours": "48",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "tanker",
+                  "lng",
+                  "lpg",
+                  "chemical"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.00064"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "tanker",
+                  "lng",
+                  "lpg",
+                  "chemical"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "0.01641"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "general-cargo",
+                  "bulk",
+                  "container",
+                  "passenger",
+                  "ro-ro",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.00126"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "general-cargo",
+                  "bulk",
+                  "container",
+                  "passenger",
+                  "ro-ro",
+                  "other"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "0.03281"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Not charged once the ship is ready in all respects and waiting for a berth.",
+            "Not charged for ships anchored for the port's convenience."
+          ],
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 15,
+            "section": "2.3.4",
+            "quote": "|2|Beyond 48 hours|<br>or part thereof|0.01641|0.00064|0.03281|0.00126|"
+          }
         }
       ],
       "notes": [
@@ -817,14 +922,6 @@
         },
         {
           "text": "Pilotage rates are per GRT by size band, with no statement that they apply incrementally, so the whole tonnage is charged at its band's rate.",
-          "source": {
-            "document": "tn-gazette-2026-sor",
-            "page": 11,
-            "section": "2.2.1"
-          }
-        },
-        {
-          "text": "The coastal minimum pilotage (Rs. 32,289 in the PDF) is split across cells in the converted table, so it is not entered; the foreign minimum of US$ 1,222 is entered.",
           "source": {
             "document": "tn-gazette-2026-sor",
             "page": 11,
@@ -846,6 +943,24 @@
             "page": 10,
             "section": "2.1.1"
           }
+        },
+        {
+          "text": "The pilotage minimum row prints Rs. 32,289 split across two cells; the PDF confirms Rs. 32,289 for coastal and US$ 1,222 for foreign ships.",
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 11
+          }
+        },
+        {
+          "text": "Cruise ships pay a fixed cruise tariff instead (US$ 0.0850 per GRT for the first 12 hours, then US$ 0.0175 per GRT per hour, plus US$ 6 per passenger; section 2.3.5), with no port dues, pilotage or berth hire. Cruise calls are not priced; 'passenger' ships here means other passenger vessels.",
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 16,
+            "section": "2.3.5"
+          }
+        },
+        {
+          "text": "A second reading counted the 30 days to 10 July 2026. Calls on 10 July 2026 may fall under either schedule."
         }
       ]
     }

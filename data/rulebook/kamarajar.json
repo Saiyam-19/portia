@@ -623,7 +623,9 @@
                 {
                   "rate": "0.010"
                 }
-              ]
+              ],
+              "minimumAmount": "10.8",
+              "minimumPer": "hour"
             },
             {
               "when": {
@@ -643,7 +645,9 @@
                 {
                   "rate": "0.22"
                 }
-              ]
+              ],
+              "minimumAmount": "296",
+              "minimumPer": "hour"
             },
             {
               "when": {
@@ -662,7 +666,9 @@
                 {
                   "rate": "0.008"
                 }
-              ]
+              ],
+              "minimumAmount": "8.64",
+              "minimumPer": "hour"
             },
             {
               "when": {
@@ -681,7 +687,9 @@
                 {
                   "rate": "0.18"
                 }
-              ]
+              ],
+              "minimumAmount": "237",
+              "minimumPer": "hour"
             }
           ],
           "conditions": [
@@ -693,7 +701,8 @@
             "page": 7,
             "section": "II.4",
             "quote": [
-              "|0.22|0.18|0.010|0.008|"
+              "|0.22|0.18|0.010|0.008|",
+              "|296/-per hour|237/-per hour|10.8 per hour|8.64 per hour|"
             ]
           }
         }
@@ -721,17 +730,18 @@
           }
         },
         {
-          "text": "Berth hire has a per-hour minimum that the format cannot apply; it only affects ships under about 1,080 GT.",
-          "source": {
-            "document": "sor-consolidated",
-            "page": 7
-          }
-        },
-        {
           "text": "The two one-page annexes (coastal cars, granite blocks) are cargo promotions and are not entered.",
           "source": {
             "document": "sor-annex-2",
             "page": 1
+          }
+        },
+        {
+          "text": "Dry bulk ships at anchorage pay nothing for the first 48 hours, then per GT: Rs. 0.023 / US$ 0.001 from 49 to 96 hours, Rs. 0.046 / US$ 0.002 from 97 to 144 hours and Rs. 0.092 / US$ 0.004 beyond 144 hours. The table doesn't say whether this is per hour or for the whole period, so anchorage is not priced.",
+          "source": {
+            "document": "sor-consolidated",
+            "page": 8,
+            "section": "5"
           }
         }
       ]

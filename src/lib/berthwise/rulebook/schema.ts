@@ -36,7 +36,8 @@ export const sourceRefSchema = z.object({
 }).strict();
 
 export const bandSchema = z.object({
-  upTo: decimal.optional().describe("Upper limit of this band, inclusive. Omit on the last band."),
+  upTo: decimal.optional().describe("Upper limit of this band, inclusive unless exclusive is true. Omit on the last band."),
+  exclusive: z.literal(true).optional().describe("The limit itself belongs to the next band (\"less than 3,000 GRT\")."),
   rate: decimal,
   base: decimal.optional().describe("Fixed amount for everything below this band, when the schedule prints one (\"US$ 18,966 for the first 30,000 GRT + 0.5058 per additional GRT\")."),
   minimumAmount: decimal.optional().describe("Minimum charge for ships in this band, when the minimum depends on ship size."),
@@ -56,6 +57,8 @@ export const rateSchema = z.object({
   bandMode: z.enum(["whole", "excess"]).default("whole").describe("whole: the whole quantity is charged at the band it falls in. excess: each band's rate applies only above the previous band's limit, plus that band's base."),
   bands: z.array(bandSchema).min(1),
   minimumAmount: decimal.optional(),
+  minimumPer: z.enum(["hour", "day"]).optional().describe("The minimums on this row are per hour or per day of the stay (each started day counts), not per call."),
+  minimumHours: decimal.optional().describe("A shorter stay is charged as this many hours (\"minimum for 24 hours\")."),
   maximumAmount: decimal.optional(),
 }).strict();
 

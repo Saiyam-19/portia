@@ -594,13 +594,6 @@
           }
         },
         {
-          "text": "NSIGT and BMCT charge their own berth hire in rupees (also for foreign ships). The NSFT tariff does not state who charges berth hire, so berth hire at NSFT is not priced.",
-          "source": {
-            "document": "nsft-2026",
-            "page": 1
-          }
-        },
-        {
           "text": "Terminal tariffs have their own dates: NSIGT indexed from 1 April 2026, BMCT from 6 April 2026, NSICT from 1 May 2026. This version uses JNPA's indexed period of 1 May 2026 to 30 April 2027.",
           "source": {
             "document": "nsigt-2026",
@@ -613,6 +606,9 @@
             "document": "sor-2026-27",
             "page": 3
           }
+        },
+        {
+          "text": "NSIGT and BMCT charge their own berth hire in rupees (also for foreign ships). The NSFT tariff does not mention berth hire at all, so berth hire at NSFT is not priced; if JNPA charges it there, JNPA's all-berths rate (US$ 0.0053 / Rs. 0.1309 per GRT per hour) would apply."
         }
       ]
     }

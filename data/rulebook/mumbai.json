@@ -93,8 +93,9 @@
               "bandMode": "whole",
               "bands": [
                 {
-                  "upTo": "2999.99",
-                  "rate": "0.2718"
+                  "upTo": "3000",
+                  "rate": "0.2718",
+                  "exclusive": true
                 },
                 {
                   "rate": "0.3850"
@@ -111,8 +112,9 @@
               "bandMode": "whole",
               "bands": [
                 {
-                  "upTo": "2999.99",
-                  "rate": "7.4379"
+                  "upTo": "3000",
+                  "rate": "7.4379",
+                  "exclusive": true
                 },
                 {
                   "rate": "10.5366"
@@ -314,14 +316,6 @@
           "source": {
             "document": "berth-amendment-2026-05",
             "page": 2
-          }
-        },
-        {
-          "text": "Port dues bands: 'less than 3000 tons' is entered as up to 2,999.99 GRT.",
-          "source": {
-            "document": "sor-2026-05",
-            "page": 20,
-            "section": "2.16"
           }
         },
         {

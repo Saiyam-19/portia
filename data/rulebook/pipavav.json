@@ -381,7 +381,8 @@
                 {
                   "rate": "0.652"
                 }
-              ]
+              ],
+              "minimumAmount": "1000"
             },
             {
               "when": {
@@ -397,7 +398,8 @@
                 {
                   "rate": "0.511"
                 }
-              ]
+              ],
+              "minimumAmount": "1000"
             }
           ],
           "source": {
@@ -406,7 +408,8 @@
             "section": "A.II",
             "quote": [
               "|**Foreign Vessel**||**US$ 0.652**|",
-              "|**Coastal Vessel**||**US$ 0.511**|"
+              "|**Coastal Vessel**||**US$ 0.511**|",
+              "|**Pilotage and Towage**<br>**Charges**|Minimum applicable Pilotage and Towage charges<br>(Non container vessels only)|**US$ 1000**|"
             ]
           }
         },
@@ -482,7 +485,9 @@
                 {
                   "rate": "0.020"
                 }
-              ]
+              ],
+              "minimumAmount": "1000",
+              "minimumPer": "day"
             },
             {
               "when": {
@@ -496,7 +501,9 @@
                 {
                   "rate": "0.024"
                 }
-              ]
+              ],
+              "minimumAmount": "1000",
+              "minimumPer": "day"
             },
             {
               "when": {
@@ -541,11 +548,12 @@
                 {
                   "rate": "0.0123"
                 }
-              ]
+              ],
+              "minimumHours": "24"
             }
           ],
           "conditions": [
-            "Liquid and gas tankers pay at least 24 hours (US$ 1,000 minimum); dry bulk ships pay at least 24 hours."
+            "Liquid and gas tankers pay at least US$ 1,000 for each 24 hours; dry bulk ships are charged for at least 24 hours."
           ],
           "source": {
             "document": "tariffs-2026-01-01",
@@ -556,7 +564,123 @@
               "|**Gas Tankers**|**US$ 0.024**|",
               "|**Foreign Vessel**|**US$ 0.0064**|",
               "|**Coastal Vessel**|**US$ 0.0057**|",
-              "|**Dry Bulk Vessels**|**US$ 0.0123**|"
+              "|**Dry Bulk Vessels**|**US$ 0.0123**|",
+              "|**Minimum Berth Hire Charges**|**US$ 1000 for 24 hours**|",
+              "|**Minimum Berth Hire Charges for Dry Bulk Vessels**|**Minimum for 24 hours**|"
+            ]
+          }
+        },
+        {
+          "id": "mooring",
+          "type": "mooring",
+          "label": "Mooring",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.04"
+                }
+              ]
+            },
+            {
+              "when": {
+                "vesselTypes": [
+                  "general-cargo",
+                  "bulk",
+                  "tanker",
+                  "lng",
+                  "lpg",
+                  "chemical",
+                  "passenger",
+                  "ro-ro",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.04"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "No rate is printed for coastal container ships."
+          ],
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 13,
+            "section": "XI",
+            "quote": [
+              "|**Foreign Vessel**|**US$ 0.04**|",
+              "|**(Foreign/Coastal)**|**US$ 0.04**|"
+            ]
+          }
+        },
+        {
+          "id": "sustainability",
+          "type": "other",
+          "label": "Green initiative / sustainability charge",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.01"
+                }
+              ]
+            },
+            {
+              "when": {
+                "vesselTypes": [
+                  "general-cargo",
+                  "bulk",
+                  "tanker",
+                  "lng",
+                  "lpg",
+                  "chemical",
+                  "passenger",
+                  "ro-ro",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.01"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "No rate is printed for coastal container ships."
+          ],
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 13,
+            "section": "XII",
+            "quote": [
+              "|**Foreign Vessel**|**US$ 0.01**|",
+              "|**(Foreign/Coastal)**|**US$ 0.01**|"
             ]
           }
         }
@@ -578,14 +702,6 @@
           }
         },
         {
-          "text": "Berth hire for break-bulk and general cargo ships is not printed (offshore and project cargo vessels pay US$ 8,000 for the first 24 hours), so it is not priced. The 24-hour minimums for tankers and dry bulk cannot be expressed in the format and are not applied.",
-          "source": {
-            "document": "tariffs-2026-01-01",
-            "page": 9,
-            "section": "A.III"
-          }
-        },
-        {
           "text": "Ships handled at other than GPPL jetties pay a different pilotage rate (US$ 0.843 / 0.920 foreign, 0.705 coastal); it is not entered. A port control charge of US$ 1,000 per call applies only to ships staying at anchorage.",
           "source": {
             "document": "tariffs-2026-01-01",
@@ -597,6 +713,13 @@
           "source": {
             "document": "tariffs-2026-01-01",
             "page": 6
+          }
+        },
+        {
+          "text": "Berth hire for break-bulk and general cargo ships is not printed (offshore and project cargo vessels pay US$ 8,000 for the first 24 hours), so it is not priced. The tankers' minimum 'US$ 1000 for 24 hours' is read as US$ 1,000 for each 24 hours of the stay.",
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 9
           }
         }
       ]
