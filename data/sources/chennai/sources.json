@@ -46,21 +46,6 @@
       "publishedOn": "2025-10-17"
     },
     {
-      "file": "data/sources/chennai/rules/citpl-scale-of-rates-2025.pdf",
-      "title": "CHENNAI INTERNATIONAL TERMINALS PRIVATE LIMITED - Scale of Rates (effective 1 May 2025)",
-      "issuer": "Chennai International Terminals Private Limited (PSA Chennai)",
-      "url": "https://india.globalpsa.com/wp-content/uploads/2025/06/Scale-of-Rates-2025-wef-01st-May-2025.pdf",
-      "retrievedOn": "2026-10-25",
-      "markdown": "data/sources/chennai/rules/citpl-scale-of-rates-2025.md",
-      "sha256": "5811ab23f6d53f2b9a7a8b5f21e39f2ff4de124cacfde5269a387e74c773feff",
-      "kind": "tariff",
-      "pages": 17,
-      "pagesWithoutText": [],
-      "notes": "Historical container-cargo schedule, expired30 April2026; current2026-27 schedule could not be verified. CITPL is at Chennai, not Kamarajar, so filed under its actual port. No separate berth-hire rate table: clause2.5(ii) refers to berth hire payable to Chennai Port. Does not close the requested current berth-hire tariff gap.",
-      "validFrom": "2025-05-01",
-      "validTo": "2026-04-30"
-    },
-    {
       "file": "data/sources/chennai/rules/pre-arrival-security-pans.pdf",
       "title": "Pre-Arrival Notification of Security (PANS), Annexure I and Annexure II",
       "issuer": "Chennai Port Authority",

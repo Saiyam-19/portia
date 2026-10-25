@@ -45,24 +45,6 @@
       "validFrom": "2026-06-15"
     },
     {
-      "file": "data/sources/pipavav/rules/container-draft-2026-08-to-12.pdf",
-      "title": "Port Pipavav - Container Berths Permissible Draft Details for Aug-26 to Dec-26",
-      "issuer": "Gujarat Pipavav Port Limited (APM Terminals)",
-      "url": "https://cms-cd.apmterminals.com/pipavav/-/media/mainsite/asia-and-pacific/Pipavav/Information/Allowable-Max-daily-draft-for-container-vessels-Aug-to-Dec-2026.pdf",
-      "retrievedOn": "2026-10-25",
-      "markdown": "data/sources/pipavav/rules/container-draft-2026-08-to-12.md",
-      "sha256": "44e13b0cd0a5b578a3e9fb167945e621f116092cd72623f47d772148cb9a52bc",
-      "kind": "rules",
-      "pages": 1,
-      "pagesWithoutText": [],
-      "notes": "Daily GP3/GP4 limits require specified tide/time, fair/foul-season limits and UKC; not an unconditional draft guarantee. Publicly linked by operator Marine Operations page; PDF footer says Classification: Internal.",
-      "validFrom": "2026-08-01",
-      "validTo": "2026-12-31",
-      "pagesTextCorrectedVisually": [
-        1
-      ]
-    },
-    {
       "file": "data/sources/pipavav/rules/safe-memo-2025.pdf",
       "title": "SAFE MEMO – PIPAVAV PORT – INDIA",
       "issuer": "Gujarat Pipavav Port Limited (APM Terminals)",
