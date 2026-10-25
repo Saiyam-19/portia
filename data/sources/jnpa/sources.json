@@ -79,6 +79,77 @@
       "sha256": "6ff9b2708ae9377fb6f62deadca6145b0879e0cbe837f18c652ab38daafbc29d",
       "pages": 4,
       "pagesWithoutText": []
+    },
+    {
+      "file": "data/sources/jnpa/rules/container-terminals.html",
+      "title": "CONTAINER TERMINALS",
+      "issuer": "Jawaharlal Nehru Port Authority",
+      "url": "https://www.jnport.gov.in/page/terminals/VDRTUFJlSzllbDRDY05hVzdmdG5KZz09",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/jnpa/rules/container-terminals.md",
+      "sha256": "c51be3d6fbbf5dc84b27a5092201491d0a6154eab66745af5dc7643561773669",
+      "kind": "rules",
+      "pages": 1,
+      "notes": "Undated current page. NSIGT subsection incorrectly labels its table Terminal NSICT; preserved as printed. Its 330m NSIGT quay differs from DP World's 600m infrastructure page."
+    },
+    {
+      "file": "data/sources/jnpa/rules/berthing-guidelines-2026.pdf",
+      "title": "Berthing Guidelines Circular (29 December 2025) with Coastal Berth draft circular (8 June 2026)",
+      "issuer": "Jawaharlal Nehru Port Authority",
+      "url": "https://www.jnport.gov.in/uploads/content_manager/Berthing_Guidelines_circular.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/jnpa/rules/berthing-guidelines-2026.md",
+      "sha256": "e1acce7f06350dc67d1afce72ea2d02f1c255a976041a16fa245ca538b8773ac",
+      "kind": "rules",
+      "pages": 6,
+      "pagesWithoutText": [],
+      "pagesTranscribedByHand": [],
+      "publishedOn": "2026-06-08",
+      "notes": "PDF p1 raises Coastal Berth draft to 10m, overriding 9.2m in baseline p3. Baseline effective 1 January 2026. OCR text was corrected by visual comparison on all six pages. Source p6 prints specific gravity as 1012–1024; retained without guessing decimal/unit. Berth length and maximum LOA differ.",
+      "pagesTextCorrectedVisually": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "file": "data/sources/jnpa/rules/nsict-infrastructure.html",
+      "title": "Nhava Sheva International Container Terminal - Infrastructure",
+      "issuer": "DP World",
+      "url": "https://www.dpworld.com/en/ports-terminals/india/nsict/infrastructure",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/jnpa/rules/nsict-infrastructure.md",
+      "sha256": "73468eff65d16e050c81bed9f41d8e5754fa53745d30933a31157efaea8c274a",
+      "kind": "rules",
+      "pages": 1,
+      "notes": "Undated operator webpage. Implausible yard-area and crane-unit strings are preserved as printed and should not be used without operator confirmation."
+    },
+    {
+      "file": "data/sources/jnpa/rules/nsigt-infrastructure.html",
+      "title": "Nhava Sheva India Gateway Terminal - Infrastructure",
+      "issuer": "DP World",
+      "url": "https://www.dpworld.com/en/ports-terminals/india/nsigt/infrastructure",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/jnpa/rules/nsigt-infrastructure.md",
+      "sha256": "a8f275018ecb05f6afeadb50db0e9d468824b06b18ab3590d56c2799228b9183",
+      "kind": "rules",
+      "pages": 1,
+      "notes": "Undated operator webpage. Lists 600m berth length versus 330m in JNPA's NSIGT table; also 150,000mt overall displacement versus JNPA current guidelines' 211,000MT NSIGT maximum. Treat as unresolved conflict, not verified acceptance criteria. Yard-area/crane units also appear erroneous."
+    },
+    {
+      "file": "data/sources/jnpa/rules/gti-our-terminal.html",
+      "title": "Our Terminal",
+      "issuer": "APM Terminals Mumbai (Gateway Terminals India)",
+      "url": "https://www.apmterminals.com/en/mumbai/about/our-terminal",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/jnpa/rules/gti-our-terminal.md",
+      "sha256": "628a39f37d9273abc5bd49c157d99301b9110cb1e7cc0bac8286caa66b8bb600",
+      "kind": "rules",
+      "pages": 1,
+      "notes": "Undated operator page with quay dimensions, 16.5m draft at chart datum and operational facilities; use JNPA's newer conditional draft permissions for vessel acceptance."
     }
   ]
 }

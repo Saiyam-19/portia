@@ -11,6 +11,79 @@
       "sha256": "29c6c8722676d26189073fe8a72cd788a9ca129288fdfcb43e06e24a28f46c7d",
       "pages": 42,
       "pagesWithoutText": []
+    },
+    {
+      "file": "data/sources/pipavav/rules/our-port.html",
+      "title": "Our Port",
+      "issuer": "Gujarat Pipavav Port Limited (APM Terminals)",
+      "url": "https://www.apmterminals.com/en/pipavav/about/our-terminal",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/pipavav/rules/our-port.md",
+      "sha256": "0e3a948683402c30b54266cf49d51dad734f1b34304f31611c3f8d631bc5ce73",
+      "kind": "rules",
+      "pages": 1,
+      "notes": "Undated live operator page. All facility accordion text preserved. The separate Port Information–Marine PDF was excluded because it lists named personal email addresses.",
+      "captureMethod": "Rendered official main content captured as HTML; site navigation/footer omitted."
+    },
+    {
+      "file": "data/sources/pipavav/rules/mandatory-fal-msw-2026.pdf",
+      "title": "Mandatory Submission of FAL Forms through Maritime Single Window (MSW 2.0 – Sagar Setu)",
+      "issuer": "Gujarat Pipavav Port Limited (APM Terminals)",
+      "url": "https://cms-cd.apmterminals.com/pipavav/-/media/mainsite/asia-and-pacific/Pipavav/Information/Mandatory-Submission-of-FAL-Forms-via-MSW-20--Sagar-Setu-Ref--DGS-Circular-No-29-of-2026.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/pipavav/rules/mandatory-fal-msw-2026.md",
+      "sha256": "a323ec04b64b38a8a0ea2487fd169be3bac9707d279031b3686c321981d0842b",
+      "kind": "rules",
+      "pages": 1,
+      "pagesWithoutText": [
+        1
+      ],
+      "pagesTranscribedByHand": [
+        1
+      ],
+      "publishedOn": "2026-06-10",
+      "validFrom": "2026-06-15"
+    },
+    {
+      "file": "data/sources/pipavav/rules/container-draft-2026-08-to-12.pdf",
+      "title": "Port Pipavav - Container Berths Permissible Draft Details for Aug-26 to Dec-26",
+      "issuer": "Gujarat Pipavav Port Limited (APM Terminals)",
+      "url": "https://cms-cd.apmterminals.com/pipavav/-/media/mainsite/asia-and-pacific/Pipavav/Information/Allowable-Max-daily-draft-for-container-vessels-Aug-to-Dec-2026.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/pipavav/rules/container-draft-2026-08-to-12.md",
+      "sha256": "44e13b0cd0a5b578a3e9fb167945e621f116092cd72623f47d772148cb9a52bc",
+      "kind": "rules",
+      "pages": 1,
+      "pagesWithoutText": [],
+      "notes": "Daily GP3/GP4 limits require specified tide/time, fair/foul-season limits and UKC; not an unconditional draft guarantee. Publicly linked by operator Marine Operations page; PDF footer says Classification: Internal.",
+      "validFrom": "2026-08-01",
+      "validTo": "2026-12-31",
+      "pagesTextCorrectedVisually": [
+        1
+      ]
+    },
+    {
+      "file": "data/sources/pipavav/rules/safe-memo-2025.pdf",
+      "title": "SAFE MEMO – PIPAVAV PORT – INDIA",
+      "issuer": "Gujarat Pipavav Port Limited (APM Terminals)",
+      "url": "https://cms-cd.apmterminals.com/pipavav/-/media/mainsite/asia-and-pacific/Pipavav/Information/Safe-Memo-Sep-2025.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/pipavav/rules/safe-memo-2025.md",
+      "sha256": "4372d3cd6b0c23d5f2920c6c1aa3b575f623ceeb993d4a48f5715588cdd49c27",
+      "kind": "rules",
+      "pages": 3,
+      "pagesWithoutText": [
+        1,
+        2,
+        3
+      ],
+      "pagesTranscribedByHand": [
+        1,
+        2,
+        3
+      ],
+      "publishedOn": "2025-09-02",
+      "notes": "Supersedes earlier safe memos. Baseline drafts and higher tide-dependent limits are different conditions, not a numerical conflict. Read with Aug–Dec 2026 daily draft table."
     }
   ]
 }

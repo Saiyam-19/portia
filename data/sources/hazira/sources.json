@@ -22,6 +22,25 @@
       "sha256": "d9d27f7c80849e41c414873ff0acc9392ed7f684b1844f4b7d57be22f04e1197",
       "pages": 1,
       "pagesWithoutText": []
+    },
+    {
+      "file": "data/sources/hazira/rules/mandatory-fal-msw-2026.pdf",
+      "title": "Mandatory Submission of FAL Forms through Maritime Single Window (MSW) System",
+      "issuer": "Adani Hazira Port Limited",
+      "url": "https://www.adaniports.com/-/media/project/ports/portsandterminals/hazira-port-documents/trade-notice/ahpl---trade-notice-05-2026-fal-forms-through-maritime-single-window-msw-system.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/hazira/rules/mandatory-fal-msw-2026.md",
+      "sha256": "75271eaae2439d8c05a1a12adedee8c65b252895f24d6d2a39d920fc30c8f0b6",
+      "kind": "rules",
+      "pages": 1,
+      "pagesWithoutText": [
+        1
+      ],
+      "pagesTranscribedByHand": [
+        1
+      ],
+      "publishedOn": "2026-06-11",
+      "notes": "Effective 15 June 2026; pilot assigned only after requisite FAL confirmation. Refers to DGS Circular 29/2026, which is not appended to the downloaded one-page file."
     }
   ]
 }

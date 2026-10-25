@@ -11,6 +11,83 @@
       "sha256": "bec33b9bcef6fa1f37c70c2df2dcf4d1f660457a0a81ff1ed7351a1e80790bf3",
       "pages": 35,
       "pagesWithoutText": []
+    },
+    {
+      "file": "data/sources/chennai/rules/berth-details-2026.html",
+      "title": "BERTH DETAILS - Permissible Draft at Berths as on 01.01.2026",
+      "issuer": "Chennai Port Authority",
+      "url": "https://www.chennaiport.gov.in/cargo-facilities",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/chennai/rules/berth-details-2026.md",
+      "sha256": "6289e3e8cac677ceedac7f983fa35370beaa9b67ca0c421fa42eeaa9042ef19b",
+      "kind": "rules",
+      "pages": 1,
+      "notes": "As-at date 1 January 2026, not a printed publication date. Berth length must not be interpreted as maximum LOA.",
+      "captureMethod": "Rendered official page HTML after JavaScript loaded."
+    },
+    {
+      "file": "data/sources/chennai/rules/pre-arrival-circular-06-2025.pdf",
+      "title": "Circular No.06/2025 - Guidelines to Enhance Port Efficiency and Productivity Monitoring Parameters",
+      "issuer": "Chennai Port Authority",
+      "url": "https://www.chennaiport.gov.in/api/static/default/inner_content/pre%20arrival211025.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/chennai/rules/pre-arrival-circular-06-2025.md",
+      "sha256": "8b211f2fe29ae0dd31972ebc9cb4fd8ca194862c5a8f3658119ef2ff51a9bdf5",
+      "kind": "rules",
+      "pages": 2,
+      "pagesWithoutText": [
+        1,
+        2
+      ],
+      "pagesTranscribedByHand": [
+        1,
+        2
+      ],
+      "publishedOn": "2025-10-17"
+    },
+    {
+      "file": "data/sources/chennai/rules/citpl-scale-of-rates-2025.pdf",
+      "title": "CHENNAI INTERNATIONAL TERMINALS PRIVATE LIMITED - Scale of Rates (effective 1 May 2025)",
+      "issuer": "Chennai International Terminals Private Limited (PSA Chennai)",
+      "url": "https://india.globalpsa.com/wp-content/uploads/2025/06/Scale-of-Rates-2025-wef-01st-May-2025.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/chennai/rules/citpl-scale-of-rates-2025.md",
+      "sha256": "5811ab23f6d53f2b9a7a8b5f21e39f2ff4de124cacfde5269a387e74c773feff",
+      "kind": "tariff",
+      "pages": 17,
+      "pagesWithoutText": [],
+      "notes": "Historical container-cargo schedule, expired30 April2026; current2026-27 schedule could not be verified. CITPL is at Chennai, not Kamarajar, so filed under its actual port. No separate berth-hire rate table: clause2.5(ii) refers to berth hire payable to Chennai Port. Does not close the requested current berth-hire tariff gap.",
+      "validFrom": "2025-05-01",
+      "validTo": "2026-04-30"
+    },
+    {
+      "file": "data/sources/chennai/rules/pre-arrival-security-pans.pdf",
+      "title": "Pre-Arrival Notification of Security (PANS), Annexure I and Annexure II",
+      "issuer": "Chennai Port Authority",
+      "url": "https://www.chennaiport.gov.in/api/static/default/inner_content/pre-arrival160522.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/chennai/rules/pre-arrival-security-pans.md",
+      "sha256": "e03b886fb46e912ccc00c14ed95da818f8b6938803286a6d93fd106d29d093a0",
+      "kind": "rules",
+      "pages": 6,
+      "pagesWithoutText": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "pagesTranscribedByHand": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "notes": "Undated blank forms currently linked by the official Forms page. Filename date not treated as publication date. PANS requires 96 hours' notice; voyages shorter than 96 hours may file within 2 hours of last-port departure (Annexure I). Separate 2025 general arrival circular requires statutory documents at least 24 hours before arrival.",
+      "currentListingUrl": "https://www.chennaiport.gov.in/forms"
     }
   ]
 }

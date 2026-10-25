@@ -1,0 +1,1722 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Port Operations - Kamarajar Port Limited</title>
+
+
+  <link rel="stylesheet" href="https://www.kamarajarport.in/public/frontend/assets/fonts/inter/inter.css">
+
+  <link rel="stylesheet" href="https://www.kamarajarport.in/public/frontend/assets/bootstrap/css/bootstrap.min.css">
+
+  <link rel="stylesheet" href="https://www.kamarajarport.in/public/frontend/assets/bootstrap-icons/font/bootstrap-icons.css">
+
+  <link rel="stylesheet" href="https://www.kamarajarport.in/public/frontend/assets/fontawesome/css/all.min.css">
+
+  <link rel="stylesheet" href="https://www.kamarajarport.in/public/frontend/assets/css/style.css">
+  <link rel="stylesheet" href="https://www.kamarajarport.in/public/custom/css/custom.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://kamarajarport.in/public/public/favicon.png?v=1774345987" sizes="32x32">
+  <link rel="shortcut icon" type="image/png" href="https://kamarajarport.in/public/public/favicon.png?v=1774345987"></head>
+<script>
+// Apply saved theme
+if (localStorage.getItem("theme") === "dark") {
+    document.body.classList.add("dark-mode");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    document.querySelector(".bi-brightness-high").addEventListener("click", () => {
+        document.body.classList.remove("dark-mode");
+        localStorage.setItem("theme", "light");
+    });
+
+    document.querySelector(".bi-moon").addEventListener("click", () => {
+        document.body.classList.add("dark-mode");
+        localStorage.setItem("theme", "dark");
+    });
+
+});
+</script>
+<body>
+    <div class="utility-bar py-1">
+  <div class="container d-flex justify-content-between align-items-center small">
+    <div class="tools d-flex align-items-center gap-3">
+      <span id="currentDateTime" class="fw-bold me-3" style="font-size: 13px;">
+        <span id="dateTimeText"></span>
+      </span>
+      <span data-key="tool.fontDecrease">A-</span>
+      <span data-key="tool.fontNormal">A</span>
+      <span data-key="tool.fontIncrease">A+</span>
+      <i class="bi bi-brightness-high" title="Toggle light mode" data-i18n-attrs="title:tool.light"></i>
+      <i class="bi bi-moon" title="Toggle dark mode" data-i18n-attrs="title:tool.dark"></i>     
+    </div>
+    <div class="d-flex align-items-center gap-1">
+      <i class="fa fa-arrows-h" aria-hidden="true"></i>
+      <a href="#main-content" class="text-dark hero-text" data-en="Skip to Main Content" data-hi="मुख्य सामग्री पर जाएँ" title="Skip to Main Content">Skip to Main Content</a>
+        <i class="fa fa-desktop" aria-hidden="true"></i>
+      <a href="https://kamarajarport.in/public/screen-reader-access" class="text-dark hero-text" data-en="Screen Reader Access" data-hi="स्क्रीन रीडर एक्सेस
+    " title="स्क्रीन रीडर एक्सेस">Screen Reader Access</a>
+      <a href="https://kamarajarport.in/public/sitemap" class="text-dark hero-text" data-en="Sitemap" data-hi="साइट मानचित्र" data-ta="தள வரைபடம்" title="Sitemap">Sitemap</a>
+      <a href="https://kamarajarport.in/public/help" class="text-dark hero-text" data-en="Help" data-hi="सहायता" data-ta="உதவி" title="Help">Help</a>
+      <div class="dropdown">
+        <button class="btn btn-sm btn-light dropdown-toggle" type="button" id="langDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Change Language">
+          <span id="currentLang" class="lang-label">English</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
+          <li><button class="dropdown-item lang-switch" data-lang="en" title="Switch to English">English</button></li>
+          <li><button class="dropdown-item lang-switch" data-lang="hi" title="Switch to Hindi">हिंदी</button></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="govt-bar py-2">
+  <div class="container d-flex justify-content-between align-items-center small text-white">
+    <div class="d-flex gap-4">
+      <span class="hero-text" data-en="Government of India" data-hi="भारत सरकार" data-ta="இந்திய அரசு">Government of India</span>
+      <span class="hide-mobile hero-text" data-en="Ministry of Ports, Shipping & Waterways" data-hi="बंदरगाह, नौवहन और जलमार्ग मंत्रालय" data-ta="துறைமுகங்கள், கப்பல் போக்குவரத்து மற்றும் நீர்வழிகள் அமைச்சகம்">Ministry of Ports, Shipping & Waterways</span>
+    </div>
+    <div class="d-flex gap-4">   
+      <a href="https://kamarajarport.in/public/rfid" class="text-white hero-text" data-en="RFID" data-hi="आरएफआईडी" data-ta="தொடர்பு" title="RFID">RFID</a>
+      <a href="https://kamarajarport.in/public/citizens-corner" class="text-white hero-text" data-en="Citizen's Corner" data-hi="नागरिक का कोना" title="Citizen's Corner" >Citizen's Corner</a>
+      <a href="https://kamarajarport.in/public/rti" class="text-white hero-text" data-en="RTI" data-hi="आरटीआई" data-ta="தகவல் உரிமை" title="RTI" >RTI</a>
+     <!-- <a href="#" class="text-white hero-text" data-en="Feedback" data-hi="प्रतिक्रिया" data-ta="கருத்து" title="Feedback">Feedback</a>-->
+      <a href="https://kamarajarport.in/public/contact-us" class="text-white hero-text" data-en="Contact" data-hi="संपर्क" data-ta="தொடர்பு" title="Contact">Contact</a>
+    </div>
+  </div>
+</div>
+
+<header class="ipa-header py-3">
+  <div class="container">
+    <div class="row align-items-center">
+      <!-- Logo and Title Section -->
+      <div class="col-lg-3 col-md-4 col-6">
+        <div class="left-block d-flex align-items-center gap-3">
+          <a href="https://kamarajarport.in/public" title="Go to Home Page"><img src="https://kamarajarport.in/public/public/frontend/assets/images/logowithname.png" title="Kamarajar Port Limited" class="logo-dark" style="width: 500px; height: 80px;"></a>    
+        </div>
+      </div>
+            <script>
+        var currentLanguage = localStorage.getItem('selectedLanguage') || 'en';
+      </script>
+      <div class="col-lg-8 col-md-6 d-none d-lg-block">
+                <nav class="main-nav d-flex justify-content-center flex-wrap gap-3" style="gap: 0 !important;" aria-label="Main navigation">
+                                  <!--  -->
+                        <a class="nav-link " 
+               href="https://kamarajarport.in/public/#" 
+               title="Home"
+               >
+                <span class="menu-name" data-en="Home" data-hi="घर" data-ta="Home">Home</span>
+            </a>
+                                              <!--  -->
+                        <a class="nav-link " 
+               href="https://kamarajarport.in/public/about" 
+               title="Company"
+               >
+                <span class="menu-name" data-en="Company" data-hi="कंपनी" data-ta="Company">Company</span>
+            </a>
+                                              <!--  -->
+                        <a class="nav-link " 
+               href="https://kamarajarport.in/public/financial-performances" 
+               title="Financial Performance"
+               >
+                <span class="menu-name" data-en="Financial Performance" data-hi="वित्तीय प्रदर्शन" data-ta="Financial Performance">Financial Performance</span>
+            </a>
+                                              <!--  -->
+                        <a class="nav-link active" 
+               href="https://kamarajarport.in/public/port-operations" 
+               title="Port Operations"
+               >
+                <span class="menu-name" data-en="Port Operations" data-hi="बंदरगाह संचालन" data-ta="Port Operations">Port Operations</span>
+            </a>
+                                              <!--  -->
+                        <a class="nav-link " 
+               href="https://kamarajarport.in/public/ehs" 
+               title="HSE"
+               >
+                <span class="menu-name" data-en="HSE" data-hi="एच एस ई" data-ta="HSE">HSE</span>
+            </a>
+                                              <!--  -->
+                        <a class="nav-link " 
+               href="https://kamarajarport.in/public/vigilance" 
+               title="Vigilance"
+               >
+                <span class="menu-name" data-en="Vigilance" data-hi="सतर्कता" data-ta="Vigilance">Vigilance</span>
+            </a>
+                                              <!--  -->
+                        <a class="nav-link " 
+               href="https://kamarajarport.in/public/investors" 
+               title="Investors"
+               >
+                <span class="menu-name" data-en="Investors" data-hi="निवेशकों" data-ta="Investors">Investors</span>
+            </a>
+                                              <!--  -->
+                                              <!--  -->
+                        <a class="nav-link " 
+               href="https://kamarajarport.in/public/csr" 
+               title="CSR"
+               >
+                <span class="menu-name" data-en="CSR" data-hi="सीएसआर" data-ta="CSR">CSR</span>
+            </a>
+                              </nav>
+              </div>
+
+      <div class="col-lg-1 col-md-2 col-6" style="margin-left: -70px;">
+        <div class="d-flex align-items-center gap-2">
+          <img src="https://kamarajarport.in/public/public/frontend/assets/images/logotwo.png" class="logo-dark" style="width: 100px; height: 80px;" title="Sagarmala">
+          <img src="https://kamarajarport.in/public/public/frontend/assets/images/25.png" class="logo-dark" style="width: 100px; height: 80px;" title="Kamarajar Port 25yrs Celebration">
+          <div class="mobile-icons d-flex d-lg-none gap-2">
+            <button class="mobile-icon-btn" aria-label="Search" title="Search">
+              <i class="bi bi-search"></i>
+            </button>
+            <button class="mobile-icon-btn" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-controls="mobileMenu" aria-label="Open menu" title="Open menu">
+              <i class="bi bi-list"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">  
+  <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="mobileMenuLabel">Indian Ports</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close" title="Close menu"></button>
+  </div>
+
+  <div class="offcanvas-body">
+      <div class="accordion" id="accordionMenu">
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/#" class="accordion-button no-arrow d-block link " >
+                    <span class="menu-name" data-en="Home" data-hi="घर" data-ta="Home">Home</span>
+                </a>
+            </h2>
+        </div>
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/about" class="accordion-button no-arrow d-block link " >
+                    <span class="menu-name" data-en="Company" data-hi="कंपनी" data-ta="Company">Company</span>
+                </a>
+            </h2>
+        </div>
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/financial-performances" class="accordion-button no-arrow d-block link " >
+                    <span class="menu-name" data-en="Financial Performance" data-hi="वित्तीय प्रदर्शन" data-ta="Financial Performance">Financial Performance</span>
+                </a>
+            </h2>
+        </div>
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/port-operations" class="accordion-button no-arrow d-block link active" >
+                    <span class="menu-name" data-en="Port Operations" data-hi="बंदरगाह संचालन" data-ta="Port Operations">Port Operations</span>
+                </a>
+            </h2>
+        </div>
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/ehs" class="accordion-button no-arrow d-block link " >
+                    <span class="menu-name" data-en="HSE" data-hi="एच एस ई" data-ta="HSE">HSE</span>
+                </a>
+            </h2>
+        </div>
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/vigilance" class="accordion-button no-arrow d-block link " >
+                    <span class="menu-name" data-en="Vigilance" data-hi="सतर्कता" data-ta="Vigilance">Vigilance</span>
+                </a>
+            </h2>
+        </div>
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/investors" class="accordion-button no-arrow d-block link " >
+                    <span class="menu-name" data-en="Investors" data-hi="निवेशकों" data-ta="Investors">Investors</span>
+                </a>
+            </h2>
+        </div>
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/citizens-corner" class="accordion-button no-arrow d-block link " >
+                    <span class="menu-name" data-en="Citizen&#039;s Corner" data-hi="नागरिक का कोना" data-ta="Citizen&#039;s Corner">Citizen&#039;s Corner</span>
+                </a>
+            </h2>
+        </div>
+                        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <a href="https://kamarajarport.in/public/csr" class="accordion-button no-arrow d-block link " >
+                    <span class="menu-name" data-en="CSR" data-hi="सीएसआर" data-ta="CSR">CSR</span>
+                </a>
+            </h2>
+        </div>
+              </div>
+  </div>
+</div>
+<script>
+    const now = new Date();
+
+    const day = now.getDate();
+    const year = now.getFullYear();
+
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+
+    const weekdayNames = [
+        "Sunday", "Monday", "Tuesday", "Wednesday",
+        "Thursday", "Friday", "Saturday"
+    ];
+
+    const formattedDate =
+        day + " " +
+        monthNames[now.getMonth()] + " , " +
+        year + ", " +
+        weekdayNames[now.getDay()];
+
+    document.getElementById('dateTimeText').textContent = formattedDate;
+</script>
+ 
+
+    <main id="main-content">
+        
+<section class="port-operations-page-section py-5">
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="col-lg-3 col-md-4">
+                <div class="sidebar-menu">
+    <h5 class="sidebar-title">In This Section</h5>
+        <ul class="list-unstyled sidebar-list">
+                                
+            <li class="sidebar-item ">
+                                                        
+                    <a href="https://kamarajarport.in/public/port-operations/terminals-and-berths"  title="Terminals and Berths"
+                       class="sidebar-link d-flex align-items-center " 
+                       >
+                        <i class="bi bi-chevron-right me-2"></i>
+                        <span class="menu-name"
+                              data-en="Terminals and Berths" 
+                              data-hi="टर्मिनल और बर्थ" 
+                              data-ta="Terminals and Berths">
+                            Terminals and Berths
+                        </span>
+                    </a>
+                            </li>
+                                
+            <li class="sidebar-item has-submenu">
+                                    <a href="javascript:void(0);" 
+                       class="sidebar-link dropdown-toggle d-flex align-items-center justify-content-between" 
+                       data-bs-toggle="collapse" 
+                       data-bs-target="#submenu-111" 
+                       aria-expanded="false">
+                        <span class="d-flex align-items-center">
+                            <i class="bi bi-chevron-right me-2"></i>
+                            <span class="menu-name" 
+                                  data-en="Marine Services" 
+                                  data-hi="समुद्री सेवाएँ" 
+                                  data-ta="Marine Services">
+                                Marine Services
+                            </span>                                                 
+                        </span>
+
+                        <!-- <i class="bi bi-chevron-down submenu-arrow"></i> -->
+                    </a>
+                    <ul class="list-unstyled sidebar-submenu collapse" id="submenu-111">
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/marine-operations-pilotage"  title="Marine Services"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Pilotage" 
+                                          data-hi="मार्गदर्शन" 
+                                          data-ta="Pilotage">
+                                          Pilotage
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamaraj-dev.indusnettechnologies.com/port-operations/terminals-and-berths#bunkering-operation"  title="Marine Services"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Bunkering Operation" 
+                                          data-hi="बंकरिंग ऑपरेशन" 
+                                          data-ta="Bunkering Operation">
+                                          Bunkering Operation
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/vtms"  title="Marine Services"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Vessel Traffic Management System" 
+                                          data-hi="पोत यातायात प्रबंधन प्रणाली" 
+                                          data-ta="Vessel Traffic Management System">
+                                          Vessel Traffic Management System
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/arr-dep"  title="Marine Services"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="ARR &amp; DEP Procedure for Ships" 
+                                          data-hi="जहाजों के लिए आगमन &amp; प्रस्थान प्रक्रिया" 
+                                          data-ta="ARR &amp; DEP Procedure for Ships">
+                                          ARR &amp; DEP Procedure for Ships
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/marine-crafts"  title="Marine Services"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Marine Crafts" 
+                                          data-hi="समुद्री शिल्प" 
+                                          data-ta="Marine Crafts">
+                                          Marine Crafts
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/survey-dredging"  title="Marine Services"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Survey &amp; Dredging" 
+                                          data-hi="सर्वेक्षण एवं ड्रेजिंग" 
+                                          data-ta="Survey &amp; Dredging">
+                                          Survey &amp; Dredging
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/security-policy"  title="Marine Services"
+                                   class="sidebar-sublink d-flex align-items-center active" 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Security Policy" 
+                                          data-hi="सुरक्षा नीति" 
+                                          data-ta="Security Policy">
+                                          Security Policy
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/sts"  title="Marine Services"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="STS" 
+                                          data-hi="अनुसूचित जनजातियों" 
+                                          data-ta="STS">
+                                          STS
+                                    </span>
+                                </a>
+                            </li>
+                                            </ul>
+                            </li>
+                                
+            <li class="sidebar-item ">
+                                                        
+                    <a href="https://kamarajarport.in/public/port-operations/vessels-in-port"  title="Vessels in Port"
+                       class="sidebar-link d-flex align-items-center " 
+                       >
+                        <i class="bi bi-chevron-right me-2"></i>
+                        <span class="menu-name"
+                              data-en="Vessels in Port" 
+                              data-hi="बंदरगाह में जहाज" 
+                              data-ta="Vessels in Port">
+                            Vessels in Port
+                        </span>
+                    </a>
+                            </li>
+                                
+            <li class="sidebar-item ">
+                                                        
+                    <a href="https://kamarajarport.in/public/port-operations/scale-of-rates"  title="Scale of Rates"
+                       class="sidebar-link d-flex align-items-center " 
+                       >
+                        <i class="bi bi-chevron-right me-2"></i>
+                        <span class="menu-name"
+                              data-en="Scale of Rates" 
+                              data-hi="दरों का पैमाना" 
+                              data-ta="Scale of Rates">
+                            Scale of Rates
+                        </span>
+                    </a>
+                            </li>
+                                
+            <li class="sidebar-item has-submenu">
+                                    <a href="javascript:void(0);" 
+                       class="sidebar-link dropdown-toggle d-flex align-items-center justify-content-between" 
+                       data-bs-toggle="collapse" 
+                       data-bs-target="#submenu-78" 
+                       aria-expanded="false">
+                        <span class="d-flex align-items-center">
+                            <i class="bi bi-chevron-right me-2"></i>
+                            <span class="menu-name" 
+                                  data-en="Connectivity" 
+                                  data-hi="कनेक्टिविटी" 
+                                  data-ta="Connectivity">
+                                Connectivity
+                            </span>                                                 
+                        </span>
+
+                        <!-- <i class="bi bi-chevron-down submenu-arrow"></i> -->
+                    </a>
+                    <ul class="list-unstyled sidebar-submenu collapse" id="submenu-78">
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/roads"  title="Connectivity"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Roads" 
+                                          data-hi="सड़कें" 
+                                          data-ta="Roads">
+                                          Roads
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/rails"  title="Connectivity"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Rails" 
+                                          data-hi="रेल" 
+                                          data-ta="Rails">
+                                          Rails
+                                    </span>
+                                </a>
+                            </li>
+                                            </ul>
+                            </li>
+                                
+            <li class="sidebar-item has-submenu">
+                                    <a href="javascript:void(0);" 
+                       class="sidebar-link dropdown-toggle d-flex align-items-center justify-content-between" 
+                       data-bs-toggle="collapse" 
+                       data-bs-target="#submenu-73" 
+                       aria-expanded="false">
+                        <span class="d-flex align-items-center">
+                            <i class="bi bi-chevron-right me-2"></i>
+                            <span class="menu-name" 
+                                  data-en="Port Statistics" 
+                                  data-hi="पोर्ट सांख्यिकी" 
+                                  data-ta="Port Statistics">
+                                Port Statistics
+                            </span>                                                 
+                        </span>
+
+                        <!-- <i class="bi bi-chevron-down submenu-arrow"></i> -->
+                    </a>
+                    <ul class="list-unstyled sidebar-submenu collapse" id="submenu-73">
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/performance-indicator"  title="Port Statistics"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Performance Indicators" 
+                                          data-hi="प्रदर्शन सूचक" 
+                                          data-ta="Performance Indicators">
+                                          Performance Indicators
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/cargo-handled"  title="Port Statistics"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Cargo Handled" 
+                                          data-hi="कार्गो संभाला" 
+                                          data-ta="Cargo Handled">
+                                          Cargo Handled
+                                    </span>
+                                </a>
+                            </li>
+                                                                                <li class="sidebar-subitem">
+                                <a href="https://kamarajarport.in/public/port-operations/vessels-handled"  title="Port Statistics"
+                                   class="sidebar-sublink d-flex align-items-center " 
+                                   >
+                                    <i class="bi bi-chevron-right me-2"></i>
+                                    <span class="menu-name"
+                                          data-en="Vessels Handled" 
+                                          data-hi="संभाले गए जहाज" 
+                                          data-ta="Vessels Handled">
+                                          Vessels Handled
+                                    </span>
+                                </a>
+                            </li>
+                                            </ul>
+                            </li>
+                                
+            <li class="sidebar-item ">
+                                                        
+                    <a href="https://kamarajarport.in/public/port-operations/modern-facilities"  title="Modern Facilities"
+                       class="sidebar-link d-flex align-items-center " 
+                       >
+                        <i class="bi bi-chevron-right me-2"></i>
+                        <span class="menu-name"
+                              data-en="Modern Facilities" 
+                              data-hi="आधुनिक सुविधाएं" 
+                              data-ta="Modern Facilities">
+                            Modern Facilities
+                        </span>
+                    </a>
+                            </li>
+                                
+            <li class="sidebar-item ">
+                                                        
+                    <a href="https://kamarajarport.in/public/port-operations/landuse-plan"  title="Landuse Plan"
+                       class="sidebar-link d-flex align-items-center " 
+                       >
+                        <i class="bi bi-chevron-right me-2"></i>
+                        <span class="menu-name"
+                              data-en="Landuse Plan" 
+                              data-hi="भूमि-उपयोग योजना" 
+                              data-ta="Landuse Plan">
+                            Landuse Plan
+                        </span>
+                    </a>
+                            </li>
+            </ul>
+    </div>
+
+<style>
+.sidebar-menu {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.sidebar-title {
+    font-weight: 600;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #0047d6;
+    color: #001489;
+}
+
+.sidebar-list {
+    margin: 0;
+    padding: 0;
+}
+
+.sidebar-item {
+    margin-bottom: 5px;
+}
+
+.sidebar-link {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 10px 15px;
+    color: #333;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.sidebar-link:hover {
+    background: #e9ecef;
+    color: #0047d6;
+    padding-left: 20px;
+}
+
+.sidebar-link.active {
+    background: #e9ecef;
+    color: #0047d6;
+    padding-left: 20px;
+}
+
+.sidebar-link.dropdown-toggle .submenu-arrow {
+    transition: transform 0.3s ease;
+}
+
+.sidebar-link.dropdown-toggle:not(.collapsed) .submenu-arrow {
+    transform: rotate(180deg);
+}
+
+.sidebar-submenu {
+    margin-left: 15px;
+    margin-top: 5px;
+}
+
+.sidebar-subitem {
+    margin-bottom: 3px;
+}
+
+.sidebar-sublink {
+    display: flex;
+    align-items: center;
+    padding: 8px 15px;
+    color: #666;
+    text-decoration: none;
+    font-size: 0.9rem;
+    border-left: 2px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.sidebar-sublink:hover {
+    color: #0047d6;
+    border-left-color: #0047d6;
+    padding-left: 20px;
+}
+
+.sidebar-sublink.active {
+    color: #0047d6;
+    border-left-color: #0047d6;
+    padding-left: 20px;
+}
+
+.sidebar-sublink i {
+    min-width: 20px; /* fixes alignment of the chevron */
+}
+</style>            </div>
+
+            
+            <div class="col-lg-9 col-md-8">
+
+                
+                
+                
+                
+                    <h4 class="fw-bold mb-3 hero-text content-title"
+                        data-en="Security Policy"
+                        data-hi="सुरक्षा नीति">
+                        Security Policy
+                    </h4>
+                    <hr>
+
+                    <div class="content-text port-operations-content-text">
+                        <div class="lang-en">
+                            <p style="margin-top:20px;margin-bottom:15px;font-size:15.2px;color:#212529;line-height:1.6;text-align:justify">
+</p><h6 style="margin-top:15px;margin-bottom:15px;color:#292727;font-size:16px;">
+<strong>1. Overview — Kamarajar Port Limited &amp; ISPS Compliance</strong><br>
+</h6>
+Kamarajar Port Limited (KPL), India's only fully corporatised major port, upholds comprehensive compliance with the International Ship and Port Facility Security (ISPS) Code — safeguarding maritime trade, vessels, personnel, and cargo through a robust, audited security framework.
+<p></p>
+
+<h6 style="margin-top:15px;margin-bottom:15px;color:#292727;font-size:16px;">
+<strong>2. Regular ISPS Audits at Kamarajar Port</strong>
+</h6>
+
+<p style="font-size:15.2px;line-height:1.6;text-align:justify">
+Kamarajar Port Limited is committed to continuous compliance with the ISPS Code through a structured, multi-tier audit programme. Regular security audits are conducted to verify that the Port Facility Security Plan (PFSP) remains effective, current, and fully implemented across all areas of the port.
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;text-align:justify">
+The port undergoes both internal audits — carried out by the Port Facility Security Officer (PFSO) and senior security personnel — and external audits conducted by the Directorate General of Shipping (DGS), Government of India, as the Designated Authority under the ISPS Code framework.
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;text-align:justify">
+Audit findings are documented, tracked, and addressed through a corrective action process, ensuring that any identified gaps are remedied within stipulated timelines and the PFSP is updated accordingly.
+</p>
+
+<p style="font-style:italic;border-left:4px solid #142457;padding-left:10px;margin:20px 0;">
+Port Facility Security Plans shall be reviewed and updated regularly, and audited at intervals of not more than five years, or when there are significant changes to the port facility or its operations.<br>
+— ISPS Code — Part A, Regulation 10 / SOLAS Chapter XI-2
+</p>
+
+<h6 style="margin-top:15px;margin-bottom:15px;color:#292727;font-size:16px;">
+<strong>Audit Framework — Five-Step Cycle</strong>
+</h6>
+
+<p style="font-size:15.2px;line-height:1.6;">
+01. Internal Security Audit<br>
+Conducted by the PFSO and designated security personnel at Kamarajar Port. Internal audits assess adherence to the PFSP, review of access control logs, drill records, security incident reports, and training compliance. Frequency: at least annually.
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+02. External Audit by DGS (Designated Authority)<br>
+The Directorate General of Shipping, Government of India, as the ISPS Designated Authority, conducts external audits of the Port Facility Security Plan. DGS verifies that the PFSP is being fully implemented, maintained, and updated as required under Part A of the ISPS Code.
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+03. Port Facility Security Assessment (PFSA)<br>
+Periodic Port Facility Security Assessments are conducted to identify threats, vulnerabilities, and risks across all port areas — including berths, cargo handling zones, storage areas, waterside approaches, and utilities — providing the basis for PFSP updates.
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+04. Drills, Exercises &amp; Post-Exercise Review<br>
+Security drills and full-scale exercises are conducted periodically in coordination with CISF and DGS. Each drill is followed by a structured debrief and corrective action review, the outcomes of which are incorporated into audit records and the PFSP update cycle.
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+05. Corrective Action &amp; PFSP Amendment<br>
+Non-conformances and observations identified during audits are logged and tracked. Corrective actions are implemented within defined timelines. Significant changes are reflected in formal amendments to the PFSP, submitted to DGS for approval as required.
+</p>
+
+<h6 style="margin-top:15px;margin-bottom:15px;color:#292727;font-size:16px;">
+<strong>3. Declaration of Security (DOS)</strong>
+</h6>
+
+<p style="font-size:15.2px;line-height:1.6;text-align:justify">
+In compliance with the ISPS Code, a Declaration of Security (DOS) is completed for every ship/port interface at Kamarajar Port Limited. The DOS is a formal agreement between the Ship Security Officer (SSO) and the Port Facility Security Officer (PFSO) that sets out the respective security responsibilities of both parties during the vessel's stay at the port.
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;text-align:justify">
+The DOS is initiated by the ship or by the port as applicable, prior to the commencement of ship/port operations. It specifies the activities to be undertaken, the security measures to be applied, and is signed by both the SSO and PFSO (or their authorised representatives).
+</p>
+
+<h6 style="margin-top:10px;font-size:16px;"><strong>When is a Declaration of Security Required?</strong></h6>
+
+<p style="font-size:15.2px;line-height:1.6;">
+Under the ISPS Code, a DOS is required in the following circumstances:<br>
+The ship is operating at a higher security level than the port facility.<br>
+There is an agreement between Contracting Governments requiring a DOS.<br>
+There has been a security threat or incident involving the ship or the port facility.<br>
+The ship is arriving from, or has called at, a port not subject to SOLAS Chapter XI-2.<br>
+Ship-to-ship (STS) activities are conducted.
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+<strong>Practice at Kamarajar Port:</strong><br>
+At Kamarajar Port, a DOS is executed as standard practice for all international vessel calls, reflecting the port's commitment to the highest standard of maritime security compliance. Completed DOS records are maintained at the port facility for the minimum period required under the ISPS Code.
+</p>
+
+<h6 style="margin-top:15px;margin-bottom:15px;color:#292727;font-size:16px;">
+<strong>DOS — Activities &amp; Responsibilities Matrix</strong>
+</h6>
+
+<div style="overflow-x:auto">
+<table style="width:100%;border-collapse:collapse;border:1px solid #e4e6ef">
+<thead style="background:#142457;color:#fff">
+<tr>
+<th style="padding:10px">Activity</th>
+<th style="padding:10px">Ship</th>
+<th style="padding:10px">Port</th>
+<th style="padding:10px">Status</th>
+</tr>
+</thead>
+<tbody>
+<tr><td style="padding:10px">Cargo handling</td><td>SSO</td><td>PFSO</td><td>Agreed</td></tr>
+<tr><td style="padding:10px">Access control</td><td>SSO</td><td>CISF / PFSO</td><td>Agreed</td></tr>
+<tr><td style="padding:10px">Handling ship's stores</td><td>SSO</td><td>PFSO</td><td>Agreed</td></tr>
+<tr><td style="padding:10px">Security communications</td><td>SSO</td><td>PFSO</td><td>Agreed</td></tr>
+</tbody>
+</table>
+</div>
+
+<p style="font-size:14px;margin-top:10px">
+Note: The above matrix is indicative. Actual DOS is completed and signed by the SSO and PFSO prior to commencement of ship/port operations for each vessel call.
+</p>
+
+<h6 style="margin-top:20px;color:#292727;font-size:16px;">
+<strong>4. Security Screening Capabilities at KPL</strong>
+</h6>
+
+<p style="font-size:15.2px;line-height:1.6;text-align:justify">
+Kamarajar Port Limited is equipped with state-of-the-art security screening infrastructure to detect and prevent the introduction of weapons, explosives, contraband, and other prohibited items into the port facility and aboard vessels. Screening operations are conducted in full compliance with the PFSP and ISPS Code requirements, and are staffed by trained CISF personnel.
+</p>
+
+<h6 style="margin-top:15px;font-size:16px;"><strong>4.1 Container Screening System</strong></h6>
+
+<p style="font-size:15.2px;line-height:1.6;text-align:justify">
+KPL is equipped with a Container Scanning System to screen import and export containers for concealed contraband, weapons, undeclared cargo, and other security threats — without the need for manual unpacking. Container screening is a critical layer of the port's security framework.
+</p>
+
+<div style="overflow-x:auto">
+<table style="width:100%;border-collapse:collapse;border:1px solid #e4e6ef">
+<thead style="background:#142457;color:#fff">
+<tr>
+<th style="padding:10px">Parameter</th>
+<th style="padding:10px">Details</th>
+</tr>
+</thead>
+<tbody>
+<tr><td style="padding:10px">Technology</td><td>Mobile / Fixed X-ray Container Scanner</td></tr>
+<tr><td style="padding:10px">Coverage</td><td>Import &amp; export containers — loaded and unloaded</td></tr>
+<tr><td style="padding:10px">Penetration</td><td>Full penetration capability for loaded containers</td></tr>
+<tr><td style="padding:10px">Operation</td><td>CISF-trained security personnel</td></tr>
+<tr><td style="padding:10px">Coordination</td><td>Customs Department / Port Security</td></tr>
+<tr><td style="padding:10px">Regulatory basis</td><td>ISPS Code / DGS Circulars / Customs Act</td></tr>
+<tr><td style="padding:10px">Availability</td><td>Operational during all cargo-handling hours</td></tr>
+</tbody>
+</table>
+</div>
+<h6 style="margin-top:15px;font-size:16px;"><strong>4.2 Baggage Screening System</strong></h6>
+
+<p style="font-size:15.2px;line-height:1.6;text-align:justify">
+All baggage and personal effects of persons entering the port facility — including crew members, port workers, contractors, and visitors — are subject to X-ray screening and physical security checks at all port entry gates.
+</p>
+
+<div style="overflow-x:auto">
+<table style="width:100%;border-collapse:collapse;border:1px solid #e4e6ef">
+<thead style="background:#142457;color:#fff">
+<tr>
+<th style="padding:10px">Parameter</th>
+<th style="padding:10px">Details</th>
+</tr>
+</thead>
+<tbody>
+<tr><td style="padding:10px">Equipment</td><td>X-ray Baggage Scanning System</td></tr>
+<tr><td style="padding:10px">Deployment</td><td>All port entry / exit gates</td></tr>
+<tr><td style="padding:10px">Persons screened</td><td>Crew, port staff, contractors, visitors, service personnel</td></tr>
+<tr><td style="padding:10px">Supplementary</td><td>Manual frisking by CISF personnel; Door Frame Metal Detectors (DFMD)</td></tr>
+<tr><td style="padding:10px">Handheld devices</td><td>Handheld Metal Detectors (HHMD) for secondary checks</td></tr>
+<tr><td style="padding:10px">Availability</td><td>Round-the-clock — 24 hours / 7 days</td></tr>
+</tbody>
+</table>
+</div>
+
+<h6 style="margin-top:15px;font-size:16px;"><strong>4.3 Surveillance &amp; Access Control</strong></h6>
+
+<p style="font-size:15.2px;line-height:1.6;text-align:justify">
+Comprehensive CCTV surveillance covers all berths, cargo areas, entry/exit gates, and restricted zones. The CISF Control Room provides 24/7 centralised monitoring and rapid response capability.
+</p>
+
+<div style="overflow-x:auto">
+<table style="width:100%;border-collapse:collapse;border:1px solid #e4e6ef">
+<thead style="background:#142457;color:#fff">
+<tr>
+<th style="padding:10px">Parameter</th>
+<th style="padding:10px">Details</th>
+</tr>
+</thead>
+<tbody>
+<tr><td style="padding:10px">CCTV Network</td><td>Port-wide coverage — berths, gates, cargo areas, restricted zones</td></tr>
+<tr><td style="padding:10px">Monitoring</td><td>CISF Control Room — 24/7 real-time surveillance</td></tr>
+<tr><td style="padding:10px">Metal Detection</td><td>DFMD + Handheld Metal Detectors at all entry points</td></tr>
+<tr><td style="padding:10px">Access Records</td><td>Electronic entry/exit logs maintained for all persons &amp; vehicles</td></tr>
+<tr><td style="padding:10px">Response</td><td>Quick Reaction Team (QRT) — CISF</td></tr>
+<tr><td style="padding:10px">Waterside security</td><td>Regular patrols along berths and approach waters</td></tr>
+</tbody>
+</table>
+</div>
+<h6 style="margin-top:20px;color:#292727;font-size:16px;">
+<strong>5. Additional Port Security Operations</strong>
+</h6>
+
+<p style="font-size:15.2px;line-height:1.6;">
+<strong>Pre-Arrival Security Notification (PASN)</strong><br>
+All vessels calling at Kamarajar Port must submit a mandatory Pre-Arrival Security Notification at least 24 hours before arrival, providing details of security level, last ten ports of call, and any security incidents during the preceding voyage.
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+<strong>ISSC Verification</strong><br>
+Every arriving vessel's International Ship Security Certificate (ISSC) is verified by the PFSO. Vessels without a valid ISSC or arriving from non-ISPS ports are subject to enhanced security checks before port entry is permitted.
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+<strong>Restricted Zone Enforcement</strong><br>
+The port is divided into clearly demarcated restricted zones. CISF personnel enforce access control at all zone boundaries, permitting only authorised personnel with valid passes to enter. Restricted zone boundaries are physically secured with fencing and signage.
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+<strong>Security Training &amp; Drills</strong><br>
+PFSO, security officers, and CISF personnel participate in regular ISPS-mandated security training. Drills are conducted to test response to threats across all three security levels and the results are used to continuously improve security procedures.
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+<strong>Records &amp; Reporting</strong><br>
+All security activities — audits, drills, DOS documents, security incidents, and changes in security level — are recorded and maintained at the port in compliance with ISPS Code record-keeping requirements, available for inspection by the DGS and authorised officials.
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+<strong>Access Control Infrastructure — CISF, RFID &amp; Biometric Systems</strong><br>
+Security at Kamarajar Port is maintained by the Central Industrial Security Force (CISF). All main entry and exit points to the port are equipped with an integrated RFID Pass System and Biometric System for the authenticated entry and exit of both personnel and vehicles. Access is granted only to verified individuals holding valid RFID-enabled passes, supplemented by biometric verification, ensuring a robust and tamper-resistant access control regime at all times.
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+<strong>Under Vehicle Scanner System — Entry &amp; Exit Gates</strong><br>
+An Under Vehicle Scanner System will be installed at the entry and exit gates of Kamarajar Port. The installation of this system is currently in progress. Once operational, this system will enable automated scanning of the undercarriage of all vehicles entering and exiting the port, enhancing security checks and helping to prevent concealment of contraband, explosives, or other prohibited items beneath vehicles.
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+<strong>Integrated Command and Control Centre (ICCC) — A First in Indian Ports</strong><br>
+An Integrated Command and Control Centre (ICCC) has been installed at Kamarajar Port Limited. KPL holds the distinction of being the first port in India to have an ICCC system, enabling advanced and integrated security monitoring alongside real-time port operations management. The ICCC provides a unified platform for surveillance, threat detection, incident response, and operational coordination, ensuring seamless integration of security and port management functions around the clock.
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+<strong>Sea Front Security — Dedicated CISF Patrol Boat</strong><br>
+The sea front area of Kamarajar Port is monitored by a dedicated patrolling boat operated by CISF on a 24 × 7 basis. This continuous waterside patrol provides real-time surveillance of the harbour approaches, berths, and coastal perimeter, ensuring prompt detection and response to any unauthorised maritime activity or intrusion attempt from the sea side.
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+<strong>Intelligent Surveillance System (ISS) — Small Boat Detection (First in India)</strong><br>
+Kamarajar Port Limited is in the process of installing an Intelligent Surveillance System (ISS) — an advanced capability designed to detect small, low-profile watercraft such as kattumarams well before they can intrude into the harbour. KPL will be the first port in India to install such a system for the detection of small boats. The ISS sensors will be installed at the North and South Breakwaters, providing early warning coverage across the full seaward approach to the harbour. This system will significantly enhance KPL’s maritime domain awareness and the ability to pre-empt intrusions by small, difficult-to-detect watercraft.
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+<strong>Port Facility Security Advisory Committee (PFSAC) — Multi-Agency Coordination</strong><br>
+PFSAC meetings are chaired by the Chairperson of Kamarajar Port on a regular basis, in accordance with DG Shipping circulars. These meetings bring together a wide range of security and regulatory organisations including Customs, Immigration, Indian Navy, Indian Coast Guard, Central Industrial Security Force (CISF), Narcotics Control Bureau (NCB), Local Police, Fisheries Department, Intelligence Bureau (IB) — both Central and State — Coastal Security Group, and other maritime security organisations. This multi-agency forum ensures coordinated and comprehensive security governance across all dimensions of port facility security. Security drills are also carried out as required under the ISPS Code.
+</p>
+<h6 style="margin-top:20px;color:#292727;font-size:16px;">
+<strong>6. Contact — Port Facility Security Officer</strong>
+</h6>
+
+<p style="font-size:15.2px;line-height:1.6;text-align:justify">
+For all ISPS-related matters at Kamarajar Port — including Declaration of Security (DOS) arrangements, pre-arrival security notifications, security audit enquiries, and emergency security reporting — please contact the Port Facility Security Officer (PFSO) or the CISF Control Room.
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+Security incidents, suspicious activities, and unattended objects within the port must be reported immediately on the Port Emergency Line, available round the clock.
+</p>
+                        </div>
+                        <div class="lang-hi d-none">
+                            <p style="margin-top:20px;margin-bottom:15px;font-size:15.2px;color:#212529;line-height:1.6;text-align:justify">
+</p><h6 style="margin-top:15px;margin-bottom:15px;color:#292727;font-size:16px;">
+<strong>1. अवलोकन — कामराजर पोर्ट लिमिटेड और ISPS अनुपालन</strong><br>
+</h6>
+कामराजर पोर्ट लिमिटेड (KPL), भारत का एकमात्र पूरी तरह से कॉर्पोरेटेड मेजर पोर्ट, अंतर्राष्ट्रीय जहाज और पोर्ट सुविधा सुरक्षा (ISPS) कोड के साथ पूर्ण अनुपालन सुनिश्चित करता है — जो समुद्री व्यापार, जहाज, कर्मी और माल को मजबूत, ऑडिट किए गए सुरक्षा ढांचे के माध्यम से सुरक्षित करता है।
+<p></p>
+
+<h6 style="margin-top:15px;margin-bottom:15px;color:#292727;font-size:16px;">
+<strong>2. कामराजर पोर्ट में नियमित ISPS ऑडिट</strong>
+</h6>
+
+<p style="font-size:15.2px;line-height:1.6;text-align:justify">
+कामराजर पोर्ट लिमिटेड ISPS कोड के निरंतर अनुपालन के लिए संरचित, बहु-स्तरीय ऑडिट कार्यक्रम के माध्यम से प्रतिबद्ध है। नियमित सुरक्षा ऑडिट यह सुनिश्चित करते हैं कि पोर्ट सुविधा सुरक्षा योजना (PFSP) प्रभावी, अद्यतन और पोर्ट के सभी क्षेत्रों में पूरी तरह से लागू है।
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;text-align:justify">
+पोर्ट में आंतरिक ऑडिट किए जाते हैं — जिन्हें पोर्ट सुविधा सुरक्षा अधिकारी (PFSO) और वरिष्ठ सुरक्षा कर्मी द्वारा किया जाता है — और बाहरी ऑडिट किए जाते हैं, जो भारत सरकार के जहाजरानी महानिदेशालय (DGS) द्वारा, ISPS कोड फ्रेमवर्क के तहत नामित प्राधिकरण के रूप में आयोजित किए जाते हैं।
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;text-align:justify">
+ऑडिट निष्कर्षों को दस्तावेजीकृत, ट्रैक और सुधारात्मक कार्रवाई प्रक्रिया के माध्यम से संबोधित किया जाता है, यह सुनिश्चित करते हुए कि किसी भी पहचानी गई कमी को निर्धारित समयसीमा के भीतर दूर किया जाए और PFSP को तदनुसार अद्यतन किया जाए।
+</p>
+
+<p style="font-style:italic;border-left:4px solid #142457;padding-left:10px;margin:20px 0;">
+पोर्ट सुविधा सुरक्षा योजनाओं की नियमित समीक्षा और अद्यतन किया जाना चाहिए, और इन्हें पांच वर्षों से अधिक अंतराल पर या पोर्ट सुविधा या संचालन में महत्वपूर्ण बदलाव होने पर ऑडिट किया जाना चाहिए।<br>
+— ISPS कोड — भाग A, नियम 10 / SOLAS अध्याय XI-2
+</p>
+
+<h6 style="margin-top:15px;margin-bottom:15px;color:#292727;font-size:16px;">
+<strong>ऑडिट ढांचा — पाँच-चरणीय चक्र</strong>
+</h6>
+
+<p style="font-size:15.2px;line-height:1.6;">
+01. आंतरिक सुरक्षा ऑडिट<br>
+PFSO और नामित सुरक्षा कर्मियों द्वारा किया जाता है। आंतरिक ऑडिट PFSP का पालन, एक्सेस कंट्रोल लॉग, ड्रिल रिकॉर्ड, सुरक्षा घटना रिपोर्ट और प्रशिक्षण अनुपालन की समीक्षा करते हैं। आवृत्ति: कम से कम वार्षिक।
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+02. DGS (नामित प्राधिकरण) द्वारा बाहरी ऑडिट<br>
+भारत सरकार का जहाजरानी महानिदेशालय, ISPS नामित प्राधिकरण के रूप में, पोर्ट सुविधा सुरक्षा योजना का बाहरी ऑडिट करता है। DGS यह सत्यापित करता है कि PFSP पूरी तरह से लागू, बनाए रखा और आवश्यकतानुसार अद्यतन किया गया है।
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+03. पोर्ट सुविधा सुरक्षा मूल्यांकन (PFSA)<br>
+समय-समय पर पोर्ट सुविधा सुरक्षा मूल्यांकन किया जाता है ताकि सभी पोर्ट क्षेत्रों — जिनमें बर्थ, कार्गो हैंडलिंग ज़ोन, स्टोरेज क्षेत्र, वाटरसाइड अप्रोच और यूटिलिटीज़ शामिल हैं — में खतरे, कमजोरियाँ और जोखिम की पहचान की जा सके। यह PFSP अद्यतन के लिए आधार प्रदान करता है।
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+04. ड्रिल, अभ्यास और पोस्ट-एक्सरसाइज समीक्षा<br>
+सुरक्षा ड्रिल और पूर्ण-स्केल अभ्यास समय-समय पर CISF और DGS के साथ समन्वय में आयोजित किए जाते हैं। प्रत्येक ड्रिल के बाद संरचित डिब्रीफ और सुधारात्मक कार्रवाई की समीक्षा होती है, जिसके परिणाम ऑडिट रिकॉर्ड और PFSP अद्यतन चक्र में शामिल किए जाते हैं।
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+05. सुधारात्मक कार्रवाई और PFSP संशोधन<br>
+ऑडिट के दौरान पहचानी गई असंगतियों और टिप्पणियों को लॉग और ट्रैक किया जाता है। सुधारात्मक कार्रवाई निर्धारित समयसीमा के भीतर लागू की जाती है। महत्वपूर्ण बदलाव PFSP में औपचारिक संशोधनों में दर्शाए जाते हैं और आवश्यकतानुसार DGS को अनुमोदन के लिए प्रस्तुत किए जाते हैं।
+</p>
+
+<h6 style="margin-top:15px;margin-bottom:15px;color:#292727;font-size:16px;">
+<strong>3. सुरक्षा घोषणा (DOS)</strong>
+</h6>
+
+<p style="font-size:15.2px;line-height:1.6;text-align:justify">
+ISPS कोड के अनुपालन में, कामराजर पोर्ट लिमिटेड में प्रत्येक जहाज/पोर्ट इंटरफेस के लिए सुरक्षा घोषणा (DOS) पूरी की जाती है। DOS एक औपचारिक समझौता है जो जहाज सुरक्षा अधिकारी (SSO) और पोर्ट सुविधा सुरक्षा अधिकारी (PFSO) के बीच होता है, जिसमें पोर्ट में जहाज की उपस्थिति के दौरान दोनों पक्षों की सुरक्षा जिम्मेदारियों का निर्धारण किया जाता है।
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;text-align:justify">
+DOS जहाज या पोर्ट द्वारा लागू किया जाता है, संचालन शुरू होने से पहले। इसमें किए जाने वाले कार्यों, लागू सुरक्षा उपायों का विवरण और SSO एवं PFSO (या उनके अधिकृत प्रतिनिधियों) द्वारा हस्ताक्षर शामिल होते हैं।
+</p>
+
+<h6 style="margin-top:10px;font-size:16px;"><strong>सुरक्षा घोषणा कब आवश्यक है?</strong></h6>
+
+<p style="font-size:15.2px;line-height:1.6;">
+ISPS कोड के तहत, DOS निम्नलिखित परिस्थितियों में आवश्यक है:<br>
+- जहाज पोर्ट सुविधा की तुलना में उच्च सुरक्षा स्तर पर कार्य कर रहा है।<br>
+- संविदानुसार देशों के बीच DOS की आवश्यकता वाली सहमति है।<br>
+- जहाज या पोर्ट सुविधा से संबंधित सुरक्षा खतरा या घटना हुई है।<br>
+- जहाज ऐसे पोर्ट से आ रहा है, जो SOLAS अध्याय XI-2 के तहत नहीं आता।<br>
+- जहाज-से-जहाज (STS) गतिविधियाँ संचालित की जा रही हैं।
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+<strong>कामराजर पोर्ट में अभ्यास:</strong><br>
+कामराजर पोर्ट में, सभी अंतरराष्ट्रीय जहाज कॉल के लिए DOS मानक अभ्यास के रूप में निष्पादित किया जाता है, जो पोर्ट की उच्चतम स्तर की समुद्री सुरक्षा प्रतिबद्धता को दर्शाता है। DOS रिकॉर्ड पोर्ट सुविधा में ISPS कोड के अनुसार न्यूनतम समय अवधि तक सुरक्षित रखे जाते हैं।
+</p>
+
+<h6 style="margin-top:15px;margin-bottom:15px;color:#292727;font-size:16px;">
+<strong>DOS — गतिविधियाँ और जिम्मेदारियाँ मैट्रिक्स</strong>
+</h6>
+
+<div style="overflow-x:auto">
+<table style="width:100%;border-collapse:collapse;border:1px solid #e4e6ef">
+<thead style="background:#142457;color:#fff">
+<tr>
+<th style="padding:10px">गतिविधि</th>
+<th style="padding:10px">जहाज</th>
+<th style="padding:10px">पोर्ट</th>
+<th style="padding:10px">स्थिति</th>
+</tr>
+</thead>
+<tbody>
+<tr><td style="padding:10px">माल हैंडलिंग</td><td>SSO</td><td>PFSO</td><td>सहमति</td></tr>
+<tr><td style="padding:10px">पहुंच नियंत्रण</td><td>SSO</td><td>CISF / PFSO</td><td>सहमति</td></tr>
+<tr><td style="padding:10px">जहाज की सामग्री हैंडलिंग</td><td>SSO</td><td>PFSO</td><td>सहमति</td></tr>
+<tr><td style="padding:10px">सुरक्षा संचार</td><td>SSO</td><td>PFSO</td><td>सहमति</td></tr>
+</tbody>
+</table>
+</div>
+
+<p style="font-size:14px;margin-top:10px">
+टिप्पणी: उपरोक्त मैट्रिक्स संकेतात्मक है। प्रत्येक जहाज कॉल के लिए DOS संचालन शुरू होने से पहले SSO और PFSO द्वारा पूरा और हस्ताक्षरित किया जाता है।
+</p>
+
+<h6 style="margin-top:20px;color:#292727;font-size:16px;">
+<strong>4. KPL में सुरक्षा जाँच क्षमताएँ</strong>
+</h6>
+
+<p style="font-size:15.2px;line-height:1.6;text-align:justify">
+कामराजर पोर्ट लिमिटेड में अत्याधुनिक सुरक्षा जाँच अवसंरचना है जो पोर्ट सुविधा और जहाजों में हथियार, विस्फोटक, तस्करी और अन्य निषिद्ध वस्तुओं की रोकथाम करती है। जाँच संचालन PFSP और ISPS कोड आवश्यकताओं के पूर्ण अनुपालन में किए जाते हैं, और प्रशिक्षित CISF कर्मियों द्वारा किए जाते हैं।
+</p>
+
+<h6 style="margin-top:15px;font-size:16px;"><strong>4.1 कंटेनर स्कैनिंग प्रणाली</strong></h6>
+
+<p style="font-size:15.2px;line-height:1.6;text-align:justify">
+KPL में कंटेनर स्कैनिंग सिस्टम है जो आयात और निर्यात कंटेनरों को छिपी हुई तस्करी, हथियार, अप्रकाशित माल और अन्य सुरक्षा खतरों के लिए जांचता है — बिना मैनुअल खोलने की आवश्यकता के। कंटेनर जाँच पोर्ट की सुरक्षा संरचना की महत्वपूर्ण परत है।
+</p>
+
+<div style="overflow-x:auto">
+<table style="width:100%;border-collapse:collapse;border:1px solid #e4e6ef">
+<thead style="background:#142457;color:#fff">
+<tr>
+<th style="padding:10px">पैरामीटर</th>
+<th style="padding:10px">विवरण</th>
+</tr>
+</thead>
+<tbody>
+<tr><td style="padding:10px">प्रौद्योगिकी</td><td>मोबाइल / फिक्स्ड एक्स-रे कंटेनर स्कैनर</td></tr>
+<tr><td style="padding:10px">कवरेज</td><td>आयात और निर्यात कंटेनर — लोडेड और अनलोडेड</td></tr>
+<tr><td style="padding:10px">गहराई</td><td>लोडेड कंटेनरों के लिए पूर्ण पैठ क्षमता</td></tr>
+<tr><td style="padding:10px">संचालन</td><td>CISF प्रशिक्षित सुरक्षा कर्मी</td></tr>
+<tr><td style="padding:10px">समन्वय</td><td>कस्टम्स विभाग / पोर्ट सुरक्षा</td></tr>
+<tr><td style="padding:10px">नियामक आधार</td><td>ISPS कोड / DGS सर्कुलर / कस्टम्स अधिनियम</td></tr>
+<tr><td style="padding:10px">उपलब्धता</td><td>सभी कार्गो हैंडलिंग घंटों में संचालन</td></tr>
+</tbody>
+</table>
+</div>
+
+<h6 style="margin-top:15px;font-size:16px;"><strong>4.2 बैगेज स्कैनिंग प्रणाली</strong></h6>
+
+<p style="font-size:15.2px;line-height:1.6;text-align:justify">
+सभी बैगेज और व्यक्तिगत सामान, जो पोर्ट सुविधा में प्रवेश करते हैं — जिसमें क्रू सदस्य, पोर्ट कर्मचारी, ठेकेदार और आगंतुक शामिल हैं — X-रे स्कैनिंग और शारीरिक सुरक्षा जाँच के अधीन हैं।
+</p>
+
+<div style="overflow-x:auto">
+<table style="width:100%;border-collapse:collapse;border:1px solid #e4e6ef">
+<thead style="background:#142457;color:#fff">
+<tr>
+<th style="padding:10px">पैरामीटर</th>
+<th style="padding:10px">विवरण</th>
+</tr>
+</thead>
+<tbody>
+<tr><td style="padding:10px">उपकरण</td><td>X-रे बैगेज स्कैनिंग प्रणाली</td></tr>
+<tr><td style="padding:10px">स्थापना</td><td>सभी पोर्ट प्रवेश / निकासी द्वार</td></tr>
+<tr><td style="padding:10px">व्यक्ति जाँचे गए</td><td>क्रू, पोर्ट कर्मचारी, ठेकेदार, आगंतुक, सेवा कर्मी</td></tr>
+<tr><td style="padding:10px">पूरक</td><td>CISF कर्मियों द्वारा मैनुअल फ्रिस्किंग; डोर फ्रेम मेटल डिटेक्टर (DFMD)</td></tr>
+<tr><td style="padding:10px">हैंडहेल्ड उपकरण</td><td>सहायक जांच के लिए हैंडहेल्ड मेटल डिटेक्टर (HHMD)</td></tr>
+<tr><td style="padding:10px">उपलब्धता</td><td>24x7 — लगातार संचालन</td></tr>
+</tbody>
+</table>
+</div>
+
+<h6 style="margin-top:15px;font-size:16px;"><strong>4.3 निगरानी और पहुँच नियंत्रण</strong></h6>
+
+<p style="font-size:15.2px;line-height:1.6;text-align:justify">
+समग्र CCTV निगरानी सभी बर्थ, कार्गो क्षेत्र, प्रवेश/निकासी द्वार और प्रतिबंधित क्षेत्रों को कवर करती है। CISF नियंत्रण कक्ष 24x7 केंद्रीकृत निगरानी और त्वरित प्रतिक्रिया क्षमता प्रदान करता है।
+</p>
+
+<div style="overflow-x:auto">
+<table style="width:100%;border-collapse:collapse;border:1px solid #e4e6ef">
+<thead style="background:#142457;color:#fff">
+<tr>
+<th style="padding:10px">पैरामीटर</th>
+<th style="padding:10px">विवरण</th>
+</tr>
+</thead>
+<tbody>
+<tr><td style="padding:10px">CCTV नेटवर्क</td><td>पोर्ट-व्यापी कवरेज — बर्थ, द्वार, कार्गो क्षेत्र, प्रतिबंधित क्षेत्र</td></tr>
+<tr><td style="padding:10px">निगरानी</td><td>CISF नियंत्रण कक्ष — 24x7 वास्तविक समय निगरानी</td></tr>
+<tr><td style="padding:10px">धातु पहचान</td><td>सभी प्रवेश बिंदुओं पर DFMD + हैंडहेल्ड मेटल डिटेक्टर</td></tr>
+<tr><td style="padding:10px">पहुंच रिकॉर्ड</td><td>सभी व्यक्तियों और वाहनों के लिए इलेक्ट्रॉनिक प्रवेश/निकासी लॉग बनाए जाते हैं</td></tr>
+<tr><td style="padding:10px">प्रतिक्रिया</td><td>त्वरित प्रतिक्रिया टीम (QRT) — CISF</td></tr>
+<tr><td style="padding:10px">वाटरसाइड सुरक्षा</td><td>बर्थ और अप्रोच वाटर में नियमित गश्त</td></tr>
+</tbody>
+</table>
+</div>
+<h6 style="margin-top:20px;color:#292727;font-size:16px;">
+<strong>5. अतिरिक्त पोर्ट सुरक्षा संचालन</strong>
+</h6>
+
+<p style="font-size:15.2px;line-height:1.6;">
+<strong>पूर्व आगमन सुरक्षा सूचना (PASN)</strong><br>
+कामराजर पोर्ट में आने वाले सभी जहाजों को कम से कम 24 घंटे पहले पूर्व आगमन सुरक्षा सूचना (PASN) प्रस्तुत करनी आवश्यक है, जिसमें सुरक्षा स्तर, पिछले दस बंदरगाह कॉल और पिछले यात्रा के दौरान किसी भी सुरक्षा घटना का विवरण शामिल होना चाहिए।
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+<strong>ISSC सत्यापन</strong><br>
+प्रत्येक आगमन जहाज का अंतर्राष्ट्रीय जहाज सुरक्षा प्रमाणपत्र (ISSC) PFSO द्वारा सत्यापित किया जाता है। जिन जहाजों के पास वैध ISSC नहीं है या जो गैर-ISPS पोर्ट से आ रहे हैं, उन्हें पोर्ट प्रवेश से पहले उन्नत सुरक्षा जाँच से गुजरना होगा।
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+<strong>प्रतिबंधित क्षेत्र प्रवर्तन</strong><br>
+पोर्ट को स्पष्ट रूप से सीमांकित प्रतिबंधित क्षेत्रों में विभाजित किया गया है। CISF कर्मी सभी क्षेत्र सीमाओं पर पहुँच नियंत्रण लागू करते हैं, केवल अधिकृत कर्मियों को मान्य पास के साथ प्रवेश की अनुमति देते हैं। प्रतिबंधित क्षेत्र की सीमाएँ बाड़ और संकेतों के साथ सुरक्षित हैं।
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+<strong>सुरक्षा प्रशिक्षण और ड्रिल</strong><br>
+PFSO, सुरक्षा अधिकारी और CISF कर्मी नियमित ISPS-निर्धारित सुरक्षा प्रशिक्षण में भाग लेते हैं। ड्रिलें आयोजित की जाती हैं ताकि तीनों सुरक्षा स्तरों में खतरों पर प्रतिक्रिया का परीक्षण किया जा सके, और परिणामों का उपयोग सुरक्षा प्रक्रियाओं में निरंतर सुधार के लिए किया जाता है।
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+<strong>रिकॉर्ड और रिपोर्टिंग</strong><br>
+सभी सुरक्षा गतिविधियाँ — ऑडिट, ड्रिल, DOS दस्तावेज़, सुरक्षा घटनाएँ, और सुरक्षा स्तर में परिवर्तन — पोर्ट में ISPS कोड के रिकॉर्ड-कीपिंग आवश्यकताओं के अनुसार दर्ज और संरक्षित की जाती हैं, और DGS तथा अधिकृत अधिकारियों द्वारा निरीक्षण के लिए उपलब्ध रहती हैं।
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+<strong>पहुंच नियंत्रण अवसंरचना — CISF, RFID और बायोमेट्रिक सिस्टम</strong><br>
+कामराजर पोर्ट में सुरक्षा केंद्रीय औद्योगिक सुरक्षा बल (CISF) द्वारा सुनिश्चित की जाती है। पोर्ट के सभी मुख्य प्रवेश और निकासी द्वार एकीकृत RFID पास सिस्टम और बायोमेट्रिक सिस्टम से सुसज्जित हैं, ताकि कर्मियों और वाहनों की प्रमाणित प्रवेश और निकासी सुनिश्चित हो सके। केवल मान्य RFID पास धारक सत्यापित व्यक्तियों को प्रवेश की अनुमति दी जाती है, और बायोमेट्रिक सत्यापन के साथ सुरक्षा को और मजबूत बनाया जाता है।
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+<strong>अंडर व्हीकल स्कैनर प्रणाली — प्रवेश और निकासी द्वार</strong><br>
+कामराजर पोर्ट के प्रवेश और निकासी द्वारों पर अंडर व्हीकल स्कैनर प्रणाली स्थापित की जाएगी। इस प्रणाली की स्थापना वर्तमान में प्रगति पर है। संचालन में आने पर यह प्रणाली पोर्ट में प्रवेश और निकासी करने वाले सभी वाहनों के अंडरकारेज़ का स्वचालित स्कैनिंग सक्षम करेगी, सुरक्षा जांचों को बढ़ाएगी और वाहनों के नीचे तस्करी, विस्फोटक या अन्य निषिद्ध वस्तुओं को छिपाने से रोकने में मदद करेगी।
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+<strong>इंटीग्रेटेड कमांड एंड कंट्रोल सेंटर (ICCC) — भारतीय पोर्ट्स में प्रथम</strong><br>
+कामराजर पोर्ट लिमिटेड में एक इंटीग्रेटेड कमांड और कंट्रोल सेंटर (ICCC) स्थापित किया गया है। KPL भारत में ICCC प्रणाली वाला पहला पोर्ट होने का गौरव रखता है, जो वास्तविक समय पोर्ट संचालन प्रबंधन के साथ उन्नत और एकीकृत सुरक्षा निगरानी सक्षम करता है। ICCC निगरानी, खतरे का पता लगाने, घटना प्रतिक्रिया और संचालन समन्वय के लिए एक एकीकृत प्लेटफ़ॉर्म प्रदान करता है, जिससे सुरक्षा और पोर्ट प्रबंधन कार्यों का निर्बाध समेकन सुनिश्चित होता है।
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+<strong>समुद्र तट सुरक्षा — समर्पित CISF गश्ती नाव</strong><br>
+कामराजर पोर्ट के समुद्र तट क्षेत्र की निगरानी 24x7 आधार पर CISF द्वारा संचालित समर्पित गश्ती नाव द्वारा की जाती है। यह सतत वाटरसाइड गश्ती बंदरगाह के अप्रोच, बर्थ और तटीय सीमा की वास्तविक समय निगरानी प्रदान करती है, और समुद्र की ओर से किसी भी अनधिकृत गतिविधि या घुसपैठ प्रयास का त्वरित पता लगाने और प्रतिक्रिया सुनिश्चित करती है।
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+<strong>इंटेलिजेंट सर्विलांस सिस्टम (ISS) — लघु नौका पहचान (भारत में प्रथम)</strong><br>
+कामराजर पोर्ट लिमिटेड इंटेलिजेंट सर्विलांस सिस्टम (ISS) स्थापित करने की प्रक्रिया में है — एक उन्नत क्षमता जो छोटे, कम-प्रोफ़ाइल जलयानों जैसे कत्तुमरम को बंदरगाह में प्रवेश करने से पहले पहचानने के लिए डिज़ाइन की गई है। KPL भारत में छोटे नौकाओं की पहचान के लिए ऐसी प्रणाली स्थापित करने वाला पहला पोर्ट होगा। ISS सेंसर नॉर्थ और साउथ ब्रेकवॉटर में स्थापित किए जाएंगे, जो बंदरगाह के पूरे समुद्री अप्रोच पर प्रारंभिक चेतावनी कवरेज प्रदान करेंगे। यह प्रणाली KPL की समुद्री क्षेत्र जागरूकता और छोटे, पहचानने में कठिन जलयानों द्वारा होने वाली घुसपैठ को रोकने की क्षमता को महत्वपूर्ण रूप से बढ़ाएगी।
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+<strong>पोर्ट सुविधा सुरक्षा सलाहकार समिति (PFSAC) — बहु-एजेंसी समन्वय</strong><br>
+PFSAC की बैठकें नियमित रूप से कामराजर पोर्ट के अध्यक्ष द्वारा DG Shipping सर्कुलरों के अनुसार आयोजित की जाती हैं। इन बैठकों में कस्टम्स, इमीग्रेशन, भारतीय नौसेना, भारतीय तटरक्षक, केंद्रीय औद्योगिक सुरक्षा बल (CISF), नारकोटिक्स कंट्रोल ब्यूरो (NCB), स्थानीय पुलिस, मत्स्य विभाग, खुफिया ब्यूरो (IB) — केंद्रीय और राज्य दोनों, तटीय सुरक्षा समूह और अन्य समुद्री सुरक्षा संगठन शामिल होते हैं। यह बहु-एजेंसी मंच पोर्ट सुविधा सुरक्षा के सभी आयामों में समन्वित और व्यापक सुरक्षा शासन सुनिश्चित करता है। सुरक्षा ड्रिलें भी ISPS कोड के अनुसार आयोजित की जाती हैं।
+</p>
+
+<h6 style="margin-top:20px;color:#292727;font-size:16px;">
+<strong>6. संपर्क — पोर्ट सुविधा सुरक्षा अधिकारी</strong>
+</h6>
+
+<p style="font-size:15.2px;line-height:1.6;text-align:justify">
+कामराजर पोर्ट में सभी ISPS-संबंधित मामलों — जिनमें सुरक्षा घोषणा (DOS) व्यवस्था, पूर्व आगमन सुरक्षा सूचना, सुरक्षा ऑडिट पूछताछ और आपातकालीन सुरक्षा रिपोर्टिंग शामिल हैं — के लिए कृपया पोर्ट सुविधा सुरक्षा अधिकारी (PFSO) या CISF नियंत्रण कक्ष से संपर्क करें।
+</p>
+
+<p style="font-size:15.2px;line-height:1.6;">
+सुरक्षा घटनाओं, संदिग्ध गतिविधियों और पोर्ट में unattended वस्तुओं की सूचना तुरंत पोर्ट आपातकालीन लाइन पर दी जानी चाहिए, जो 24x7 उपलब्ध है।
+</p>
+                        </div>
+                    </div>
+
+                
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<script>
+function showTerminal(id, titleEn, titleHi) {
+
+    document.getElementById('pageTitle')?.classList.add('d-none');
+    document.getElementById('pageHr')?.classList.add('d-none');
+    document.getElementById('terminalCards').classList.add('d-none');
+
+    document.getElementById('terminalHeader').classList.remove('d-none');
+    document.getElementById('terminalHr').classList.remove('d-none');
+    document.getElementById('terminalContent').classList.remove('d-none');
+
+    // Set title in the currently active language
+    var currentLang = localStorage.getItem('selectedLanguage') || 'en';
+    var titleEl = document.getElementById('terminalTitle');
+    titleEl.innerText = currentLang === 'hi' ? (titleHi || titleEn) : titleEn;
+    titleEl.setAttribute('data-en', titleEn);
+    titleEl.setAttribute('data-hi', titleHi || titleEn);
+
+    // Hide all terminal sections, then show the selected one
+    document.querySelectorAll('#terminalContent .terminal-section')
+        .forEach(function(el) { el.classList.add('d-none'); });
+    document.querySelectorAll('#terminalContent #' + id)
+        .forEach(function(el) { el.classList.remove('d-none'); });
+}
+
+function showTerminalCards() {
+
+    document.getElementById('pageTitle')?.classList.remove('d-none');
+    document.getElementById('pageHr')?.classList.remove('d-none');
+    document.getElementById('terminalCards').classList.remove('d-none');
+
+    document.getElementById('terminalHeader').classList.add('d-none');
+    document.getElementById('terminalHr').classList.add('d-none');
+    document.getElementById('terminalContent').classList.add('d-none');
+
+    document.querySelectorAll('#terminalContent .terminal-section')
+        .forEach(function(el) { el.classList.add('d-none'); });
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+    var hash = window.location.hash.substring(1);
+
+    if (hash) {
+        var terminalNames = {
+            'container-terminal-phase-1':           { en: 'Container Terminal',          hi: 'कंटेनर टर्मिनल' },
+            'marine-liquid-terminal-1':  { en: 'Marine Liquid Terminal',      hi: 'मरीन लिक्विड टर्मिनल' },
+            'common-user-coal-terminal': { en: 'Common User Coal Terminal',   hi: 'सामान्य उपयोगकर्ता कोयला टर्मिनल' },
+            'general-cargo-berth-1':     { en: 'General Cargo Berth 1',       hi: 'सामान्य कार्गो बर्थ 1' },
+            'bunkering-operation':       { en: 'Bunkering Operation',         hi: 'बंकरिंग ऑपरेशन' },
+            'lng-terminal':       { en: 'LNG Terminal',         hi: 'एलएनजी टर्मिनल' },
+            'multi-cargo-terminal':       { en: 'Multi Cargo Terminal',         hi: 'मल्टी कार्गो टर्मिनल' },            
+        };
+
+        if (terminalNames[hash]) {
+            setTimeout(function() {
+                showTerminal(hash, terminalNames[hash].en, terminalNames[hash].hi);
+            }, 100);
+        }
+    }
+});                                    
+</script>
+ 
+    </main>
+
+    <style>
+.visitor-counter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.digit-box {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 32px;
+    height: 38px;
+    background-color: #0d6efd;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 4px;
+    font-size: 16px;
+}
+</style>
+<footer class="ipa-footer pt-5 pb-4">
+    <div class="container">
+
+        
+        <div class="row gy-5">
+
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="footer-logo-text">
+                    <div class="footer-logo-row mb-2 d-flex align-items-center gap-2">
+                        <a href="https://kamarajarport.in/public" title="Go to Home Page"><img src="https://kamarajarport.in/public/public/frontend/assets/images/logowithoutbackgroundd.png"
+                             class="footer-logo" title="Kamarajar Port Limited Logo"></a>
+                        <a href="https://kamarajarport.in/public" title="Go to Home Page"><p class="fw-bold footer-logo-text-title">
+                            KAMARAJAR PORT LIMITED
+                        </p></a>
+                    </div>
+                    <p class="footer-description px-1">
+                        ( A Company of Chennai Port Authority )<br>
+                        ( Ministry of Ports, Shipping & Waterways - Government of India )<br>
+                    </p>
+                </div>
+            </div>
+
+                                                                                <div class="col-lg-2 col-md-6">
+                        <h5 class="fw-bold footer-heading"></h5>
+                        <ul class="footer-list">
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/Help" 
+                                       title="Help"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Help"
+                                              data-hi="मदद"
+                                              data-ta="Help">
+                                            Help
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/hyper-linking-policy" 
+                                       title="Hyper Linking Policy"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Hyper Linking Policy"
+                                              data-hi="हाइपर लिंकिंग नीति"
+                                              data-ta="Hyper Linking Policy">
+                                            Hyper Linking Policy
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/disclaimer" 
+                                       title="Disclaimer"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Disclaimer"
+                                              data-hi="अस्वीकरण"
+                                              data-ta="Disclaimer">
+                                            Disclaimer
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://nlpmarine.gov.in/" 
+                                       title="NLP Marine"
+                                        target="_blank" >
+                                        <span class="menu-name"
+                                              data-en="NLP Marine"
+                                              data-hi="NLP Marine"
+                                              data-ta="NLP Marine">
+                                            NLP Marine
+                                        </span>
+                                    </a>
+                                </li>
+                                                    </ul>
+                    </div>
+                                                                                    <div class="col-lg-2 col-md-6">
+                        <h5 class="fw-bold footer-heading"></h5>
+                        <ul class="footer-list">
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/FAQ" 
+                                       title="FAQ&#039;s"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="FAQ&#039;s"
+                                              data-hi="अक्सर पूछे जाने वाले प्रश्न"
+                                              data-ta="FAQ&#039;s">
+                                            FAQ&#039;s
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/copyright-policy" 
+                                       title="Copyright Policy"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Copyright Policy"
+                                              data-hi="कॉपीराइट नीति"
+                                              data-ta="Copyright Policy">
+                                            Copyright Policy
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/gallery" 
+                                       title="Gallery"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Gallery"
+                                              data-hi="गैलरी"
+                                              data-ta="Gallery">
+                                            Gallery
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/download-forms" 
+                                       title="Download Forms"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Download Forms"
+                                              data-hi="फॉर्म डाउनलोड करें"
+                                              data-ta="Download Forms">
+                                            Download Forms
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/web-information-manager" 
+                                       title="Web Information Manager"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Web Information Manager"
+                                              data-hi="वेब सूचना प्रबंधक"
+                                              data-ta="Web Information Manager">
+                                            Web Information Manager
+                                        </span>
+                                    </a>
+                                </li>
+                                                    </ul>
+                    </div>
+                                                                                    <div class="col-lg-2 col-md-6">
+                        <h5 class="fw-bold footer-heading"></h5>
+                        <ul class="footer-list">
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/privacy-policy" 
+                                       title="Privacy Policy"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Privacy Policy"
+                                              data-hi="गोपनीयता नीति"
+                                              data-ta="Privacy Policy">
+                                            Privacy Policy
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/terms-and-condtions" 
+                                       title="Terms &amp; Conditions"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Terms &amp; Conditions"
+                                              data-hi="नियम एवं शर्तें"
+                                              data-ta="Terms &amp; Conditions">
+                                            Terms &amp; Conditions
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://mausam.imd.gov.in/chennai/" 
+                                       title="Weather"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Weather"
+                                              data-hi="मौसम"
+                                              data-ta="Weather">
+                                            Weather
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/bill-payment-status" 
+                                       title="Bill Payment Status"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Bill Payment Status"
+                                              data-hi="बिल भुगतान स्थिति"
+                                              data-ta="Bill Payment Status">
+                                            Bill Payment Status
+                                        </span>
+                                    </a>
+                                </li>
+                            
+                                                                
+                                <li>
+                                    <a href="https://kamarajarport.in/public/archive" 
+                                       title="Archive"
+                                       >
+                                        <span class="menu-name"
+                                              data-en="Archive"
+                                              data-hi="पुरालेख"
+                                              data-ta="Archive">
+                                            Archive
+                                        </span>
+                                    </a>
+                                </li>
+                                                    </ul>
+                    </div>
+                            
+            
+            
+        <div class="col-lg-3 col-md-6">
+            <h5 class="fw-bold footer-heading hero-text"
+                data-en="Contact Us"
+                data-hi="संपर्क करें">
+                Contact Us
+            </h5>
+
+            <ul class="footer-list">
+                                    <li class="d-flex align-items-start mb-2">
+                        <i class="bi bi-geo-alt me-2" title="Address"></i>
+                        <div class="footer-address"
+                            data-en="&lt;h6&gt;Jawahar Building,&lt;/h6&gt;&lt;h6&gt;No. 17, Rajaji Salai, Chennai - 600001&lt;/h6&gt;"
+                            data-hi="&lt;h6&gt;जवाहर बिल्डिंग,&lt;/h6&gt;&lt;h6&gt;नंबर: 17, राजाजी सलाई, चेन्नई - 600001&lt;/h6&gt;"
+                            data-ta="&lt;h6&gt;Jawahar Building,&lt;/h6&gt;&lt;h6&gt;No. 17, Rajaji Salai, Chennai - 600001&lt;/h6&gt;">
+                            <h6>Jawahar Building,</h6><h6>No. 17, Rajaji Salai, Chennai - 600001</h6>
+                        </div>
+                    </li>
+                    <li class="d-flex align-items-center mb-2">
+                        <i class="bi bi-telephone me-2" title="Phone"></i>
+                        <span> +91-44-25251666</span>
+                    </li>
+                   <!-- <li class="d-flex align-items-center">
+                        <i class="bi bi-envelope me-2" title="Email"></i>
+                        <span>kpl[at]gmail[dot]com</span>
+                    </li>-->
+                            </ul>
+        </div>
+
+        </div>
+
+        
+        <hr class="footer-divider">
+
+        
+        <div class="row align-items-center py-2">
+
+            <div class="col-md-5 text-start">
+                <p class="m-0 footer-copy">
+                    Copyright ©  2026, All rights reserved by  Kamarajar Port Limited .
+                </p>
+            </div>
+            <div class="col-md-3 text-end">
+                <span class="ms-3">
+                    Last Updated On :
+                    <span id="lastUpdatedDate"></span>
+                </span>
+            </div>
+            <div class="col-md-4 text-end footer-bottom-links">
+                <span class="ms-3 visitor-counter">
+                    Visitors Count 
+                                            <span class="digit-box">2</span>
+                                            <span class="digit-box">8</span>
+                                            <span class="digit-box">9</span>
+                                            <span class="digit-box">8</span>
+                                            <span class="digit-box">5</span>
+                                            <span class="digit-box">4</span>
+                                    </span>
+            </div>
+        </div>
+
+        
+        <!-- <div class="badge-row text-center mt-4">
+            <img src="https://kamarajarport.in/public/public/frontend/assets/images/one.jpeg" class="badge-img" title="Government of India badge" alt="Government badge">
+            <img src="https://kamarajarport.in/public/public/frontend/assets/images/nic.jpeg" class="badge-img" title="NIC badge" alt="NIC badge">
+            <img src="https://kamarajarport.in/public/public/frontend/assets/images/digital.jpeg" class="badge-img" title="Digital India badge" alt="Digital India badge">
+        </div> -->
+
+    </div> 
+</footer>
+
+<script>
+document.addEventListener('click', function(e) {
+    var link = e.target.closest('a');
+    if (!link) return;
+
+    try {
+        var linkHost = new URL(link.href).host;
+        var currentHost = window.location.host;
+
+        if (linkHost && linkHost !== currentHost) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+
+            if (confirm('This site has been redirected to external website, Do you want to continue ?')) {
+                if (link.target === '_blank' || link.target === '_new') {
+                    window.open(link.href, '_blank', 'noopener,noreferrer');
+                } else {
+                    window.location.href = link.href;
+                }
+            }
+            return false;
+        }
+    } catch (err) {}
+}, true);
+
+// 👇 FIX HERE
+document.addEventListener('DOMContentLoaded', function () {
+    const now = new Date();
+
+    const day = now.getDate();
+    const year = now.getFullYear();
+
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+
+    const formattedDate = `${day}-${monthNames[now.getMonth()]}-${year}`;
+
+    document.getElementById('lastUpdatedDate').textContent = formattedDate;
+});
+</script>
+ 
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://www.kamarajarport.in/public/frontend/assets/js/main.js"></script>
+
+<script>
+  const reveals = document.querySelectorAll('.section-card, .quick-card, .stats-section, .news-card');
+  if (reveals.length){
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e =>{ if (e.isIntersecting) e.target.classList.add('reveal-show'); });
+    }, {threshold: .12});
+    reveals.forEach(r => io.observe(r));
+  }
+
+  function animateCounters(){
+    document.querySelectorAll('[data-target]').forEach(el => {
+      const target = parseFloat(el.getAttribute('data-target'));
+      if (isNaN(target)) return;
+      const duration = 1300;
+      let start = 0;
+      const step = target / (duration / 20);
+      const t = setInterval(()=>{ start += step; if (start >= target){ el.textContent = (String(target).includes('.')?target.toFixed(1):Math.round(target)); clearInterval(t);} else el.textContent = (String(target).includes('.')?start.toFixed(1):Math.round(start)); },20);
+    });
+  }
+  const statsEl = document.querySelector('.stats-section');
+  if (statsEl){
+    const statsObserver = new IntersectionObserver(entries => { if(entries[0].isIntersecting){ animateCounters(); statsObserver.disconnect(); } }, {threshold:.3});
+    statsObserver.observe(statsEl);
+  }
+</script>
+</body>
+</html>

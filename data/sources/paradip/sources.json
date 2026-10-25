@@ -24,6 +24,48 @@
       "sha256": "70f61c9a4a4905c8060ab9285f11ac8cbb7c44cb20a51a5e6edbe81209c4ea9b",
       "pages": 56,
       "pagesWithoutText": []
+    },
+    {
+      "file": "data/sources/paradip/rules/berth-specifications.html",
+      "title": "Berth Specifications",
+      "issuer": "Paradip Port Authority",
+      "url": "https://paradipport.gov.in/berth-specifications/",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/paradip/rules/berth-specifications.md",
+      "sha256": "1bdefcac5a90f9fa9a64137b4646ff919e87c17b16c457b35ce3db0c798022df",
+      "kind": "rules",
+      "pages": 1,
+      "notes": "Page states last updated 23 February 2026. Preserve berth-specific tide, daylight, beam and maneuvering restrictions."
+    },
+    {
+      "file": "data/sources/paradip/rules/berthing-policy-2026-27.pdf",
+      "title": "Berthing Policy of Paradip Port Authority for the year 2026-27",
+      "issuer": "Paradip Port Authority",
+      "url": "https://www.paradipport.gov.in/uploads/2026/08/Berthing-Policy_22052026.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/paradip/rules/berthing-policy-2026-27.md",
+      "sha256": "988e8aab9814eac51c74a7d2da1a8ace728ec411706f187860f119a49b26c89f",
+      "kind": "rules",
+      "pages": 6,
+      "pagesWithoutText": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "pagesTranscribedByHand": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "publishedOn": "2026-05-22",
+      "validFrom": "2026-04-01",
+      "validTo": "2027-03-31"
     }
   ]
 }

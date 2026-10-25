@@ -27,6 +27,106 @@
         3,
         4
       ]
+    },
+    {
+      "file": "data/sources/deendayal/rules/vadinar-offshore-oil-terminal.html",
+      "title": "OFF-SHORE OIL TERMINAL (OOT) -VADINAR",
+      "issuer": "Deendayal Port Authority",
+      "url": "https://www.deendayalport.gov.in/port/salient-benefits/off-shore-oil-terminal",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/deendayal/rules/vadinar-offshore-oil-terminal.md",
+      "sha256": "b5486986861200262fbeb891de887710ba1d5f3d4214cdb594e95424a14e5d19",
+      "kind": "rules",
+      "pages": 1,
+      "notes": "Undated source. Claims 33m draft at SBMs/LPO and VLCC handling of 300,000 DWT and more; does not give berth-by-berth LOA/beam limits.",
+      "captureMethod": "Rendered official page HTML, English selected."
+    },
+    {
+      "file": "data/sources/deendayal/rules/administrative-report-2024-25.pdf",
+      "title": "Annual Administrative Report 2024-25",
+      "issuer": "Deendayal Port Authority",
+      "url": "https://www.deendayalport.gov.in/uploads/Annual_Administrative_Report2025_edp_acb5016302.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/deendayal/rules/administrative-report-2024-25.md",
+      "sha256": "9edba258de4641f616fa703369d29abab618a2b7ba415fa9dc33c477b1c1d801",
+      "kind": "rules",
+      "pages": 204,
+      "pagesWithoutText": [
+        89,
+        171
+      ],
+      "notes": "Berth tables at PDF pp91 and 93 (Hindi duplicates pp90 and 92) are expressly as at 31 March 2025. Cover says 2024-25 while page footers say 2025-2026. Quay length 1988 repeated for cargo berths 1-10 and berth6 LOA114.33 are source text; do not reinterpret without port confirmation. Historical inventory, not a current tidal-draft circular.",
+      "pagesTextCorrectedVisually": [
+        90,
+        91,
+        92,
+        93
+      ]
+    },
+    {
+      "file": "data/sources/deendayal/rules/berthing-policy-amendment-2026-05.pdf",
+      "title": "Circular - Modification in existing Berthing Policy for Dry Cargo Vessels at Cargo Berths and Liquid Tanker Vessels at Oil Jetties",
+      "issuer": "Deendayal Port Authority",
+      "url": "https://www.deendayalport.gov.in/uploads/20260521_Circular_Berthing_Policy_modification_final_df1490ec55.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/deendayal/rules/berthing-policy-amendment-2026-05.md",
+      "sha256": "ab9948d071d51c51f151fba23e67e8842dfe220a3d17be4b452f711e5faf4490",
+      "kind": "rules",
+      "pages": 4,
+      "pagesWithoutText": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "pagesTranscribedByHand": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "publishedOn": "2026-05-21",
+      "notes": "Partial amendment effective 22 May 2026 at1100h, requiring base policies of24 March2025 and11 August2025. Must read with saved9 July No2389 and21 July corrigenda; not a complete current policy. Separate liquid corrigendum No2394 of9 July and6 August windmill amendment are not included within the five-document collection limit. Source's general-group numbering/productivity footnote ambiguities preserved."
+    },
+    {
+      "file": "data/sources/deendayal/rules/berthing-policy-corrigendum-2026-07-09.pdf",
+      "title": "Corrigendum to Circular No.TF/SH/9017/2006 dated21.05.2026 - No.TF/SH/9017/2389",
+      "issuer": "Deendayal Port Authority",
+      "url": "https://www.deendayalport.gov.in/uploads/20260709_Circular_corrigendum_Berthing_Policy_modification_e0186d32e9.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/deendayal/rules/berthing-policy-corrigendum-2026-07-09.md",
+      "sha256": "14b4fd304e5e351cf87648c7f65b7729388d1ed0d44f28b3c8a3c4ef60056926",
+      "kind": "rules",
+      "pages": 2,
+      "pagesWithoutText": [
+        1,
+        2
+      ],
+      "pagesTranscribedByHand": [
+        1,
+        2
+      ],
+      "publishedOn": "2026-07-09",
+      "notes": "Partial corrigendum, not standalone rules. Official listing number differs from printed2389. Read with May21 amendment and July21 correction; original2025 policies, separate9July No2394 liquid table and6August2026 windmill change remain missing."
+    },
+    {
+      "file": "data/sources/deendayal/rules/berthing-policy-corrigendum-2026-07-21.pdf",
+      "title": "Corrigendum - Modification in Berthing Policy",
+      "issuer": "Deendayal Port Authority",
+      "url": "https://www.deendayalport.gov.in/uploads/Corrigendum_dated_21_07_2026_Berthing_Policy_b076297399.pdf",
+      "retrievedOn": "2026-10-25",
+      "markdown": "data/sources/deendayal/rules/berthing-policy-corrigendum-2026-07-21.md",
+      "sha256": "f0df459c134b72f3bf408fe0e930025334867752ff4e09611e01c77bc53a51d2",
+      "kind": "rules",
+      "pages": 1,
+      "pagesWithoutText": [
+        1
+      ],
+      "pagesTranscribedByHand": [
+        1
+      ],
+      "publishedOn": "2026-07-21",
+      "notes": "Removes the parcel-size restriction for the24-hour/same-tide category. Read with savedMay21 and9July2389 documents. This collection is not a complete consolidated current policy."
     }
   ]
 }
