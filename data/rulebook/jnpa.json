@@ -1,0 +1,620 @@
+{
+  "id": "jnpa",
+  "name": "Jawaharlal Nehru Port Authority",
+  "kind": "major",
+  "aliases": [
+    "JNPA",
+    "JNPT",
+    "JN Port",
+    "Nhava Sheva",
+    "Jawaharlal Nehru Port"
+  ],
+  "terminals": [
+    {
+      "id": "gti",
+      "name": "Gateway Terminals India (GTI)",
+      "aliases": [
+        "GTI",
+        "APM Terminals Mumbai"
+      ],
+      "operator": "Gateway Terminals India Pvt Ltd"
+    },
+    {
+      "id": "nsigt",
+      "name": "Nhava Sheva (India) Gateway Terminal (NSIGT)",
+      "aliases": [
+        "NSIGT",
+        "DP World NSIGT"
+      ],
+      "operator": "Nhava Sheva (India) Gateway Terminal Pvt Ltd"
+    },
+    {
+      "id": "nsict",
+      "name": "Nhava Sheva International Container Terminal (NSICT)",
+      "aliases": [
+        "NSICT"
+      ],
+      "operator": "Nhava Sheva International Container Terminal Pvt Ltd"
+    },
+    {
+      "id": "nsft",
+      "name": "Nhava Sheva Freeport Terminal (NSFT)",
+      "aliases": [
+        "NSFT"
+      ],
+      "operator": "Nhava Sheva Freeport Terminal Pvt Ltd"
+    },
+    {
+      "id": "bmct",
+      "name": "Bharat Mumbai Container Terminals (BMCT)",
+      "aliases": [
+        "BMCT",
+        "PSA Mumbai"
+      ],
+      "operator": "Bharat Mumbai Container Terminals Pvt Ltd"
+    },
+    {
+      "id": "jsw-jnpt-liquid",
+      "name": "JSW JNPT Liquid Terminal",
+      "aliases": [
+        "JSW Liquid Terminal"
+      ],
+      "operator": "JSW JNPT Liquid Terminal Pvt Ltd"
+    }
+  ],
+  "checkedOn": "2026-10-25",
+  "versions": [
+    {
+      "id": "jnpa-indexed-2026-27",
+      "effectiveFrom": "2026-05-01",
+      "effectiveTo": "2027-04-30",
+      "documents": [
+        {
+          "id": "sor-2026-27",
+          "title": "JNPA Scale of Rates w.e.f. 1 May 2026 (including MBPA)",
+          "issuer": "Jawaharlal Nehru Port Authority",
+          "url": "https://www.jnport.gov.in/uploads/content_manager/SOR_w_e_f_01_05_2026_including_MBPA.pdf",
+          "file": "data/sources/jnpa/sor-2026-27.pdf",
+          "markdown": "data/sources/jnpa/sor-2026-27.md",
+          "sha256": "6a0853b86c086a8983a5aaaa2a6c6d5dec0a6435df7d373cebebea3f7fb70095",
+          "retrievedOn": "2026-10-15"
+        },
+        {
+          "id": "gti-2026",
+          "title": "Gateway Terminals India commercial tariff, effective 1 May 2026",
+          "issuer": "Gateway Terminals India (APM Terminals Mumbai)",
+          "url": "https://www.jnport.gov.in/uploads/content_manager/Commercial_2026_Tariff_-_Effective_01st_May_2026_0001_hrs.pdf",
+          "file": "data/sources/jnpa/gti-2026.pdf",
+          "markdown": "data/sources/jnpa/gti-2026.md",
+          "sha256": "613c33f6c67c4f9e2f81749469dcdc2beae585292e35d583467b0020e169b554",
+          "retrievedOn": "2026-10-15"
+        },
+        {
+          "id": "nsigt-2026",
+          "title": "NSIGT Scale of Rates, 1 April 2026",
+          "issuer": "Nhava Sheva (India) Gateway Terminal",
+          "url": "https://www.jnport.gov.in/uploads/content_manager/Scale_of_Rates_1st_April_2026.pdf",
+          "file": "data/sources/jnpa/nsigt-2026.pdf",
+          "markdown": "data/sources/jnpa/nsigt-2026.md",
+          "sha256": "e1e7b142ca42f384b8f7a0e2cf5fdd1946faa1bbea2d31a86ef2967f865420c6",
+          "retrievedOn": "2026-10-15"
+        },
+        {
+          "id": "nsict-2026",
+          "title": "NSICT tariff 2026",
+          "issuer": "Nhava Sheva International Container Terminal",
+          "url": "https://www.jnport.gov.in/uploads/content_manager/NSICT_Tariff_2026.pdf",
+          "file": "data/sources/jnpa/nsict-2026.pdf",
+          "markdown": "data/sources/jnpa/nsict-2026.md",
+          "sha256": "572e163b2995cb6ed9f1649771f08fd3830afa04adfa3d7cb565ee82a5e048e7",
+          "retrievedOn": "2026-10-15"
+        },
+        {
+          "id": "nsft-2026",
+          "title": "NSFT terminal tariff, 1 May 2026",
+          "issuer": "Nhava Sheva Freeport Terminal",
+          "url": "https://www.jnport.gov.in/uploads/content_manager/NSFTPL_Terminal_Tariff_01_05_2026.pdf",
+          "file": "data/sources/jnpa/nsft-2026.pdf",
+          "markdown": "data/sources/jnpa/nsft-2026.md",
+          "sha256": "337c9ec529dd4959f3186565d0b147f98b5f68e1cef4d4aa5367f3d57c50a95e",
+          "retrievedOn": "2026-10-15"
+        },
+        {
+          "id": "bmct-2026",
+          "title": "BMCT Scale of Rates w.e.f. 6 April 2026",
+          "issuer": "Bharat Mumbai Container Terminals (PSA Mumbai)",
+          "url": "https://www.jnport.gov.in/uploads/content_manager/SoR-_BMCT_w_e_f_06-Apr-2026.pdf",
+          "file": "data/sources/jnpa/bmct-2026.pdf",
+          "markdown": "data/sources/jnpa/bmct-2026.md",
+          "sha256": "efed96a2230d2ffd36dde38bc995114b43af2871406ef3bd6c933edaaf3d8740",
+          "retrievedOn": "2026-10-15"
+        },
+        {
+          "id": "jsw-jnpt-liquid-2024",
+          "title": "JSW JNPT Liquid Terminal tariff w.e.f. 5 November 2024",
+          "issuer": "JSW JNPT Liquid Terminal",
+          "url": "https://www.jnport.gov.in/uploads/content_manager/JSW_JNPT_Liquid_Terminal_Pvt_Ltd_Tariff_wef_05112024.pdf",
+          "file": "data/sources/jnpa/jsw-jnpt-liquid-2024.pdf",
+          "markdown": "data/sources/jnpa/jsw-jnpt-liquid-2024.md",
+          "sha256": "6ff9b2708ae9377fb6f62deadca6145b0879e0cbe837f18c652ab38daafbc29d",
+          "retrievedOn": "2026-10-15"
+        }
+      ],
+      "defaults": {
+        "status": "foreign",
+        "vesselType": "container",
+        "movements": 2
+      },
+      "charges": [
+        {
+          "id": "port-dues",
+          "type": "port-dues",
+          "label": "Port dues",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "bulk"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.2017"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "bulk"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "5.2962"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.1558"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "4.0740"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "ro-ro"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.1009"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "ro-ro"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "2.6335"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "general-cargo",
+                  "tanker",
+                  "lng",
+                  "lpg",
+                  "chemical",
+                  "passenger",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.1558"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "general-cargo",
+                  "tanker",
+                  "lng",
+                  "lpg",
+                  "chemical",
+                  "passenger",
+                  "other"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "4.0740"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Payable on each entry into the port, at the ship's status on entry.",
+            "75% for ships entering in ballast; 50% for ships that neither load nor discharge."
+          ],
+          "source": {
+            "document": "sor-2026-27",
+            "page": 2,
+            "section": "2.1",
+            "quote": [
+              "||(a) Bulk Carriers|0.2017|5.2962|The charges are payable|",
+              "|1|(b)Container vessels|0.1558|4.0740|on each entry into the|",
+              "||(c) Car Carrier Vessels (Ro- Ro)|0.1009|2.6335|Port.|",
+              "|2|Vessels of 10 tonne and upward<br>other than those covered above<br>(except fishing boats)|0.1558|4.0740|- do-|"
+            ]
+          }
+        },
+        {
+          "id": "pilotage-towage",
+          "type": "pilotage-towage",
+          "label": "Pilotage and towage",
+          "basis": "grt",
+          "includes": [
+            "pilotage",
+            "towage"
+          ],
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "excess",
+              "minimumAmount": "275.40",
+              "bands": [
+                {
+                  "upTo": "30000",
+                  "rate": "0.3464"
+                },
+                {
+                  "upTo": "60000",
+                  "base": "10393",
+                  "rate": "0.2776"
+                },
+                {
+                  "base": "18722",
+                  "rate": "0.2429"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ]
+              },
+              "currency": "INR",
+              "bandMode": "excess",
+              "minimumAmount": "7217.62",
+              "bands": [
+                {
+                  "upTo": "30000",
+                  "rate": "9.0792"
+                },
+                {
+                  "upTo": "60000",
+                  "base": "272376",
+                  "rate": "7.2605"
+                },
+                {
+                  "base": "490191",
+                  "rate": "6.3584"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Covers one inward and one outward movement with pilots, tugs and craft; each leg is half the charge at that leg's status.",
+            "Twice the rate for a cold move (no engine both ways); one and a half times for a cold move one way."
+          ],
+          "source": {
+            "document": "sor-2026-27",
+            "page": 3,
+            "section": "2.2 A",
+            "quote": [
+              "|1|Upto 30000 GRT|0.3464|||9.0792|||",
+              "|2|From<br>30001<br>upto<br>|US $|10393|for first 30000 GRT|₹|272376|/- for first 30000 GRT|",
+              "||60000 GRT|+ US $|0.2776|for every additional GRT|+   ₹|7.2605|for every additional GRT|",
+              "|3|Above 60000 GRT|US $|18,722|for first 60000 GRT|₹|490191|for first 60000 GRT|",
+              "|||+ US $|0.2429|for every additional GRT|+   ₹|6.3584|for every additional GRT|",
+              "minimum charges under the schedule for Pilotage – towage fees for each visit to the Port shall be **<mark>US$ 275.40</mark>** for Foreign-going vessels and **<mark>₹ 7217.62</mark>** for Coastal vessels."
+            ]
+          }
+        },
+        {
+          "id": "berth-hire",
+          "type": "berth-hire",
+          "label": "Berth hire (JNPA)",
+          "basis": "grt-hour",
+          "timeRounding": "started-hour",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "terminals": [
+                  "gti",
+                  "nsict",
+                  "jsw-jnpt-liquid"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.0053"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "terminals": [
+                  "gti",
+                  "nsict",
+                  "jsw-jnpt-liquid"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "0.1309"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Charged from berthing until the ship leaves, stopping 4 hours after the ship signals it is ready to sail."
+          ],
+          "source": {
+            "document": "sor-2026-27",
+            "page": 6,
+            "section": "2.3",
+            "quote": "||All Berths including Landing Jetty|0.0053|0.1309|"
+          }
+        },
+        {
+          "id": "berth-hire-nsigt",
+          "type": "berth-hire",
+          "label": "Berth hire (NSIGT)",
+          "basis": "grt-hour",
+          "timeRounding": "started-hour",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "terminals": [
+                  "nsigt"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "2.0476"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "terminals": [
+                  "nsigt"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "1.2283"
+                }
+              ]
+            }
+          ],
+          "source": {
+            "document": "nsigt-2026",
+            "page": 3,
+            "section": "2",
+            "quote": "|1|For Occupyingthe Berth|2.0476|1.2283|"
+          }
+        },
+        {
+          "id": "berth-hire-bmct",
+          "type": "berth-hire",
+          "label": "Berth hire (BMCT)",
+          "basis": "grt-hour",
+          "timeRounding": "started-hour",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "terminals": [
+                  "bmct"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "2.378"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "terminals": [
+                  "bmct"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "1.427"
+                }
+              ]
+            }
+          ],
+          "source": {
+            "document": "bmct-2026",
+            "page": 3,
+            "section": "2",
+            "quote": "|1|For Occupyingthe Berth|2.378|1.427|"
+          }
+        },
+        {
+          "id": "anchorage",
+          "type": "anchorage",
+          "label": "Anchorage berth",
+          "basis": "grt-hour",
+          "timeRounding": "started-hour",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.0026"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "0.0582"
+                }
+              ]
+            }
+          ],
+          "source": {
+            "document": "sor-2026-27",
+            "page": 6,
+            "section": "2.3",
+            "quote": "|2|For occupying Anchorage Berth|0.0026|0.0582|"
+          }
+        }
+      ],
+      "notes": [
+        {
+          "text": "GTI and NSICT tariffs refer to 'berth hire charges payable to JNPT/JNPA' (idle-time rebate clauses), so JNPA's berth hire is applied at those terminals.",
+          "source": {
+            "document": "gti-2026",
+            "page": 11
+          }
+        },
+        {
+          "text": "The JSW JNPT Liquid Terminal tariff says pilotage-cum-towage, port dues, berth hire and anchorage are payable to JNPA as per JNPA's tariff.",
+          "source": {
+            "document": "jsw-jnpt-liquid-2024",
+            "page": 3
+          }
+        },
+        {
+          "text": "NSIGT and BMCT charge their own berth hire in rupees (also for foreign ships). The NSFT tariff does not state who charges berth hire, so berth hire at NSFT is not priced.",
+          "source": {
+            "document": "nsft-2026",
+            "page": 1
+          }
+        },
+        {
+          "text": "Terminal tariffs have their own dates: NSIGT indexed from 1 April 2026, BMCT from 6 April 2026, NSICT from 1 May 2026. This version uses JNPA's indexed period of 1 May 2026 to 30 April 2027.",
+          "source": {
+            "document": "nsigt-2026",
+            "page": 1
+          }
+        },
+        {
+          "text": "Ships that also call at Mumbai pay 18% of Mumbai's port dues to JNPA in some cases (section 2.1 note 8); this is not added automatically.",
+          "source": {
+            "document": "sor-2026-27",
+            "page": 3
+          }
+        }
+      ]
+    }
+  ]
+}

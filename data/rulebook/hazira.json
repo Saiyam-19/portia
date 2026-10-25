@@ -1,0 +1,480 @@
+{
+  "id": "hazira",
+  "name": "Adani Hazira Port",
+  "kind": "private",
+  "aliases": [
+    "Hazira",
+    "Hazira Port",
+    "Adani Hazira",
+    "AHPL",
+    "Surat Hazira"
+  ],
+  "terminals": [],
+  "checkedOn": "2026-10-25",
+  "versions": [
+    {
+      "id": "hazira-bpts-rev14-2026-10-01",
+      "effectiveFrom": "2026-10-01",
+      "documents": [
+        {
+          "id": "bpts-rev14-2026-10",
+          "title": "Adani Hazira Port Berthing Policy and Tariff Structure, issue 3 revision 14 (October 2026)",
+          "issuer": "Adani Hazira Port",
+          "url": "https://www.adaniports.com/-/media/project/ports/portsandterminals/hazira-port-documents/tariff/bpts_hazira_issue-03_rev-14_oct-2026.pdf",
+          "file": "data/sources/hazira/bpts-rev14-2026-10.pdf",
+          "markdown": "data/sources/hazira/bpts-rev14-2026-10.md",
+          "sha256": "41e2495c9e3e25da0845d8226ecca4567cddad5b425566916aeb0225bdef999a",
+          "retrievedOn": "2026-10-25"
+        },
+        {
+          "id": "fuel-surcharge-2026-10-01",
+          "title": "Hazira fuel surcharge on pilotage, circular dated 1 October 2026",
+          "issuer": "Adani Hazira Port",
+          "url": "https://www.adaniports.com/-/media/project/ports/portsandterminals/hazira-port-documents/trade-notice/fs_hazira_dtd_01-10-2026.pdf",
+          "file": "data/sources/hazira/fuel-surcharge-2026-10-01.pdf",
+          "markdown": "data/sources/hazira/fuel-surcharge-2026-10-01.md",
+          "sha256": "d9d27f7c80849e41c414873ff0acc9392ed7f684b1844f4b7d57be22f04e1197",
+          "retrievedOn": "2026-10-25"
+        }
+      ],
+      "defaults": {
+        "status": "foreign",
+        "vesselType": "bulk",
+        "movements": 2
+      },
+      "charges": [
+        {
+          "id": "port-dues",
+          "type": "port-dues",
+          "label": "Port dues",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {
+                "vesselTypes": [
+                  "lng"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.3881"
+                }
+              ]
+            },
+            {
+              "when": {
+                "vesselTypes": [
+                  "general-cargo",
+                  "bulk",
+                  "container",
+                  "tanker",
+                  "lpg",
+                  "chemical",
+                  "passenger",
+                  "ro-ro",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "minimumAmount": "235",
+              "bands": [
+                {
+                  "rate": "0.02982"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Charged per vessel call number (VCN), valid for 15 days; charged again for each further 15 days."
+          ],
+          "source": {
+            "document": "bpts-rev14-2026-10",
+            "page": 26,
+            "section": "IV.A",
+            "quote": [
+              "|**Port dues for LNG Vessels**|USD 0.3881 per GRT|",
+              "|**Port dues for non-LNG Vessels**|USD 0.02982 Per GRT of Vessel|",
+              "||(Minimum Charges USD 235 per vessel applicable.)|"
+            ]
+          }
+        },
+        {
+          "id": "pilotage-towage",
+          "type": "pilotage-towage",
+          "label": "Pilotage (with tugs)",
+          "basis": "grt",
+          "includes": [
+            "pilotage",
+            "towage"
+          ],
+          "rates": [
+            {
+              "when": {
+                "vesselTypes": [
+                  "lng"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.6691"
+                }
+              ]
+            },
+            {
+              "when": {
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "USD",
+              "minimumAmount": "11260",
+              "bands": [
+                {
+                  "rate": "1.18566"
+                }
+              ]
+            },
+            {
+              "when": {
+                "vesselTypes": [
+                  "general-cargo",
+                  "bulk",
+                  "tanker",
+                  "lpg",
+                  "chemical",
+                  "passenger",
+                  "ro-ro",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "3000",
+                  "rate": "1.45331",
+                  "minimumAmount": "6000"
+                },
+                {
+                  "upTo": "15000",
+                  "rate": "1.45331",
+                  "minimumAmount": "14500"
+                },
+                {
+                  "rate": "1.45331",
+                  "minimumAmount": "25300"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Includes one berthing and one unberthing, with all tug charges."
+          ],
+          "source": {
+            "document": "bpts-rev14-2026-10",
+            "page": 26,
+            "section": "IV.B (i)",
+            "quote": [
+              "|**Pilotage for LNG Vessels**|USD 0.6691 per GRT||",
+              "|**Pilotage Charges for Container Vessels**|USD 1.18566 per GRT|Minimum USD 11260|",
+              "||Minimum USD 6000|Up to3000GRT|",
+              "|USD 1.45331 per GRT of vessel|Minimum USD 14500|3001– 15,000 GRT|",
+              "||Minimum USD 25300|15,001 GRT and above|",
+              "|**Includes one Berthing & one Un-berthin**<br>**B (ii). FUEL SURCHARGE ON PILOTAG**|**g (all tug charges inclusive)**"
+            ]
+          }
+        },
+        {
+          "id": "fuel-surcharge-pilotage",
+          "type": "pilotage",
+          "label": "Fuel surcharge on pilotage",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {
+                "vesselTypes": [
+                  "general-cargo",
+                  "bulk",
+                  "container",
+                  "tanker",
+                  "lpg",
+                  "chemical",
+                  "passenger",
+                  "ro-ro",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.225070"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Changes with fuel prices, reviewed fortnightly; this is the rate from 1 October 2026. Not charged on LNG ships."
+          ],
+          "source": {
+            "document": "fuel-surcharge-2026-10-01",
+            "page": 1,
+            "quote": "|**Revised rate**|**156.990**|**0.225070**|"
+          }
+        },
+        {
+          "id": "mooring",
+          "type": "mooring",
+          "label": "Mooring",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {
+                "vesselTypes": [
+                  "general-cargo",
+                  "bulk",
+                  "container",
+                  "tanker",
+                  "lpg",
+                  "chemical",
+                  "passenger",
+                  "ro-ro",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "minimumAmount": "245",
+              "bands": [
+                {
+                  "rate": "0.04526"
+                }
+              ]
+            }
+          ],
+          "source": {
+            "document": "bpts-rev14-2026-10",
+            "page": 28,
+            "section": "IV.C",
+            "quote": "|Mooring Charges|USD**0.04526**Per GRT of<br>vessel.<br>Minimum charges**USD 245**<br>(Applicable to non-LNG vessels).|"
+          }
+        },
+        {
+          "id": "sustainability",
+          "type": "other",
+          "label": "Sustainability charge",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {
+                "vesselTypes": [
+                  "general-cargo",
+                  "bulk",
+                  "container",
+                  "tanker",
+                  "lpg",
+                  "chemical",
+                  "passenger",
+                  "ro-ro",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "minimumAmount": "235",
+              "bands": [
+                {
+                  "rate": "0.03308"
+                }
+              ]
+            }
+          ],
+          "source": {
+            "document": "bpts-rev14-2026-10",
+            "page": 28,
+            "section": "IV.D",
+            "quote": "|$ 0.03308 PER GT PER VCN<br>**E. PORT ENVIRONMENT PROTECTIO**<br>|Minimum charges**USD 235**<br>(Applicable to non-LNG vessels)."
+          }
+        },
+        {
+          "id": "environment-protection",
+          "type": "other",
+          "label": "Port environment protection, safety and dredging charge",
+          "basis": "call",
+          "bandOn": "grt",
+          "rates": [
+            {
+              "when": {
+                "vesselTypes": [
+                  "general-cargo",
+                  "bulk",
+                  "tanker",
+                  "lpg",
+                  "chemical",
+                  "passenger",
+                  "ro-ro",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "10000",
+                  "rate": "420"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "630"
+                },
+                {
+                  "rate": "840"
+                }
+              ]
+            }
+          ],
+          "source": {
+            "document": "bpts-rev14-2026-10",
+            "page": 28,
+            "section": "IV.E",
+            "quote": [
+              "|For other than container vessels.|USD 420: Up to 10,000 GT|",
+              "|Charges applicable per vessel call.<br>(Applicable to Non-LNG vessels).|USD 630: 10,001 to 30,000 GT<br>USD 840: 30,001 and more GT|"
+            ]
+          }
+        },
+        {
+          "id": "berth-hire",
+          "type": "berth-hire",
+          "label": "Berth hire",
+          "basis": "grt-hour",
+          "timeRounding": "started-hour",
+          "rates": [
+            {
+              "when": {
+                "vesselTypes": [
+                  "tanker",
+                  "lpg",
+                  "chemical",
+                  "lng"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "15000",
+                  "rate": "0.00861"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "0.01344"
+                },
+                {
+                  "rate": "0.01607"
+                }
+              ]
+            },
+            {
+              "when": {
+                "vesselTypes": [
+                  "general-cargo",
+                  "bulk",
+                  "container",
+                  "passenger",
+                  "ro-ro",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.01292"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "From first line ashore to all cast off.",
+            "A minimum of US$ 900 per day applies to all ships."
+          ],
+          "source": {
+            "document": "bpts-rev14-2026-10",
+            "page": 28,
+            "section": "IV.F",
+            "quote": [
+              "||USD**0.00861**per GRT per hour* up to**15000 GT**|",
+              "|**Berth Hire for Tankers**|USD**0.01344**per GRT per hour* from**15001 to 30000 GT**|",
+              "||USD**0.01607**per GRT per hour* for more than**30001 GT**|",
+              "|**Berth Hire for other than tankers**|USD**0.01292**per GRT per hour*|"
+            ]
+          }
+        },
+        {
+          "id": "anchorage",
+          "type": "anchorage",
+          "label": "Anchorage",
+          "basis": "grt-hour",
+          "timeRounding": "started-hour",
+          "rates": [
+            {
+              "when": {},
+              "currency": "USD",
+              "minimumAmount": "150",
+              "bands": [
+                {
+                  "rate": "0.00125"
+                }
+              ]
+            }
+          ],
+          "source": {
+            "document": "bpts-rev14-2026-10",
+            "page": 29,
+            "section": "IV.I",
+            "quote": "|Anchorage Charges:**USD** **0.00125**per GT<br>per hour.<br>*Minimum charges USD 150 applicable.|"
+          }
+        }
+      ],
+      "notes": [
+        {
+          "text": "BPTS issue 3 revision 14 applies from 1 October 2026; the fuel surcharge on pilotage of USD 0.225070 per GT applies from the same date.",
+          "source": {
+            "document": "bpts-rev14-2026-10",
+            "page": 1
+          }
+        },
+        {
+          "text": "Container ships' environment protection charge is per container and is charged by the container terminal to the container operating agent, so it is not added to vessel estimates.",
+          "source": {
+            "document": "bpts-rev14-2026-10",
+            "page": 28,
+            "section": "IV.E"
+          }
+        },
+        {
+          "text": "LNG and LPG/chemical carriers are treated as tankers for berth hire. The berth hire minimum of US$ 900 per day cannot be expressed per day and is not applied; it only matters for small ships.",
+          "source": {
+            "document": "bpts-rev14-2026-10",
+            "page": 28,
+            "section": "IV.F"
+          }
+        },
+        {
+          "text": "Additional pilotage by ship age is suspended from 1 April 2023 until further notice.",
+          "source": {
+            "document": "bpts-rev14-2026-10",
+            "page": 27,
+            "section": "IV.B (iii)"
+          }
+        },
+        {
+          "text": "The tariff is in US dollars for all ships; there are no separate coastal rates.",
+          "source": {
+            "document": "bpts-rev14-2026-10",
+            "page": 26
+          }
+        }
+      ]
+    }
+  ]
+}

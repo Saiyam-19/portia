@@ -13,6 +13,7 @@ export type EstimateRequest = {
   nrt?: string;
   loa?: string;
   hours?: string;
+  anchorageHours?: string;
   movements?: number;
   tugs?: number;
   cargo?: { class?: string; tonnes?: string; teu?: string };
@@ -40,7 +41,7 @@ const SIZE: Record<string, "grt" | "nrt" | "loa" | "tonnes" | "teu"> = {
 const LABEL: Record<string, string> = { grt: "GRT", nrt: "NRT", loa: "m length", tonnes: "tonnes", teu: "TEU", hours: "hours" };
 const ASK: Record<string, string> = {
   grt: "What is the ship's gross tonnage (GRT)?", nrt: "What is the ship's net tonnage (NRT)?", loa: "What is the ship's length overall (LOA) in metres?",
-  hours: "How many hours will the ship be alongside the berth?", tonnes: "How many tonnes of cargo will be handled?", teu: "How many containers (TEU) will be handled?",
+  hours: "How many hours will the ship be alongside the berth?", anchorageHours: "How many hours will the ship wait at anchorage?", tonnes: "How many tonnes of cargo will be handled?", teu: "How many containers (TEU) will be handled?",
 };
 
 export function money(amount: Decimal.Value, currency: string) {
@@ -74,14 +75,16 @@ export function estimate(port: PortBook, request: EstimateRequest, today = new D
   if (!request.terminal && defaults.terminal) assumptions.push(`Assumed the ${nameOf(port, defaults.terminal)} terminal.`);
   const berth = request.berth ?? defaults.berth;
   if (!request.berth && defaults.berth) assumptions.push(`Assumed berth ${nameOf(port, defaults.berth)}.`);
-  const sizes: Record<string, string | undefined> = { grt: request.grt, nrt: request.nrt, loa: request.loa, tonnes: request.cargo?.tonnes, teu: request.cargo?.teu, hours: request.hours };
+  const sizes: Record<string, string | undefined> = { grt: request.grt, nrt: request.nrt, loa: request.loa, tonnes: request.cargo?.tonnes, teu: request.cargo?.teu, hours: request.hours, anchorageHours: request.anchorageHours };
   let tugs = request.tugs;
   if (tugs === undefined && defaults.tugs && request.grt) {
     tugs = defaults.tugs.find(row => !row.upToGrt || new D(request.grt!).lte(row.upToGrt))?.tugs;
     if (tugs !== undefined) assumptions.push(`Assumed ${tugs} tug${tugs === 1 ? "" : "s"}, as normally required for this size of ship.`);
   }
 
-  const wanted = new Set<ChargeType>(request.charges?.length ? request.charges : version.charges.map(charge => charge.type).filter(type => type !== "wharfage" || request.cargo));
+  // Anchorage and wharfage are added only when asked for or when their inputs are given.
+  const wanted = new Set<ChargeType>(request.charges?.length ? request.charges : version.charges.map(charge => charge.type)
+    .filter(type => (type !== "wharfage" || request.cargo) && (type !== "anchorage" || request.anchorageHours)));
   // A combined charge (e.g. pilotage with towage) answers a request for either part.
   const selected = version.charges.filter(charge => wanted.has(charge.type) || charge.includes.some(type => wanted.has(type)));
   const covering = (type: ChargeType) => selected.find(charge => charge.type !== type && charge.includes.includes(type));
@@ -95,7 +98,6 @@ export function estimate(port: PortBook, request: EstimateRequest, today = new D
   const ask = (question: string) => { if (!asked.has(question)) { asked.add(question); questions.push(question); } };
   const known = { status, vesselType, terminal, berth, cargoClass: request.cargo?.class };
   for (const charge of selected) {
-    if (covering(charge.type)) continue;
     const row = pickRate(charge, known);
     if (row.question) { ask(row.question(port)); continue; }
     if (!row.rate) { notCovered.push({ type: charge.type, reason: `${charge.label} has no rate for a ${status} ${vesselType.replace("-", " ")} ship in this schedule.` }); continue; }
@@ -104,13 +106,19 @@ export function estimate(port: PortBook, request: EstimateRequest, today = new D
     const needs = new Set<string>();
     if (perUnit) needs.add(SIZE[charge.basis]!);
     if (perUnit || charge.bandOn || row.rate.bands.length > 1 || charge.minimumQuantity) needs.add(sizeKey);
-    if (timeBased(charge)) needs.add("hours");
+    if (timeBased(charge)) needs.add(charge.type === "anchorage" ? "anchorageHours" : "hours");
     const missing = [...needs].filter(key => !sizes[key]);
     if (missing.length) { for (const key of missing) ask(ASK[key]!); continue; }
     if (charge.perTug && tugs === undefined) { ask("How many tugs will the ship use?"); continue; }
+    const top = row.rate.bands.at(-1)!.upTo;
+    if (top && new D(sizes[sizeKey] ?? 0).gt(top)) { notCovered.push({ type: charge.type, reason: `${charge.label}: the schedule's rates stop at ${plain(top)} ${LABEL[sizeKey]}.` }); continue; }
     lines.push(priceLine(charge, row.rate, version, sizes, { movements, tugs }));
   }
 
+  // A type priced by one charge (e.g. a terminal's own berth hire) is covered.
+  const priced = new Set(lines.map(line => line.type));
+  const uncovered = notCovered.filter(item => !priced.has(item.type as ChargeType));
+  notCovered.length = 0; notCovered.push(...uncovered);
   const totals = [...new Set(lines.map(line => line.currency))].map(currency => {
     const amount = lines.filter(line => line.currency === currency).reduce((sum, line) => sum.plus(line.amount), new D(0));
     return { currency, amount: amount.toString(), display: money(amount, currency) };
@@ -155,9 +163,12 @@ function pickRate(charge: Charge, known: Known): { rate?: Charge["rates"][number
   if (undecided.size && matches.length) {
     const field = [...undecided][0]!;
     const options = [...new Set(matches.flatMap(rate => (field === "terminal" ? rate.when.terminals : field === "berth" ? rate.when.berths : rate.when.cargoClasses) ?? []))];
+    // One question per port for terminals, even when several charges depend on it.
     return { question: port => field === "cargoClass"
       ? `What cargo is it (${options.join(", ")})?`
-      : `Which ${field} will the ship use: ${options.map(option => nameOf(port, option)).join(", ")}?` };
+      : field === "terminal"
+        ? `Which terminal will the ship use: ${port.terminals.map(terminal => terminal.name).join(", ")}?`
+        : `Which ${field} will the ship use: ${options.map(option => nameOf(port, option)).join(", ")}?` };
   }
   return {};
 }
@@ -202,12 +213,13 @@ function priceLine(charge: Charge, rate: Charge["rates"][number], version: RuleV
     steps.unshift(`${c} ${band.rate}${charge.basis === "hour" ? " per hour" : " per call"}${bands.length > 1 ? ` (${plain(size)} ${LABEL[sizeKey]} band)` : ""}`);
   }
   if (timeBased(charge)) {
-    const time = timeQuantity(charge, new D(sizes.hours!));
+    const time = timeQuantity(charge, new D((charge.type === "anchorage" ? sizes.anchorageHours : sizes.hours)!));
     amount = amount.mul(time.amount);
     steps.push(`${plain(time.amount)} ${time.unit}${charge.timeRounding?.startsWith("started") ? " (each started period counts)" : ""}${charge.freeHours ? ` after ${charge.freeHours} free hours` : ""}`);
   }
   if (charge.per === "movement") { amount = amount.mul(counts.movements); steps.push(`${counts.movements} movements`); }
   if (charge.perTug) { amount = amount.mul(counts.tugs!); steps.push(`${counts.tugs} tugs`); }
+  if (band.minimumAmount && amount.lt(band.minimumAmount)) { amount = new D(band.minimumAmount); steps.push(`minimum charge ${c} ${band.minimumAmount} for this size applies`); }
   if (rate.minimumAmount && amount.lt(rate.minimumAmount)) { amount = new D(rate.minimumAmount); steps.push(`minimum charge ${c} ${rate.minimumAmount} applies`); }
   if (rate.maximumAmount && amount.gt(rate.maximumAmount)) { amount = new D(rate.maximumAmount); steps.push(`capped at ${c} ${rate.maximumAmount}`); }
   const document = version.documents.find(item => item.id === charge.source.document) ?? version.documents[0]!;

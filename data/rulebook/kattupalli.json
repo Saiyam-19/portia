@@ -1,0 +1,552 @@
+{
+  "id": "kattupalli",
+  "name": "Adani Kattupalli Port (MIDPL)",
+  "kind": "private",
+  "aliases": [
+    "Kattupalli",
+    "Kattupalli Port",
+    "MIDPL",
+    "Adani Kattupalli",
+    "Marine Infrastructure Developer"
+  ],
+  "terminals": [],
+  "checkedOn": "2026-10-25",
+  "versions": [
+    {
+      "id": "kattupalli-bpts-2025-10-15-fs-2026-10-01",
+      "effectiveFrom": "2026-10-01",
+      "documents": [
+        {
+          "id": "bpts-2025-10-15",
+          "title": "Kattupalli Port (MIDPL) Berthing Policy and Tariff Structure w.e.f. 15 October 2025",
+          "issuer": "Marine Infrastructure Developer Pvt Ltd (Adani Kattupalli Port)",
+          "url": "https://www.adaniports.com/-/media/project/ports/portsandterminals/kattupalli-port-documents/public-notices/bpts-kattupalli-port-wef-15-oct-2025.pdf",
+          "file": "data/sources/kattupalli/bpts-2025-10-15.pdf",
+          "markdown": "data/sources/kattupalli/bpts-2025-10-15.md",
+          "sha256": "487171bf89d639607ea4ccbba837a1135ea8e9f15c03bcd1cdb256fc192b6a3f",
+          "retrievedOn": "2026-10-25"
+        },
+        {
+          "id": "bpts-addendum-2026-07-15",
+          "title": "Addendum to Kattupalli Port Berthing Policy and Tariff Structure, effective 15 July 2026",
+          "issuer": "Marine Infrastructure Developer Pvt Ltd (Adani Kattupalli Port)",
+          "url": "https://www.adaniports.com/-/media/project/ports/portsandterminals/kattupalli-port-documents/berthing-policy-and-tariff-structure/addendum-to-berthing-policy-and-tariff-structure-of-midpl-kattupalli-port-effective-15th-july-2026.pdf",
+          "file": "data/sources/kattupalli/bpts-addendum-2026-07-15.pdf",
+          "markdown": "data/sources/kattupalli/bpts-addendum-2026-07-15.md",
+          "sha256": "4831f54d51ae293de3ac6b96c048b25b6100877d0cdde179dede7b7cdbcbeaa1",
+          "retrievedOn": "2026-10-25"
+        },
+        {
+          "id": "fuel-surcharge-2026-10-01",
+          "title": "Kattupalli fuel surcharge on pilotage, circular dated 1 October 2026",
+          "issuer": "Marine Infrastructure Developer Pvt Ltd (Adani Kattupalli Port)",
+          "url": "https://www.adaniports.com/-/media/project/ports/portsandterminals/kattupalli-port-documents/public-notices/fs_kattupalli_dtd_01-10-2026.pdf",
+          "file": "data/sources/kattupalli/fuel-surcharge-2026-10-01.pdf",
+          "markdown": "data/sources/kattupalli/fuel-surcharge-2026-10-01.md",
+          "sha256": "8f6e31bd57ac8e1327dee72f68c87630e37f546775b4522e1841c3748c4d9faf",
+          "retrievedOn": "2026-10-25"
+        }
+      ],
+      "defaults": {
+        "status": "foreign",
+        "vesselType": "container",
+        "movements": 2
+      },
+      "charges": [
+        {
+          "id": "port-dues",
+          "type": "port-dues",
+          "label": "Port dues (payable to Tamil Nadu Maritime Board)",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {},
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "10.40"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Payable for every entry, directly to the Tamil Nadu Maritime Board.",
+            "A 10% surcharge on port dues also applies and is not included here."
+          ],
+          "source": {
+            "document": "bpts-2025-10-15",
+            "page": 26,
+            "section": "IV.A",
+            "quote": "PORT DUES (Payable for every Entry) INR 10.40 Per GT SURCHARGE - Surcharge on Port Dues10% on Port Dues"
+          }
+        },
+        {
+          "id": "pilotage-towage-container",
+          "type": "pilotage-towage",
+          "label": "Pilotage (with tugs)",
+          "basis": "grt",
+          "includes": [
+            "pilotage",
+            "towage"
+          ],
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "3000",
+                  "rate": "0",
+                  "minimumAmount": "2095"
+                },
+                {
+                  "upTo": "10000",
+                  "rate": "0.376",
+                  "minimumAmount": "3492"
+                },
+                {
+                  "upTo": "15000",
+                  "rate": "0.433"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "0.502"
+                },
+                {
+                  "upTo": "60000",
+                  "rate": "0.712"
+                },
+                {
+                  "rate": "0.824"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Includes one berthing and one unberthing.",
+            "For Mediterranean mooring, tugs are charged on top."
+          ],
+          "source": {
+            "document": "bpts-2025-10-15",
+            "page": 26,
+            "section": "IV.B (i)",
+            "quote": [
+              "|Upto 3,000 GT|LumpSum|USD 2,095|Lumpsum|INR 41,889|",
+              "|3,001to10,000 GT|USD0.376|USD3,492|INR9.78|INR41,889|",
+              "|10,001to15,000 GT|USD0.433|",
+              "|15,001to 30,000 GT|USD0.502|",
+              "|30,001GTto 60,000T|USD0.712|",
+              "|Above 60,000 GT|USD0.824|"
+            ]
+          }
+        },
+        {
+          "id": "pilotage-towage",
+          "type": "pilotage-towage",
+          "label": "Pilotage (with tugs)",
+          "basis": "grt",
+          "includes": [
+            "pilotage",
+            "towage"
+          ],
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "general-cargo",
+                  "bulk",
+                  "tanker",
+                  "lng",
+                  "lpg",
+                  "chemical",
+                  "passenger",
+                  "ro-ro",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "3000",
+                  "rate": "0",
+                  "minimumAmount": "2431"
+                },
+                {
+                  "upTo": "10000",
+                  "rate": "0.428",
+                  "minimumAmount": "3861"
+                },
+                {
+                  "upTo": "15000",
+                  "rate": "0.558"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "0.703"
+                },
+                {
+                  "upTo": "60000",
+                  "rate": "0.858"
+                },
+                {
+                  "rate": "0.929"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "general-cargo",
+                  "bulk",
+                  "tanker",
+                  "lng",
+                  "lpg",
+                  "chemical",
+                  "passenger",
+                  "ro-ro",
+                  "other"
+                ]
+              },
+              "currency": "INR",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "3000",
+                  "rate": "0",
+                  "minimumAmount": "42887"
+                },
+                {
+                  "upTo": "10000",
+                  "rate": "10.01",
+                  "minimumAmount": "42887"
+                },
+                {
+                  "upTo": "15000",
+                  "rate": "11.43"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "14.30"
+                },
+                {
+                  "upTo": "60000",
+                  "rate": "20.01"
+                },
+                {
+                  "rate": "22.87"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Includes one berthing and one unberthing.",
+            "For Mediterranean mooring, tugs are charged on top."
+          ],
+          "source": {
+            "document": "bpts-2025-10-15",
+            "page": 26,
+            "section": "IV.B (ii)",
+            "quote": [
+              "|Upto3,000 GT|LumpSum|USD, 2,431|Lump sum|INR 42,887|",
+              "|3,001 to 10,000 GT|USD 0.428|USD3,861|INR 10.01|INR42,887|",
+              "|10,001 to 15,000 GT|USD 0.558|---|INR 11.43|---|",
+              "|15,001 to30,000 GT|USD 0.703|---|INR 14.30|---|",
+              "|30,001 GT to 60,000 GT|USD 0.858|---|INR 20.01|---|",
+              "|Above 60,000 GT|USD 0.929|---|INR 22.87|---|"
+            ]
+          }
+        },
+        {
+          "id": "fuel-surcharge-pilotage",
+          "type": "pilotage",
+          "label": "Fuel surcharge on pilotage",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {},
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.210310"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Changes with fuel prices, usually twice a month; this is the rate from 1 October 2026."
+          ],
+          "source": {
+            "document": "fuel-surcharge-2026-10-01",
+            "page": 1,
+            "quote": "|**Revised rate**|**155.270**|**0.210310**|"
+          }
+        },
+        {
+          "id": "mooring",
+          "type": "mooring",
+          "label": "Mooring",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {},
+              "currency": "USD",
+              "minimumAmount": "210",
+              "bands": [
+                {
+                  "rate": "0.0410"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Not for STS or ships not using a berth."
+          ],
+          "source": {
+            "document": "bpts-2025-10-15",
+            "page": 27,
+            "section": "IV.C",
+            "quote": "|**$ 0.0410 Per GT per VCN**<br>**(Minimum Charges $ 210)**|"
+          }
+        },
+        {
+          "id": "sustainability",
+          "type": "other",
+          "label": "Sustainability charge",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {},
+              "currency": "USD",
+              "minimumAmount": "200",
+              "bands": [
+                {
+                  "rate": "0.03"
+                }
+              ]
+            }
+          ],
+          "source": {
+            "document": "bpts-2025-10-15",
+            "page": 27,
+            "section": "IV.D",
+            "quote": [
+              "|**$ 0.03 Per GT per VCN**|Applicable to all vessel calling Kattupalli Port|",
+              "|**(Minimum Charges will be $ 200)**||"
+            ]
+          }
+        },
+        {
+          "id": "environment-protection",
+          "type": "other",
+          "label": "Port environment protection, safety and dredging charge",
+          "basis": "call",
+          "bandOn": "grt",
+          "rates": [
+            {
+              "when": {
+                "vesselTypes": [
+                  "general-cargo",
+                  "bulk",
+                  "tanker",
+                  "lng",
+                  "lpg",
+                  "chemical",
+                  "passenger",
+                  "ro-ro",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "10000",
+                  "rate": "400"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "600"
+                },
+                {
+                  "rate": "800"
+                }
+              ]
+            }
+          ],
+          "source": {
+            "document": "bpts-2025-10-15",
+            "page": 27,
+            "section": "IV.E",
+            "quote": "|USD 400: Up to 10000 GT<br>USD 600: 10001 to 30000 GT<br>USD 800: More than 30000 GT|Charges applicable on Bulk, breakbulk, Liquid, RO-RO and all other<br>vessels except Container vessels"
+          }
+        },
+        {
+          "id": "berth-hire",
+          "type": "berth-hire",
+          "label": "Berth hire",
+          "basis": "grt-hour",
+          "timeRounding": "started-hour",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.0039"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "0.11"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "general-cargo",
+                  "bulk",
+                  "tanker",
+                  "lng",
+                  "lpg",
+                  "chemical",
+                  "passenger",
+                  "ro-ro",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.0054"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "general-cargo",
+                  "bulk",
+                  "tanker",
+                  "lng",
+                  "lpg",
+                  "chemical",
+                  "passenger",
+                  "ro-ro",
+                  "other"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "0.13"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "A minimum of US$ 805 (foreign) or Rs. 13,420 (coastal) per day applies.",
+            "Mediterranean mooring may be charged at twice the rate."
+          ],
+          "source": {
+            "document": "bpts-2025-10-15",
+            "page": 27,
+            "section": "IV.F",
+            "quote": [
+              "|**$ 0.0039**per GT|**INR 0.11 **per GT per Hour|**$ 0.0054**per GT||",
+              "|per Hour (Minimum<br>Charges**$ 805**per<br>day)|(Minimum Charges**INR**<br>**13,420**per day)|per Hour<br>(Minimum<br>Charges**$ 805**<br>per day)|**INR 0.13**per GT per Hour<br>(Minimum Charges<br>**INR 13,420**per day)|"
+            ]
+          }
+        }
+      ],
+      "notes": [
+        {
+          "text": "The tariff structure applies from 15 October 2025; the fuel surcharge on pilotage of USD 0.210310 per GT applies from 1 October 2026, so the version starts on 1 October 2026. The July 2026 addendum only changes a capacity figure in the introduction.",
+          "source": {
+            "document": "bpts-addendum-2026-07-15",
+            "page": 1
+          }
+        },
+        {
+          "text": "Coastal pilotage rates for container ships are garbled in the converted table ('INR 1 1 . 17', 'INR 2 2 .3 5'), so coastal container pilotage is not entered.",
+          "source": {
+            "document": "bpts-2025-10-15",
+            "page": 26,
+            "section": "IV.B (i)"
+          }
+        },
+        {
+          "text": "For ships up to 3,000 GT pilotage is a lump sum equal to the printed minimum; it is entered as a zero rate with that minimum.",
+          "source": {
+            "document": "bpts-2025-10-15",
+            "page": 26,
+            "section": "IV.B"
+          }
+        },
+        {
+          "text": "Port dues are payable to the Tamil Nadu Maritime Board in rupees for all ships, with a 10% surcharge that is not added automatically.",
+          "source": {
+            "document": "bpts-2025-10-15",
+            "page": 26,
+            "section": "IV.A"
+          }
+        },
+        {
+          "text": "Anchorage fees are payable to the Tamil Nadu Maritime Board, per day and only after the first 30 days (or from entry for idle ships); they are not entered.",
+          "source": {
+            "document": "bpts-2025-10-15",
+            "page": 28,
+            "section": "IV.J"
+          }
+        },
+        {
+          "text": "The berth hire minimum is per day and cannot be expressed in the format; it is not applied and only matters for small ships.",
+          "source": {
+            "document": "bpts-2025-10-15",
+            "page": 27,
+            "section": "IV.F"
+          }
+        }
+      ]
+    }
+  ]
+}

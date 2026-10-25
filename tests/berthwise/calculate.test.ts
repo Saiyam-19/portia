@@ -50,6 +50,20 @@ describe("rule-book calculator (hand-checked against Example Port)", () => {
     expect(result.notCovered).toEqual([]);
   });
 
+  it("adds a separate surcharge of a type the combined charge includes", () => {
+    const withSurcharge = portBookSchema.parse({ ...raw, versions: [{ ...raw.versions[0], charges: [...raw.versions[0]!.charges, {
+      id: "fuel-surcharge", type: "pilotage", label: "Fuel surcharge on pilotage", basis: "grt",
+      rates: [{ when: {}, currency: "USD", bands: [{ rate: "0.2" }] }], source: { document: "sor-2026", page: 4 } }] }] });
+    const result = estimate(withSurcharge, ship);
+    expect(amounts(result)).toMatchObject({ "pilotage-towage": "19225", "fuel-surcharge": "6490" });
+  });
+
+  it("does not price a ship larger than the schedule's largest band", () => {
+    const capped = portBookSchema.parse({ ...raw, versions: [{ ...raw.versions[0], charges: [{ ...raw.versions[0]!.charges[0], rates: [{ when: {}, currency: "USD", bands: [{ upTo: "60000", rate: "0.4" }] }] }] }] });
+    expect(estimate(capped, { ...ship, grt: "60001" }).notCovered).toEqual([{ type: "port-dues", reason: "Port dues: the schedule's rates stop at 60,000 GRT." }]);
+    expect(estimate(capped, { ...ship, grt: "60000" }).lines).toHaveLength(1);
+  });
+
   it("refuses dates outside the schedules it holds", () => {
     const result = estimate(port, { ...ship, date: "2025-12-01" });
     expect(result.lines).toEqual([]);

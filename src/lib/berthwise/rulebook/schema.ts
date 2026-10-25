@@ -31,13 +31,15 @@ export const sourceRefSchema = z.object({
   document: id.describe("Document id from this version's documents list."),
   page: z.union([z.number().int().positive(), z.string().min(1).max(20)]).describe("Printed or PDF page number of the table row."),
   section: z.string().max(80).optional().describe("Section or table number as printed, e.g. \"2.16\"."),
-  quote: z.string().max(400).optional().describe("The table row or sentence, copied verbatim, that this rate comes from."),
+  quote: z.union([z.string().max(400), z.array(z.string().max(400)).min(1).max(8)]).optional()
+    .describe("The table row or sentence this rate comes from, copied verbatim. Use a list of snippets when the figures sit in separate rows."),
 }).strict();
 
 export const bandSchema = z.object({
   upTo: decimal.optional().describe("Upper limit of this band, inclusive. Omit on the last band."),
   rate: decimal,
   base: decimal.optional().describe("Fixed amount for everything below this band, when the schedule prints one (\"US$ 18,966 for the first 30,000 GRT + 0.5058 per additional GRT\")."),
+  minimumAmount: decimal.optional().describe("Minimum charge for ships in this band, when the minimum depends on ship size."),
 }).strict();
 
 export const conditionSchema = z.object({
@@ -102,7 +104,7 @@ export const versionSchema = z.object({
   }).strict().default({ status: "foreign", vesselType: "general-cargo", movements: 2 }),
   charges: z.array(chargeSchema).min(1),
   notes: z.array(z.object({ text: z.string().max(500), source: sourceRefSchema.optional() }).strict()).default([]),
-  exchangeRate: z.string().max(300).optional().describe("How the port converts USD to INR, in the schedule's words."),
+  exchangeRate: z.string().max(800).optional().describe("How the port converts USD to INR, in the schedule's words."),
 }).strict();
 
 export const portBookSchema = z.object({

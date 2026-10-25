@@ -1,0 +1,853 @@
+{
+  "id": "chennai",
+  "name": "Chennai Port Authority",
+  "kind": "major",
+  "aliases": [
+    "Chennai",
+    "Chennai Port",
+    "Madras",
+    "Madras Port",
+    "ChPA",
+    "Chennai Port Trust"
+  ],
+  "terminals": [],
+  "checkedOn": "2026-10-25",
+  "versions": [
+    {
+      "id": "chennai-sor-2026",
+      "effectiveFrom": "2026-07-11",
+      "effectiveTo": "2027-04-30",
+      "documents": [
+        {
+          "id": "tn-gazette-2026-sor",
+          "title": "Tamil Nadu Government Gazette, Part III Section 2, 2026 issue 23: Chennai Port Authority revised Scale of Rates",
+          "issuer": "Chennai Port Authority (Tamil Nadu Government Gazette)",
+          "url": "https://www.stationeryprinting.tn.gov.in/gazette/2026/23_III_2_2026.pdf",
+          "file": "data/sources/chennai/tn-gazette-2026-sor.pdf",
+          "markdown": "data/sources/chennai/tn-gazette-2026-sor.md",
+          "sha256": "bec33b9bcef6fa1f37c70c2df2dcf4d1f660457a0a81ff1ed7351a1e80790bf3",
+          "retrievedOn": "2026-10-25"
+        }
+      ],
+      "defaults": {
+        "status": "foreign",
+        "vesselType": "container",
+        "movements": 2
+      },
+      "exchangeRate": "All US dollar denominated tariff will be recovered in Indian Rupees after conversion of charges in US dollar terms into its equivalent Indian Rupees at the Reference rate notified by the Reserve Bank of India and in case of non-availability of RBI Reference rate, at the market buying rate notified by State Bank of India.",
+      "charges": [
+        {
+          "id": "port-dues",
+          "type": "port-dues",
+          "label": "Port dues",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "tanker",
+                  "lng",
+                  "lpg",
+                  "chemical"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.5045"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "tanker",
+                  "lng",
+                  "lpg",
+                  "chemical"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "13.3452"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.3337"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "8.8261"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "ro-ro"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.4163"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "ro-ro"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "11.0099"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "bulk",
+                  "general-cargo"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.3855"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "bulk",
+                  "general-cargo"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "10.1941"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "passenger",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.4625"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "passenger",
+                  "other"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "12.2331"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Charged for each entry; for stays over 30 days, charged again every 30 days.",
+            "15% concession for tankers carrying other than crude oil and petroleum products."
+          ],
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 10,
+            "section": "2.1.1",
+            "quote": [
+              "|1|Tankers|13.3452|0.5045|",
+              "|2|Container vessels|8.8261|0.3337|",
+              "|3|RoRo vessels|11.0099|0.4163|",
+              "|4|Bulk / Break Bulk vessels|10.1941|0.3855|",
+              "|6|Vessels not covered under Sl.No.1 to 5 above|12.2331|0.4625|"
+            ]
+          }
+        },
+        {
+          "id": "pilotage",
+          "type": "pilotage",
+          "label": "Pilotage",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "tanker",
+                  "lng",
+                  "lpg",
+                  "chemical"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "whole",
+              "minimumAmount": "1222",
+              "bands": [
+                {
+                  "upTo": "10000",
+                  "rate": "0.6664"
+                },
+                {
+                  "upTo": "15000",
+                  "rate": "0.7640"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "0.8799"
+                },
+                {
+                  "upTo": "60000",
+                  "rate": "1.2502"
+                },
+                {
+                  "rate": "1.4472"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "tanker",
+                  "lng",
+                  "lpg",
+                  "chemical"
+                ]
+              },
+              "currency": "INR",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "10000",
+                  "rate": "17.6117"
+                },
+                {
+                  "upTo": "15000",
+                  "rate": "20.2079"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "23.2672"
+                },
+                {
+                  "upTo": "60000",
+                  "rate": "33.0237"
+                },
+                {
+                  "rate": "38.2328"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "whole",
+              "minimumAmount": "1222",
+              "bands": [
+                {
+                  "upTo": "10000",
+                  "rate": "0.4409"
+                },
+                {
+                  "upTo": "15000",
+                  "rate": "0.5054"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "0.5819"
+                },
+                {
+                  "upTo": "60000",
+                  "rate": "0.8269"
+                },
+                {
+                  "rate": "0.9571"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "INR",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "10000",
+                  "rate": "11.6479"
+                },
+                {
+                  "upTo": "15000",
+                  "rate": "13.3650"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "15.3883"
+                },
+                {
+                  "upTo": "60000",
+                  "rate": "21.8411"
+                },
+                {
+                  "rate": "25.2862"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "ro-ro"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "whole",
+              "minimumAmount": "1222",
+              "bands": [
+                {
+                  "upTo": "10000",
+                  "rate": "0.5499"
+                },
+                {
+                  "upTo": "15000",
+                  "rate": "0.6305"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "0.7260"
+                },
+                {
+                  "upTo": "60000",
+                  "rate": "1.0315"
+                },
+                {
+                  "rate": "1.1939"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "ro-ro"
+                ]
+              },
+              "currency": "INR",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "10000",
+                  "rate": "14.5296"
+                },
+                {
+                  "upTo": "15000",
+                  "rate": "16.6715"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "19.1954"
+                },
+                {
+                  "upTo": "60000",
+                  "rate": "27.2445"
+                },
+                {
+                  "rate": "31.5420"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "bulk",
+                  "general-cargo"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "whole",
+              "minimumAmount": "1222",
+              "bands": [
+                {
+                  "upTo": "10000",
+                  "rate": "0.5094"
+                },
+                {
+                  "upTo": "15000",
+                  "rate": "0.5838"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "0.6721"
+                },
+                {
+                  "upTo": "60000",
+                  "rate": "0.9550"
+                },
+                {
+                  "rate": "1.1054"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "bulk",
+                  "general-cargo"
+                ]
+              },
+              "currency": "INR",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "10000",
+                  "rate": "13.4533"
+                },
+                {
+                  "upTo": "15000",
+                  "rate": "15.4367"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "17.7736"
+                },
+                {
+                  "upTo": "60000",
+                  "rate": "25.2265"
+                },
+                {
+                  "rate": "29.2056"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "passenger",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "whole",
+              "minimumAmount": "1222",
+              "bands": [
+                {
+                  "upTo": "10000",
+                  "rate": "0.6110"
+                },
+                {
+                  "upTo": "15000",
+                  "rate": "0.7007"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "0.8066"
+                },
+                {
+                  "upTo": "60000",
+                  "rate": "1.1461"
+                },
+                {
+                  "rate": "1.3265"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "passenger",
+                  "other"
+                ]
+              },
+              "currency": "INR",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "10000",
+                  "rate": "16.1439"
+                },
+                {
+                  "upTo": "15000",
+                  "rate": "18.5239"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "21.3281"
+                },
+                {
+                  "upTo": "60000",
+                  "rate": "30.2716"
+                },
+                {
+                  "rate": "35.0467"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Covers one inward and one outward movement; 50% for a single movement.",
+            "15% concession for tankers carrying other than crude oil and petroleum products."
+          ],
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 11,
+            "section": "2.2.1",
+            "quote": [
+              "|1|Upto<br>10,000|17.6117|11.6479|14.5296|13.4533|11.6479|16.1439|0.6664|0.4409|0.5499|0.5094|0.4409|0.6110|",
+              "|2|10,001<br>to15,000|<sup>20.2079</sup>|13.3650|16.6715|15.4367|13.3650|18.5239|0.7640|0.5054|0.6305|0.5838|0.5054|0.7007|",
+              "|3|15,001<br>to 30,000|<sup>23.2672</sup>|15.3883|19.1954|17.7736|15.3883|21.3281|0.8799|0.5819|0.7260|0.6721|0.5819|0.8066|",
+              "|4|30,001<br>to 60,000|<sup>33.0237</sup>|21.8411|27.2445|25.2265|21.8411|30.2716|1.2502|0.8269|1.0315|0.9550|0.8269|1.1461|",
+              "|5|60,001<br>& above|38.2328|25.2862|31.5420|29.2056|25.2862|35.0467|1.4472|0.9571|1.1939|1.1054|0.9571|1.3265|",
+              "|Min.<br>per|charges<br>vessel|||32|,289||||||1,222|||"
+            ]
+          }
+        },
+        {
+          "id": "berth-hire",
+          "type": "berth-hire",
+          "label": "Berth hire",
+          "basis": "grt-hour",
+          "timeRounding": "started-hour",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "tanker",
+                  "lng",
+                  "lpg",
+                  "chemical"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.0072"
+                }
+              ],
+              "minimumAmount": "909.62"
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "tanker",
+                  "lng",
+                  "lpg",
+                  "chemical"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "0.1887"
+                }
+              ],
+              "minimumAmount": "24256"
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.0048"
+                }
+              ],
+              "minimumAmount": "909.62"
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "0.1249"
+                }
+              ],
+              "minimumAmount": "24256"
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "ro-ro"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.0060"
+                }
+              ],
+              "minimumAmount": "909.62"
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "ro-ro"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "0.1557"
+                }
+              ],
+              "minimumAmount": "24256"
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "bulk",
+                  "general-cargo"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.0056"
+                }
+              ],
+              "minimumAmount": "909.62"
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "bulk",
+                  "general-cargo"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "0.1442"
+                }
+              ],
+              "minimumAmount": "24256"
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "passenger",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.0067"
+                }
+              ],
+              "minimumAmount": "909.62"
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "passenger",
+                  "other"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "0.1729"
+                }
+              ],
+              "minimumAmount": "24256"
+            }
+          ],
+          "conditions": [
+            "A minimum charge per ship applies (US$ 909.62 foreign, Rs. 24,256 coastal).",
+            "VLCC tankers have a higher rate that is not applied automatically."
+          ],
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 13,
+            "section": "2.3.1",
+            "quote": [
+              "|2|Tankers|0.1887|0.0072|",
+              "|3|Container vessels|0.1249|0.0048|",
+              "|4|RoRo vessels|0.1557|0.0060|",
+              "|5|Bulk / Break Bulk vessels|0.1442|0.0056|",
+              "|7|Vessels not covered under Sl. No.1 to 6<br>above|0.1729|0.0067|",
+              "||Minimum Charges per vessel|Rs. 24,256/-|US$ 909.62|"
+            ]
+          }
+        }
+      ],
+      "notes": [
+        {
+          "text": "Notified in the Tamil Nadu Government Gazette of 10 June 2026 and in force 'after expiry of 30 days from the date of notification', so entered as effective from 11 July 2026; subject to annual indexation from 1 May.",
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 2
+          }
+        },
+        {
+          "text": "Pilotage rates are per GRT by size band, with no statement that they apply incrementally, so the whole tonnage is charged at its band's rate.",
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 11,
+            "section": "2.2.1"
+          }
+        },
+        {
+          "text": "The coastal minimum pilotage (Rs. 32,289 in the PDF) is split across cells in the converted table, so it is not entered; the foreign minimum of US$ 1,222 is entered.",
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 11,
+            "section": "2.2.1"
+          }
+        },
+        {
+          "text": "The schedule does not say whether pilotage includes berthing tugs. Tugs can be hired at Rs. 39,354 / US$ 1,491 per tug per hour (minimum 2 hours); towage is not added to estimates.",
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 12,
+            "section": "2.2.4"
+          }
+        },
+        {
+          "text": "'Bulk / Break Bulk vessels' rates are used for general cargo ships.",
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 10,
+            "section": "2.1.1"
+          }
+        }
+      ]
+    }
+  ]
+}

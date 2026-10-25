@@ -1,0 +1,429 @@
+{
+  "id": "jaigarh",
+  "name": "JSW Jaigarh Port",
+  "kind": "private",
+  "aliases": [
+    "Jaigarh",
+    "JSW Jaigarh",
+    "JSW Jaigarh Port",
+    "JSW Jaigarh Port Limited",
+    "Jaigad"
+  ],
+  "terminals": [
+    {
+      "id": "jaigarh-port",
+      "name": "JSW Jaigarh Port",
+      "aliases": [],
+      "operator": "JSW Jaigarh Port Limited",
+      "berths": [
+        {
+          "id": "mechanized-bulk",
+          "name": "Mechanized berth (bulk)",
+          "aliases": [
+            "mechanized berth"
+          ]
+        },
+        {
+          "id": "non-mechanized-bulk",
+          "name": "Non-mechanized berth (bulk)",
+          "aliases": [
+            "non-mechanized berth"
+          ]
+        },
+        {
+          "id": "lpg-chemical",
+          "name": "LPG/chemical berth",
+          "aliases": [
+            "LPG berth",
+            "chemical berth"
+          ]
+        },
+        {
+          "id": "container",
+          "name": "Container berth",
+          "aliases": []
+        }
+      ]
+    }
+  ],
+  "checkedOn": "2026-10-25",
+  "versions": [
+    {
+      "id": "jaigarh-2026-05",
+      "effectiveFrom": "2026-05-01",
+      "documents": [
+        {
+          "id": "tariff-2026-05",
+          "title": "JSW Jaigarh Port tariff w.e.f. 1 May 2026",
+          "issuer": "JSW Jaigarh Port",
+          "url": "https://www.jswinfrastructure.in/sites/default/files/assets/industry/infrastructure/jaigarh/JSW-Jaigarh-Port-Tariff-wef-01.05.2026.pdf",
+          "file": "data/sources/jaigarh/tariff-2026-05.pdf",
+          "markdown": "data/sources/jaigarh/tariff-2026-05.md",
+          "sha256": "98ae0d5f90ffa0c3dc725f3aee555ae3d20caee1a65b569fe37f7a12c6d60f0f",
+          "retrievedOn": "2026-10-15"
+        }
+      ],
+      "defaults": {
+        "status": "foreign",
+        "vesselType": "bulk",
+        "movements": 2,
+        "terminal": "jaigarh-port"
+      },
+      "charges": [
+        {
+          "id": "port-dues",
+          "type": "port-dues",
+          "label": "Port dues",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {
+                "berths": [
+                  "mechanized-bulk",
+                  "non-mechanized-bulk",
+                  "container"
+                ]
+              },
+              "currency": "USD",
+              "minimumAmount": "2000",
+              "bands": [
+                {
+                  "rate": "0.33"
+                }
+              ]
+            },
+            {
+              "when": {
+                "berths": [
+                  "lpg-chemical"
+                ]
+              },
+              "currency": "USD",
+              "minimumAmount": "2000",
+              "bands": [
+                {
+                  "rate": "0.45"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Charged per call and valid for at most 30 days."
+          ],
+          "source": {
+            "document": "tariff-2026-05",
+            "page": 1,
+            "section": "J-1",
+            "quote": [
+              "|Upto 35000|$ 0.33|$ 0.33|$ 0.45|$ 0.33|",
+              "Minimum Charges $ 2000 per vessel is applicable (Port dues applicable per call and maximum validity is 30 days)"
+            ]
+          }
+        },
+        {
+          "id": "pilotage-towage",
+          "type": "pilotage-towage",
+          "label": "Pilotage and towage",
+          "basis": "grt",
+          "includes": [
+            "pilotage",
+            "towage"
+          ],
+          "rates": [
+            {
+              "when": {
+                "berths": [
+                  "mechanized-bulk"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "35000",
+                  "rate": "1.60"
+                },
+                {
+                  "upTo": "45000",
+                  "rate": "1.75"
+                },
+                {
+                  "rate": "2.10"
+                }
+              ]
+            },
+            {
+              "when": {
+                "berths": [
+                  "non-mechanized-bulk",
+                  "lpg-chemical",
+                  "container"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "35000",
+                  "rate": "1.60"
+                },
+                {
+                  "upTo": "45000",
+                  "rate": "0.90"
+                },
+                {
+                  "rate": "1.10"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Includes one berthing and one unberthing.",
+            "An additional pilotage charge by ship age (keel-laid date) applies to ships over 5 years old; it is not included here."
+          ],
+          "source": {
+            "document": "tariff-2026-05",
+            "page": 1,
+            "section": "J-2",
+            "quote": [
+              "|Upto 35000|$ 1.60|$ 1.60|$ 1.60|$ 1.60|",
+              "|35001 – 45000|$ 1.75|$ 0.90|$ 0.90|$ 0.90|",
+              "|45000 and above|$ 2.10|$ 1.10|$ 1.10|$ 1.10|",
+              "|Includes one time Berthingand Un-berthing.|"
+            ]
+          }
+        },
+        {
+          "id": "mooring",
+          "type": "mooring",
+          "label": "Mooring",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {},
+              "currency": "USD",
+              "minimumAmount": "200",
+              "bands": [
+                {
+                  "rate": "0.035"
+                }
+              ]
+            }
+          ],
+          "source": {
+            "document": "tariff-2026-05",
+            "page": 1,
+            "section": "J-3",
+            "quote": [
+              "|MooringCharges|$0.035|",
+              "|Min Charges $ 200||"
+            ]
+          }
+        },
+        {
+          "id": "environment-protection",
+          "type": "other",
+          "label": "Port environment protection and safety charge",
+          "basis": "call",
+          "bandOn": "grt",
+          "rates": [
+            {
+              "when": {},
+              "currency": "USD",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "10000",
+                  "rate": "100"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "150"
+                },
+                {
+                  "rate": "200"
+                }
+              ]
+            }
+          ],
+          "source": {
+            "document": "tariff-2026-05",
+            "page": 1,
+            "section": "J-4",
+            "quote": [
+              "|Upto 10000|$100|",
+              "|10001 – 30000|$150|",
+              "|30001 and more|$200|"
+            ]
+          }
+        },
+        {
+          "id": "berth-hire",
+          "type": "berth-hire",
+          "label": "Berth hire",
+          "basis": "grt-hour",
+          "timeRounding": "started-hour",
+          "rates": [
+            {
+              "when": {
+                "berths": [
+                  "mechanized-bulk"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "35000",
+                  "rate": "0.010"
+                },
+                {
+                  "upTo": "45000",
+                  "rate": "0.010"
+                },
+                {
+                  "rate": "0.010"
+                }
+              ]
+            },
+            {
+              "when": {
+                "berths": [
+                  "non-mechanized-bulk",
+                  "container"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "35000",
+                  "rate": "0.010"
+                },
+                {
+                  "upTo": "45000",
+                  "rate": "0.015"
+                },
+                {
+                  "rate": "0.015"
+                }
+              ]
+            },
+            {
+              "when": {
+                "berths": [
+                  "lpg-chemical"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "35000",
+                  "rate": "0.015"
+                },
+                {
+                  "upTo": "45000",
+                  "rate": "0.020"
+                },
+                {
+                  "rate": "0.020"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Charged from first line to all cast off.",
+            "A minimum berth hire in rupees applies (Rs. 25,000 per ship up to 30,000 GT, Rs. 50,000 for others); it is not applied here."
+          ],
+          "source": {
+            "document": "tariff-2026-05",
+            "page": 1,
+            "section": "J-6",
+            "quote": [
+              "|Upto 35000<br>$0.010|$0.010|$0.015|$0.010|",
+              "|35001 – 45000<br>$0.010|$0.015|$0.020|$0.015|",
+              "|45000 and above<br>$0.010|$0.015|$0.020|$0.015|"
+            ]
+          }
+        },
+        {
+          "id": "anchorage",
+          "type": "anchorage",
+          "label": "Anchorage",
+          "basis": "grt-day",
+          "rates": [
+            {
+              "when": {},
+              "currency": "USD",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "35000",
+                  "rate": "0.06"
+                },
+                {
+                  "upTo": "45000",
+                  "rate": "0.09"
+                },
+                {
+                  "rate": "0.09"
+                }
+              ]
+            }
+          ],
+          "source": {
+            "document": "tariff-2026-05",
+            "page": 2,
+            "section": "J-7",
+            "quote": [
+              "|Upto 35000|$ 0.06 Per GT/day|",
+              "|35001 – 45000|$ 0.09 Per GT/day|",
+              "|45000 and above|$ 0.09 Per GT/day|"
+            ]
+          }
+        }
+      ],
+      "notes": [
+        {
+          "text": "The tariff prints overlapping bands ('35001 – 45000' and '45000 and above'); a ship of exactly 45,000 GRT is entered in the 35,001–45,000 band.",
+          "source": {
+            "document": "tariff-2026-05",
+            "page": 1,
+            "section": "J-2"
+          }
+        },
+        {
+          "text": "Rates are in USD with no separate coastal rates; the same rates are entered for foreign and coastal ships.",
+          "source": {
+            "document": "tariff-2026-05",
+            "page": 1
+          }
+        },
+        {
+          "text": "The berth hire minimum is in rupees while the rate is in dollars; the tariff does not say how they combine, so the minimum is not applied.",
+          "source": {
+            "document": "tariff-2026-05",
+            "page": 1,
+            "section": "J-6"
+          }
+        },
+        {
+          "text": "Anchorage is per GT per day; the tariff does not say whether a part day counts as a full day, so exact days are used.",
+          "source": {
+            "document": "tariff-2026-05",
+            "page": 2,
+            "section": "J-7"
+          }
+        },
+        {
+          "text": "The tariff has no end date; it is entered as in force from 1 May 2026 until a newer tariff is found.",
+          "source": {
+            "document": "tariff-2026-05",
+            "page": 1
+          }
+        }
+      ]
+    }
+  ]
+}

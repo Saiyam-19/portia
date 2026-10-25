@@ -1,0 +1,346 @@
+{
+  "id": "mumbai",
+  "name": "Mumbai Port Authority",
+  "kind": "major",
+  "aliases": [
+    "Mumbai",
+    "Mumbai Port",
+    "MbPA",
+    "Bombay",
+    "Bombay Port",
+    "Mumbai Port Trust"
+  ],
+  "terminals": [
+    {
+      "id": "mumbai-docks",
+      "name": "Mumbai Docks",
+      "aliases": [
+        "Docks"
+      ],
+      "berths": [
+        {
+          "id": "indira-dock",
+          "name": "Indira Dock & its Harbour walls, Ballard Pier and Ballard Pier Extension",
+          "aliases": [
+            "Indira Dock",
+            "Ballard Pier",
+            "BPX",
+            "BPS",
+            "Harbour Wall"
+          ]
+        },
+        {
+          "id": "princes-victoria-docks",
+          "name": "Prince's & Victoria Docks and its harbour walls",
+          "aliases": [
+            "Princes Dock",
+            "Victoria Dock",
+            "P&V Docks"
+          ]
+        }
+      ]
+    }
+  ],
+  "checkedOn": "2026-10-25",
+  "versions": [
+    {
+      "id": "mumbai-indexed-2026-27",
+      "effectiveFrom": "2026-05-01",
+      "effectiveTo": "2027-04-30",
+      "documents": [
+        {
+          "id": "sor-2026-05",
+          "title": "Mumbai Port Authority Scale of Rates (updated May 2026)",
+          "issuer": "Mumbai Port Authority",
+          "url": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1778833452.pdf",
+          "file": "data/sources/mumbai/sor-2026-05.pdf",
+          "markdown": "data/sources/mumbai/sor-2026-05.md",
+          "sha256": "bcef570f3e41b1eb94772c38052f3701a981bd3b4d22059134ddcc1fe44bc244",
+          "retrievedOn": "2026-10-15"
+        },
+        {
+          "id": "berth-amendment-2026-05",
+          "title": "Mumbai Port Authority berth hire amendment (May 2026)",
+          "issuer": "Mumbai Port Authority",
+          "url": "https://www.mumbaiport.gov.in/WriteReadData/RTF1984/1778833405.pdf",
+          "file": "data/sources/mumbai/berth-amendment-2026-05.pdf",
+          "markdown": "data/sources/mumbai/berth-amendment-2026-05.md",
+          "sha256": "c64752669611dc4581ff6fc591a9073c17a7986c1a9e18c1fd606aec8a43354c",
+          "retrievedOn": "2026-10-15"
+        }
+      ],
+      "defaults": {
+        "status": "foreign",
+        "vesselType": "general-cargo",
+        "movements": 2,
+        "terminal": "mumbai-docks"
+      },
+      "exchangeRate": "All dollar denominated tariff will be recovered in Indian Rupees after conversion of charges in dollar terms into its equivalent Indian Rupees at the market buying rate notified by the Reserve Bank of India, State Bank of India or its associates or any other Public Sector banks as may be specified from time to time. The day of entry of the vessel into port limits shall be reckoned as the day for such conversion.",
+      "charges": [
+        {
+          "id": "port-dues",
+          "type": "port-dues",
+          "label": "Port dues",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "2999.99",
+                  "rate": "0.2718"
+                },
+                {
+                  "rate": "0.3850"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ]
+              },
+              "currency": "INR",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "2999.99",
+                  "rate": "7.4379"
+                },
+                {
+                  "rate": "10.5366"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Payable on each entry into the port.",
+            "Reduced rates apply to ships in ballast or calling without cargo operations (50% or 75%), and 82% for ships that also visit JNPA."
+          ],
+          "source": {
+            "document": "sor-2026-05",
+            "page": 20,
+            "section": "2.16",
+            "quote": [
+              "|1.|Vessels<br>of 3000 tons and<br>upwards (except fishing boats)|0.3850|10.5366|The due is payable on<br>each entry into the port.|",
+              "|2|Vessels<br>of<br>Ten tons<br>and<br>upwards but less than 3000<br>tons (except fishing boats)|0.2718|7.4379|The due is payable on<br>each entry into the port.|"
+            ]
+          }
+        },
+        {
+          "id": "pilotage-towage",
+          "type": "pilotage-towage",
+          "label": "Pilotage and towage",
+          "basis": "grt",
+          "minimumQuantity": "1000",
+          "includes": [
+            "pilotage",
+            "towage"
+          ],
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "berths": [
+                  "indira-dock",
+                  "princes-victoria-docks"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "excess",
+              "bands": [
+                {
+                  "upTo": "30000",
+                  "rate": "0.6322"
+                },
+                {
+                  "upTo": "60000",
+                  "base": "18966",
+                  "rate": "0.5058"
+                },
+                {
+                  "base": "34140",
+                  "rate": "0.4425"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "berths": [
+                  "indira-dock",
+                  "princes-victoria-docks"
+                ]
+              },
+              "currency": "INR",
+              "bandMode": "excess",
+              "bands": [
+                {
+                  "upTo": "30000",
+                  "rate": "17.2897"
+                },
+                {
+                  "upTo": "60000",
+                  "base": "518691",
+                  "rate": "13.8318"
+                },
+                {
+                  "base": "933645",
+                  "rate": "12.1028"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Covers one inward and one outward movement with the required tugs; each leg is half the charge at that leg's foreign or coastal status.",
+            "Twice the rate for a ship moving without its own engine power."
+          ],
+          "source": {
+            "document": "sor-2026-05",
+            "page": 9,
+            "section": "2.1 (A) Docks",
+            "quote": [
+              "|1.|0-30,000 GRT<br>a. Foreign going<br>(in US $)|0.6322|",
+              "||b. Coastal (in )|17.2897|",
+              "|2.|30,001-60,000 GRT<br>a.Foreign going<br>(in US $)|US $ 18966 for<br>1<sup>st</sup>30,000 GRT<br>+<br>US $ 0.5058 for<br>every additional<br>GRT|",
+              "||b.Coastal (in )|518691 for 1<sup>st</sup><br>30,000 GRT<br>+<br>13.8318 for<br>every additional <br>GRT|",
+              "|3.|Above 60,000 GRT<br>a.Foreign going<br>(in US $)|US $ 34140 for<br>1<sup>st</sup>60,000 GRT<br>+<br>US $ 0.4425 for<br>every additional<br>GRT|",
+              "||b.Coastal (in )|933645 for<br>1<sup>st</sup>60,000 GRT<br>+<br>12.1028 for<br>every additional<br>GRT|"
+            ]
+          }
+        },
+        {
+          "id": "berth-hire",
+          "type": "berth-hire",
+          "label": "Berth hire",
+          "basis": "grt-hour",
+          "timeRounding": "started-hour",
+          "minimumQuantity": "1000",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "berths": [
+                  "indira-dock"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.0137"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "berths": [
+                  "indira-dock"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "0.2165"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "berths": [
+                  "princes-victoria-docks"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.0109"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "berths": [
+                  "princes-victoria-docks"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "0.1676"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Charged from berthing until the ship leaves the berth, stopping 4 hours after the ship signals it is ready to sail.",
+            "Higher rates apply after 10 days for ships at berth for other than cargo work."
+          ],
+          "source": {
+            "document": "sor-2026-05",
+            "page": 22,
+            "section": "2.17",
+            "quote": [
+              "|1|Indira Dock & its Harbour walls, Ballard<br>Pier and Ballard Pier Extension|0.0137|0.2165|",
+              "|3|Princes & Victoria Docks and its harbour<br>walls|0.0109|0.1676|"
+            ]
+          }
+        }
+      ],
+      "notes": [
+        {
+          "text": "Berth hire uses the indexed rates in force from 9 May 2026 (USD 0.0137 / INR 0.2165 at Indira Dock). The circular of 15 May 2026 first lists the Board-approved base rates (USD 0.0136 / INR 0.2151) and then confirms the indexed rates apply from 9 May 2026.",
+          "source": {
+            "document": "berth-amendment-2026-05",
+            "page": 2
+          }
+        },
+        {
+          "text": "Port dues bands: 'less than 3000 tons' is entered as up to 2,999.99 GRT.",
+          "source": {
+            "document": "sor-2026-05",
+            "page": 20,
+            "section": "2.16"
+          }
+        },
+        {
+          "text": "Pilotage and towage is entered for ships berthing in the Docks (Indira Dock and Prince's & Victoria Docks). Stream, Jawahar Dweep/Pir Pau and shifting rates in the same table are not entered.",
+          "source": {
+            "document": "sor-2026-05",
+            "page": 9,
+            "section": "2.1 (A)"
+          }
+        },
+        {
+          "text": "A booking charge per vessel call (Rs. 5,455.23 foreign, Rs. 2,181.09 coastal) is adjusted against the final bill, so it is not added as a separate charge.",
+          "source": {
+            "document": "sor-2026-05",
+            "page": 10,
+            "section": "2.1 (C)"
+          }
+        }
+      ]
+    }
+  ]
+}

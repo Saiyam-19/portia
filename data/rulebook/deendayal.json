@@ -1,0 +1,557 @@
+{
+  "id": "deendayal",
+  "name": "Deendayal Port Authority (Kandla)",
+  "kind": "major",
+  "aliases": [
+    "Deendayal",
+    "Kandla",
+    "Deendayal Port",
+    "DPA",
+    "Kandla Port",
+    "Vadinar",
+    "Kandla Port Trust"
+  ],
+  "terminals": [
+    {
+      "id": "kandla",
+      "name": "Kandla",
+      "aliases": [
+        "Kandla Division"
+      ],
+      "berths": [
+        {
+          "id": "non-crane-general-cargo",
+          "name": "Non-crane general cargo berths",
+          "aliases": [
+            "general cargo berth"
+          ]
+        },
+        {
+          "id": "liquid-cargo",
+          "name": "Liquid cargo berths",
+          "aliases": [
+            "oil jetty",
+            "liquid jetty"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vadinar",
+      "name": "Vadinar",
+      "aliases": [
+        "Offshore Oil Terminal Vadinar",
+        "OOT Vadinar"
+      ],
+      "berths": []
+    }
+  ],
+  "checkedOn": "2026-10-25",
+  "versions": [
+    {
+      "id": "deendayal-escalated-2026-27",
+      "effectiveFrom": "2026-05-01",
+      "effectiveTo": "2027-04-30",
+      "documents": [
+        {
+          "id": "sor-escalated-2026-27",
+          "title": "Deendayal Port Authority SOR (w.e.f. 20 January 2023), escalated 0.65% w.e.f. 1 May 2026",
+          "issuer": "Deendayal Port Authority",
+          "url": "https://www.deendayalport.gov.in/uploads/PROPOSED_SOR_W_E_F_20_01_2023_ESCL_0_65_W_E_F_01_05_2026_24bf10bed3.pdf",
+          "file": "data/sources/deendayal/sor-escalated-2026-27.pdf",
+          "markdown": "data/sources/deendayal/sor-escalated-2026-27.md",
+          "sha256": "9a9990bb5f5663d424be18d4165ac791efae47ba6d89ea0e40f4d00e3491cf69",
+          "retrievedOn": "2026-10-25"
+        },
+        {
+          "id": "pilotage-corrigendum-2024",
+          "title": "Deendayal Port Authority corrigendum to Schedule 2.1 (pilotage fees), gazette G.N. 90 of 13 August 2024",
+          "issuer": "Deendayal Port Authority",
+          "url": "https://www.deendayalport.gov.in/uploads/Corrigendum_to_Existing_Schedule_2_1_Schedule_of_Pilotage_Fees_under_Chapter_II_of_the_Existing_SOR_of_DPA_Notified_in_the_State_Gazette_Vide_G_N_No_90_dated_13_08_2024_28d946bed9.pdf",
+          "file": "data/sources/deendayal/pilotage-corrigendum-2024.pdf",
+          "markdown": "data/sources/deendayal/pilotage-corrigendum-2024.md",
+          "sha256": "f9cc7ae64fc2730cde0d49cf8b6a0c02dadfd6b16f55a800da8ad8e8d8c32bba",
+          "retrievedOn": "2026-10-25"
+        }
+      ],
+      "defaults": {
+        "status": "foreign",
+        "vesselType": "general-cargo",
+        "movements": 2
+      },
+      "exchangeRate": "All dollar denominated tariff will be recovered in Indian Rupees after conversion of charges in dollar terms into its equivalent Indian Rupees at the market buying rate notified by the Reserve Bank of India, State Bank of India or its associates or any other Public Sector banks as may be specified from time to time.",
+      "charges": [
+        {
+          "id": "port-dues",
+          "type": "port-dues",
+          "label": "Port dues",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "terminals": [
+                  "kandla"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.5110"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "terminals": [
+                  "kandla"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "12.6313"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "terminals": [
+                  "vadinar"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.1048"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "terminals": [
+                  "vadinar"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "2.5982"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Payable on each entry into the port.",
+            "75% for ships in ballast; 50% for ships that neither load nor discharge or call only for provisions."
+          ],
+          "source": {
+            "document": "sor-escalated-2026-27",
+            "page": 5,
+            "section": "1",
+            "quote": "|1.|12.6313|0.5110|2.5982|0.1048|The due is payable<br>on each entry into<br>the port|"
+          }
+        },
+        {
+          "id": "pilotage-towage",
+          "type": "pilotage-towage",
+          "label": "Pilotage (with tugs)",
+          "basis": "grt",
+          "includes": [
+            "pilotage",
+            "towage"
+          ],
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "terminals": [
+                  "kandla"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "excess",
+              "bands": [
+                {
+                  "upTo": "30000",
+                  "rate": "1.1219"
+                },
+                {
+                  "upTo": "60000",
+                  "base": "33658.02",
+                  "rate": "0.8976"
+                },
+                {
+                  "base": "60584.45",
+                  "rate": "0.7854"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "terminals": [
+                  "kandla"
+                ]
+              },
+              "currency": "INR",
+              "bandMode": "excess",
+              "bands": [
+                {
+                  "upTo": "30000",
+                  "rate": "27.7368"
+                },
+                {
+                  "upTo": "60000",
+                  "base": "832105.88",
+                  "rate": "22.1895"
+                },
+                {
+                  "base": "1497790.58",
+                  "rate": "19.4158"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "terminals": [
+                  "vadinar"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "excess",
+              "bands": [
+                {
+                  "upTo": "30000",
+                  "rate": "0.6531"
+                },
+                {
+                  "upTo": "60000",
+                  "base": "19594.94",
+                  "rate": "0.5226"
+                },
+                {
+                  "base": "35270.89",
+                  "rate": "0.4573"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "terminals": [
+                  "vadinar"
+                ]
+              },
+              "currency": "INR",
+              "bandMode": "excess",
+              "bands": [
+                {
+                  "upTo": "30000",
+                  "rate": "16.1404"
+                },
+                {
+                  "upTo": "60000",
+                  "base": "484214.33",
+                  "rate": "12.91"
+                },
+                {
+                  "base": "871585.79",
+                  "rate": "11.2984"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Covers one inward and one outward movement with the required tugs and launches.",
+            "Pilotage beyond the first set of buoys is charged at double the rate; restricted engine power at one and a half times."
+          ],
+          "source": {
+            "document": "sor-escalated-2026-27",
+            "page": 6,
+            "section": "2.1",
+            "quote": [
+              "|1.|Upto 30**,**000 GRT|27.7368|1.1219|16.1404|0.6531|",
+              "|2.|30,001 – 60,000<br>GRT|Rs.  832105.88+ Rs.<br>22.1895 Per GRT<br>Over 30000 GRT|US $33658.02+<br>US $0.8976Per<br>GRT Over<br>30000 GRT|Rs.484214.33 +<br>Rs. 12.91 per<br>GRT over 30000<br>GRT|US $ 19594.94+<br>US $ 0.5226 Per<br>GRT over 30000<br>GRT|",
+              "|3.|Above 60000 GRT|Rs. 1497790.58 + Rs.<br>19.4158 Per GRT<br>Over 60000 GRT|US $ 60584.45<br>+ US $ 0.7854<br>Per GRT Over<br>60000 GRT<br><br> <br>|`Rs. 871585.79+ Rs.<br>11.2984 per GRT<br>over 60000 GRT|US $ 35270.89 +<br>US $ 0.4573 Per<br>GRT over 60000<br>GRT|"
+            ]
+          }
+        },
+        {
+          "id": "berth-hire",
+          "type": "berth-hire",
+          "label": "Berth hire",
+          "basis": "grt-hour",
+          "timeRounding": "started-hour",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "terminals": [
+                  "kandla"
+                ],
+                "berths": [
+                  "non-crane-general-cargo"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.0060"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "terminals": [
+                  "kandla"
+                ],
+                "berths": [
+                  "non-crane-general-cargo"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "0.1474"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "terminals": [
+                  "kandla"
+                ],
+                "berths": [
+                  "liquid-cargo"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.0084"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "terminals": [
+                  "kandla"
+                ],
+                "berths": [
+                  "liquid-cargo"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "0.2004"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Twice the rate when the port's shore cranes are used.",
+            "50% for a double-banked ship."
+          ],
+          "source": {
+            "document": "sor-escalated-2026-27",
+            "page": 10,
+            "section": "3.1 A",
+            "quote": "|1**.**|0.1474|0.0060|0.2004|0.0084|"
+          }
+        },
+        {
+          "id": "mooring-vadinar-sbm",
+          "type": "mooring",
+          "label": "Mooring charges (SBM at Vadinar)",
+          "basis": "grt-hour",
+          "timeRounding": "started-hour",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "terminals": [
+                  "vadinar"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.0007"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "terminals": [
+                  "vadinar"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "0.0173"
+                }
+              ]
+            }
+          ],
+          "source": {
+            "document": "sor-escalated-2026-27",
+            "page": 12,
+            "section": "3.2",
+            "quote": "|2.|For vessels using SBMatVadinar|0.0173|0.0007|"
+          }
+        },
+        {
+          "id": "anchorage",
+          "type": "anchorage",
+          "label": "Anchorage (inner anchorage)",
+          "basis": "grt-hour",
+          "timeRounding": "started-hour",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "terminals": [
+                  "kandla"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.0012"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "terminals": [
+                  "kandla"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "0.0306"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "terminals": [
+                  "vadinar"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.0009"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "terminals": [
+                  "vadinar"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "0.0206"
+                }
+              ]
+            }
+          ],
+          "source": {
+            "document": "sor-escalated-2026-27",
+            "page": 12,
+            "section": "3.3 (2)",
+            "quote": [
+              "|(a).|Kandla|0.0306|0.0012|",
+              "|(b).|Vadinar|0.0206|0.0009|"
+            ]
+          }
+        }
+      ],
+      "notes": [
+        {
+          "text": "The document is titled 'Proposed SOR w.e.f. 20.01.2023, escalated @ 0.65% w.e.f. 01.05.2026' and is published on the port's Tariffs page; its escalated rates are entered for 1 May 2026 to 30 April 2027.",
+          "source": {
+            "document": "sor-escalated-2026-27",
+            "page": 1
+          }
+        },
+        {
+          "text": "The 2024 pilotage corrigendum corrected the Vadinar 'above 60,000 GRT' rows to read 'over 60000 GRT'; the escalated 2026 table already prints 'over 60000 GRT'.",
+          "source": {
+            "document": "pilotage-corrigendum-2024",
+            "page": 2
+          }
+        },
+        {
+          "text": "Berth hire is entered for Kandla's non-crane general cargo and liquid cargo berths. Crane berths are charged at 200% when the port's shore cranes are used. Kandla stream mooring charges are for ships at moorings, not at berths, and are not entered.",
+          "source": {
+            "document": "sor-escalated-2026-27",
+            "page": 11
+          }
+        },
+        {
+          "text": "If a ship calls at more than one of Kandla, Tuna and Vadinar on one visit, port dues are charged once at the highest applicable rate (note 10).",
+          "source": {
+            "document": "sor-escalated-2026-27",
+            "page": 6
+          }
+        }
+      ]
+    }
+  ]
+}

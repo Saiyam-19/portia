@@ -1,0 +1,288 @@
+{
+  "id": "new-mangalore",
+  "name": "New Mangalore Port Authority",
+  "kind": "major",
+  "aliases": [
+    "New Mangalore",
+    "NMPA",
+    "NMPT",
+    "Mangalore",
+    "Panambur",
+    "New Mangalore Port"
+  ],
+  "terminals": [],
+  "checkedOn": "2026-10-25",
+  "versions": [
+    {
+      "id": "new-mangalore-indexed-2026-27",
+      "effectiveFrom": "2026-05-01",
+      "effectiveTo": "2027-04-30",
+      "documents": [
+        {
+          "id": "sor-2026-27",
+          "title": "New Mangalore Port Authority indexed Scale of Rates, 1 May 2026 to 30 April 2027",
+          "issuer": "New Mangalore Port Authority",
+          "url": "https://newmangaloreport.gov.in/sites/default/files/inline-files/Indexed%20SOR%20wef%2001.05.2026%20%280.65%29.pdf",
+          "file": "data/sources/new-mangalore/sor-2026-27.pdf",
+          "markdown": "data/sources/new-mangalore/sor-2026-27.md",
+          "sha256": "ba434e6d4b35544e142a784977b25b3d140730c70bf10f3a0cb0f318635cd9bf",
+          "retrievedOn": "2026-10-25"
+        }
+      ],
+      "defaults": {
+        "status": "foreign",
+        "vesselType": "general-cargo",
+        "movements": 2
+      },
+      "exchangeRate": "All US dollar denominated tariff will be recovered in Indian Rupees after conversion of charges in US dollar terms into its equivalent Indian Rupees at the Reference rate notified by the Reserve Bank of India and in case of non-availability of RBI Reference rate, at the market buying rate notified by State Bank of India.",
+      "charges": [
+        {
+          "id": "port-dues",
+          "type": "port-dues",
+          "label": "Port dues",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.4110"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "6.6576"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Charged once for each entry into the port.",
+            "Concessions of 25% to 100% apply to ships in ballast, ships calling only for provisions, bunkers or crew change, and some re-entries."
+          ],
+          "source": {
+            "document": "sor-2026-27",
+            "page": 17,
+            "section": "2.1.1",
+            "quote": "|1.|Port Dues (Ships/Steamers)|6.6576|0.4110|"
+          }
+        },
+        {
+          "id": "pilotage-towage",
+          "type": "pilotage-towage",
+          "label": "Pilotage (with tugs and mooring)",
+          "basis": "grt",
+          "includes": [
+            "pilotage",
+            "towage",
+            "mooring"
+          ],
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "excess",
+              "minimumAmount": "1580.7",
+              "bands": [
+                {
+                  "upTo": "30000",
+                  "rate": "0.5269"
+                },
+                {
+                  "upTo": "60000",
+                  "base": "15807",
+                  "rate": "0.4217"
+                },
+                {
+                  "base": "28458",
+                  "rate": "0.3692"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ]
+              },
+              "currency": "INR",
+              "bandMode": "excess",
+              "minimumAmount": "42194",
+              "bands": [
+                {
+                  "upTo": "30000",
+                  "rate": "14.065"
+                },
+                {
+                  "upTo": "60000",
+                  "base": "421950",
+                  "rate": "11.251"
+                },
+                {
+                  "base": "759480",
+                  "rate": "9.840"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Covers one inward and one outward movement with pilots, tugs, launches and mooring crew."
+          ],
+          "source": {
+            "document": "sor-2026-27",
+            "page": 18,
+            "section": "2.2.1",
+            "quote": [
+              "|1.|Upto 30000 GRT|₹14.065|0.5269|",
+              "|2.|30001<br>to<br>6000<br>0 GRT|₹4,21,950+ ₹11.251 per<br>GRT over 30000 GRT|USD 15,807 + USD<br>0.4217 per GRT over<br>30,000 GRT|",
+              "|3.|60001<br>GRT<br>and<br>above|₹7,59,480 + ₹9.840 per<br>GRT over 60,000 GRT|USD  28,458 + USD<br>0.3692 per GRT over<br>60,000 GRT|",
+              "4. Sr. No. (i) above is subject to a minimum pilotage fee of US$ 1580.7 for foreign going vessel and Rs. 42,194 for coastal vessel."
+            ]
+          }
+        },
+        {
+          "id": "berth-hire",
+          "type": "berth-hire",
+          "label": "Berth hire",
+          "basis": "grt-hour",
+          "timeRounding": "started-hour",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "tanker",
+                  "lng",
+                  "lpg",
+                  "chemical"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.004019"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "tanker",
+                  "lng",
+                  "lpg",
+                  "chemical"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "0.10861"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "bulk",
+                  "container",
+                  "ro-ro",
+                  "general-cargo",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.002824"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "bulk",
+                  "container",
+                  "ro-ro",
+                  "general-cargo",
+                  "other"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "0.07602"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Charged from all fast until all lines cast off, stopping 4 hours after the ship signals it is ready to sail.",
+            "A minimum per hour applies (USD 8.10 or 9.82 foreign, Rs. 216.52 or 262.83 coastal); it only matters for very small ships."
+          ],
+          "source": {
+            "document": "sor-2026-27",
+            "page": 27,
+            "section": "2.3.1",
+            "quote": [
+              "|1.|POL including Crude oil vessels/ tankers|Rs.0.10861 subject to<br>a minimum of ₹216.52<br>per hour|USD 0.004019<br>subject to a<br>minimum<br>of<br>USD 8.10 per<br>hour|",
+              "|4.|Dry Bulk vessels|Rs. 0.07602 subject to<br>a minimum of ₹262.83<br>per hour|USD 0.002824<br>subject to a<br>minimum<br>of<br>USD 9.82 per<br>hour|"
+            ]
+          }
+        }
+      ],
+      "notes": [
+        {
+          "text": "Berth hire has a minimum per hour (for example USD 9.82 per hour for dry bulk). The format cannot apply a per-hour minimum, so it is not applied; it only affects ships smaller than about 3,500 GRT.",
+          "source": {
+            "document": "sor-2026-27",
+            "page": 27,
+            "section": "2.3.1"
+          }
+        },
+        {
+          "text": "Passenger vessels' berth hire is set by separate notification and is not entered.",
+          "source": {
+            "document": "sor-2026-27",
+            "page": 28,
+            "section": "2.3.1"
+          }
+        },
+        {
+          "text": "The pilotage minimum (US$ 1,580.70 / Rs. 42,194) is stated for the first band; it is applied to the whole charge, which makes no difference above 30,000 GRT.",
+          "source": {
+            "document": "sor-2026-27",
+            "page": 19
+          }
+        }
+      ]
+    }
+  ]
+}

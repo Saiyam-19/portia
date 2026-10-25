@@ -49,7 +49,7 @@ For every port, enter the **vessel-related charges** a normal cargo ship pays:
 - **Copy every figure exactly as printed**, as a decimal string: `"0.0137"`, `"18966"`, `"826732.12"`. Never round, convert currency or apply an escalation percentage yourself.
 - If a schedule prints both a base rate and an escalated or indexed rate for the date, use the one in force for the version's dates, and say which in a note.
 - If a coastal rate is described only as a percentage of the foreign rate and not printed, do **not** calculate it. Leave the coastal row out and add a note.
-- `source.quote` is required for every charge: copy the table row or sentence verbatim from the Markdown, up to 400 characters. The checker confirms that the quote appears in the Markdown and that every rate, base and minimum you entered appears in the quote.
+- `source.quote` is required for every charge: copy the table row or sentence verbatim from the Markdown, up to 400 characters. When the figures sit in separate rows (for example a banded table), give a list of up to 8 verbatim snippets instead. The checker confirms that every snippet appears in the Markdown and that every rate, base and minimum you entered appears in the quote.
 - `source.page` is the `<!-- page N -->` number in the Markdown.
 
 ## How to express common schedules
@@ -63,6 +63,8 @@ For every port, enter the **vessel-related charges** a normal cargo ship pays:
 | "US$ 18,966 for the first 30,000 GRT + 0.5058 per additional GRT" | `bandMode: "excess"`, bands `{ "upTo": "30000", "rate": "<first-band rate>" }`, `{ "upTo": "60000", "base": "18966", "rate": "0.5058" }` |
 | "Minimum GRT 1,000" | `minimumQuantity: "1000"` |
 | "Minimum charge US$ 200 per call" | `minimumAmount: "200"` on that rate row |
+| A minimum that depends on ship size | `minimumAmount` on each band; split bands where the minimum changes |
+| "Lump sum" for the smallest ships, with only a minimum printed | a band with `"rate": "0"` and that band's `minimumAmount` |
 | Charge applies to each inward and outward movement | `per: "movement"` |
 | Charge per tug | `perTug: true` |
 | A fixed amount per call by ship size | `basis: "call"`, `bandOn: "grt"`, bands with the amount as `rate` |

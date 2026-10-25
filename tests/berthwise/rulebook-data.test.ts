@@ -47,10 +47,12 @@ function problems(file: string): string[] {
       const quote = charge.source.quote;
       if (!quote) { issues.push(`${at}: source.quote is required`); continue; }
       const text = markdown.get(doc.id);
-      if (text !== undefined && !text.includes(flat(quote))) issues.push(`${at}: quote not found verbatim in ${doc.markdown}`);
-      const inQuote = extractNumbers(quote);
-      const figures = [...charge.rates.flatMap(rate => [...rate.bands.flatMap(band => [band.rate, ...(band.base ? [band.base] : [])]), ...(rate.minimumAmount ? [rate.minimumAmount] : []), ...(rate.maximumAmount ? [rate.maximumAmount] : [])])];
-      for (const figure of figures) if (!inQuote.some(found => sameNumber(found, figure))) issues.push(`${at}: figure ${figure} is not in its quote`);
+      const quotes = Array.isArray(quote) ? quote : [quote];
+      for (const snippet of quotes) if (text !== undefined && !text.includes(flat(snippet))) issues.push(`${at}: quote not found verbatim in ${doc.markdown}: ${snippet.slice(0, 60)}`);
+      const inQuote = quotes.flatMap(snippet => extractNumbers(snippet));
+      const figures = [...charge.rates.flatMap(rate => [...rate.bands.flatMap(band => [band.rate, ...(band.base ? [band.base] : []), ...(band.minimumAmount ? [band.minimumAmount] : [])]), ...(rate.minimumAmount ? [rate.minimumAmount] : []), ...(rate.maximumAmount ? [rate.maximumAmount] : [])])];
+      // A zero rate stands for a printed "lump sum" band whose minimum is the charge.
+      for (const figure of figures) if (Number(figure) !== 0 && !inQuote.some(found => sameNumber(found, figure))) issues.push(`${at}: figure ${figure} is not in its quote`);
       for (const rate of charge.rates) {
         const limits = rate.bands.map(band => band.upTo);
         if (limits.slice(0, -1).some(limit => limit === undefined)) issues.push(`${at}: only the last band may omit upTo`);

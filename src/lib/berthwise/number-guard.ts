@@ -2,7 +2,7 @@
  * an earlier checked answer. Small counts, days and years are always allowed. */
 
 /** Over-matches on purpose: a currency code or unit glued to a figure must not hide it. */
-const NUMBER = /(?<![\d.,])(?:\d{1,3}(?:,\d{2,3})+|\d+)(?:\.\d+)?(?![\d])(\s*(?:%|per ?cent))?/giu;
+const NUMBER = /(?<![\d,])(?<!\d\.)(?:\d{1,3}(?:,\d{2,3})+|\d+)(?:\.\d+)?(?![\d])(\s*(?:%|per ?cent))?/giu;
 
 export type NumberSource = string | unknown;
 

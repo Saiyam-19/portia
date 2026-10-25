@@ -11,6 +11,7 @@ it.each([
   ["in parentheses", "(999999)"],
   ["as a percentage", "plus 18% GST"],
   ["Indian rupee suffix", "Rs. 4,04,722/-"],
+  ["rupee abbreviation glued to the figure", "Rs.9,99,999"],
   ["invented extra precision", "USD 21,339.125"],
   ["a near miss that is not rounding", "USD 21,340"],
   ["a negative figure", "a saving of -999 USD"],

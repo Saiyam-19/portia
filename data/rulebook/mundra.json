@@ -1,0 +1,347 @@
+{
+  "id": "mundra",
+  "name": "Adani Mundra Port (APSEZ)",
+  "kind": "private",
+  "aliases": [
+    "Mundra",
+    "Mundra Port",
+    "APSEZ",
+    "Adani Mundra",
+    "Adani Ports Mundra"
+  ],
+  "terminals": [],
+  "checkedOn": "2026-10-25",
+  "versions": [
+    {
+      "id": "mundra-bpts-2026-06-15-fs-2026-10-01",
+      "effectiveFrom": "2026-10-01",
+      "documents": [
+        {
+          "id": "bpts-2026-06-15",
+          "title": "APSEZ Mundra Berthing Policy and Tariff Structure w.e.f. 15 June 2026",
+          "issuer": "Adani Ports and SEZ (Mundra)",
+          "url": "https://www.adaniports.com/-/media/project/ports/portsandterminals/mundra-documents/tariff/berthing-policy-and-tariff-structure-wef-15th-june-2026.pdf",
+          "file": "data/sources/mundra/bpts-2026-06-15.pdf",
+          "markdown": "data/sources/mundra/bpts-2026-06-15.md",
+          "sha256": "7bd0a1db1018db6b8cd4dc52b928297cee740adb2696909c649052c0f4e2c683",
+          "retrievedOn": "2026-10-25"
+        },
+        {
+          "id": "fuel-surcharge-2026-10-01",
+          "title": "Mundra fuel surcharge on pilotage, circular dated 1 October 2026",
+          "issuer": "Adani Ports and SEZ (Mundra)",
+          "url": "https://www.adaniports.com/-/media/project/ports/portsandterminals/mundra-documents/trade-notices/fs_mundra_dtd_01-10-2026.pdf",
+          "file": "data/sources/mundra/fuel-surcharge-2026-10-01.pdf",
+          "markdown": "data/sources/mundra/fuel-surcharge-2026-10-01.md",
+          "sha256": "496cb605f53f84cc5c1b435e04777e16653ac8a3f98856ebdb341ea5824ddb93",
+          "retrievedOn": "2026-10-25"
+        }
+      ],
+      "defaults": {
+        "status": "foreign",
+        "vesselType": "bulk",
+        "movements": 2
+      },
+      "charges": [
+        {
+          "id": "port-dues",
+          "type": "port-dues",
+          "label": "Port dues",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {},
+              "currency": "USD",
+              "minimumAmount": "400",
+              "bands": [
+                {
+                  "rate": "0.024344"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Charged per vessel call number (VCN), valid for up to 15 days.",
+            "Not for SPM, LNG, MCOT or STS calls."
+          ],
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 30,
+            "section": "IV.A",
+            "quote": "|**$ 0.024344 Per GT of Vessel**<br>[Except SPM/<br>LNG/MCOT/STS] /Per VCN**.**|Minimum Charges**$ 400**per vessel is applicable.<br>(Port Dues is payable per VCN and is valid for a maximum<br>of 15 days)|"
+          }
+        },
+        {
+          "id": "pilotage-towage",
+          "type": "pilotage-towage",
+          "label": "Pilotage (with tugs)",
+          "basis": "grt",
+          "includes": [
+            "pilotage",
+            "towage"
+          ],
+          "rates": [
+            {
+              "when": {},
+              "currency": "USD",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "3000",
+                  "rate": "1.018862",
+                  "minimumAmount": "2865"
+                },
+                {
+                  "upTo": "9999.99",
+                  "rate": "1.018862",
+                  "minimumAmount": "9065"
+                },
+                {
+                  "upTo": "15000",
+                  "rate": "1.192852",
+                  "minimumAmount": "9065"
+                },
+                {
+                  "rate": "1.192852",
+                  "minimumAmount": "18020"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Includes one berthing and one unberthing.",
+            "For Mediterranean mooring, tugs are charged on top at actual use."
+          ],
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 30,
+            "section": "IV.B",
+            "quote": [
+              "|**$ 1.018862**perGT, for|Minimum**$ 2865**<br>For vessel up to 3000 GT.|",
+              "|<br>vessels with GT less than<br>|Minimum**$ 9065**<br>Vessel from 3001 - 15000 GT|",
+              "|10,000<br>**$ 1.192852**perGT, for|Minimum**$ 18020**<br>Vessel from 15001 and above|",
+              "|vessels with GT 10,000 and<br>above|1.Pilotage charges Includes one Berthing and one Un-berthing."
+            ]
+          }
+        },
+        {
+          "id": "fuel-surcharge-pilotage",
+          "type": "pilotage",
+          "label": "Fuel surcharge on pilotage",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {},
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.22696"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Changes with fuel prices, usually twice a month; this is the rate from 1 October 2026."
+          ],
+          "source": {
+            "document": "fuel-surcharge-2026-10-01",
+            "page": 1,
+            "quote": "|**Revised rate**|**157.6039**|**0.22696**|"
+          }
+        },
+        {
+          "id": "mooring",
+          "type": "mooring",
+          "label": "Mooring",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {},
+              "currency": "USD",
+              "minimumAmount": "215",
+              "bands": [
+                {
+                  "rate": "0.042435"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Not for LNG, SPM, STS or ships not using a berth."
+          ],
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 31,
+            "section": "IV.C",
+            "quote": "|**$ 0.042435**Per GT Per VCN<br>(Minimum Charges$215)|"
+          }
+        },
+        {
+          "id": "sustainability",
+          "type": "other",
+          "label": "Sustainability charge",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {},
+              "currency": "USD",
+              "minimumAmount": "200",
+              "bands": [
+                {
+                  "rate": "0.03"
+                }
+              ]
+            }
+          ],
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 31,
+            "section": "IV.D",
+            "quote": "|$ 0.03 Per GT per VCN<br>(Minimum charges will$200)|Applicable to all vessels calling mundra Port|"
+          }
+        },
+        {
+          "id": "environment-protection",
+          "type": "other",
+          "label": "Port environment protection, safety and dredging charge",
+          "basis": "call",
+          "bandOn": "grt",
+          "rates": [
+            {
+              "when": {
+                "vesselTypes": [
+                  "bulk",
+                  "general-cargo",
+                  "tanker",
+                  "chemical",
+                  "ro-ro",
+                  "lng",
+                  "lpg"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "10000",
+                  "rate": "400"
+                },
+                {
+                  "upTo": "30000",
+                  "rate": "600"
+                },
+                {
+                  "rate": "800"
+                }
+              ]
+            }
+          ],
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 31,
+            "section": "IV.E",
+            "quote": "|USD: 400 Up to 10000 GT<br>USD: 600 10001 to 30000 GT<br>USD: 800 More than 30000<br>GT|Charges applicable on Bulk, breakbulk, Liquid, RO-RO, Gas carriers,<br>MICT (DPW) berths"
+          }
+        },
+        {
+          "id": "berth-hire",
+          "type": "berth-hire",
+          "label": "Berth hire",
+          "basis": "grt-hour",
+          "timeRounding": "started-hour",
+          "rates": [
+            {
+              "when": {},
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.011584"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "From first line ashore to all cast off.",
+            "A minimum of US$ 810 per day applies."
+          ],
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 31,
+            "section": "IV.F",
+            "quote": [
+              "|**$ 0.011584**per GT per Hour||",
+              "|(First line ashore to All cast<br>off)|Minimum Charges**$ 810** per day is applicable.|"
+            ]
+          }
+        },
+        {
+          "id": "anchorage",
+          "type": "anchorage",
+          "label": "Anchorage",
+          "basis": "grt-hour",
+          "timeRounding": "started-hour",
+          "rates": [
+            {
+              "when": {},
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.001343"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "From dropping anchor until the pilot boards for berthing."
+          ],
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 32,
+            "section": "IV.J",
+            "quote": "|**$ 0.001343**per GT per hour.|"
+          }
+        }
+      ],
+      "notes": [
+        {
+          "text": "The marine tariff was revised with effect from 15 June 2026 (BPTS revision 06); the fuel surcharge on pilotage is set by circular and was USD 0.22696 per GT from 1 October 2026. The version starts on 1 October 2026 because both apply from then.",
+          "source": {
+            "document": "fuel-surcharge-2026-10-01",
+            "page": 1
+          }
+        },
+        {
+          "text": "Pilotage minimums change at 3,000 and 15,000 GT while the rate changes at 10,000 GT; bands are split so each carries its own minimum. 'Less than 10,000' is entered as up to 9,999.99 GT.",
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 30,
+            "section": "IV.B"
+          }
+        },
+        {
+          "text": "The berth hire minimum of US$ 810 per day cannot be expressed per day in the format and is not applied; it only matters for ships under about 2,900 GT.",
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 31,
+            "section": "IV.F"
+          }
+        },
+        {
+          "text": "The tariff is in US dollars for all ships; there are no separate coastal rates.",
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 30
+          }
+        },
+        {
+          "text": "The environment protection charge lists bulk, break-bulk, liquid, Ro-Ro and gas carriers, plus ships at the MICT (DP World) berths. It is not applied to container ships at other terminals.",
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 31,
+            "section": "IV.E"
+          }
+        }
+      ]
+    }
+  ]
+}

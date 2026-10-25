@@ -1,0 +1,605 @@
+{
+  "id": "pipavav",
+  "name": "Gujarat Pipavav Port (APM Terminals Pipavav)",
+  "kind": "private",
+  "aliases": [
+    "Pipavav",
+    "Port Pipavav",
+    "GPPL",
+    "Gujarat Pipavav",
+    "APM Terminals Pipavav"
+  ],
+  "terminals": [],
+  "checkedOn": "2026-10-25",
+  "versions": [
+    {
+      "id": "pipavav-2026-01-01",
+      "effectiveFrom": "2026-01-01",
+      "documents": [
+        {
+          "id": "tariffs-2026-01-01",
+          "title": "Gujarat Pipavav Port (APM Terminals Pipavav) tariffs effective 1 January 2026",
+          "issuer": "Gujarat Pipavav Port Ltd (APM Terminals)",
+          "url": "https://cms-cd.apmterminals.com/pipavav/-/media/mainsite/asia-and-pacific/Pipavav/Information/Tariffs---Effective-01-Jan-2026.pdf?rev=1d7894ec026b427ca2d18b3af9555796",
+          "file": "data/sources/pipavav/tariffs-2026-01-01.pdf",
+          "markdown": "data/sources/pipavav/tariffs-2026-01-01.md",
+          "sha256": "29c6c8722676d26189073fe8a72cd788a9ca129288fdfcb43e06e24a28f46c7d",
+          "retrievedOn": "2026-10-25"
+        }
+      ],
+      "defaults": {
+        "status": "foreign",
+        "vesselType": "container",
+        "movements": 2
+      },
+      "exchangeRate": "The payment of all tariffs notified in US Dollars, shall be made in equivalent Indian Rupees at the Bank TT selling rate, on the date the vessel is brought alongside the berth.",
+      "charges": [
+        {
+          "id": "port-dues-container",
+          "type": "port-dues",
+          "label": "Port dues",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.168"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.065"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Charged once in 30 days for each ship, counted from entry."
+          ],
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 6,
+            "section": "A.I",
+            "quote": [
+              "|**Foreign Vessel**<br>**(Once in 30 days in case of each vessel)**|**US$ 0.168**|",
+              "|**Coastal Vessel**<br>**(Once in 30 days in case of each vessel)**|**US$ 0.065**|"
+            ]
+          }
+        },
+        {
+          "id": "port-dues",
+          "type": "port-dues",
+          "label": "Port dues",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {
+                "vesselTypes": [
+                  "tanker",
+                  "chemical"
+                ]
+              },
+              "currency": "USD",
+              "minimumAmount": "1000",
+              "bands": [
+                {
+                  "rate": "0.366"
+                }
+              ]
+            },
+            {
+              "when": {
+                "vesselTypes": [
+                  "lng",
+                  "lpg"
+                ]
+              },
+              "currency": "USD",
+              "minimumAmount": "1000",
+              "bands": [
+                {
+                  "rate": "0.354"
+                }
+              ]
+            },
+            {
+              "when": {
+                "vesselTypes": [
+                  "ro-ro"
+                ]
+              },
+              "currency": "USD",
+              "minimumAmount": "1000",
+              "bands": [
+                {
+                  "rate": "0.238"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "bulk",
+                  "general-cargo",
+                  "passenger",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "minimumAmount": "1000",
+              "bands": [
+                {
+                  "rate": "0.221"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "bulk",
+                  "general-cargo",
+                  "passenger",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "minimumAmount": "1000",
+              "bands": [
+                {
+                  "rate": "0.198"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Charged once in 30 days for each ship, counted from entry."
+          ],
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 6,
+            "section": "A.I",
+            "quote": [
+              "|**Minimum applicable Port Dues (Non-Container vessels only)**|**US$ 1000**|",
+              "|**Foreign Vessel**|**US$ 0.221**|",
+              "|**Coastal Vessel**|**US$ 0.198**|",
+              "|**All Liquid Bulk Vessels**|**US$ 0.366**|",
+              "|**Gas Tankers**|**US$ 0.354**|",
+              "|**Ro-Ro Vessels**|**US$ 0.238**|"
+            ]
+          }
+        },
+        {
+          "id": "pilotage-towage-container",
+          "type": "pilotage-towage",
+          "label": "Pilotage and towage",
+          "basis": "grt",
+          "includes": [
+            "pilotage",
+            "towage"
+          ],
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.7160"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.3704"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Includes the port's pilots, tugs and launches with crew, piloting the ship in and out."
+          ],
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 6,
+            "section": "A.II",
+            "quote": [
+              "|**Foreign Vessel**||**US$ 0.7160**|",
+              "|**Coastal Vessel**||**US$ 0.3704**|"
+            ]
+          }
+        },
+        {
+          "id": "pilotage-towage",
+          "type": "pilotage-towage",
+          "label": "Pilotage and towage",
+          "basis": "grt",
+          "includes": [
+            "pilotage",
+            "towage"
+          ],
+          "rates": [
+            {
+              "when": {
+                "vesselTypes": [
+                  "tanker",
+                  "chemical"
+                ]
+              },
+              "currency": "USD",
+              "minimumAmount": "1000",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "60000",
+                  "rate": "0.720"
+                }
+              ]
+            },
+            {
+              "when": {
+                "vesselTypes": [
+                  "lng",
+                  "lpg"
+                ]
+              },
+              "currency": "USD",
+              "minimumAmount": "1000",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "60000",
+                  "rate": "0.649"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "bulk",
+                  "general-cargo",
+                  "passenger",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "minimumAmount": "1000",
+              "bandMode": "whole",
+              "bands": [
+                {
+                  "upTo": "60000",
+                  "rate": "0.649"
+                },
+                {
+                  "rate": "0.708"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "bulk",
+                  "general-cargo",
+                  "passenger",
+                  "other"
+                ]
+              },
+              "currency": "USD",
+              "minimumAmount": "1000",
+              "bands": [
+                {
+                  "rate": "0.543"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Includes the port's pilots, tugs and launches with crew, piloting the ship in and out."
+          ],
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 6,
+            "section": "A.II",
+            "quote": [
+              "||**All Liquid Bulk Vessels**|**Per GRT**|",
+              "|**Up to 60,000 GRT**||**US$ 0.720**|",
+              "|**Up to 60,000 GRT**||**US$ 0.649**|",
+              "|**Above 60,000 GRT**||**US$ 0.708**|",
+              "|**Coastal Vessel**||**US$ 0.543**|",
+              "|**Pilotage and Towage**<br>**Charges**|Minimum applicable Pilotage and Towage charges<br>(Non container vessels only)|**US$ 1000**|"
+            ]
+          }
+        },
+        {
+          "id": "pilotage-towage-roro",
+          "type": "pilotage-towage",
+          "label": "Pilotage and towage",
+          "basis": "grt",
+          "includes": [
+            "pilotage",
+            "towage"
+          ],
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "ro-ro"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.652"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "ro-ro"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.511"
+                }
+              ]
+            }
+          ],
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 7,
+            "section": "A.II",
+            "quote": [
+              "|**Foreign Vessel**||**US$ 0.652**|",
+              "|**Coastal Vessel**||**US$ 0.511**|"
+            ]
+          }
+        },
+        {
+          "id": "berth-hire-container",
+          "type": "berth-hire",
+          "label": "Berth hire",
+          "basis": "grt-hour",
+          "timeRounding": "started-hour",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.00853"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "container"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.00529"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "From the first line on the bollard until the last line is taken off."
+          ],
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 8,
+            "section": "A.III",
+            "quote": [
+              "|**Foreign Vessel**||**US$ 0.00853**|",
+              "|**Coastal Vessel**||**US$ 0.00529**|"
+            ]
+          }
+        },
+        {
+          "id": "berth-hire",
+          "type": "berth-hire",
+          "label": "Berth hire",
+          "basis": "grt-hour",
+          "timeRounding": "started-hour",
+          "rates": [
+            {
+              "when": {
+                "vesselTypes": [
+                  "tanker",
+                  "chemical"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.020"
+                }
+              ]
+            },
+            {
+              "when": {
+                "vesselTypes": [
+                  "lng",
+                  "lpg"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.024"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "vesselTypes": [
+                  "ro-ro"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.0064"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "vesselTypes": [
+                  "ro-ro"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.0057"
+                }
+              ]
+            },
+            {
+              "when": {
+                "vesselTypes": [
+                  "bulk"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.0123"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Liquid and gas tankers pay at least 24 hours (US$ 1,000 minimum); dry bulk ships pay at least 24 hours."
+          ],
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 9,
+            "section": "A.III",
+            "quote": [
+              "|**All Liquid Bulk Vessels**|**US$ 0.020**|",
+              "|**Gas Tankers**|**US$ 0.024**|",
+              "|**Foreign Vessel**|**US$ 0.0064**|",
+              "|**Coastal Vessel**|**US$ 0.0057**|",
+              "|**Dry Bulk Vessels**|**US$ 0.0123**|"
+            ]
+          }
+        }
+      ],
+      "notes": [
+        {
+          "text": "All Pipavav rates are in US dollars, including coastal rates.",
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 4
+          }
+        },
+        {
+          "text": "Pilotage for liquid bulk and gas tankers is printed only 'up to 60,000 GRT'; larger tankers are not priced.",
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 6,
+            "section": "A.II"
+          }
+        },
+        {
+          "text": "Berth hire for break-bulk and general cargo ships is not printed (offshore and project cargo vessels pay US$ 8,000 for the first 24 hours), so it is not priced. The 24-hour minimums for tankers and dry bulk cannot be expressed in the format and are not applied.",
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 9,
+            "section": "A.III"
+          }
+        },
+        {
+          "text": "Ships handled at other than GPPL jetties pay a different pilotage rate (US$ 0.843 / 0.920 foreign, 0.705 coastal); it is not entered. A port control charge of US$ 1,000 per call applies only to ships staying at anchorage.",
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 7
+          }
+        },
+        {
+          "text": "Gas tankers are entered as LNG and LPG carriers; liquid bulk vessels as tankers and chemical tankers.",
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 6
+          }
+        }
+      ]
+    }
+  ]
+}

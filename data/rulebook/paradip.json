@@ -1,0 +1,456 @@
+{
+  "id": "paradip",
+  "name": "Paradip Port Authority",
+  "kind": "major",
+  "aliases": [
+    "Paradip",
+    "Paradeep",
+    "PPA",
+    "Paradip Port",
+    "Paradip Port Trust"
+  ],
+  "terminals": [],
+  "checkedOn": "2026-10-25",
+  "versions": [
+    {
+      "id": "paradip-indexed-2026-27",
+      "effectiveFrom": "2026-05-01",
+      "effectiveTo": "2026-10-10",
+      "documents": [
+        {
+          "id": "sor-indexed-2026-27",
+          "title": "Paradip Port Authority indexed Scale of Rates 2026-27, w.e.f. 1 May 2026",
+          "issuer": "Paradip Port Authority",
+          "url": "https://www.paradipport.gov.in/uploads/2026/06/sor-indexed-26-27-final.pdf",
+          "file": "data/sources/paradip/sor-indexed-2026-27.pdf",
+          "markdown": "data/sources/paradip/sor-indexed-2026-27.md",
+          "sha256": "b00c0d793278b79ce686902ed15f8ed616763b69b0a5e10f22049ec0895af2db",
+          "retrievedOn": "2026-10-25"
+        }
+      ],
+      "defaults": {
+        "status": "foreign",
+        "vesselType": "bulk",
+        "movements": 2
+      },
+      "charges": [
+        {
+          "id": "port-dues",
+          "type": "port-dues",
+          "label": "Port dues",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.34"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "8.36"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Charged per GRT for each entry into the port."
+          ],
+          "source": {
+            "document": "sor-indexed-2026-27",
+            "page": 10,
+            "section": "3.3",
+            "quote": "|1.<br>2.|Foreign going vessels (per GRT per entry U.S $)<br>Coastal (Vessels per GRT per entry)|0.34<br>₹ 8.36|"
+          }
+        },
+        {
+          "id": "pilotage-towage",
+          "type": "pilotage-towage",
+          "label": "Pilotage and towage",
+          "basis": "grt",
+          "includes": [
+            "pilotage",
+            "towage"
+          ],
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "excess",
+              "bands": [
+                {
+                  "upTo": "30000",
+                  "rate": "0.7148"
+                },
+                {
+                  "upTo": "60000",
+                  "base": "21444.00",
+                  "rate": "0.5716"
+                },
+                {
+                  "upTo": "75000",
+                  "base": "38592.00",
+                  "rate": "0.4289"
+                },
+                {
+                  "base": "45025.50",
+                  "rate": "0.3575"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ]
+              },
+              "currency": "INR",
+              "bandMode": "excess",
+              "bands": [
+                {
+                  "upTo": "30000",
+                  "rate": "17.59"
+                },
+                {
+                  "upTo": "60000",
+                  "base": "527700",
+                  "rate": "14.06"
+                },
+                {
+                  "upTo": "75000",
+                  "base": "949500",
+                  "rate": "10.56"
+                },
+                {
+                  "base": "1107900",
+                  "rate": "8.80"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Covers one inward and one outward movement with the required tugs and launches.",
+            "25% extra for a cold move."
+          ],
+          "source": {
+            "document": "sor-indexed-2026-27",
+            "page": 10,
+            "section": "3.4",
+            "quote": [
+              "|1|Upto 30,000 GRT|US $0.7148 per GRT|Rs.17.59 per GRT|",
+              "|2.|30,001 to 60,000 GRT|US<br>$ 21444.00+US$0.5716Per<br>GRTover30,000GRT|Rs. 5,27,700/- + Rs.14.06<br>per GRT over 30,000 GRT|",
+              "|3.|60,001 to 75,000 GRT|US$38,592.00+US<br>$0.4289 Per GRT over|Rs.9,49,500+Rs.10.56 per<br>GRT over 60,000 GRT|",
+              "|4.|Above 75,000 GRT|US$45,025.50|+|US|Rs.11,07,900 + Rs.8.80|",
+              "|||$0.3575 Per<br>75,000 GRT|GRT|over|per GRT over 75,000 GRT|"
+            ]
+          }
+        },
+        {
+          "id": "berth-hire",
+          "type": "berth-hire",
+          "label": "Berth hire",
+          "basis": "grt-hour",
+          "timeRounding": "started-hour",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.003338"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "0.082"
+                }
+              ]
+            }
+          ],
+          "source": {
+            "document": "sor-indexed-2026-27",
+            "page": 9,
+            "section": "3.1",
+            "quote": [
+              "|1.|Foreign going vessels (US $)|0.003338|",
+              "|2.|Coastal (₹)|0.082|"
+            ]
+          }
+        }
+      ],
+      "notes": [
+        {
+          "text": "This indexed schedule (0.65% indexation from 1 May 2026) is replaced by the new Scale of Rates published in the Odisha Gazette on 10 September 2026; it is entered as ending on 10 October 2026.",
+          "source": {
+            "document": "sor-indexed-2026-27",
+            "page": 1
+          }
+        },
+        {
+          "text": "The 'Above 75,000 GRT' pilotage row is split across lines in the document; it is read as US$ 45,025.50 + US$ 0.3575 per GRT over 75,000 GRT, which matches the earlier bands.",
+          "source": {
+            "document": "sor-indexed-2026-27",
+            "page": 11,
+            "section": "3.4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "paradip-sor-2026",
+      "effectiveFrom": "2026-10-11",
+      "documents": [
+        {
+          "id": "sor-2026-new-18092026",
+          "title": "Paradip Port Authority Scale of Rates 2026 (uploaded 18 September 2026)",
+          "issuer": "Paradip Port Authority",
+          "url": "https://www.paradipport.gov.in/uploads/2026/09/Scale-of-Rates-2026-_18092026_compressed.pdf",
+          "file": "data/sources/paradip/sor-2026-new-18092026.pdf",
+          "markdown": "data/sources/paradip/sor-2026-new-18092026.md",
+          "sha256": "70f61c9a4a4905c8060ab9285f11ac8cbb7c44cb20a51a5e6edbe81209c4ea9b",
+          "retrievedOn": "2026-10-25"
+        }
+      ],
+      "defaults": {
+        "status": "foreign",
+        "vesselType": "bulk",
+        "movements": 2
+      },
+      "exchangeRate": "All US dollar denominated tariff will be recovered in Indian Rupees after conversion of charges in US dollar terms into its equivalent Indian Rupees at the Reference rate notified by the Reserve Bank of India and in case of non-availability of RBI Reference rate, at the market buying rate notified by State Bank of India.",
+      "charges": [
+        {
+          "id": "port-dues",
+          "type": "port-dues",
+          "label": "Port dues",
+          "basis": "grt",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.408"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "13.24"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Charged once for each entry, at the ship's status on entry.",
+            "25% concession for ships in ballast; 50% for ships calling only for provisions, water, crew change or bunkers."
+          ],
+          "source": {
+            "document": "sor-2026-new-18092026",
+            "page": 17,
+            "section": "2.1.1",
+            "quote": "|1.|Port Dues||13.24|0.408|"
+          }
+        },
+        {
+          "id": "pilotage-towage",
+          "type": "pilotage-towage",
+          "label": "Pilotage and towage",
+          "basis": "grt",
+          "includes": [
+            "pilotage",
+            "towage",
+            "mooring"
+          ],
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ]
+              },
+              "currency": "USD",
+              "bandMode": "excess",
+              "minimumAmount": "858",
+              "bands": [
+                {
+                  "upTo": "30000",
+                  "rate": "0.8578"
+                },
+                {
+                  "upTo": "60000",
+                  "base": "25734",
+                  "rate": "0.6859"
+                },
+                {
+                  "upTo": "75000",
+                  "base": "46311",
+                  "rate": "0.5147"
+                },
+                {
+                  "base": "54031.50",
+                  "rate": "0.4290"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ]
+              },
+              "currency": "INR",
+              "bandMode": "excess",
+              "minimumAmount": "21110",
+              "bands": [
+                {
+                  "upTo": "30000",
+                  "rate": "21.11"
+                },
+                {
+                  "upTo": "60000",
+                  "base": "633300",
+                  "rate": "16.87"
+                },
+                {
+                  "upTo": "75000",
+                  "base": "1139400",
+                  "rate": "12.67"
+                },
+                {
+                  "base": "1329450",
+                  "rate": "10.56"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Covers one inward and one outward movement with pilots, tugs, launches and mooring crew.",
+            "Cold moves cost 25% more."
+          ],
+          "source": {
+            "document": "sor-2026-new-18092026",
+            "page": 18,
+            "section": "2.2.1",
+            "quote": [
+              "|1.|Upto 30,000 GRT|Rs.21.11 per GRT|US $ 0.8578 per<br>GRT|",
+              "|2.|30,001 to 60,000 GRT|Rs. 6,33,300 +<br>Rs.16.87<br>per<br>GRT<br>over 30,000 GRT|US $ 25,734 +<br>US $ 0.6859 Per<br>GRT over 30,000<br>GRT|",
+              "|3.|60,001 to 75,000 GRT|Rs.11,39,400 +<br>Rs.12.67<br>per<br>GRT<br>over 60,000 GRT|US$ 46,311 + US<br>$ 0.5147<br>Per<br>GRT over 60,000<br>GRT|",
+              "|4.|Above 75,000 GRT|Rs.13,29,450 +<br>Rs.10.56<br>per<br>GRT<br>over 75,000 GRT|US$ 54,031.50 +<br>US $ 0.4290 Per<br>GRT over 75,000<br>GRT|",
+              "|5.|Sr. No. (i) above is subject to<br>going vessel and**₹**21,110 for|a minimum pilotage fee of<br>coastal vessel.|US$ 858 for foreign|"
+            ]
+          }
+        },
+        {
+          "id": "berth-hire",
+          "type": "berth-hire",
+          "label": "Berth hire",
+          "basis": "grt-hour",
+          "timeRounding": "started-hour",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ]
+              },
+              "currency": "USD",
+              "bands": [
+                {
+                  "rate": "0.004006"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "0.0984"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Charged from first line until all lines cast off, stopping 4 hours after the ship signals it is ready to sail.",
+            "50% for ships at moorings or anchorages and for double banking."
+          ],
+          "source": {
+            "document": "sor-2026-new-18092026",
+            "page": 25,
+            "section": "2.3.1",
+            "quote": "|1.|Berth Hire Charges|0.0984|0.004006|"
+          }
+        }
+      ],
+      "notes": [
+        {
+          "text": "The new Scale of Rates was notified in the Odisha Gazette (No. 4210) on 10 September 2026 and takes effect 'after 30 days from notification in State Gazette'. Counting 30 days from 10 September, it is entered as effective from 11 October 2026.",
+          "source": {
+            "document": "sor-2026-new-18092026",
+            "page": 4
+          }
+        },
+        {
+          "text": "The pilotage minimum (US$ 858 / Rs. 21,110) is stated for the first band; it is applied to the whole charge, which makes no difference above 30,000 GRT.",
+          "source": {
+            "document": "sor-2026-new-18092026",
+            "page": 18,
+            "section": "2.2.1"
+          }
+        },
+        {
+          "text": "Where a ship has two tonnages, the higher one is used for vessel-related charges.",
+          "source": {
+            "document": "sor-2026-new-18092026",
+            "page": 25
+          }
+        }
+      ]
+    }
+  ]
+}
