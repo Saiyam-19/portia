@@ -1,4 +1,5 @@
 import Decimal from "decimal.js";
+import { CARGO_CLASSES, cargoLabel, cargoParent } from "./cargo";
 import type { Charge, ChargeType, PortBook, RuleVersion, Status, VesselType } from "./schema";
 
 const D = Decimal.clone({ precision: 60, rounding: Decimal.ROUND_HALF_UP });
@@ -16,7 +17,8 @@ export type EstimateRequest = {
   anchorageHours?: string;
   movements?: number;
   tugs?: number;
-  cargo?: { class?: string; tonnes?: string; teu?: string };
+  /** teu counts a 40-foot container as 2; fortyFoot says how many of them are 40-foot. */
+  cargo?: { class?: string; tonnes?: string; teu?: string; fortyFoot?: string; direction?: "import" | "export" };
   charges?: ChargeType[];
 };
 
@@ -35,13 +37,14 @@ export type Estimate = {
   checkedOn: string;
 };
 
-const SIZE: Record<string, "grt" | "nrt" | "loa" | "tonnes" | "teu"> = {
-  grt: "grt", "grt-hour": "grt", "grt-day": "grt", nrt: "nrt", "loa-hour": "loa", "loa-day": "loa", call: "grt", hour: "grt", tonne: "tonnes", teu: "teu",
+const SIZE: Record<string, "grt" | "nrt" | "loa" | "tonnes" | "teu" | "boxes20" | "boxes40"> = {
+  grt: "grt", "grt-hour": "grt", "grt-day": "grt", nrt: "nrt", "loa-hour": "loa", "loa-day": "loa", call: "grt", hour: "grt", tonne: "tonnes", teu: "teu", box20: "boxes20", box40: "boxes40",
 };
-const LABEL: Record<string, string> = { grt: "GRT", nrt: "NRT", loa: "m length", tonnes: "tonnes", teu: "TEU", hours: "hours" };
+const LABEL: Record<string, string> = { grt: "GRT", nrt: "NRT", loa: "m length", tonnes: "tonnes", teu: "TEU", boxes20: "20-foot containers", boxes40: "40-foot containers", hours: "hours" };
 const ASK: Record<string, string> = {
   grt: "What is the ship's gross tonnage (GRT)?", nrt: "What is the ship's net tonnage (NRT)?", loa: "What is the ship's length overall (LOA) in metres?",
   hours: "How many hours will the ship be alongside the berth?", anchorageHours: "How many hours will the ship wait at anchorage?", tonnes: "How many tonnes of cargo will be handled?", teu: "How many containers (TEU) will be handled?",
+  boxes20: "How many containers (TEU) will be handled?", boxes40: "How many containers (TEU) will be handled?",
 };
 
 export function money(amount: Decimal.Value, currency: string) {
@@ -76,6 +79,11 @@ export function estimate(port: PortBook, request: EstimateRequest, today = new D
   const berth = request.berth ?? defaults.berth;
   if (!request.berth && defaults.berth) assumptions.push(`Assumed berth ${nameOf(port, defaults.berth)}.`);
   const sizes: Record<string, string | undefined> = { grt: request.grt, nrt: request.nrt, loa: request.loa, tonnes: request.cargo?.tonnes, teu: request.cargo?.teu, hours: request.hours, anchorageHours: request.anchorageHours };
+  // Ports charge containers per box: a 40-foot box is 2 TEU but not twice the 20-foot rate.
+  if (request.cargo?.teu) {
+    const forty = new D(request.cargo.fortyFoot ?? 0), twenty = new D(request.cargo.teu).minus(forty.mul(2));
+    if (twenty.gte(0)) { sizes.boxes20 = twenty.toString(); sizes.boxes40 = forty.toString(); }
+  }
   let tugs = request.tugs;
   if (tugs === undefined && defaults.tugs && request.grt) {
     tugs = defaults.tugs.find(row => !row.upToGrt || new D(request.grt!).lte(row.upToGrt))?.tugs;
@@ -87,21 +95,36 @@ export function estimate(port: PortBook, request: EstimateRequest, today = new D
     .filter(type => (type !== "wharfage" || request.cargo) && (type !== "anchorage" || request.anchorageHours)));
   // A cargo was given, so its charges belong in the bill, whether or not we can price them.
   if (request.cargo?.tonnes || request.cargo?.teu) wanted.add("wharfage");
-  const known = { status, vesselType, terminal, berth, cargoClass: request.cargo?.class };
+  // A cargo kind the schedule doesn't list separately is charged as its parent kind (coking coal as coal);
+  // a parent kind the schedule splits up (oil products by product) needs the product.
+  const listed = new Set<string>(version.charges.flatMap(charge => charge.rates.flatMap(rate => rate.when.cargoClasses ?? [])));
+  let cargoClass = request.cargo?.class;
+  const parent = cargoClass && cargoParent(cargoClass);
+  if (cargoClass && !listed.has(cargoClass) && parent && listed.has(parent)) cargoClass = parent;
+  const products = cargoClass && !listed.has(cargoClass) ? [...listed].filter(item => cargoParent(item) === cargoClass) : [];
+  if (products.length) wanted.delete("wharfage");
+  const known = { status, vesselType, terminal, berth, cargoClass, direction: request.cargo?.direction };
   // Only charges with a rate row for this ship (or one that a question would settle) take part.
   const fits = (charge: Charge) => { const row = pickRate(charge, known); return Boolean(row.rate || row.question); };
   // A combined charge (e.g. pilotage with towage) answers a request for either part.
   const selected = version.charges.filter(charge => fits(charge) && (wanted.has(charge.type) || charge.includes.some(type => wanted.has(type))));
   const parts = (charge: Charge) => [charge.type, ...charge.includes];
+  // Why a charge isn't priced, when the rule book says (e.g. wharfage included in a terminal's handling charge).
+  const explained = (type: ChargeType) => version.notPriced.find(item => item.type === type
+    && (!item.cargoClasses || (cargoClass !== undefined && (item.cargoClasses as string[]).includes(cargoClass))))?.reason;
   for (const type of wanted) {
     if (selected.some(charge => charge.type === type)) continue;
     const cover = selected.find(charge => charge.includes.includes(type));
     if (cover) { assumptions.push(`${title(type)} is included in ${cover.label.toLowerCase()}.`); continue; }
     const ofType = version.charges.filter(charge => charge.type === type);
-    if (!ofType.length) {
-      notCovered.push({ type, reason: type === "wharfage"
+    if (type === "wharfage") {
+      notCovered.push({ type, reason: explained(type) ?? (!ofType.length
         ? `Cargo charges (wharfage) at ${port.name} aren't in our rule book yet, so they aren't included.`
-        : `${title(type)} isn't in the ${port.name} rate schedule we hold.` });
+        : `We hold no wharfage rate for ${cargoLabel(cargoClass ?? "this cargo")} at ${port.name}, so wharfage isn't included.`) });
+      continue;
+    }
+    if (!ofType.length) {
+      notCovered.push({ type, reason: explained(type) ?? `${title(type)} isn't in the ${port.name} rate schedule we hold.` });
       continue;
     }
     // A charge for another terminal or berth (e.g. Vadinar's buoy mooring at Kandla) says nothing about this call.
@@ -114,11 +137,12 @@ export function estimate(port: PortBook, request: EstimateRequest, today = new D
 
   const asked = new Set<string>();
   const ask = (question: string) => { if (!asked.has(question)) { asked.add(question); questions.push(question); } };
+  if (products.length) ask(`Which ${cargoLabel(cargoClass!)} is it: ${products.map(cargoLabel).join(", ")}?`);
   // A percentage of other charges (e.g. a surcharge on port dues) is priced once those are.
   const ordered = [...selected.filter(charge => charge.basis !== "percent"), ...selected.filter(charge => charge.basis === "percent")];
   for (const charge of ordered) {
     const row = pickRate(charge, known);
-    if (row.question) { ask(row.question(port)); continue; }
+    if (row.question) { ask(row.question(port, version)); continue; }
     if (!row.rate) { notCovered.push({ type: charge.type, reason: `${charge.label} has no rate for a ${status} ${vesselType.replace("-", " ")} ship in this schedule.` }); continue; }
     if (charge.basis === "percent") {
       const rate = row.rate;
@@ -135,10 +159,16 @@ export function estimate(port: PortBook, request: EstimateRequest, today = new D
     const missing = [...needs].filter(key => !sizes[key]);
     if (missing.length) { for (const key of missing) ask(ASK[key]!); continue; }
     if (charge.perTug && tugs === undefined) { ask("How many tugs will the ship use?"); continue; }
+    // No 40-foot boxes means no 40-foot line.
+    if (sizeKey.startsWith("boxes") && new D(sizes[sizeKey]!).isZero()) continue;
     const top = row.rate.bands.at(-1)!.upTo;
     if (top && new D(sizes[sizeKey] ?? 0).gt(top)) { notCovered.push({ type: charge.type, reason: `${charge.label}: the schedule's rates stop at ${plain(top)} ${LABEL[sizeKey]}.` }); continue; }
     lines.push(priceLine(charge, row.rate, version, sizes, { movements, tugs }));
   }
+
+  const boxed = lines.some(line => version.charges.find(charge => charge.id === line.chargeId)?.basis.startsWith("box"));
+  if (boxed && !request.cargo?.fortyFoot && version.charges.some(charge => charge.basis === "box40" && fits(charge))) assumptions.push(`Assumed all ${plain(request.cargo!.teu!)} TEU are 20-foot containers; 40-foot containers are charged at their own rate.`);
+  if (lines.some(line => line.type === "wharfage")) assumptions.push(`Wharfage is charged on the cargo, usually to the cargo owner, at the ${status === "foreign" ? "foreign" : "coastal"} cargo rate.`);
 
   // A type priced by one charge (e.g. a terminal's own berth hire) is covered.
   const priced = new Set(lines.map(line => line.type));
@@ -164,19 +194,24 @@ function nameOf(port: PortBook, id: string) {
 }
 const timeBased = (charge: Charge) => ["grt-hour", "grt-day", "loa-hour", "loa-day", "hour"].includes(charge.basis);
 
-type Known = { status: Status; vesselType: VesselType; terminal?: string; berth?: string; cargoClass?: string };
+type Known = { status: Status; vesselType: VesselType; terminal?: string; berth?: string; cargoClass?: string; direction?: "import" | "export" };
+type Field = "terminal" | "berth" | "cargoClass" | "direction";
+const FIELDS: Field[] = ["terminal", "berth", "cargoClass", "direction"];
+const listFor = (rate: Charge["rates"][number], field: Field): readonly string[] | undefined =>
+  field === "terminal" ? rate.when.terminals : field === "berth" ? rate.when.berths : field === "cargoClass" ? rate.when.cargoClasses : rate.when.directions;
 const atPlace = (rate: Charge["rates"][number], known: Known) =>
   (!rate.when.terminals || known.terminal === undefined || rate.when.terminals.includes(known.terminal))
   && (!rate.when.berths || known.berth === undefined || rate.when.berths.includes(known.berth));
-function pickRate(charge: Charge, known: Known): { rate?: Charge["rates"][number]; question?: (port: PortBook) => string } {
-  const undecided = new Set<"terminal" | "berth" | "cargoClass">();
+function pickRate(charge: Charge, known: Known): { rate?: Charge["rates"][number]; question?: (port: PortBook, version: RuleVersion) => string } {
+  const undecided = new Set<Field>();
   // A VLCC is a tanker wherever the charge has no VLCC rate of its own.
   const vesselType = known.vesselType === "vlcc" && !charge.rates.some(rate => rate.when.vesselTypes?.includes("vlcc")) ? "tanker" : known.vesselType;
   const matches = charge.rates.filter(rate => {
     const w = rate.when;
     if (w.status && !w.status.includes(known.status)) return false;
     if (w.vesselTypes && !w.vesselTypes.includes(vesselType)) return false;
-    for (const [field, list] of [["terminal", w.terminals], ["berth", w.berths], ["cargoClass", w.cargoClasses]] as const) {
+    for (const field of FIELDS) {
+      const list = listFor(rate, field);
       if (!list) continue;
       const value = known[field];
       if (value === undefined) { undecided.add(field); return true; }
@@ -184,18 +219,17 @@ function pickRate(charge: Charge, known: Known): { rate?: Charge["rates"][number
     }
     return true;
   });
-  const decided = matches.filter(rate => !(["terminal", "berth", "cargoClass"] as const).some(field => {
-    const list = field === "terminal" ? rate.when.terminals : field === "berth" ? rate.when.berths : rate.when.cargoClasses;
-    return list && known[field] === undefined;
-  }));
+  const decided = matches.filter(rate => !FIELDS.some(field => listFor(rate, field) && known[field] === undefined));
   if (decided.length >= 1 && undecided.size === 0) return { rate: decided[0] };
   if (matches.length === 1 && undecided.size === 0) return { rate: matches[0] };
   if (undecided.size && matches.length) {
     const field = [...undecided][0]!;
-    const options = [...new Set(matches.flatMap(rate => (field === "terminal" ? rate.when.terminals : field === "berth" ? rate.when.berths : rate.when.cargoClasses) ?? []))];
-    // One question per port for terminals, even when several charges depend on it.
-    return { question: port => field === "cargoClass"
-      ? `What cargo is it (${options.join(", ")})?`
+    const options = [...new Set(matches.flatMap(rate => listFor(rate, field) ?? []))];
+    // One question per port, even when several charges depend on it.
+    return { question: (port, version) => field === "cargoClass"
+      ? `What cargo will be handled: ${[...new Set(version.charges.flatMap(item => item.rates.flatMap(rate => rate.when.cargoClasses ?? [])))]
+        .sort((a, b) => Object.keys(CARGO_CLASSES).indexOf(a) - Object.keys(CARGO_CLASSES).indexOf(b)).map(cargoLabel).join(", ")}, or something else?`
+      : field === "direction" ? "Is the cargo being discharged here (import) or loaded here (export)?"
       : field === "terminal"
         ? `Which terminal will the ship use: ${port.terminals.map(terminal => terminal.name).join(", ")}?`
         : `Which ${field} will the ship use: ${options.map(option => nameOf(port, option)).join(", ")}?` };

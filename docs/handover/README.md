@@ -51,7 +51,7 @@ Codex reviewed the whole branch and raised ten findings; all ten are fixed, each
 
 ## Decisions still open
 
-1. **Model for v1.** Both models pass all 30 questions. Sol showed steadier judgement in testing (Luna once compared ports with the wrong tool before the instructions were tightened) and cost about US$ 0.02 a question in testing; Luna about US$ 0.001. Set with `BERTHWISE_MODEL` (`openai/gpt-6-sol` or `openai/gpt-6-luna`, the default).
+1. **Model for v1: Sol (decided 26 October 2026).** Both models pass all 30 questions; Sol showed steadier judgement in testing (Luna once compared ports with the wrong tool before the instructions were tightened). Sol cost about US$ 0.02 a question in testing, Luna about US$ 0.001. Sol is the default; `BERTHWISE_MODEL=openai/gpt-6-luna` switches to Luna.
 2. **Privacy routing for company documents (D-5).** Passages from uploaded documents are sent to the model through OpenRouter, routed only to Azure with zero data retention and data collection denied (`src/lib/migration/model.ts`). Confirm this is acceptable before clients upload real contracts.
 3. **OpenRouter spending limit.** The key has a US$ 9 limit for testing (about US$ 1.34 spent by 26 October 2026). Raise it for real use.
 
@@ -72,7 +72,7 @@ Not verified yet, because they need the deployed system: sign-in journeys with r
 - How to run the everyday questions again (about US$ 0.04 on Luna and US$ 0.62 on Sol per run):
   ```bash
   npx vitest run --config vitest.eval.config.ts
-  BERTHWISE_MODEL=openai/gpt-6-sol npx vitest run --config vitest.eval.config.ts
+  BERTHWISE_MODEL=openai/gpt-6-luna npx vitest run --config vitest.eval.config.ts
   ```
 
 ## Known gaps

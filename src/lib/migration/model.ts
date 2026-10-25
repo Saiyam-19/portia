@@ -6,9 +6,9 @@ import type { ModelErrorContext } from "./error-reporting";
 import { withCompleteModelSteps } from "./complete-model-step";
 import { MIGRATION_TRANSPORT_POLICY } from "./agent-policy";
 
-/** Luna while building; the final model is chosen from the end-to-end tests.
+/** Sol for v1, chosen from the end-to-end tests; Luna is cheaper for development runs.
  * The price ceiling (USD per million tokens) must admit Sol's Azure price. */
-export const DEFAULT_MODEL_ID = "openai/gpt-6-luna";
+export const DEFAULT_MODEL_ID = "openai/gpt-6-sol";
 export const ALLOWED_MODEL_IDS = ["openai/gpt-6-luna", "openai/gpt-6-sol"] as const;
 
 export function berthwiseModelId(value = process.env.BERTHWISE_MODEL): string {

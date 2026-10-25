@@ -33,7 +33,7 @@ describe("rule-book calculator (hand-checked against Example Port)", () => {
     const cargo = estimate(port, { ...ship, charges: ["wharfage"], cargo: { class: "coal", tonnes: "10" } });
     expect(cargo.lines[0]).toMatchObject({ amount: "1000", currency: "INR", display: "1,000.00" });
     expect(cargo.lines[0]!.working).toContain("minimum charge INR 1000 applies");
-    expect(estimate(port, { ...ship, charges: ["wharfage"], cargo: { tonnes: "10" } }).questions).toEqual(["What cargo is it (coal, steel)?"]);
+    expect(estimate(port, { ...ship, charges: ["wharfage"], cargo: { tonnes: "10" } }).questions).toEqual(["What cargo will be handled: coal, steel, or something else?"]);
   });
 
   it("uses rupees for coastal ships and reports charges it cannot price", () => {

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { CARGO_CLASS_IDS } from "./cargo";
 
 /** One reviewed data file per port: data/rulebook/<port-id>.json.
  * Every figure is a decimal string copied exactly from the source document.
@@ -13,6 +14,8 @@ export const statusSchema = z.enum(["foreign", "coastal"]);
 export const vesselTypeSchema = z.enum(["general-cargo", "bulk", "container", "tanker", "vlcc", "lng", "lpg", "chemical", "passenger", "ro-ro", "other"]);
 export const chargeTypeSchema = z.enum(["port-dues", "pilotage", "towage", "pilotage-towage", "berth-hire", "mooring", "anchorage", "wharfage", "other"]);
 export const currencySchema = z.enum(["INR", "USD"]);
+export const cargoClassSchema = z.enum(CARGO_CLASS_IDS);
+export const directionSchema = z.enum(["import", "export"]);
 
 /** What the rate is multiplied by. */
 export const basisSchema = z.enum([
@@ -26,6 +29,8 @@ export const basisSchema = z.enum([
   "hour",       // the rate is a fixed amount per hour alongside
   "tonne",      // rate × cargo tonnes
   "teu",        // rate × twenty-foot equivalent units
+  "box20",      // rate × containers up to 20 feet long
+  "box40",      // rate × containers over 20 and up to 40 feet long
   "percent",    // the rate is a percentage of the charges listed in percentOf
 ]);
 
@@ -50,7 +55,8 @@ export const conditionSchema = z.object({
   vesselTypes: z.array(vesselTypeSchema).min(1).optional(),
   terminals: z.array(id).min(1).optional(),
   berths: z.array(id).min(1).optional(),
-  cargoClasses: z.array(id).min(1).optional(),
+  cargoClasses: z.array(cargoClassSchema).min(1).optional(),
+  directions: z.array(directionSchema).min(1).optional().describe("import: cargo discharged at this port. export: cargo loaded here."),
 }).strict();
 
 export const rateSchema = z.object({
@@ -111,6 +117,12 @@ export const versionSchema = z.object({
   }).strict().default({ status: "foreign", vesselType: "general-cargo", movements: 2 }),
   charges: z.array(chargeSchema).min(1),
   notes: z.array(z.object({ text: z.string().max(500), source: sourceRefSchema.optional() }).strict()).default([]),
+  notPriced: z.array(z.object({
+    type: chargeTypeSchema,
+    cargoClasses: z.array(cargoClassSchema).min(1).optional(),
+    reason: z.string().min(1).max(300).describe("Shown to users, e.g. \"At JNPA, wharfage on containers is part of each terminal's handling charge.\""),
+    source: sourceRefSchema.optional(),
+  }).strict()).default([]).describe("Charges the schedule doesn't levy separately, or that aren't entered, and why."),
   exchangeRate: z.string().max(800).optional().describe("How the port converts USD to INR, in the schedule's words."),
 }).strict();
 
