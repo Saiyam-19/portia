@@ -28,15 +28,32 @@ Out of v1, as agreed: supplier quotes, team accounts, email, GST lines, landing-
 - **Seven figures from the earlier, separately reviewed engine** reproduce exactly: `tests/berthwise/rulebook-oracles.test.ts`.
 - **The model can't make up numbers:** every figure in a reply must come from the user or a tool result, or the reply is rewritten once and otherwise replaced.
 - **Ship particulars, exchange rates and anchorage time come from the user,** never from the model: the tools drop anything the user didn't say.
-- **30 everyday questions** pass every automatic check on both models: [Luna](evaluation/openai-gpt-6-luna-2026-10-25.md), [Sol](evaluation/openai-gpt-6-sol-2026-10-25.md).
+- **30 everyday questions** pass every automatic check on both models, after the code-review fixes: [Luna](evaluation/openai-gpt-6-luna-2026-10-25.md), [Sol](evaluation/openai-gpt-6-sol-2026-10-25.md).
 
 Points the documents leave unclear are listed for the client: [port-questions.md](port-questions.md).
 
+## Codex code review (25 October 2026)
+
+Codex reviewed the whole branch and raised ten findings; all ten are fixed, each with a test:
+
+| Finding | Fix |
+|---|---|
+| Another account could attach someone else's uploaded file by its storage id | An upload is accepted only from the account that asked for the upload link, within the hour, and only once (`convex/companyDocs.ts`) |
+| Cargo charges (wharfage) were silently missing from estimates with cargo | Every such estimate now says wharfage isn't in the rule book yet and isn't included |
+| Small invented amounts ("USD 25 agency fee") could pass the number check | Amounts with a currency or a unit are always checked, whatever their size (`number-guard.ts`) |
+| The model could supply a stay, anchorage time or exchange rate the user never gave | Each is kept only if the user said it, including short replies to a question ("48") (`user-input.ts`) |
+| A whole bill with missing lines could be ranked cheapest | Comparisons with any missing price or open question aren't ranked, and say why |
+| A fixed agreed amount added a charge the port doesn't levy | A fixed agreement only replaces a charge that is on the bill |
+| Port dues for long stays were charged once | Port dues are charged again every 15 or 30 days as each schedule says (Hazira, Mundra, Chennai, Jaigarh, Pipavav) |
+| Very long documents lost pages without saying so | The documents page says how far a long file was read |
+| Editing an agreed rate left the old one active | An edit replaces the old rate |
+| A bare reply to a question ("48") was ignored | It is read as the answer to what was asked |
+
 ## Decisions still open
 
-1. **Model for v1.** Both models pass all 30 questions. Sol showed steadier judgement in testing (Luna once compared ports with the wrong tool before the instructions were tightened) and cost about US$ 0.01 a question in testing; Luna about US$ 0.001. Set with `BERTHWISE_MODEL` (`openai/gpt-6-sol` or `openai/gpt-6-luna`, the default).
+1. **Model for v1.** Both models pass all 30 questions. Sol showed steadier judgement in testing (Luna once compared ports with the wrong tool before the instructions were tightened) and cost about US$ 0.02 a question in testing; Luna about US$ 0.001. Set with `BERTHWISE_MODEL` (`openai/gpt-6-sol` or `openai/gpt-6-luna`, the default).
 2. **Privacy routing for company documents (D-5).** Passages from uploaded documents are sent to the model through OpenRouter, routed only to Azure with zero data retention and data collection denied (`src/lib/migration/model.ts`). Confirm this is acceptable before clients upload real contracts.
-3. **OpenRouter spending limit.** The key has a US$ 9 limit for testing (US$ 0.38 spent by 26 October 2026). Raise it for real use.
+3. **OpenRouter spending limit.** The key has a US$ 9 limit for testing (about US$ 1.34 spent by 26 October 2026). Raise it for real use.
 
 ## Deploying
 
@@ -52,7 +69,7 @@ Not verified yet, because they need the deployed system: sign-in journeys with r
 
 - How to update rates when a port changes them: [updating-rates.md](updating-rates.md).
 - How a second reader enters a schedule: [codex-second-reading.md](../codex-second-reading.md) and [rulebook-format.md](../rulebook-format.md).
-- How to run the everyday questions again (about US$ 0.03 on Luna and US$ 0.30 on Sol per run):
+- How to run the everyday questions again (about US$ 0.04 on Luna and US$ 0.62 on Sol per run):
   ```bash
   npx vitest run --config vitest.eval.config.ts
   BERTHWISE_MODEL=openai/gpt-6-sol npx vitest run --config vitest.eval.config.ts
@@ -60,6 +77,7 @@ Not verified yet, because they need the deployed system: sign-in journeys with r
 
 ## Known gaps
 
+- **Cargo charges (wharfage) aren't in the rule book yet.** The plan includes wharfage for the main cargo types; estimates with cargo say it is missing. Entering it for the 12 ports, with a second reading by Codex, is the next piece of data work.
 - Kamarajar's dry bulk anchorage (unclear unit) and Pipavav's tanker berth-hire minimum: see port-questions.md.
 - Not priced: offshore buoy moorings (SPM/SBM), Mundra's crude oil jetty, Chennai cruise ships, Jaigarh's pilotage surcharge by ship age, Pipavav general-cargo berth hire and tankers over 60,000 GRT, Paradip's roadstead charge.
 - A new schedule published under a new link (for example the annual indexation each 1 May) isn't detected automatically; check each port's tariff page in late April.
