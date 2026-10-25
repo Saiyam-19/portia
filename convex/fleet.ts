@@ -1,7 +1,6 @@
-import { ConvexError, v } from "convex/values";
-import { mutation, query, type QueryCtx } from "./_generated/server";
-import { authComponent } from "./auth";
-import { isAllowedEmail, isMigrationDevEnabled } from "./lib/migrationGate";
+import { v } from "convex/values";
+import { mutation, query } from "./_generated/server";
+import { accountOwner, fail, requireAccount } from "./lib/account";
 import { MAX_FLEET_SHIPS, fleetShipSchema, shipKey } from "../src/lib/berthwise/fleet";
 
 /** "My fleet": ships a company saves once and estimates fill in afterwards. */
@@ -11,17 +10,11 @@ const vShip = v.object({
   loa: v.optional(v.string()), type: v.optional(v.string()), status: v.optional(v.string()), updatedAt: v.number(),
 });
 
-async function owner(ctx: QueryCtx) {
-  if (!isMigrationDevEnabled()) return null;
-  const user = await authComponent.safeGetAuthUser(ctx);
-  return user && isAllowedEmail(user.email) ? String(user._id) : null;
-}
-const fail = (code: string, message: string): never => { throw new ConvexError({ code, message }); };
 
 export const listShips = query({
   args: {}, returns: v.array(vShip),
   handler: async (ctx) => {
-    const ownerId = await owner(ctx);
+    const ownerId = await accountOwner(ctx);
     if (!ownerId) return [];
     const ships = await ctx.db.query("fleetShips").withIndex("by_owner_and_name", q => q.eq("ownerId", ownerId)).take(MAX_FLEET_SHIPS);
     return ships.map(ship => ({
@@ -36,7 +29,7 @@ export const listShips = query({
 export const saveShip = mutation({
   args: { id: v.optional(v.id("fleetShips")), ship: v.any() }, returns: v.object({ id: v.string(), created: v.boolean() }),
   handler: async (ctx, args) => {
-    const ownerId = await owner(ctx) ?? fail("UNAUTHENTICATED", "Sign in required.");
+    const ownerId = await requireAccount(ctx);
     const parsed = fleetShipSchema.safeParse(args.ship);
     if (!parsed.success) fail("INVALID_SHIP", parsed.error.issues.map(issue => `${issue.path.join(".") || "ship"}: ${issue.message}`).join("; "));
     const ship = parsed.data!;
@@ -65,7 +58,7 @@ export const saveShip = mutation({
 export const deleteShip = mutation({
   args: { id: v.id("fleetShips") }, returns: v.null(),
   handler: async (ctx, args) => {
-    const ownerId = await owner(ctx) ?? fail("UNAUTHENTICATED", "Sign in required.");
+    const ownerId = await requireAccount(ctx);
     const ship = await ctx.db.get(args.id);
     if (!ship || ship.ownerId !== ownerId) fail("NOT_FOUND", "Ship not found.");
     await ctx.db.delete(args.id);

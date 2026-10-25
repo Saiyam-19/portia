@@ -56,7 +56,10 @@ function build(root = path.join(process.cwd(), "data", "sources")): Index {
     if (!existsSync(manifest)) continue;
     const listed = JSON.parse(readFileSync(manifest, "utf8")) as { documents: Array<Omit<SourceDocument, "port" | "kind"> & { kind?: string }> };
     for (const entry of listed.documents) {
-      const file = path.join(process.cwd(), entry.markdown);
+      // Built from the fixed data/sources root, so only that folder is traced into the deployment.
+      const prefix = `data/sources/${port}/`;
+      if (!entry.markdown.startsWith(prefix) || entry.markdown.includes("..")) continue;
+      const file = path.join(root, port, ...entry.markdown.slice(prefix.length).split("/"));
       if (!existsSync(file)) continue;
       const doc: SourceDocument = {
         port, title: entry.title, issuer: entry.issuer, url: entry.url, markdown: entry.markdown,

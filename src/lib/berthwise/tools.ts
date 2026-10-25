@@ -5,9 +5,11 @@ import { z } from "zod";
 import { portBooks, resolvePort, type PortMatch } from "./rulebook/books";
 import { estimate, money, versionFor, type Estimate, type EstimateRequest } from "./rulebook/calculate";
 import { coverage, describeTariff, type TariffView } from "./rulebook/describe";
-import { CHARGE_GROUPS, type ComparisonCard, type CoverageCard, type DocumentExcerptsCard, type EstimateCall, type EstimateCard, type FleetCard, type ShipCard, type TariffCard, type TariffComparisonCard } from "./card-types";
+import { CHARGE_GROUPS, type CompanyExcerptsCard, type ComparisonCard, type CoverageCard, type DocumentExcerptsCard, type EstimateCall, type EstimateCard, type FleetCard, type ShipCard, type TariffCard, type TariffComparisonCard } from "./card-types";
 import { searchDocuments } from "./documents";
 import { fleetShipSchema, findShip, type FleetAccess, type FleetShip } from "./fleet";
+import { applyAgreedRates, type AgreedRate } from "./agreed-rates";
+import type { CompanyAccess } from "./account-access";
 import { chargeTypeSchema, statusSchema, vesselTypeSchema, type ChargeType, type PortBook } from "./rulebook/schema";
 
 /** Berthwise business tools. Each returns { card, summary }: the card is drawn on
@@ -148,8 +150,8 @@ async function withFleet(ship: Ship, fleet?: FleetAccess): Promise<{ ship: Ship;
 }
 const shipView = (ship: FleetShip) => [ship.name, ship.imo && `IMO ${ship.imo}`, `${Number(ship.grt).toLocaleString("en-US")} GRT`, ship.nrt && `${Number(ship.nrt).toLocaleString("en-US")} NRT`, ship.loa && `${ship.loa} m long`, ship.type?.replace("-", " "), ship.status && (ship.status === "foreign" ? "foreign-going" : "coastal")].filter(Boolean).join(", ");
 
-export function businessTools(options: { fleet?: FleetAccess } = {}): ToolSet {
-  const { fleet } = options;
+export function businessTools(options: { fleet?: FleetAccess; company?: CompanyAccess } = {}): ToolSet {
+  const { fleet, company } = options;
   return {
     estimate_port_call: tool({
       description: "Itemised port-call charges (port dues, pilotage, towage, berth hire, mooring and other standard charges; anchorage and wharfage when their inputs are given) from the reviewed rule book, with the working and source page of every line and a total before GST. Give one call, or a departure and an arrival call for a voyage (both are priced for the same ship and added up). Missing facts are assumed and listed; anything that would change the price a lot comes back as a question.",
@@ -167,11 +169,14 @@ export function businessTools(options: { fleet?: FleetAccess } = {}): ToolSet {
         const matches = places.map(item => (item as { match: PortMatch }).match);
         const voyage = calls.length === 2;
         const vessel = voyage ? sameShip(matches.map(m => m.port), ship, calls.map(c => c.date)) : ship;
+        let agreedRates: AgreedRate[] = [];
+        try { agreedRates = company ? await company.agreedRates() : []; } catch { agreedRates = []; }
         const results = calls.map((call, index) => {
           const result = estimate(matches[index]!.port, request(matches[index]!, vessel, call, charges));
+          const agreed = applyAgreedRates(result, agreedRates);
           const role: EstimateCall["role"] = voyage ? (index === 0 ? "departure" : "arrival") : undefined;
           const fx = exchangeNote(matches[index]!.port, result.version.effectiveFrom || today());
-          return { ...(role ? { role } : {}), estimate: result, ...(fx ? { exchangeRate: fx } : {}), notes: versionFor(matches[index]!.port, call.date ?? today())?.notes.map(n => n.text) ?? [] };
+          return { ...(role ? { role } : {}), estimate: result, ...(agreed ? { agreed } : {}), ...(fx ? { exchangeRate: fx } : {}), notes: versionFor(matches[index]!.port, call.date ?? today())?.notes.map(n => n.text) ?? [] };
         });
         const voyageTotals = voyage ? addTotals(results.map(r => r.estimate.totals)) : undefined;
         const rupees = rate ? {
@@ -183,7 +188,7 @@ export function businessTools(options: { fleet?: FleetAccess } = {}): ToolSet {
         const summary = [
           `Estimate for ${describeShip(vessel) || "the ship"}.`,
           filled.length ? `From the user's fleet: ${filled.join(", ")}.` : "",
-          ...results.map(r => summarise(r.estimate, r.role)),
+          ...results.map(r => summarise(r.estimate, r.role) + (r.agreed ? ` With the company's agreed rates (${r.agreed.rows.map(row => `${row.label}: ${row.basis}`).join("; ")}): ${said(r.agreed.totals)}.` : "")),
           voyageTotals ? `Voyage total before GST: ${said(voyageTotals)}.` : "",
           rupees ? `At ${rate} rupees per US dollar: ${rupees.calls.map(c => `${c.port} INR ${c.total?.display ?? "n/a"}`).join("; ")}${rupees.voyage ? `; voyage INR ${rupees.voyage.display}` : ""}.` : "",
         ].filter(Boolean).join(" ");
@@ -297,6 +302,21 @@ export function businessTools(options: { fleet?: FleetAccess } = {}): ToolSet {
       },
     }),
 
+    ...(company ? {
+      search_company_documents: tool({
+        description: "Search the user's own uploaded company documents (contracts, procedures, agreements). Returns matching passages with document title and page. Answer only from them and cite the document and page.",
+        inputSchema: z.object({ question: z.string().min(2).max(300).describe("What to look for, in the document's likely words.") }).strict(),
+        execute: async ({ question }) => {
+          let hits: Awaited<ReturnType<CompanyAccess["search"]>>;
+          try { hits = await company.search(question); } catch { return { error: "Your documents couldn't be searched just now." }; }
+          const card: CompanyExcerptsCard = { kind: "company-excerpts", question, results: hits };
+          const summary = hits.length
+            ? `From the company's documents for "${question}": ` + hits.map((hit, i) => `[${i + 1}] ${hit.title}, page ${hit.page}: ${hit.text.replace(/\s+/g, " ").slice(0, 600)}`).join(" ")
+            : `Nothing in the company's uploaded documents matches "${question}".`;
+          return { card, summary };
+        },
+      }),
+    } : {}),
     ...(fleet ? {
       find_ship: tool({
         description: "Look up one of the user's saved ships by name or IMO number, or list their fleet when neither is given.",

@@ -7,7 +7,7 @@ import { useTheme } from 'next-themes'
 import { usePaginatedQuery } from 'convex/react'
 import { api } from '../../../convex/_generated/api'
 import { migrationAuthClient } from '@/lib/migration/auth-client'
-import { Anchor, SquarePen, Search, LogOut, ChevronsUpDown, Sun, Moon, Monitor, Check, X, MapPin, Ship } from 'lucide-react'
+import { Anchor, SquarePen, Search, LogOut, ChevronsUpDown, Sun, Moon, Monitor, Check, X, MapPin, Ship, FileText, BadgePercent } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -72,6 +72,12 @@ export default function Sidebar({ email, name }: { email: string; name: string }
         <nav aria-label="Berthwise pages" className="-mt-2 flex flex-col gap-0.5">
           <Button asChild variant="ghost" className="h-9 w-full justify-start gap-2.5 px-3 text-sm font-normal text-sidebar-foreground">
             <Link href="/dashboard/fleet" onClick={closeMobile} aria-current={pathname === '/dashboard/fleet' ? 'page' : undefined}><Ship className="size-4 text-brand" aria-hidden="true" />My fleet</Link>
+          </Button>
+          <Button asChild variant="ghost" className="h-9 w-full justify-start gap-2.5 px-3 text-sm font-normal text-sidebar-foreground">
+            <Link href="/dashboard/documents" onClick={closeMobile} aria-current={pathname === '/dashboard/documents' ? 'page' : undefined}><FileText className="size-4 text-brand" aria-hidden="true" />Company documents</Link>
+          </Button>
+          <Button asChild variant="ghost" className="h-9 w-full justify-start gap-2.5 px-3 text-sm font-normal text-sidebar-foreground">
+            <Link href="/dashboard/rates" onClick={closeMobile} aria-current={pathname === '/dashboard/rates' ? 'page' : undefined}><BadgePercent className="size-4 text-brand" aria-hidden="true" />Agreed rates</Link>
           </Button>
           <Button asChild variant="ghost" className="h-9 w-full justify-start gap-2.5 px-3 text-sm font-normal text-sidebar-foreground">
             <Link href="/dashboard/coverage" onClick={closeMobile} aria-current={pathname === '/dashboard/coverage' ? 'page' : undefined}><MapPin className="size-4 text-brand" aria-hidden="true" />Ports covered</Link>

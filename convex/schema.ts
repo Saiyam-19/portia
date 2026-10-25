@@ -77,4 +77,21 @@ export default defineSchema({
     grt: v.string(), nrt: v.optional(v.string()), loa: v.optional(v.string()),
     type: v.optional(v.string()), status: v.optional(v.string()), updatedAt: v.number(),
   }).index("by_owner_and_name", ["ownerId", "nameKey"]).index("by_owner_and_imo", ["ownerId", "imo"]),
+
+  // Company documents: uploaded straight to storage, read by a background job into passages.
+  companyDocuments: defineTable({
+    ownerId: v.string(), title: v.string(), fileName: v.string(), format: v.string(), size: v.number(),
+    storageId: v.id("_storage"), status: v.union(v.literal("processing"), v.literal("ready"), v.literal("failed")),
+    error: v.optional(v.string()), pages: v.optional(v.number()), passages: v.optional(v.number()),
+    createdAt: v.number(), updatedAt: v.number(),
+  }).index("by_owner", ["ownerId", "createdAt"]),
+  companyPassages: defineTable({
+    ownerId: v.string(), documentId: v.id("companyDocuments"), storageId: v.id("_storage"), page: v.number(), order: v.number(), text: v.string(),
+  }).index("by_document", ["documentId", "order"]).searchIndex("search_text", { searchField: "text", filterFields: ["ownerId"] }),
+
+  // Rates a company has agreed with a port, shown beside the published ones.
+  agreedRates: defineTable({
+    ownerId: v.string(), portId: v.string(), chargeType: v.string(), kind: v.union(v.literal("discount"), v.literal("fixed")),
+    percent: v.optional(v.string()), amount: v.optional(v.string()), currency: v.optional(v.string()), note: v.optional(v.string()), updatedAt: v.number(),
+  }).index("by_owner_and_port", ["ownerId", "portId"]),
 });

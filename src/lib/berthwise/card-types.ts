@@ -1,6 +1,7 @@
 import type { Estimate } from "./rulebook/calculate";
 import type { CoverageRow, TariffView } from "./rulebook/describe";
 import type { FleetShip } from "./fleet";
+import type { AgreedView } from "./agreed-rates";
 
 /** Shapes of the cards the Berthwise tools return. Shared by the tools (server)
  * and the chat screen (client); type-only, so nothing server-side is bundled. */
@@ -8,7 +9,7 @@ import type { FleetShip } from "./fleet";
 export type Total = { currency: string; amount: string; display: string };
 export type ShipView = { name?: string; imo?: string; grt?: string; nrt?: string; loa?: string; type?: string; status?: string };
 
-export type EstimateCall = { role?: "departure" | "arrival"; estimate: Estimate; exchangeRate?: string; notes: string[] };
+export type EstimateCall = { role?: "departure" | "arrival"; estimate: Estimate; agreed?: AgreedView; exchangeRate?: string; notes: string[] };
 export type EstimateCard = {
   kind: "estimate"; ship: ShipView; calls: EstimateCall[]; voyageTotals?: Total[]; fromFleet?: string[];
   inRupees?: { usdToInr: string; calls: Array<{ port: string; total?: Total }>; voyage?: Total };
@@ -38,7 +39,9 @@ export type DocumentExcerptsCard = { kind: "document-excerpts"; question: string
 export type ShipCard = { kind: "ship"; ship: FleetShip; saved?: "created" | "updated" };
 export type FleetCard = { kind: "fleet"; ships: FleetShip[] };
 
-export type BerthwiseCard = EstimateCard | ComparisonCard | TariffCard | TariffComparisonCard | CoverageCard | DocumentExcerptsCard | ShipCard | FleetCard;
+export type CompanyExcerptsCard = { kind: "company-excerpts"; question: string; results: Array<{ documentId: string; title: string; fileName: string; page: number; text: string }> };
+
+export type BerthwiseCard = EstimateCard | ComparisonCard | TariffCard | TariffComparisonCard | CoverageCard | DocumentExcerptsCard | ShipCard | FleetCard | CompanyExcerptsCard;
 
 /** Charge types grouped the way people read a port bill. */
 export const CHARGE_GROUPS: Array<{ key: string; label: string; types: string[] }> = [

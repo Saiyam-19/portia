@@ -9,9 +9,12 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as lib_account from "../lib/account.js";
+import type * as companyDocsNode from "../companyDocsNode.js";
+import type * as companyDocs from "../companyDocs.js";
+import type * as agreedRates from "../agreedRates.js";
 import type * as fleet from "../fleet.js";
 import type * as http from "../http.js";
-import type * as lib_authority from "../lib/authority.js";
 import type * as lib_memoryLifecycle from "../lib/memoryLifecycle.js";
 import type * as lib_migrationGate from "../lib/migrationGate.js";
 import type * as memory from "../memory.js";
@@ -28,9 +31,12 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  "lib/account": typeof lib_account;
+  companyDocsNode: typeof companyDocsNode;
+  companyDocs: typeof companyDocs;
+  agreedRates: typeof agreedRates;
   fleet: typeof fleet;
   http: typeof http;
-  "lib/authority": typeof lib_authority;
   "lib/memoryLifecycle": typeof lib_memoryLifecycle;
   "lib/migrationGate": typeof lib_migrationGate;
   memory: typeof memory;

@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { ToolCard } from '@/lib/berthwise/cards'
 import {
-  CHARGE_GROUPS, type ComparisonCard, type ComparisonCell, type CoverageCard, type DocumentExcerptsCard, type EstimateCall, type EstimateCard, type FleetCard, type ShipCard,
+  CHARGE_GROUPS, type ComparisonCard, type ComparisonCell, type CompanyExcerptsCard, type CoverageCard, type DocumentExcerptsCard, type EstimateCall, type EstimateCard, type FleetCard, type ShipCard,
   type ShipView, type TariffCard, type TariffComparisonCard, type Total,
 } from '@/lib/berthwise/card-types'
 import type { TariffView } from '@/lib/berthwise/rulebook/describe'
@@ -30,6 +30,7 @@ export default function ResultCard({ card }: { card: ToolCard }) {
     case 'document-excerpts': return <ExcerptsView card={card as unknown as DocumentExcerptsCard} />
     case 'ship': return <ShipView card={card as unknown as ShipCard} />
     case 'fleet': return <FleetView card={card as unknown as FleetCard} />
+    case 'company-excerpts': return <CompanyExcerptsView card={card as unknown as CompanyExcerptsCard} />
     default: return null
   }
 }
@@ -186,6 +187,34 @@ function CallView({ call, voyage }: { call: EstimateCall; voyage: boolean }) {
         </div>
       )}
       {!result.lines.length && !result.questions.length && <p className="text-muted-foreground">Nothing could be priced for this call.</p>}
+      {call.agreed && (
+        <div className="overflow-hidden rounded-xl border border-border">
+          <Table aria-label={`Your agreed rates at ${result.port.name}`}>
+            <TableHeader className="bg-muted">
+              <TableRow>
+                <TableHead className="px-4 text-xs">Your agreed rates</TableHead>
+                <TableHead className="px-4 text-right text-xs">Published</TableHead>
+                <TableHead className="px-4 text-right text-xs">Yours</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {call.agreed.rows.map((row, index) => (
+                <TableRow key={index}>
+                  <TableCell className="px-4 py-2.5 align-top whitespace-normal"><p className="font-medium">{row.label}</p><p className="mt-0.5 text-xs leading-5 text-muted-foreground">{row.basis}{row.note ? ` · ${row.note}` : ''}</p></TableCell>
+                  <TableCell className="px-4 py-2.5 text-right align-top whitespace-nowrap tabular-nums text-muted-foreground">{row.published ? money(row.published) : 'Not priced'}</TableCell>
+                  <TableCell className="px-4 py-2.5 text-right align-top whitespace-nowrap tabular-nums">{money(row.agreed)}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+            <TableFooter className="bg-muted/50">
+              <TableRow>
+                <TableCell className="px-4 py-2.5 whitespace-normal" colSpan={2}>Total with your agreed rates</TableCell>
+                <TableCell className="px-4 py-2.5 text-right whitespace-nowrap tabular-nums">{call.agreed.totals.map(total => <span key={total.currency} className="block">{money(total)}</span>)}</TableCell>
+              </TableRow>
+            </TableFooter>
+          </Table>
+        </div>
+      )}
       <Questions items={result.questions} />
       {result.notCovered.length > 0 && (
         <div className="text-xs leading-5">
@@ -520,6 +549,31 @@ function FleetView({ card }: { card: FleetCard }) {
           </ul>
         )}
       <Link href="/dashboard/fleet" className="inline-flex text-xs text-brand hover:underline focus-visible:underline focus-visible:outline-none">Manage My fleet</Link>
+    </Frame>
+  )
+}
+
+/* ---------- Company documents ---------- */
+
+function CompanyExcerptsView({ card }: { card: CompanyExcerptsCard }) {
+  return (
+    <Frame label="From your company documents" title="From your company documents" meta={`Searched for “${card.question}”`}>
+      {card.results.length === 0
+        ? <p className="text-muted-foreground">Nothing in your uploaded documents matches this.</p>
+        : (
+          <ul className="divide-y divide-border rounded-xl border border-border">
+            {card.results.map((hit, index) => (
+              <li key={index} className="space-y-1.5 px-4 py-3">
+                <p className="flex flex-wrap items-baseline justify-between gap-x-3"><span className="font-medium">{hit.title}</span><span className="text-xs text-muted-foreground">p. {hit.page}</span></p>
+                <p className="text-xs leading-5 text-muted-foreground">{hit.fileName}</p>
+                <Disclosure summary="Show the passage">
+                  <p className="max-h-80 overflow-auto rounded-lg bg-muted p-3 text-xs leading-5 whitespace-pre-wrap text-foreground" tabIndex={0}>{hit.text}</p>
+                </Disclosure>
+              </li>
+            ))}
+          </ul>
+        )}
+      <Link href="/dashboard/documents" className="inline-flex text-xs text-brand hover:underline focus-visible:underline focus-visible:outline-none">Manage your documents</Link>
     </Frame>
   )
 }

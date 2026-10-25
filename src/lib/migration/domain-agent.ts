@@ -24,6 +24,8 @@ Which tool:
 - How a port charges, which schedule is in force, when rates were checked, or what changed: port_tariff.
 - Which ports are covered: list_ports.
 - The user's own ships: when they name one, pass its name (and IMO number if given) as ship.name; saved particulars fill in by themselves. When they give a ship's particulars to keep, or ask to save a ship, use save_ship and say what was saved. find_ship looks one up or lists the fleet.
+- The user's own documents (contracts, procedures, agreements): search_company_documents. Answer only from the passages and name the document and page.
+- Estimates show the company's agreed rates beside the published ones when the user has entered them. Give both totals and say which is which.
 - A port's berths, depths, drafts, rules, required documents, pilotage or working timings: search_port_documents. Answer only from the excerpts and name the document and page. If they don't answer the question, say it isn't in the port's documents we hold.
 - Questions about shipping terms in general need no tool, but then write no figures.
 
