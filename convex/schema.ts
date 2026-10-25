@@ -71,4 +71,10 @@ export default defineSchema({
     .index("by_conversation_and_prompt_position", ["conversationId", "promptOrder", "promptStepOrder"])
     .index("by_owner_and_status", ["ownerId", "status"]),
 
+  // "My fleet": one login is one company in v1, so ships belong to the account.
+  fleetShips: defineTable({
+    ownerId: v.string(), name: v.string(), nameKey: v.string(), imo: v.optional(v.string()),
+    grt: v.string(), nrt: v.optional(v.string()), loa: v.optional(v.string()),
+    type: v.optional(v.string()), status: v.optional(v.string()), updatedAt: v.number(),
+  }).index("by_owner_and_name", ["ownerId", "nameKey"]).index("by_owner_and_imo", ["ownerId", "imo"]),
 });

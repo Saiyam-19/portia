@@ -9,6 +9,7 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as fleet from "../fleet.js";
 import type * as http from "../http.js";
 import type * as lib_authority from "../lib/authority.js";
 import type * as lib_memoryLifecycle from "../lib/memoryLifecycle.js";
@@ -27,6 +28,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  fleet: typeof fleet;
   http: typeof http;
   "lib/authority": typeof lib_authority;
   "lib/memoryLifecycle": typeof lib_memoryLifecycle;

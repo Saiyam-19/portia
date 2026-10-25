@@ -5,8 +5,9 @@ import { z } from "zod";
 import { portBooks, resolvePort, type PortMatch } from "./rulebook/books";
 import { estimate, money, versionFor, type Estimate, type EstimateRequest } from "./rulebook/calculate";
 import { coverage, describeTariff, type TariffView } from "./rulebook/describe";
-import { CHARGE_GROUPS, type ComparisonCard, type CoverageCard, type DocumentExcerptsCard, type EstimateCall, type EstimateCard, type TariffCard, type TariffComparisonCard } from "./card-types";
+import { CHARGE_GROUPS, type ComparisonCard, type CoverageCard, type DocumentExcerptsCard, type EstimateCall, type EstimateCard, type FleetCard, type ShipCard, type TariffCard, type TariffComparisonCard } from "./card-types";
 import { searchDocuments } from "./documents";
+import { fleetShipSchema, findShip, type FleetAccess, type FleetShip } from "./fleet";
 import { chargeTypeSchema, statusSchema, vesselTypeSchema, type ChargeType, type PortBook } from "./rulebook/schema";
 
 /** Berthwise business tools. Each returns { card, summary }: the card is drawn on
@@ -20,7 +21,8 @@ const decimalText = (what: string) => z.preprocess(
 const dateText = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).describe("Call date as YYYY-MM-DD, only when the user gave one. Leave out for today.");
 
 const shipSchema = z.object({
-  name: z.string().min(1).max(80).optional(),
+  name: z.string().min(1).max(80).optional().describe("The ship's name. A ship saved in the user's fleet fills in its own details."),
+  imo: z.string().regex(/^\d{7}$/).optional().describe("7-digit IMO number, only if given."),
   grt: decimalText("Gross tonnage (GRT or GT).").optional(),
   nrt: decimalText("Net tonnage (NRT), only if given.").optional(),
   loa: decimalText("Length overall in metres, only if given.").optional(),
@@ -130,7 +132,24 @@ function summarise(result: Estimate, role?: string) {
 
 const exchangeNote = (port: PortBook, date: string) => versionFor(port, date)?.exchangeRate;
 
-export function businessTools(): ToolSet {
+/** Fills in what the user didn't say from their saved ship, when they name one. */
+async function withFleet(ship: Ship, fleet?: FleetAccess): Promise<{ ship: Ship; filled: string[]; saved?: FleetShip }> {
+  if (!fleet || (!ship.name && !ship.imo)) return { ship, filled: [] };
+  let saved: FleetShip | undefined;
+  try { saved = findShip(await fleet.list(), { name: ship.name, imo: ship.imo }); } catch { return { ship, filled: [] }; }
+  if (!saved) return { ship, filled: [] };
+  const filled: string[] = [];
+  const pick = <K extends "grt" | "nrt" | "loa" | "type" | "status" | "imo">(key: K, label: string) => {
+    if (ship[key] === undefined && saved![key] !== undefined) filled.push(label);
+    return ship[key] ?? saved![key];
+  };
+  const merged: Ship = { name: saved.name, imo: pick("imo", "IMO number"), grt: pick("grt", "GRT"), nrt: pick("nrt", "NRT"), loa: pick("loa", "length"), type: pick("type", "ship type"), status: pick("status", "trade") };
+  return { ship: Object.fromEntries(Object.entries(merged).filter(([, value]) => value !== undefined)) as Ship, filled, saved };
+}
+const shipView = (ship: FleetShip) => [ship.name, ship.imo && `IMO ${ship.imo}`, `${Number(ship.grt).toLocaleString("en-US")} GRT`, ship.nrt && `${Number(ship.nrt).toLocaleString("en-US")} NRT`, ship.loa && `${ship.loa} m long`, ship.type?.replace("-", " "), ship.status && (ship.status === "foreign" ? "foreign-going" : "coastal")].filter(Boolean).join(", ");
+
+export function businessTools(options: { fleet?: FleetAccess } = {}): ToolSet {
+  const { fleet } = options;
   return {
     estimate_port_call: tool({
       description: "Itemised port-call charges (port dues, pilotage, towage, berth hire, mooring and other standard charges; anchorage and wharfage when their inputs are given) from the reviewed rule book, with the working and source page of every line and a total before GST. Give one call, or a departure and an arrival call for a voyage (both are priced for the same ship and added up). Missing facts are assumed and listed; anything that would change the price a lot comes back as a question.",
@@ -140,7 +159,8 @@ export function businessTools(): ToolSet {
         charges: chargesField,
         usdToInr,
       }).strict(),
-      execute: async ({ ship, calls, charges, usdToInr: rate }) => {
+      execute: async ({ ship: given, calls, charges, usdToInr: rate }) => {
+        const { ship, filled } = await withFleet(given, fleet);
         const places = calls.map(place);
         const failed = places.find((item): item is { error: string } => "error" in item);
         if (failed) return { error: failed.error };
@@ -159,9 +179,10 @@ export function businessTools(): ToolSet {
           calls: results.map(r => ({ port: r.estimate.port.name, total: inRupees(r.estimate.totals, rate) })),
           ...(voyageTotals ? { voyage: inRupees(voyageTotals, rate) } : {}),
         } : undefined;
-        const card: EstimateCard = { kind: "estimate", ship: { ...vessel }, calls: results, ...(voyageTotals ? { voyageTotals } : {}), ...(rupees ? { inRupees: rupees } : {}) };
+        const card: EstimateCard = { kind: "estimate", ship: { ...vessel }, calls: results, ...(voyageTotals ? { voyageTotals } : {}), ...(rupees ? { inRupees: rupees } : {}), ...(filled.length ? { fromFleet: filled } : {}) };
         const summary = [
           `Estimate for ${describeShip(vessel) || "the ship"}.`,
+          filled.length ? `From the user's fleet: ${filled.join(", ")}.` : "",
           ...results.map(r => summarise(r.estimate, r.role)),
           voyageTotals ? `Voyage total before GST: ${said(voyageTotals)}.` : "",
           rupees ? `At ${rate} rupees per US dollar: ${rupees.calls.map(c => `${c.port} INR ${c.total?.display ?? "n/a"}`).join("; ")}${rupees.voyage ? `; voyage INR ${rupees.voyage.display}` : ""}.` : "",
@@ -180,7 +201,8 @@ export function businessTools(): ToolSet {
         ...stay,
         usdToInr,
       }).strict(),
-      execute: async ({ ports, view, ship, date, usdToInr: rate, ...details }) => {
+      execute: async ({ ports, view, ship: given, date, usdToInr: rate, ...details }) => {
+        const { ship } = await withFleet(given, fleet);
         const places = ports.map(name => place({ port: name }));
         const failed = places.find((item): item is { error: string } => "error" in item);
         if (failed) return { error: failed.error };
@@ -274,6 +296,36 @@ export function businessTools(): ToolSet {
         return { card, summary };
       },
     }),
+
+    ...(fleet ? {
+      find_ship: tool({
+        description: "Look up one of the user's saved ships by name or IMO number, or list their fleet when neither is given.",
+        inputSchema: z.object({ name: z.string().min(1).max(80).optional(), imo: z.string().regex(/^\d{7}$/).optional() }).strict(),
+        execute: async ({ name, imo }) => {
+          let ships: FleetShip[];
+          try { ships = await fleet.list(); } catch { return { error: "The fleet couldn't be read just now. Ask for the ship's details instead." }; }
+          if (!name && !imo) {
+            const card: FleetCard = { kind: "fleet", ships };
+            return { card, summary: ships.length ? `The user's fleet: ${ships.map(shipView).join("; ")}.` : "The user's fleet is empty." };
+          }
+          const ship = findShip(ships, { name, imo });
+          if (!ship) return { found: false, summary: `${name ?? `IMO ${imo}`} isn't in the user's fleet.` };
+          const card: ShipCard = { kind: "ship", ship };
+          return { card, summary: `Saved ship: ${shipView(ship)}.` };
+        },
+      }),
+      save_ship: tool({
+        description: "Save a ship's particulars to the user's fleet (or update the saved ship with the same name or IMO number), so later estimates fill them in. Use figures the user gave, from the tonnage certificate.",
+        inputSchema: fleetShipSchema,
+        execute: async input => {
+          let result: { id: string; created: boolean };
+          try { result = await fleet.save(input); } catch (error) { return { error: `The ship wasn't saved: ${error instanceof Error ? error.message.replace(/^.*?Uncaught ConvexError: /, "") : "the fleet is unavailable"}.` }; }
+          const ship: FleetShip = { ...input, id: result.id, updatedAt: Date.now() };
+          const card: ShipCard = { kind: "ship", ship, saved: result.created ? "created" : "updated" };
+          return { card, summary: `${result.created ? "Saved" : "Updated"} in the user's fleet: ${shipView(ship)}.` };
+        },
+      }),
+    } : {}),
 
     list_ports: tool({
       description: "The ports Berthwise covers: terminals, the rate schedule in force, when it was last checked, the charges it prices and known gaps.",

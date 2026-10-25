@@ -18,6 +18,7 @@ import { authFailureResponse } from "@/lib/migration/auth-errors";
 import { createRunFinalizer, withStreamFinalizer, type RunFinalization } from "@/lib/migration/stream-finalizer";
 import { publishedAnswerStream } from "@/lib/berthwise/answer-stream";
 import { businessTools } from "@/lib/berthwise/tools";
+import { convexFleet } from "@/lib/berthwise/fleet-access";
 import {
   assistantText, hasCards, numberSources, OUT_OF_STEPS, repairRequest, UNCHECKED_SUMMARY, UNCHECKED_SUMMARY_WITH_CARDS,
   unsupportedNumbers, withoutNarration,
@@ -124,7 +125,7 @@ export async function POST(request: Request): Promise<Response> {
     const memorySession = memoryFeatureEnabled() ? new MemorySession(manager, context.conversationId, { runId: claim.runId, runFence: claim.fence }) : undefined;
     const model = migrationLanguageModel(context.modelAlias, { runId: claim.runId, agent: "main" });
     const agent = createMigrationMainAgent({
-      alias: context.modelAlias, runId: claim.runId, mainModel: model, memory: memorySession?.agent(), tools: businessTools(),
+      alias: context.modelAlias, runId: claim.runId, mainModel: model, memory: memorySession?.agent(), tools: businessTools({ fleet: convexFleet(manager) }),
       assertCanContinue: () => { if (checkpointFailure) throw checkpointFailure; },
     });
 

@@ -1,15 +1,20 @@
 'use client'
 
 import { createContext, useContext, type ReactNode } from 'react'
+import Link from 'next/link'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { ArrowRight, CircleHelp, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { ToolCard } from '@/lib/berthwise/cards'
 import {
-  CHARGE_GROUPS, type ComparisonCard, type ComparisonCell, type CoverageCard, type DocumentExcerptsCard, type EstimateCall, type EstimateCard,
+  CHARGE_GROUPS, type ComparisonCard, type ComparisonCell, type CoverageCard, type DocumentExcerptsCard, type EstimateCall, type EstimateCard, type FleetCard, type ShipCard,
   type ShipView, type TariffCard, type TariffComparisonCard, type Total,
 } from '@/lib/berthwise/card-types'
 import type { TariffView } from '@/lib/berthwise/rulebook/describe'
+import type { FleetShip } from '@/lib/berthwise/fleet'
+import { shipTypeLabel, tradeLabel } from '@/lib/berthwise/ship-labels'
 
 /** Puts a follow-up question in the message box for the user to finish and send. */
 export const FollowUpContext = createContext<((text: string) => void) | undefined>(undefined)
@@ -23,6 +28,8 @@ export default function ResultCard({ card }: { card: ToolCard }) {
     case 'tariff-comparison': return <TariffComparisonView card={card as unknown as TariffComparisonCard} />
     case 'coverage': return <CoverageView card={card as unknown as CoverageCard} />
     case 'document-excerpts': return <ExcerptsView card={card as unknown as DocumentExcerptsCard} />
+    case 'ship': return <ShipView card={card as unknown as ShipCard} />
+    case 'fleet': return <FleetView card={card as unknown as FleetCard} />
     default: return null
   }
 }
@@ -105,7 +112,7 @@ function EstimateView({ card }: { card: EstimateCard }) {
     <Frame
       label={voyage ? `Voyage estimate, ${names.join(' to ')}` : `Port call estimate, ${names[0]}`}
       title={voyage ? names.join(' → ') : <>{first.port.name}{first.terminal ? <span className="text-muted-foreground"> · {first.terminal}</span> : null}</>}
-      meta={shipLine(card.ship) || undefined}
+      meta={[shipLine(card.ship), card.fromFleet?.length ? 'ship details from your fleet' : ''].filter(Boolean).join(' · ') || undefined}
     >
       {card.calls.map((call, index) => <CallView key={index} call={call} voyage={voyage} />)}
       {voyage && card.voyageTotals && (
@@ -458,12 +465,61 @@ function ExcerptsView({ card }: { card: DocumentExcerptsCard }) {
                 </p>
                 <p className="text-xs leading-5 text-muted-foreground">{[!card.port && shortName(hit.port.name), hit.issuer, hit.publishedOn ? `dated ${day(hit.publishedOn)}` : `retrieved ${day(hit.retrievedOn)}`].filter(Boolean).join(' · ')}</p>
                 <Disclosure summary="Show the page text">
-                  <pre className="max-h-80 overflow-auto rounded-lg bg-muted p-3 text-xs leading-5 whitespace-pre-wrap text-foreground" tabIndex={0}>{hit.excerpt}</pre>
+                  <div className="chat-markdown prose prose-xs prose-neutral max-h-96 max-w-none overflow-auto rounded-lg bg-muted p-3 text-xs leading-5 text-foreground dark:prose-invert prose-headings:text-xs prose-headings:font-semibold prose-p:my-1.5 prose-table:my-2 prose-th:px-2 prose-th:py-1 prose-td:px-2 prose-td:py-1" tabIndex={0} role="region" aria-label={`Page ${hit.page} of ${hit.title}`}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer">{children}</a> }}>{hit.excerpt}</ReactMarkdown>
+                  </div>
                 </Disclosure>
               </li>
             ))}
           </ul>
         )}
+    </Frame>
+  )
+}
+
+/* ---------- My fleet ---------- */
+
+function ShipFacts({ ship }: { ship: FleetShip }) {
+  const facts: Array<[string, string | undefined]> = [
+    ['IMO number', ship.imo], ['Gross tonnage', `${Number(ship.grt).toLocaleString('en-US')} GRT`],
+    ['Net tonnage', ship.nrt && `${Number(ship.nrt).toLocaleString('en-US')} NRT`], ['Length overall', ship.loa && `${ship.loa} m`],
+    ['Type', shipTypeLabel(ship.type)], ['Trade', tradeLabel(ship.status)],
+  ]
+  return (
+    <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-sm">
+      {facts.filter((fact): fact is [string, string] => Boolean(fact[1])).map(([label, value]) => (
+        <div key={label} className="contents"><dt className="text-muted-foreground">{label}</dt><dd className="tabular-nums">{value}</dd></div>
+      ))}
+    </dl>
+  )
+}
+
+function ShipView({ card }: { card: ShipCard }) {
+  const meta = card.saved === 'created' ? 'Saved to your fleet' : card.saved === 'updated' ? 'Updated in your fleet' : 'In your fleet'
+  return (
+    <Frame label={`${card.ship.name}, ${meta.toLowerCase()}`} title={card.ship.name} meta={meta}>
+      <ShipFacts ship={card.ship} />
+      <Link href="/dashboard/fleet" className="inline-flex text-xs text-brand hover:underline focus-visible:underline focus-visible:outline-none">Edit in My fleet</Link>
+    </Frame>
+  )
+}
+
+function FleetView({ card }: { card: FleetCard }) {
+  return (
+    <Frame label="Your fleet" title={`Your fleet (${card.ships.length})`}>
+      {card.ships.length === 0
+        ? <p className="text-muted-foreground">No ships saved yet. Give a ship&apos;s name and tonnage once and it is filled in from then on.</p>
+        : (
+          <ul className="divide-y divide-border rounded-xl border border-border">
+            {card.ships.map(ship => (
+              <li key={ship.id} className="flex flex-wrap items-baseline justify-between gap-x-4 px-4 py-2.5">
+                <span className="font-medium">{ship.name}</span>
+                <span className="text-xs text-muted-foreground tabular-nums">{[`${Number(ship.grt).toLocaleString('en-US')} GRT`, shipTypeLabel(ship.type)].filter(Boolean).join(' · ')}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      <Link href="/dashboard/fleet" className="inline-flex text-xs text-brand hover:underline focus-visible:underline focus-visible:outline-none">Manage My fleet</Link>
     </Frame>
   )
 }

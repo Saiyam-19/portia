@@ -7,7 +7,7 @@ import { useTheme } from 'next-themes'
 import { usePaginatedQuery } from 'convex/react'
 import { api } from '../../../convex/_generated/api'
 import { migrationAuthClient } from '@/lib/migration/auth-client'
-import { Anchor, SquarePen, Search, LogOut, ChevronsUpDown, Sun, Moon, Monitor, Check, X, MapPin } from 'lucide-react'
+import { Anchor, SquarePen, Search, LogOut, ChevronsUpDown, Sun, Moon, Monitor, Check, X, MapPin, Ship } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -69,9 +69,14 @@ export default function Sidebar({ email, name }: { email: string; name: string }
         <Button asChild variant="outline" className="h-10 w-full justify-start gap-2.5 border-border/70 bg-background/60 text-sm shadow-none">
           <Link href="/dashboard" onClick={closeMobile}><SquarePen className="size-4 text-brand" aria-hidden="true" />New conversation</Link>
         </Button>
-        <Button asChild variant="ghost" className="h-9 w-full justify-start gap-2.5 px-3 text-sm font-normal text-sidebar-foreground">
-          <Link href="/dashboard/coverage" onClick={closeMobile} aria-current={pathname === '/dashboard/coverage' ? 'page' : undefined}><MapPin className="size-4 text-brand" aria-hidden="true" />Ports covered</Link>
-        </Button>
+        <nav aria-label="Berthwise pages" className="-mt-2 flex flex-col gap-0.5">
+          <Button asChild variant="ghost" className="h-9 w-full justify-start gap-2.5 px-3 text-sm font-normal text-sidebar-foreground">
+            <Link href="/dashboard/fleet" onClick={closeMobile} aria-current={pathname === '/dashboard/fleet' ? 'page' : undefined}><Ship className="size-4 text-brand" aria-hidden="true" />My fleet</Link>
+          </Button>
+          <Button asChild variant="ghost" className="h-9 w-full justify-start gap-2.5 px-3 text-sm font-normal text-sidebar-foreground">
+            <Link href="/dashboard/coverage" onClick={closeMobile} aria-current={pathname === '/dashboard/coverage' ? 'page' : undefined}><MapPin className="size-4 text-brand" aria-hidden="true" />Ports covered</Link>
+          </Button>
+        </nav>
         <InputGroup className="h-9 border-transparent bg-transparent dark:bg-transparent">
           <InputGroupAddon><Search className="size-4" aria-hidden="true" /></InputGroupAddon>
           <InputGroupInput aria-label="Search conversations" placeholder="Search conversations" value={search} onChange={event => setSearch(event.target.value)} className="text-xs md:text-xs" />
