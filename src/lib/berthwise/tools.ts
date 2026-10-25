@@ -1,5 +1,5 @@
 import "server-only";
-import { tool, type ToolSet } from "ai";
+import { tool, type ModelMessage, type ToolSet } from "ai";
 import Decimal from "decimal.js";
 import { z } from "zod";
 import { portBooks, resolvePort, type PortMatch } from "./rulebook/books";
@@ -10,7 +10,7 @@ import { searchDocuments } from "./documents";
 import { fleetShipSchema, findShip, type FleetAccess, type FleetShip } from "./fleet";
 import { applyAgreedRates, type AgreedRate } from "./agreed-rates";
 import type { CompanyAccess } from "./account-access";
-import { freshnessNotices, type SourceStatus } from "./rulebook/watch";
+import { freshnessNotices, tariffNotices, type SourceStatus } from "./rulebook/watch";
 import { chargeTypeSchema, statusSchema, vesselTypeSchema, type ChargeType, type PortBook } from "./rulebook/schema";
 
 /** Berthwise business tools. Each returns { card, summary }: the card is drawn on
@@ -53,10 +53,76 @@ const callSchema = z.object({
 }).strict();
 
 const usdToInr = decimalText("Rupees per US dollar, only when the user gives an exchange rate. Never estimate one.").optional();
-const chargesField = z.array(chargeTypeSchema).min(1).max(9).optional().describe("Only these charges. Leave out for the whole standard bill.");
+const chargesField = z.array(chargeTypeSchema).min(1).max(9).optional().describe("Only when the user asks for particular charges, e.g. 'just berth hire'. Leave out for berthing charges, port costs or the cost of a call: those mean the whole standard bill.");
 
-type Place = { match: PortMatch } | { error: string };
+type Place = { match: PortMatch; dropped?: string } | { error: string };
 const norm = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+
+// Models tend to fill optional fields with placeholders ("Unspecified berth", IMO 0000000,
+// NRT 0). Those mean "not given" and must never price anything.
+const PLACEHOLDER = /^(?:|n ?a|none|null|nil|unknown|unspecified|not (?:given|specified|provided|known)|any|tbc|tbd|default|standard|general|other|main|0+)$/;
+const GENERIC = new Set(["unspecified", "unknown", "ship", "vessel", "the", "a", "an", "our", "my", "bulk", "carrier", "tanker", "container", "general", "cargo", "lng", "lpg", "chemical", "ro", "passenger", "foreign", "coastal", "going", "berth", "terminal", "port", "jetty", "any", "default"]);
+const meant = (text?: string) => { const value = text?.trim(); return value && !PLACEHOLDER.test(norm(value)) && !norm(value).split(" ").every(word => GENERIC.has(word)) ? value : undefined; };
+const positive = (text?: string) => text !== undefined && Number(text) > 0 ? text : undefined;
+const validImo = (imo?: string) => imo && /^\d{7}$/.test(imo) && !/^0+$/.test(imo) ? imo : undefined;
+
+/** Ship particulars must come from the user, never from the model: a tonnage, length or
+ * IMO number is kept only if the user wrote that figure ("45k" counts as 45,000), and a
+ * trade or type only if the user's words name it. Without a conversation (direct calls), nothing is dropped. */
+const userText = (messages: ModelMessage[] | undefined) => (messages ?? []).filter(message => message.role === "user")
+  .map(message => typeof message.content === "string" ? message.content : message.content.map(part => part.type === "text" ? part.text : "").join(" ")).join("\n");
+
+function userSaid(ship: Ship, messages: ModelMessage[] | undefined): Ship {
+  const text = userText(messages);
+  if (!text.trim()) return ship;
+  // Each figure the user wrote, with the words around it, so a GRT isn't reused as an NRT or a length.
+  const written = [...text.matchAll(/(\d{1,3}(?:,\d{2,3})+|\d+(?:\.\d+)?)\s*(k\b)?/gi)].map(match => ({
+    value: Number(match[1]!.replace(/,/g, "")) * (match[2] ? 1000 : 1),
+    around: text.slice(Math.max(0, match.index! - 12), match.index! + match[0].length + 12).toLowerCase(),
+  }));
+  const LABEL: Record<"grt" | "nrt" | "loa", RegExp> = {
+    grt: /\b(?:grt|gt|gross|tons?|tonnes?|tonnage)\b/, nrt: /\b(?:nrt|nt|net)\b/, loa: /\b(?:loa|length|long|m|metres?|meters?)\b/,
+  };
+  const figure = (value: string | undefined, field: "grt" | "nrt" | "loa") =>
+    value !== undefined && written.some(item => item.value === Number(value) && LABEL[field].test(item.around)) ? value : undefined;
+  const words = text.toLowerCase();
+  const TYPE_WORDS: Record<string, RegExp> = {
+    "general-cargo": /general[ -]cargo|break[ -]?bulk|multipurpose/, bulk: /bulk|bulker/, container: /container|box ?ship/, tanker: /tanker|crude|product carrier/,
+    vlcc: /vlcc|very large crude/, chemical: /chemical/, lng: /\blng\b/, lpg: /\blpg\b|gas carrier/, "ro-ro": /ro-?ro|car carrier|pctc/, passenger: /passenger|cruise|ferry/, other: /./,
+  };
+  const status = ship.status && (ship.status === "coastal" ? /coastal/ : /foreign|international|overseas|import|export/).test(words) ? ship.status : undefined;
+  const type = ship.type && TYPE_WORDS[ship.type]!.test(words) ? ship.type : undefined;
+  const kept = { name: ship.name, imo: ship.imo && text.includes(ship.imo) ? ship.imo : undefined, grt: figure(ship.grt, "grt"), nrt: figure(ship.nrt, "nrt"), loa: figure(ship.loa, "loa"), type, status };
+  return Object.fromEntries(Object.entries(kept).filter(([, value]) => value !== undefined)) as Ship;
+}
+
+function cleanShip(ship: Ship): Ship {
+  const name = meant(ship.name), imo = validImo(ship.imo), grt = positive(ship.grt), nrt = positive(ship.nrt), loa = positive(ship.loa);
+  return { ...(name ? { name } : {}), ...(imo ? { imo } : {}), ...(grt ? { grt } : {}), ...(nrt ? { nrt } : {}), ...(loa ? { loa } : {}), ...(ship.type ? { type: ship.type } : {}), ...(ship.status ? { status: ship.status } : {}) };
+}
+/** An exchange rate is used only when the user wrote it; the model must never supply one. */
+function userRate(rate: string | undefined, messages?: ModelMessage[]): string | undefined {
+  const text = userText(messages);
+  if (!rate || !positive(rate)) return undefined;
+  if (!text.trim()) return rate;
+  return [...text.matchAll(/\d+(?:\.\d+)?/g)].some(match => Number(match[0]) === Number(rate)) ? rate : undefined;
+}
+
+/** Drops zeros and placeholders, and anchorage, tugs or cargo the user never mentioned. */
+function cleanStay<T extends Stay>(stay: T, messages?: ModelMessage[]): T {
+  const text = userText(messages).toLowerCase();
+  const mentions = (pattern: RegExp) => !text.trim() || pattern.test(text);
+  if (!mentions(/anchor|wait/)) stay = { ...stay, anchorageHours: undefined };
+  if (!mentions(/\btugs?\b/)) stay = { ...stay, tugs: undefined };
+  if (!mentions(/tonnes?|\bteu|\bmt\b|wharfage|containers?|cargo of|metric tons?/)) stay = { ...stay, cargo: undefined };
+  const cargo = stay.cargo && (positive(stay.cargo.tonnes) || positive(stay.cargo.teu))
+    ? { ...(meant(stay.cargo.class) ? { class: stay.cargo.class } : {}), ...(positive(stay.cargo.tonnes) ? { tonnes: stay.cargo.tonnes } : {}), ...(positive(stay.cargo.teu) ? { teu: stay.cargo.teu } : {}) } : undefined;
+  const { hoursAlongside, anchorageHours, tugs, cargo: _cargo, ...rest } = stay;
+  return {
+    ...rest, ...(positive(hoursAlongside) ? { hoursAlongside } : {}), ...(positive(anchorageHours) ? { anchorageHours } : {}),
+    ...(tugs !== undefined && tugs > 0 ? { tugs } : {}), ...(cargo ? { cargo } : {}),
+  } as T;
+}
 
 function place(input: { port: string; terminal?: string; berth?: string }): Place {
   const found = resolvePort(input.port);
@@ -64,25 +130,28 @@ function place(input: { port: string; terminal?: string; berth?: string }): Plac
   if (!found) return { error: `"${input.port}" isn't one of the ports we cover: ${covered()}.` };
   if ("candidates" in found) return { error: `"${input.port}" could mean ${found.candidates.join(" or ")}. Ask which one.` };
   const match: PortMatch = { ...found };
+  const ownNames = [found.port.id, found.port.name, ...found.port.aliases].map(norm);
   const pick = (name: string, level: "terminal" | "berth") => {
     const wanted = norm(name);
+    const fits = (alias: string) => norm(alias) === wanted || (wanted.length >= 3 && norm(alias).split(" ").join(" ").includes(wanted));
     for (const terminal of found.port.terminals) {
-      if (level === "terminal" && [terminal.id, terminal.name, ...terminal.aliases].some(alias => norm(alias) === wanted || norm(alias).includes(wanted))) return { terminal: terminal.id };
-      for (const berth of terminal.berths) if (level === "berth" && [berth.id, berth.name, ...berth.aliases].some(alias => norm(alias) === wanted || norm(alias).includes(wanted))) return { terminal: terminal.id, berth: berth.id };
+      if (level === "terminal" && [terminal.id, terminal.name, ...terminal.aliases].some(fits)) return { terminal: terminal.id };
+      for (const berth of terminal.berths) if (level === "berth" && [berth.id, berth.name, ...berth.aliases].some(fits)) return { terminal: terminal.id, berth: berth.id };
     }
     return undefined;
   };
+  const dropped: string[] = [];
   for (const level of ["terminal", "berth"] as const) {
-    const name = input[level];
-    if (!name) continue;
+    const name = meant(input[level]);
+    // A port whose rates don't vary by terminal or berth needs neither; the port's own name is no terminal.
+    if (!name || !found.port.terminals.length || ownNames.includes(norm(name))) continue;
     const hit = pick(name, level) ?? pick(name, level === "terminal" ? "berth" : "terminal");
-    if (!hit) {
-      const options = found.port.terminals.flatMap(t => [t.name, ...t.berths.map(b => b.name)]);
-      return { error: `${found.port.name} has no ${level} called "${name}" in our rule book${options.length ? `. It lists: ${options.join("; ")}` : ""}.` };
-    }
-    Object.assign(match, hit);
+    if (hit) Object.assign(match, hit);
+    else dropped.push(name);
   }
-  return { match };
+  if (!dropped.length) return { match };
+  const options = found.port.terminals.flatMap(t => [t.name, ...t.berths.map(b => b.name)]);
+  return { match, dropped: `${found.port.name} has no terminal or berth called ${dropped.map(name => `"${name}"`).join(" or ")} in our rule book, so it was left out. It lists: ${options.join("; ")}.` };
 }
 
 type Ship = z.infer<typeof shipSchema>;
@@ -98,6 +167,19 @@ function request(match: PortMatch, ship: Ship, details: Stay, charges?: ChargeTy
     ...(details.tugs !== undefined ? { tugs: details.tugs } : {}), ...(details.cargo ? { cargo: details.cargo } : {}),
     ...(charges?.length ? { charges } : {}),
   };
+}
+
+/** Where berths differ by cargo and the ship type settles it (a tanker at Kandla's liquid
+ * berths), that berth is assumed and shown instead of asked. */
+function likelyBerth(match: PortMatch, type?: string): { match: PortMatch; assumption?: string } {
+  if (match.berth || !type) return { match };
+  const want = ["tanker", "vlcc", "chemical", "lng", "lpg"].includes(type) ? /liquid|lpg|chemical|tanker|oil/ : type === "container" ? /container/ : undefined;
+  if (!want) return { match };
+  const berths = match.port.terminals.filter(terminal => !match.terminal || terminal.id === match.terminal)
+    .flatMap(terminal => terminal.berths.map(berth => ({ terminal: terminal.id, berth })));
+  const fits = berths.filter(item => want.test(`${item.berth.id} ${item.berth.name}`.toLowerCase()));
+  if (fits.length !== 1) return { match };
+  return { match: { ...match, terminal: fits[0]!.terminal, berth: fits[0]!.berth.id }, assumption: `Assumed the ${fits[0]!.berth.name.toLowerCase()}, as for a ${type.replace("-", " ")} ship.` };
 }
 
 /** The same ship must be assumed at every port of a voyage or comparison. */
@@ -156,15 +238,17 @@ export function businessTools(options: { fleet?: FleetAccess; company?: CompanyA
   const statuses = async () => { try { return sources ? await sources() : []; } catch { return []; } };
   return {
     estimate_port_call: tool({
-      description: "Itemised port-call charges (port dues, pilotage, towage, berth hire, mooring and other standard charges; anchorage and wharfage when their inputs are given) from the reviewed rule book, with the working and source page of every line and a total before GST. Give one call, or a departure and an arrival call for a voyage (both are priced for the same ship and added up). Missing facts are assumed and listed; anything that would change the price a lot comes back as a question.",
+      description: "Itemised port-call charges (port dues, pilotage, towage, berth hire, mooring and other standard charges; anchorage and wharfage when their inputs are given) from the reviewed rule book, with the working and source page of every line and a total before GST. Give one call, or a departure and an arrival call for a voyage (both are priced for the same ship and added up). Not for comparing ports: use compare_ports for that. Missing facts are assumed and listed; anything that would change the price a lot comes back as a question.",
       inputSchema: z.object({
         ship: shipSchema,
-        calls: z.array(callSchema).min(1).max(2).describe("One call, or [departure, arrival] for a voyage."),
+        calls: z.array(callSchema).min(1).max(2).describe("One call, or [departure, arrival] for a voyage the ship actually makes. Never two ports to compare them."),
         charges: chargesField,
         usdToInr,
       }).strict(),
-      execute: async ({ ship: given, calls, charges, usdToInr: rate }) => {
-        const { ship, filled } = await withFleet(given, fleet);
+      execute: async ({ ship: given, calls: asked, charges, usdToInr: offered }, { messages }) => {
+        const rate = userRate(offered, messages);
+        const { ship, filled } = await withFleet(userSaid(cleanShip(given), messages), fleet);
+        const calls = asked.map(call => cleanStay(call, messages));
         const places = calls.map(place);
         const failed = places.find((item): item is { error: string } => "error" in item);
         if (failed) return { error: failed.error };
@@ -175,7 +259,11 @@ export function businessTools(options: { fleet?: FleetAccess; company?: CompanyA
         try { agreedRates = company ? await company.agreedRates() : []; } catch { agreedRates = []; }
         const changed = await statuses();
         const results = calls.map((call, index) => {
-          const result = estimate(matches[index]!.port, request(matches[index]!, vessel, call, charges));
+          const berth = likelyBerth(matches[index]!, vessel.type);
+          const result = estimate(matches[index]!.port, request(berth.match, vessel, call, charges));
+          if (berth.assumption) result.assumptions.push(berth.assumption);
+          const dropped = (places[index] as { dropped?: string }).dropped;
+          if (dropped) result.assumptions.push(dropped);
           const agreed = applyAgreedRates(result, agreedRates);
           const notices = freshnessNotices(matches[index]!.port, result, changed, call.date ?? today());
           const role: EstimateCall["role"] = voyage ? (index === 0 ? "departure" : "arrival") : undefined;
@@ -201,7 +289,7 @@ export function businessTools(options: { fleet?: FleetAccess; company?: CompanyA
     }),
 
     compare_ports: tool({
-      description: "Compare 2 to 4 ports for the same ship. view 'berth-hire': berth hire only. view 'whole-bill': every standard charge side by side with totals. view 'tariff': how each port charges (rates, bands, minimums, conditions) without needing ship figures. A charge a port doesn't publish is shown as missing, never as zero.",
+      description: "Compare 2 to 4 ports for the same ship (which is cheaper, how they differ). view 'berth-hire': berth hire only. view 'whole-bill': every standard charge side by side with totals. view 'tariff': how each port charges (rates, bands, minimums, conditions) without needing ship figures. A charge a port doesn't publish is shown as missing, never as zero.",
       inputSchema: z.object({
         ports: z.array(z.string().min(1).max(120)).min(2).max(4).describe("Ports, terminals or berths as the user wrote them."),
         view: z.enum(["berth-hire", "whole-bill", "tariff"]),
@@ -210,8 +298,10 @@ export function businessTools(options: { fleet?: FleetAccess; company?: CompanyA
         ...stay,
         usdToInr,
       }).strict(),
-      execute: async ({ ports, view, ship: given, date, usdToInr: rate, ...details }) => {
-        const { ship } = await withFleet(given, fleet);
+      execute: async ({ ports, view, ship: given, date, usdToInr: offered, ...asked }, { messages }) => {
+        const rate = userRate(offered, messages);
+        const { ship } = await withFleet(userSaid(cleanShip(given), messages), fleet);
+        const details = cleanStay(asked, messages);
         const places = ports.map(name => place({ port: name }));
         const failed = places.find((item): item is { error: string } => "error" in item);
         if (failed) return { error: failed.error };
@@ -227,7 +317,12 @@ export function businessTools(options: { fleet?: FleetAccess; company?: CompanyA
           return { card, summary: summary.slice(0, 4000) };
         }
         const charges: ChargeType[] | undefined = view === "berth-hire" ? ["berth-hire"] : undefined;
-        const results = matches.map(m => estimate(m.port, request(m, vessel, { ...details, date }, charges)));
+        const results = matches.map(m => {
+          const berth = likelyBerth(m, vessel.type);
+          const result = estimate(m.port, request(berth.match, vessel, { ...details, date }, charges));
+          if (berth.assumption) result.assumptions.push(berth.assumption);
+          return result;
+        });
         const rows = CHARGE_GROUPS.map(group => ({
           key: group.key, label: group.label,
           cells: results.map(result => {
@@ -253,7 +348,7 @@ export function businessTools(options: { fleet?: FleetAccess; company?: CompanyA
         const summary = [
           `${view === "berth-hire" ? "Berth hire" : "Whole-bill"} comparison for a ${describeShip(vessel)}${details.hoursAlongside ? `, ${details.hoursAlongside} hours alongside` : ""}.`,
           ...results.map(result => summarise(result)),
-          ranking ? `Cheapest first: ${ranking.map(item => `${item.port} ${item.total.currency} ${item.total.display}`).join("; ")}.` : "",
+          ranking ? `Cheapest first: ${ranking.map(item => `${item.port} ${item.total.currency} ${item.total.display}`).join("; ")}.` : `Not ranked: ${card.notRanked} Don't say which port is cheaper.`,
         ].filter(Boolean).join(" ");
         return { card, summary };
       },
@@ -273,10 +368,11 @@ export function businessTools(options: { fleet?: FleetAccess; company?: CompanyA
         const when = date ?? today();
         const view: TariffView | undefined = describeTariff(found.match.port, { date: when, status, vesselType, ...(found.match.terminal ? { terminal: found.match.terminal } : {}) });
         if (!view) return { error: `No ${found.match.port.name} schedule we hold covers ${when}. We hold: ${found.match.port.versions.map(v => `${v.effectiveFrom}${v.effectiveTo ? " to " + v.effectiveTo : " onwards"}`).join("; ")}.` };
-        const summary = `${view.port.name} schedule ${view.version.id} (from ${view.version.effectiveFrom}${view.version.effectiveTo ? ` to ${view.version.effectiveTo}` : ""}, checked ${view.checkedOn}): `
+        const notices = tariffNotices(found.match.port, view.version.id, await statuses(), when);
+        const summary = (notices.length ? `Check: ${notices.join(" ")} ` : "") + `${view.port.name} schedule ${view.version.id} (from ${view.version.effectiveFrom}${view.version.effectiveTo ? ` to ${view.version.effectiveTo}` : ""}, checked ${view.checkedOn}): `
           + view.charges.map(charge => `${charge.label}: ${charge.rates.map(rate => `${rate.appliesTo}: ${rate.text}`).join(" / ")}`).join("; ")
           + (view.changes ? `. Changes since ${view.changes.since.effectiveFrom}: ${view.changes.items.map(item => `${item.label}: ${item.before ?? "new"} -> ${item.after ?? "removed"}`).join("; ") || "none"}` : "");
-        const card: TariffCard = { kind: "tariff", ...view };
+        const card: TariffCard = { kind: "tariff", ...view, ...(notices.length ? { notices } : {}) };
         return { card, summary: summary.slice(0, 4000) };
       },
     }),
@@ -293,7 +389,7 @@ export function businessTools(options: { fleet?: FleetAccess; company?: CompanyA
         if (found && "error" in found) return { error: found.error };
         const port = found && "match" in found ? found.match.port : undefined;
         const names = new Map(portBooks().map(book => [book.id, book.name]));
-        const results = searchDocuments(question, { ...(port ? { port: port.id } : {}), ...(kind ? { kind } : {}) }).map(hit => ({
+        const results = searchDocuments(question, { ...(port ? { port: port.id, portNames: [port.id, port.name, ...port.aliases] } : {}), ...(kind ? { kind } : {}) }).map(hit => ({
           port: { id: hit.document.port, name: names.get(hit.document.port) ?? hit.document.port },
           title: hit.document.title, issuer: hit.document.issuer, url: hit.document.url, page: hit.page, kind: hit.document.kind,
           ...(hit.document.publishedOn ? { publishedOn: hit.document.publishedOn } : {}), retrievedOn: hit.document.retrievedOn, excerpt: hit.text,
@@ -339,9 +435,13 @@ export function businessTools(options: { fleet?: FleetAccess; company?: CompanyA
         },
       }),
       save_ship: tool({
-        description: "Save a ship's particulars to the user's fleet (or update the saved ship with the same name or IMO number), so later estimates fill them in. Use figures the user gave, from the tonnage certificate.",
+        description: "Save a ship's particulars to the user's fleet (or update the saved ship with the same name or IMO number), so later estimates fill them in. Fill in only what the user gave; leave every other field out.",
         inputSchema: fleetShipSchema,
-        execute: async input => {
+        execute: async (given, { messages }) => {
+          // Keep only what the user actually gave: a zero, placeholder or guess is no particular.
+          const clean = userSaid(cleanShip(given), messages);
+          if (!clean.name || !clean.grt) return { error: "A ship needs at least its name and gross tonnage (GRT) to be saved. Ask the user for them." };
+          const input = { ...clean, name: clean.name, grt: clean.grt } as typeof given;
           let result: { id: string; created: boolean };
           try { result = await fleet.save(input); } catch (error) { return { error: `The ship wasn't saved: ${error instanceof Error ? error.message.replace(/^.*?Uncaught ConvexError: /, "") : "the fleet is unavailable"}.` }; }
           const ship: FleetShip = { ...input, id: result.id, updatedAt: Date.now() };

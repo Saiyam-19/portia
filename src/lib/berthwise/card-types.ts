@@ -23,7 +23,7 @@ export type ComparisonCard = {
   estimates: Estimate[]; ranking?: Array<{ port: string; total: Total }>; usdToInr?: string; notRanked?: string;
 };
 
-export type TariffCard = { kind: "tariff" } & TariffView;
+export type TariffCard = { kind: "tariff"; notices?: string[] } & TariffView;
 export type TariffComparisonCard = {
   kind: "tariff-comparison"; ship: ShipView; date: string;
   ports: Array<TariffView | { port: { id: string; name: string }; missing: string }>;

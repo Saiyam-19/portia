@@ -1,4 +1,4 @@
-import type { ModelMessage } from "ai";
+import { generateText, type LanguageModel, type ModelMessage } from "ai";
 import { cardOf } from "./cards";
 import { unsupportedNumbers } from "./number-guard";
 
@@ -41,3 +41,26 @@ export const UNCHECKED_SUMMARY = "Sorry, I couldn't give a reliable answer to th
 export const OUT_OF_STEPS = "I ran out of steps before finishing. The results above are complete as far as they go. Ask me to continue and I'll pick up from there.";
 
 export { unsupportedNumbers };
+
+export type CheckedAnswer = { text: string; incomplete: boolean; repaired: boolean; unsupported: string[] };
+
+/** The reply to save: the model's final text if every figure in it is supported, else one
+ * repair attempt, else a plain fallback. `steps` are the run's tool steps (narration removed). */
+export async function checkAnswer(options: {
+  model: LanguageModel; system: string; history: ModelMessage[]; steps: ModelMessage[]; final: ModelMessage[]; abortSignal?: AbortSignal;
+}): Promise<CheckedAnswer> {
+  const sources = numberSources([...options.history, ...options.steps]);
+  let text = assistantText(options.final);
+  const incomplete = !text;
+  if (incomplete) text = OUT_OF_STEPS;
+  let unsupported = unsupportedNumbers(text, sources);
+  if (!unsupported.length) return { text, incomplete, repaired: false, unsupported };
+  const repaired = await generateText({
+    model: options.model, system: options.system, abortSignal: options.abortSignal, maxRetries: 0,
+    messages: [...options.history, ...options.steps, { role: "assistant", content: text }, { role: "user", content: repairRequest(unsupported) }],
+  });
+  text = repaired.text.trim();
+  unsupported = unsupportedNumbers(text, sources);
+  if (unsupported.length || !text) text = hasCards(options.steps) ? UNCHECKED_SUMMARY_WITH_CARDS : UNCHECKED_SUMMARY;
+  return { text, incomplete, repaired: true, unsupported };
+}

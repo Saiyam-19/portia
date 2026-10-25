@@ -375,6 +375,12 @@ function TariffCardView({ card }: { card: TariffCard }) {
       {schedule(card.version, card.checkedOn)}
       <span className="mt-1 block">{card.version.documents.map((doc, index) => <span key={doc.url}>{index > 0 && ' · '}<a href={doc.url} target="_blank" rel="noopener noreferrer" className="text-brand hover:underline focus-visible:underline focus-visible:outline-none">{doc.title}</a></span>)}</span>
     </>}>
+      {card.notices && card.notices.length > 0 && (
+        <div className="rounded-xl bg-muted px-4 py-3 text-xs leading-5" role="note">
+          <p className="flex items-center gap-1.5 font-medium text-foreground"><CircleAlert className="size-3.5 text-brand" aria-hidden="true" />Check before relying on these rates</p>
+          <ul className="mt-1.5 space-y-1 text-foreground">{card.notices.map((notice, index) => <li key={index}>{notice}</li>)}</ul>
+        </div>
+      )}
       {card.charges.length ? <ChargeList view={card} /> : <p className="text-muted-foreground">No charges in this schedule match that kind of ship.</p>}
       {card.changes && (
         <div className="text-xs leading-5">

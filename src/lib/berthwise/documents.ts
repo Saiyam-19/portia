@@ -18,9 +18,12 @@ const STOP = new Set("a an and are as at be by can do does for from has have how
 // A few words people use for the same thing as the documents.
 const SAME: Record<string, string[]> = {
   depth: ["draft", "draught"], draft: ["draught", "depth"], draught: ["draft", "depth"],
-  loa: ["length"], length: ["loa"], timing: ["hour", "shift"], hour: ["shift"], shift: ["hour"],
-  document: ["certificate", "declaration"], paper: ["document", "certificate"], night: ["daylight"],
+  loa: ["length"], length: ["loa"], timing: ["hour", "shift", "hrs"], hour: ["hrs", "shift"], hrs: ["hour"], shift: ["hour"],
+  document: ["certificate", "declaration"], paper: ["document", "certificate"], night: ["daylight", "day"],
+  ship: ["vessel"], vessel: ["ship"], entry: ["arrival", "enter", "berth"], arrival: ["entry", "arrive"], compulsory: ["mandatory"], mandatory: ["compulsory"],
 };
+// Words that say little about which page answers a question.
+const VAGUE = new Set(["rule", "requirement", "information", "detail", "policy", "port", "regulation", "procedure", "guideline", "please", "tell", "know", "need", "about"]);
 
 const stem = (word: string) => word.length > 4 && word.endsWith("ies") ? word.slice(0, -3) + "y" : word.length > 3 && word.endsWith("s") && !word.endsWith("ss") ? word.slice(0, -1) : word;
 export function terms(text: string): string[] {
@@ -82,27 +85,32 @@ function build(root = path.join(process.cwd(), "data", "sources")): Index {
 
 /** The best-matching passages, at most one per page, best first. Empty when too few
  * of the question's words appear anywhere, so "not in our documents" can be said. */
-export function searchDocuments(query: string, options: { port?: string; kind?: "tariff" | "rules"; limit?: number } = {}): Excerpt[] {
+export function searchDocuments(query: string, options: { port?: string; kind?: "tariff" | "rules"; limit?: number; portNames?: string[] } = {}): Excerpt[] {
   index ??= build();
-  const asked = [...new Set(terms(query))];
+  // The port being searched is no clue to which of its pages answers.
+  const own = new Set((options.portNames ?? []).flatMap(name => terms(name)));
+  const all = [...new Set(terms(query))].filter(word => !own.has(word));
+  const asked = all.filter(word => !VAGUE.has(word)).length ? all.filter(word => !VAGUE.has(word)) : all;
   if (!asked.length) return [];
-  const weights = new Map<string, number>(asked.map(word => [word, 1]));
-  for (const word of asked) for (const other of SAME[word] ?? []) if (!weights.has(stem(other))) weights.set(stem(other), 0.5);
+  // Each searched word, with the other words that mean the same; a match on either counts once.
+  const weights = new Map<string, { weight: number; origin: string }>(asked.map(word => [word, { weight: 1, origin: word }]));
+  for (const word of asked) for (const other of SAME[word] ?? []) if (!weights.has(stem(other))) weights.set(stem(other), { weight: 0.5, origin: word });
   const pool = index.chunks.filter(chunk => (!options.port || chunk.doc.port === options.port) && (!options.kind || chunk.doc.kind === options.kind));
   const total = index.chunks.length;
   const scored = pool.map(chunk => {
-    let score = 0, matched = 0;
-    for (const [word, weight] of weights) {
+    let score = 0;
+    const found = new Set<string>();
+    for (const [word, { weight, origin }] of weights) {
       const count = chunk.counts.get(word);
       if (!count) continue;
-      if (weight === 1) matched++;
+      found.add(origin);
       const idf = Math.log(1 + (total - (index!.documentFrequency.get(word) ?? 0) + 0.5) / ((index!.documentFrequency.get(word) ?? 0) + 0.5));
       score += weight * idf * (count * 2.2) / (count + 1.2 * (0.25 + 0.75 * chunk.length / index!.averageLength));
     }
-    return { chunk, score, matched };
+    return { chunk, score, matched: found.size };
   }).filter(item => item.score > 0).sort((a, b) => b.score - a.score);
-  // Short questions need every word; longer ones most of them.
-  const needed = asked.length <= 2 ? asked.length : Math.ceil(asked.length * 0.6);
+  // Short questions need every word; longer ones at least two of them, or 40%.
+  const needed = asked.length <= 2 ? asked.length : Math.max(2, Math.ceil(asked.length * 0.4));
   const seen = new Set<string>();
   const results: Excerpt[] = [];
   for (const item of scored) {

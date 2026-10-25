@@ -77,6 +77,22 @@ describe("My fleet in the chat", () => {
     expect(saved.summary).toBe("Saved in the user's fleet: Sea Breeze, 12,000 GRT, general cargo.");
   });
 
+  it("keeps only the particulars the user actually gave", async () => {
+    const said = (text: string) => ({ toolCallId: "t", messages: [{ role: "user" as const, content: text }], context: {} });
+    let stored: unknown;
+    const recording = businessTools({ fleet: { list: async () => [], save: async ship => { stored = ship; return { id: "x", created: true }; } } });
+    const save = recording.save_ship!;
+    await save.execute!((save.inputSchema as ZodType).parse({ name: "Sea Breeze", imo: "9123456", grt: "12000", nrt: "12000", loa: "12000", type: "general-cargo", status: "foreign" }) as never,
+      said("Please save our ship Sea Breeze: 12,000 GRT general cargo ship, IMO 9123456") as never);
+    expect(stored).toEqual({ name: "Sea Breeze", imo: "9123456", grt: "12000", type: "general-cargo" });
+    const estimateTool = recording.estimate_port_call!;
+    // "45k" is 45,000; a tonnage the user never gave is dropped, so the estimate asks for it.
+    const kept = await estimateTool.execute!((estimateTool.inputSchema as ZodType).parse({ ship: { grt: "45000", type: "tanker" }, calls: [{ port: "Mundra", date: "2026-10-26" }] }) as never, said("port charges at mundra for a 45k grt tanker") as never) as { card: { ship: unknown } };
+    expect(kept.card.ship).toMatchObject({ grt: "45000", type: "tanker" });
+    const invented = await estimateTool.execute!((estimateTool.inputSchema as ZodType).parse({ ship: { grt: "40000" }, calls: [{ port: "Mundra", date: "2026-10-26" }] }) as never, said("port charges at mundra for a bulk ship") as never) as { card: { calls: Array<{ estimate: { questions: string[] } }> } };
+    expect(invented.card.calls[0]!.estimate.questions).toContain("What is the ship's gross tonnage (GRT)?");
+  });
+
   it("has no fleet tools when no fleet is connected", () => {
     expect(Object.keys(businessTools())).not.toContain("save_ship");
   });

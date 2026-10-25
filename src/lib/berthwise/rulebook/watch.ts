@@ -31,7 +31,18 @@ const day = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString("en
 /** Plain-English warnings for an estimate: a rate document that changed on the port's
  * website, or a fuel surcharge older than a fortnight on the call date. */
 export function freshnessNotices(book: PortBook, result: Estimate, statuses: SourceStatus[], callDate: string): string[] {
-  const version = book.versions.find(item => item.id === result.version.id);
+  const fuel = result.lines.some(line => /fuel surcharge/i.test(line.label));
+  return notices(book, result.version.id, statuses, callDate, fuel);
+}
+
+/** The same warnings for a description of how a port charges. */
+export function tariffNotices(book: PortBook, versionId: string, statuses: SourceStatus[], date: string): string[] {
+  const version = book.versions.find(item => item.id === versionId);
+  return notices(book, versionId, statuses, date, Boolean(version?.charges.some(charge => /fuel surcharge/i.test(charge.label))));
+}
+
+function notices(book: PortBook, versionId: string, statuses: SourceStatus[], callDate: string, hasFuel: boolean): string[] {
+  const version = book.versions.find(item => item.id === versionId);
   if (!version) return [];
   const notices: string[] = [];
   for (const status of statuses.filter(item => item.portId === book.id)) {
@@ -41,9 +52,9 @@ export function freshnessNotices(book: PortBook, result: Estimate, statuses: Sou
       ? `${doc.title} has changed on the port's website since we read it (noticed ${day(new Date(status.since).toISOString().slice(0, 10))}). These rates may be out of date until it is checked.`
       : `We couldn't reach ${doc.title} on the port's website recently, so we couldn't confirm it is unchanged.`);
   }
-  const fuel = result.lines.find(line => /fuel surcharge/i.test(line.label));
-  if (fuel) {
-    const notice = version.documents.find(doc => doc.title === fuel.source.title && isFuelNotice(doc.title));
+  if (hasFuel) {
+    const charge = version.charges.find(item => /fuel surcharge/i.test(item.label));
+    const notice = version.documents.find(doc => doc.id === charge?.source.document && isFuelNotice(doc.title));
     const issued = notice?.publishedOn ?? version.effectiveFrom;
     const age = (Date.parse(`${callDate}T00:00:00Z`) - Date.parse(`${issued}T00:00:00Z`)) / 86_400_000;
     if (age > FUEL_SURCHARGE_DAYS) notices.push(`The fuel surcharge is from the notice of ${day(issued)}. ${book.name.replace(/ \(.*\)$/, "")} usually revises it about twice a month, so check the latest trade notice before relying on it.`);

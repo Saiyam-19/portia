@@ -56,7 +56,35 @@ describe("estimate_port_call", () => {
     const noSize = await run("estimate_port_call", { ship: {}, calls: [{ port: "Chennai", date }] });
     expect(noSize.card.calls[0].estimate.questions).toContain("What is the ship's gross tonnage (GRT)?");
     expect(await run("estimate_port_call", { ship: { grt: "1000" }, calls: [{ port: "Colombo" }] })).toEqual({ error: expect.stringContaining("isn't one of the ports we cover") });
-    expect(await run("estimate_port_call", { ship: { grt: "1000" }, calls: [{ port: "Mumbai", berth: "Pier 99" }] })).toEqual({ error: expect.stringContaining("no berth called") });
+    const pier = await run("estimate_port_call", { ship: { grt: "1000" }, calls: [{ port: "Mumbai", berth: "Pier 99" }] });
+    expect(pier.card.calls[0].estimate.assumptions).toEqual(expect.arrayContaining([expect.stringContaining('has no terminal or berth called "Pier 99" in our rule book, so it was left out')]));
+  });
+
+  it("assumes the berth a ship type makes obvious, and ignores anchorage the user never mentioned", async () => {
+    const tools = businessTools();
+    const tool = tools.estimate_port_call!;
+    const said = (text: string) => ({ toolCallId: "t", messages: [{ role: "user" as const, content: text }], context: {} });
+    const kandla = await tool.execute!((tool.inputSchema as ZodType).parse({ ship: { grt: "20000", type: "tanker" }, calls: [{ port: "Kandla", date, hoursAlongside: "36", anchorageHours: "24" }] }) as never,
+      said("berth hire at kandla for a 20k GT liquid tanker, 36 hours") as never) as { card: { calls: Array<{ estimate: { berth?: string; assumptions: string[]; lines: Array<{ type: string }> } }> } };
+    const call = kandla.card.calls[0]!.estimate;
+    expect(call.berth).toBe("Liquid cargo berths");
+    expect(call.assumptions).toContain("Assumed the liquid cargo berths, as for a tanker ship.");
+    expect(call.lines.map(line => line.type)).not.toContain("anchorage");
+    const bulk = await run("estimate_port_call", { ship: { grt: "20000", type: "bulk" }, calls: [{ port: "Kandla", date, hoursAlongside: "36" }] });
+    expect(bulk.card.calls[0].estimate.questions[0]).toContain("Which berth");
+  });
+
+  it("treats placeholders and zeros from the model as not given", async () => {
+    const result = await run("estimate_port_call", {
+      ship: { name: "Unspecified bulk ship", imo: "0000000", grt: "40000", nrt: "0", loa: "0", type: "bulk", status: "foreign" },
+      calls: [{ port: "Mundra", terminal: "Mundra", berth: "Unspecified berth", date, hoursAlongside: "24", anchorageHours: "0", tugs: 0, cargo: { class: "bulk cargo", tonnes: "0" } }],
+    });
+    const call = result.card.calls[0].estimate;
+    expect(result.card.ship).toEqual({ grt: "40000", type: "bulk", status: "foreign" });
+    expect(call.terminal).toBeUndefined();
+    expect(call.lines.map((line: { type: string }) => line.type)).not.toContain("anchorage");
+    expect(call.lines.map((line: { type: string }) => line.type)).not.toContain("wharfage");
+    expect(call.assumptions.join(" ")).not.toContain("left out");
   });
 });
 

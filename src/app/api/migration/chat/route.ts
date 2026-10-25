@@ -1,5 +1,5 @@
 import { MemorySession, memoryFeatureEnabled } from "@/lib/memory/session";
-import { createUIMessageStreamResponse, generateText, toUIMessageStream, type ModelMessage } from "ai";
+import { createUIMessageStreamResponse, toUIMessageStream, type ModelMessage } from "ai";
 import { createHash } from "node:crypto";
 import { migrationChatRequestSchema, type ClaimResult, MAX_CHAT_REQUEST_BYTES } from "@/lib/migration/contracts";
 import { readBoundedJsonBody } from "@/lib/bounded-json-body";
@@ -8,7 +8,7 @@ import { registerMigrationRun, unregisterMigrationRun } from "@/lib/migration/ru
 import { migrationPreviewEnabled } from "@/lib/migration/config";
 import { trustedMigrationOrigin } from "@/lib/migration/origin";
 import { publicChatStream } from "@/lib/migration/public-stream";
-import { BERTHWISE_INSTRUCTIONS, createMigrationMainAgent } from "@/lib/migration/domain-agent";
+import { berthwiseInstructions, createMigrationMainAgent } from "@/lib/migration/domain-agent";
 import { migrationLanguageModel } from "@/lib/migration/model";
 import { assertPublicationFits, PublicationLimitError, PUBLICATION_LIMIT_MESSAGE } from "@/lib/migration/publication-contract";
 import { MIGRATION_CHAT_TIMEOUT } from "@/lib/migration/agent-policy";
@@ -20,8 +20,7 @@ import { publishedAnswerStream } from "@/lib/berthwise/answer-stream";
 import { businessTools } from "@/lib/berthwise/tools";
 import { convexAccount } from "@/lib/berthwise/account-access";
 import {
-  assistantText, hasCards, numberSources, OUT_OF_STEPS, repairRequest, UNCHECKED_SUMMARY, UNCHECKED_SUMMARY_WITH_CARDS,
-  unsupportedNumbers, withoutNarration,
+  checkAnswer, withoutNarration,
 } from "@/lib/berthwise/answer";
 
 export const runtime = "nodejs";
@@ -160,21 +159,9 @@ export async function POST(request: Request): Promise<Response> {
         try {
           await manager.refresh();
           if (abortSignal.aborted) return;
-          const sources = numberSources([...context.messages, ...savedSteps]);
-          let text = assistantText(finalMessages);
-          const incomplete = !text;
-          if (incomplete) text = OUT_OF_STEPS;
-          let unsupported = unsupportedNumbers(text, sources);
-          if (unsupported.length) {
-            const repaired = await generateText({
-              model, system: BERTHWISE_INSTRUCTIONS, abortSignal, maxRetries: 0,
-              messages: [...context.messages, ...savedSteps, { role: "assistant", content: text }, { role: "user", content: repairRequest(unsupported) }],
-            });
-            text = repaired.text.trim();
-            unsupported = unsupportedNumbers(text, sources);
-            if (unsupported.length || !text) text = hasCards(savedSteps) ? UNCHECKED_SUMMARY_WITH_CARDS : UNCHECKED_SUMMARY;
-            console.info("berthwise_answer_repaired", { runId: claim!.runId, stillUnsupported: unsupported.length });
-          }
+          const checked = await checkAnswer({ model, system: berthwiseInstructions(), history: context.messages, steps: savedSteps, final: finalMessages, abortSignal });
+          const { text, incomplete } = checked;
+          if (checked.repaired) console.info("berthwise_answer_repaired", { runId: claim!.runId, stillUnsupported: checked.unsupported.length });
           const completionRequest = {
             op: "complete",
             args: { runId: claim!.runId, fence: claim!.fence, responseMessages: [{ role: "assistant", content: text }], ...(incomplete ? { incomplete: true } : {}) },
