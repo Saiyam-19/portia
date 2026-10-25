@@ -1,6 +1,6 @@
 # Portia runtime deployment
 
-The app deploys as one Next.js site plus the explicitly selected Convex deployment. The old Python API is not part of the serving path. `data/ports/**/*` is included in tracing for canonical and compatibility chat routes. Keep runtime credentials server-side.
+The app deploys as one Next.js site plus the explicitly selected Convex deployment. The old Python API is not part of the serving path. The ports' documents (`data/sources/**/*.md` and `sources.json`) are included in tracing for the chat routes; the rule book is bundled through imports. Keep runtime credentials server-side. Berthwise v1 deployment steps: [handover/README.md](handover/README.md).
 
 Configure the values in `.env.example` in the frontend environment. Configure Convex `PORTIA_ENABLED=true`, `PORTIA_CONVEX_DEPLOYMENT=<slug>`, `PORTIA_AUTH_MODE=basic|private`, `SITE_URL=<frontend origin>`, `PORTIA_SERVER_SECRET`, and `BETTER_AUTH_SECRET`. Convex provides `CONVEX_SITE_URL`; it must match the named deployment. `MIGRATION_DEV_ENABLED=true` remains accepted as a legacy enable flag, but no deployment name is hardcoded.
 
