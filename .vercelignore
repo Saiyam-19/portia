@@ -10,4 +10,3 @@ delivery-checklist.html
 scripts/*
 !scripts/patch-provider-cancellation.mjs
 tests/
-docs/portia-reliability/evidence/

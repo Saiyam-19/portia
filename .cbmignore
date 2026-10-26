@@ -1,4 +1,3 @@
 # Generated builds and captured audit output are not source-code discovery targets.
 .next*/
 output/
-docs/portia-reliability/evidence/

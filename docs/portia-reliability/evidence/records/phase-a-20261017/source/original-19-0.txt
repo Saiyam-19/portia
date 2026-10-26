@@ -1,7 +1,0 @@
-Please check our agent’s calculation using only the quotation below.
-GT: 10,000. Berth hire: INR 0.25 per GT per hour or part thereof. Round the total berth stay up to the next whole hour. No minimum charge, discounts, surcharges, or taxes apply to this exercise.
-Calculate separately for:
-A. 24 hours exactly
-B. 24 hours and 1 minute
-C. 48 hours exactly
-Show billable hours and each total.

@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   // traces. The rule book is bundled through imports in src/lib/berthwise/rulebook/books.ts;
   // the chat routes read the ports' documents (Markdown copies) from data/sources at runtime.
   outputFileTracingExcludes: {
-    '/*': ['./output/**/*', './.local/**/*', './.git/**/*', './.vercel/**/*', './.env*', './backend/.env*', './docs/portia-reliability/evidence/**/*', './data/sources/**/*.pdf', './data/sources/**/*.html'],
+    '/*': ['./output/**/*', './.local/**/*', './.git/**/*', './.vercel/**/*', './.env*', './backend/.env*', './data/sources/**/*.pdf', './data/sources/**/*.html'],
   },
   outputFileTracingIncludes: {
     '/api/memory': ['./node_modules/just-bash/dist/**/*'],
