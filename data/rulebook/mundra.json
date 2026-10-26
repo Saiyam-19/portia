@@ -733,7 +733,7 @@
             }
           ],
           "conditions": [
-            "Lubricating oil pays Rs 95 a tonne."
+            "Furnace oil is Rs 115 a tonne; the schedule also prints \"Lubricating Oil (fuel oil)\" at Rs 95."
           ],
           "source": {
             "document": "bpts-2026-06-15",

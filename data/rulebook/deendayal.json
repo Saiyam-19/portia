@@ -560,7 +560,9 @@
               ]
             }
           ],
-          "conditions": [],
+          "conditions": [
+            "Assumed handled at the single buoy moorings at Vadinar and at the oil jetties at Kandla; crude at a Vadinar jetty pays Rs 36.50 a tonne."
+          ],
           "source": {
             "document": "sor-escalated-2026-27",
             "page": 14,

@@ -600,7 +600,6 @@
             {
               "when": {
                 "cargoClasses": [
-                  "petroleum-products",
                   "diesel",
                   "petrol",
                   "fuel-oil",

@@ -25,6 +25,7 @@ Out of v1, as agreed: supplier quotes, team accounts, email, GST lines, landing-
 ## Why the figures can be trusted
 
 - **Two independent readings** of every rate schedule (Claude and Codex), compared over 14,700 priced calls; every difference was settled against the documents: [rulebook-resolutions.md](../rulebook-resolutions.md).
+- **Wharfage read twice too:** 140 rates matched and 37 differed; each difference was settled against the documents, and the 20 that remain are deliberate and explained: [wharfage-resolutions.md](../wharfage-resolutions.md).
 - **Every figure is checked** against a verbatim quote from its page by `tests/berthwise/rulebook-data.test.ts`.
 - **Seven figures from the earlier, separately reviewed engine** reproduce exactly: `tests/berthwise/rulebook-oracles.test.ts`.
 - **The model can't make up numbers:** every figure in a reply must come from the user or a tool result, or the reply is rewritten once and otherwise replaced.
@@ -78,7 +79,7 @@ Not verified yet, because they need the deployed system: sign-in journeys with r
 
 ## Known gaps
 
-- **Wharfage has one reading so far.** It was entered on 26 October 2026 for 20 cargo kinds (coal, iron ore, fertilisers, steel, crude, oil products by product, LPG, LNG, chemicals, edible oil, grains, cement, containers per box). Codex's independent second reading is briefed in [codex-wharfage-reading.md](../codex-wharfage-reading.md). Rates that fall with a user's annual volume use the first slab; container wharfage at JNPA, New Mangalore and Pipavav is inside the terminals' handling charges, which Berthwise doesn't price.
+- **Wharfage** covers 20 cargo kinds at the 12 ports, read twice (Claude and Codex) and settled against the documents: [wharfage-resolutions.md](../wharfage-resolutions.md). Not priced, with the reason shown: liquids at Pipavav (charged per 1,000 litres), liquids at Mumbai (docks and oil terminals differ), JNPA's liquid terminal (its rate expired on 31 March 2025), container wharfage inside terminal or composite handling charges (JNPA, New Mangalore, Pipavav, Mumbai imports), Deendayal containers. Rates that fall with a user's annual volume use the first slab.
 - Kamarajar's dry bulk anchorage (unclear unit) and Pipavav's tanker berth-hire minimum: see port-questions.md.
 - Not priced: offshore buoy moorings (SPM/SBM), Mundra's crude oil jetty, Chennai cruise ships, Jaigarh's pilotage surcharge by ship age, Pipavav general-cargo berth hire and tankers over 60,000 GRT, Paradip's roadstead charge.
 - A new schedule published under a new link (for example the annual indexation each 1 May) isn't detected automatically; check each port's tariff page in late April.

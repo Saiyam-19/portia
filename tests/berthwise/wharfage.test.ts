@@ -57,6 +57,20 @@ describe("wharfage", () => {
     expect(lines("kamarajar", { status: "coastal", cargo: { class: "coal", tonnes: "1000" } })).toEqual([["wharfage-coal", "146920"]]);
   });
 
+  it("follows the settlement with Codex's second reading", () => {
+    // Pipavav's "tonne" for light liquids is 1,000 litres, so a weight can't price it.
+    expect(wharfage("pipavav", { vesselType: "tanker", cargo: { class: "diesel", tonnes: "1000" } }).notCovered[0]!.reason).toMatch(/per 1,000 litres/);
+    expect(lines("pipavav", { cargo: { class: "fertilizer-raw-materials", tonnes: "1000" } })).toEqual([["wharfage-fertilizer-raw", "60000"]]);
+    // Mumbai: export containers pay per box on the cargo inside; import containers by commodity.
+    expect(lines("mumbai", { vesselType: "container", cargo: { class: "containers", teu: "30", fortyFoot: "10", direction: "export" } }))
+      .toEqual([["wharfage-container-cargo-20", "24890"], ["wharfage-container-cargo-40", "37330"]]);
+    expect(wharfage("mumbai", { vesselType: "container", cargo: { class: "containers", teu: "30", direction: "import" } }).notCovered[0]!.reason).toMatch(/import containers pay wharfage on the cargo inside/);
+    expect(wharfage("mumbai", { vesselType: "tanker", cargo: { class: "crude-oil", tonnes: "1000" } }).notCovered[0]!.reason).toMatch(/docks only/);
+    // Hazira prices named oil products only, so "oil products" asks which.
+    expect(wharfage("hazira", { cargo: { class: "petroleum-products", tonnes: "1000" } }).questions).toEqual([expect.stringMatching(/^Which product is it: /)]);
+    expect(wharfage("jnpa", { terminal: "jsw-jnpt-liquid", vesselType: "tanker", cargo: { class: "chemicals", tonnes: "1000" } }).notCovered[0]!.reason).toMatch(/31 March 2025/);
+  });
+
   it("is part of the whole bill when a cargo is given", () => {
     const bill = estimate(book("hazira"), { date: "2026-10-25", status: "foreign", vesselType: "bulk", grt: "30000", hours: "24", cargo: { class: "coal", tonnes: "40000" } });
     expect(bill.lines.find(line => line.type === "wharfage")).toMatchObject({ amount: "2640000", currency: "INR" });

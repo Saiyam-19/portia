@@ -853,7 +853,7 @@
           "cargoClasses": [
             "containers"
           ],
-          "reason": "At New Mangalore, container wharfage is part of the composite box rate for container handling, which this estimate doesn't include.",
+          "reason": "At New Mangalore, a loaded container pays a composite box rate covering wharfage and basic handling, which this estimate doesn't include; separate container wharfage is for hazardous and special containers.",
           "source": {
             "document": "sor-2026-27",
             "page": 57

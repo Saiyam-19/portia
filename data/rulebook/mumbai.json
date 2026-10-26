@@ -613,43 +613,10 @@
           }
         },
         {
-          "id": "wharfage-crude-oil",
+          "id": "wharfage-container-cargo-20",
           "type": "wharfage",
-          "label": "Wharfage on crude oil",
-          "basis": "tonne",
-          "rates": [
-            {
-              "when": {
-                "cargoClasses": [
-                  "crude-oil"
-                ]
-              },
-              "currency": "INR",
-              "bands": [
-                {
-                  "rate": "108.79"
-                }
-              ]
-            }
-          ],
-          "conditions": [
-            "Rate at Jawahar Dweep.",
-            "Charged on the gross weight in the bill of lading or manifest; cargo handled overside pays half."
-          ],
-          "source": {
-            "document": "sor-2026-05",
-            "page": 36,
-            "quote": [
-              "##### **3.2** **<u>Wharfage charges leviable at Jawahar Dweep and Pir Pau</u>**",
-              "|1.|POL and POL Products<br>(i)<br>Crude Oil|108.79|108.79|"
-            ]
-          }
-        },
-        {
-          "id": "wharfage-chemicals",
-          "type": "wharfage",
-          "label": "Wharfage on liquid chemicals",
-          "basis": "tonne",
+          "label": "Wharfage on cargo in export 20-foot containers",
+          "basis": "box20",
           "rates": [
             {
               "when": {
@@ -657,13 +624,16 @@
                   "foreign"
                 ],
                 "cargoClasses": [
-                  "chemicals"
+                  "containers"
+                ],
+                "directions": [
+                  "export"
                 ]
               },
               "currency": "INR",
               "bands": [
                 {
-                  "rate": "183.77"
+                  "rate": "2489"
                 }
               ]
             },
@@ -673,34 +643,35 @@
                   "coastal"
                 ],
                 "cargoClasses": [
-                  "chemicals"
+                  "containers"
+                ],
+                "directions": [
+                  "export"
                 ]
               },
               "currency": "INR",
               "bands": [
                 {
-                  "rate": "110.26"
+                  "rate": "1493"
                 }
               ]
             }
           ],
           "conditions": [
+            "For loaded export containers brought in from outside the port (not from an ICD); sizes read from the PDF, page 49.",
             "Charged on the gross weight in the bill of lading or manifest; cargo handled overside pays half."
           ],
           "source": {
             "document": "sor-2026-05",
-            "page": 36,
-            "quote": [
-              "##### **3.2** **<u>Wharfage charges leviable at Jawahar Dweep and Pir Pau</u>**",
-              "|2.|Chemicals viz. Ammonia, EDC, Ethyle,<br>Benzine, Paraxylene, M.E.G., N.<br>Paraffin, Orthoxylene and other liquids<br>in bulk|183.77|110.26|"
-            ]
+            "page": 49,
+            "quote": "- (5) Wharfage on cargo inside the export loaded container received from other than port premises excluding container received from ICD shall 2489/1493/-) for a container having length"
           }
         },
         {
-          "id": "wharfage-edible-oil",
+          "id": "wharfage-container-cargo-40",
           "type": "wharfage",
-          "label": "Wharfage on edible oil",
-          "basis": "tonne",
+          "label": "Wharfage on cargo in export 40-foot containers",
+          "basis": "box40",
           "rates": [
             {
               "when": {
@@ -708,13 +679,16 @@
                   "foreign"
                 ],
                 "cargoClasses": [
-                  "edible-oil"
+                  "containers"
+                ],
+                "directions": [
+                  "export"
                 ]
               },
               "currency": "INR",
               "bands": [
                 {
-                  "rate": "50.11"
+                  "rate": "3733"
                 }
               ]
             },
@@ -724,25 +698,28 @@
                   "coastal"
                 ],
                 "cargoClasses": [
-                  "edible-oil"
+                  "containers"
+                ],
+                "directions": [
+                  "export"
                 ]
               },
               "currency": "INR",
               "bands": [
                 {
-                  "rate": "30.05"
+                  "rate": "2241"
                 }
               ]
             }
           ],
           "conditions": [
-            "Rate at Pir Pau.",
+            "For loaded export containers brought in from outside the port (not from an ICD); sizes read from the PDF, page 49.",
             "Charged on the gross weight in the bill of lading or manifest; cargo handled overside pays half."
           ],
           "source": {
             "document": "sor-2026-05",
-            "page": 36,
-            "quote": "|3.|Edible oil handled at Pir Pau|50.11|30.05|"
+            "page": 49,
+            "quote": "- upto 3733/2241/-) for a container having length upto 40 4977/2986/-) for a container having length over 40feet ."
           }
         }
       ],
@@ -781,9 +758,12 @@
             "naphtha",
             "fuel-oil",
             "jet-fuel",
-            "lpg"
+            "crude-oil",
+            "lpg",
+            "chemicals",
+            "edible-oil"
           ],
-          "reason": "At Mumbai, wharfage on oil products and LPG differs between Jawahar Dweep and Pir Pau, so it isn't included.",
+          "reason": "At Mumbai, liquid cargo pays different wharfage in the docks and at Jawahar Dweep and Pir Pau, and Berthwise prices the docks only, so it isn't included.",
           "source": {
             "document": "sor-2026-05",
             "page": 36
@@ -794,7 +774,7 @@
           "cargoClasses": [
             "containers"
           ],
-          "reason": "At Mumbai, containers pay wharfage on the cargo inside them by commodity, so container wharfage isn't priced separately.",
+          "reason": "At Mumbai, import containers pay wharfage on the cargo inside them by commodity, so it isn't included.",
           "source": {
             "document": "sor-2026-05",
             "page": 47

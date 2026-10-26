@@ -2,7 +2,7 @@
 
 Berthwise v1 prices port calls at 12 Indian ports from each port's published rate schedule. Two independent readings of every schedule were compared and every difference was checked against the documents (see `docs/rulebook-resolutions.md`). A few points remain where the port's own wording is unclear. Your invoices are the quickest way to settle them.
 
-Last updated: 25 October 2026.
+Last updated: 26 October 2026.
 
 ## The 12 ports stay
 
@@ -20,6 +20,8 @@ Most important first. "What Berthwise does now" is how estimates behave until yo
 | 4 | Jaigarh | Is a part day at anchorage billed as a full day? | Short anchorage stays. | Exact days are used. | Tariff 1 May 2026, page 2, table J-7 |
 | 5 | Pipavav | The tanker berth-hire minimum reads "US$ 1000 for 24 hours". Is it per day, or once per call? | Only tankers under about 2,100 GRT (gas tankers under about 1,750 GRT). | Read as US$ 1,000 for each 24 hours. | Tariffs 1 January 2026, page 9 |
 | 6 | New Mangalore | Anchorage after leaving the berth: the foreign rate is printed as "USD 0.00075 cents" (minimum USD 1.52 per hour). What is the real rate? | Rare: waiting before berthing is free. | Not priced. | Scale of Rates 2026-27, page 35 |
+| 7 | New Mangalore | Does an ordinary loaded container pay only the composite box rate (Rs. 524.69 per 20-foot box, foreign, "covers wharfage"), or also the container wharfage in table 4.1(b) (Rs. 536.76), which is headed "other types of containers (including Reefer)"? | Container calls. | Container wharfage is not added; the estimate says the composite rate covers it. | Scale of Rates 2026-27, page 57 |
+| 8 | Mundra | Fuel oil appears twice in the wharfage table: "Lubricating Oil (fuel oil)" at Rs. 95 a tonne and "Furnace Oil" at Rs. 115. Which applies to fuel oil cargo? | Fuel oil cargo only. | Furnace oil rate (Rs. 115); the estimate mentions the other row. | Berthing Policy & Tariff Structure, pages 45 and 46 |
 
 ## Already settled
 

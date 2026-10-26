@@ -822,7 +822,16 @@
           "text": "Kattupalli's tariff lists only some cargo for the Tamil Nadu Maritime Board's landing and shipping charges and refers to the Board's own scale for the rest, which we don't hold."
         }
       ],
-      "notPriced": []
+      "notPriced": [
+        {
+          "type": "wharfage",
+          "cargoClasses": [
+            "coal",
+            "coking-coal"
+          ],
+          "reason": "Kattupalli's tariff doesn't name coal and refers unlisted cargo to the Tamil Nadu Maritime Board's own scale, which we don't hold, so it isn't included."
+        }
+      ]
     }
   ]
 }

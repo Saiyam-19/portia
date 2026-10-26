@@ -627,7 +627,26 @@
         },
         {
           "type": "wharfage",
-          "reason": "JNPA's schedules we hold don't price wharfage on bulk or liquid cargo, so it isn't included."
+          "cargoClasses": [
+            "petroleum-products",
+            "diesel",
+            "petrol",
+            "naphtha",
+            "fuel-oil",
+            "jet-fuel",
+            "crude-oil",
+            "chemicals",
+            "edible-oil"
+          ],
+          "reason": "At JNPA, liquid cargo pays the liquid terminal's cargo charge; the JSW JNPT Liquid Terminal tariff we hold says its rate applied only until 31 March 2025, so it isn't included.",
+          "source": {
+            "document": "jsw-jnpt-liquid-2024",
+            "page": 3
+          }
+        },
+        {
+          "type": "wharfage",
+          "reason": "JNPA's schedules we hold don't price wharfage on bulk cargo, so it isn't included."
         }
       ]
     }

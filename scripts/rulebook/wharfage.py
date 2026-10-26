@@ -39,22 +39,22 @@ WHARFAGE = {
                 row("||Export|Tonne|199|120|", "199", "120", {"directions": ["export"]}),
             ], context=["|13|Iron and Steel Materials (excluding<br>scrap, dross and ores)||||", "||At MbPA berths||||"],
                 conditions=["Rates at the Port Authority's own berths; steel at the Offshore Container Terminal (OCT) berths pays Rs 389 a tonne on import and Rs 259 on export (foreign cargo)."]),
-            charge("crude-oil", "crude oil", ["crude-oil"], [row("Crude Oil|108.79|108.79|", "108.79", "108.79")],
-                context=["##### **3.2** **<u>Wharfage charges leviable at Jawahar Dweep and Pir Pau</u>**"], conditions=["Rate at Jawahar Dweep."]),
-            charge("chemicals", "liquid chemicals", ["chemicals"], [row("in bulk|183.77|110.26|", "183.77", "110.26")],
-                context=["##### **3.2** **<u>Wharfage charges leviable at Jawahar Dweep and Pir Pau</u>**"]),
-            charge("edible-oil", "edible oil", ["edible-oil"], [row("|3.|Edible oil handled at Pir Pau|50.11|30.05|", "50.11", "30.05")], conditions=["Rate at Pir Pau."]),
+            charge("container-cargo-20", "cargo in export 20-foot containers", ["containers"], [row("shall 2489/1493/-) for a container having length", "2489", "1493", {"directions": ["export"]})], basis="box20",
+                conditions=["For loaded export containers brought in from outside the port (not from an ICD); sizes read from the PDF, page 49."]),
+            charge("container-cargo-40", "cargo in export 40-foot containers", ["containers"], [row("upto 3733/2241/-) for a container having length upto 40", "3733", "2241", {"directions": ["export"]})], basis="box40",
+                conditions=["For loaded export containers brought in from outside the port (not from an ICD); sizes read from the PDF, page 49."]),
         ],
         "notPriced": [
-            {"type": "wharfage", "cargoClasses": POL + ["lpg"], "reason": "At Mumbai, wharfage on oil products and LPG differs between Jawahar Dweep and Pir Pau, so it isn't included.", "page": 36},
-            {"type": "wharfage", "cargoClasses": ["containers"], "reason": "At Mumbai, containers pay wharfage on the cargo inside them by commodity, so container wharfage isn't priced separately.", "page": 47},
+            {"type": "wharfage", "cargoClasses": POL + ["crude-oil", "lpg", "chemicals", "edible-oil"], "reason": "At Mumbai, liquid cargo pays different wharfage in the docks and at Jawahar Dweep and Pir Pau, and Berthwise prices the docks only, so it isn't included.", "page": 36},
+            {"type": "wharfage", "cargoClasses": ["containers"], "reason": "At Mumbai, import containers pay wharfage on the cargo inside them by commodity, so it isn't included.", "page": 47},
         ],
     },
     "jnpa": {
         "doc": "nsict-2026", "versions": ["jnpa-indexed-2026-27"], "charges": [],
         "notPriced": [
             {"type": "wharfage", "cargoClasses": ["containers"], "reason": "At JNPA, wharfage on containers is part of each container terminal's handling charge, which this estimate doesn't include.", "needle": "**2.10** The consolidated charges as above include"},
-            {"type": "wharfage", "reason": "JNPA's schedules we hold don't price wharfage on bulk or liquid cargo, so it isn't included."},
+            {"type": "wharfage", "cargoClasses": POL + ["crude-oil", "chemicals", "edible-oil"], "reason": "At JNPA, liquid cargo pays the liquid terminal's cargo charge; the JSW JNPT Liquid Terminal tariff we hold says its rate applied only until 31 March 2025, so it isn't included.", "doc": "jsw-jnpt-liquid-2024", "needle": "Charges applicable till 31<sup>st</sup> March 2025"},
+            {"type": "wharfage", "reason": "JNPA's schedules we hold don't price wharfage on bulk cargo, so it isn't included."},
         ],
     },
     "jaigarh": {
@@ -83,7 +83,7 @@ WHARFAGE = {
             charge("oil-products", "oil products", POL, [
                 row("||Other Liquid Petroleumproducts|**M.Ton**|**115/-**|", rate="115"),
             ], context=["||HSD|**M.Ton**|**115/-**|", "||Kerosene|**M.Ton**|**115/-**|", "||Naphtha|**M.Ton**|**115/-**|", "||Petrol, LDO|**M.Ton**|**115/-**|", "||Furnace Oil|**M.Ton**|**115/-**|"],
-                conditions=["Lubricating oil pays Rs 95 a tonne."]),
+                conditions=["Furnace oil is Rs 115 a tonne; the schedule also prints \"Lubricating Oil (fuel oil)\" at Rs 95."]),
             charge("lpg", "LPG", ["lpg"], [row("||LPG|**M.Ton**|**350/-**|", rate="350")]),
             charge("lng", "LNG", ["lng"], [row("||LNG|**M.Ton**|**179.16/-**|", rate="179.16")]),
             charge("chemicals", "liquid chemicals", ["chemicals"], [row("||All other liquid chemicals which are not<br>petroleum orpetroleum derivatives|**M.Ton**|**85/-**|", rate="85")],
@@ -104,7 +104,7 @@ WHARFAGE = {
             charge("steel", "steel", ["steel"], [row("||a||Steel Coils|**MT**|94|", rate="94")],
                 context=["||b|Steel Pipes, Steel Plates / Steel Angles<br>/ Steel Bar / Steel Rebar / Steel<br>Bends/Steel Rail/Any Steel product|**MT**|94|"]),
             charge("crude-oil", "crude oil", ["crude-oil"], [row("||c|Crude Oil|**MT**|135|", rate="135")]),
-            charge("oil-products", "petrol, diesel, kerosene and fuel oil", ["petroleum-products", "diesel", "petrol", "fuel-oil", "jet-fuel"], [row("||d|Petrol /Diesel/SKO<br>Furnace oil, bitumen, CBFS|**MT**|135|", rate="135")],
+            charge("oil-products", "petrol, diesel, kerosene and fuel oil", ["diesel", "petrol", "fuel-oil", "jet-fuel"], [row("||d|Petrol /Diesel/SKO<br>Furnace oil, bitumen, CBFS|**MT**|135|", rate="135")],
                 conditions=["Lube and base oil pay Rs 110 a tonne."]),
             charge("naphtha", "naphtha", ["naphtha"], [row("||a|Naphtha/Ammonia|**MT**|175|", rate="175")]),
             charge("chemicals", "liquid chemicals", ["chemicals"], [row("||a|<sup>All other Liquid Chemicals and</sup><br>Petrochemicals|**MT**|115|", rate="115")], conditions=["Ammonia pays Rs 175 a tonne."]),
@@ -126,6 +126,7 @@ WHARFAGE = {
             charge("food-grains", "food grains", ["food-grains"], [row("|**D**|**Food Grains and Food Products**<br>Ton|INR 43.20|", rate="43.20")]),
             charge("cement", "cement", ["cement"], [row("|**E**|**Cement**<br>Ton|INR 51.85|", rate="51.85")]),
         ],
+        "notPriced": [{"type": "wharfage", "cargoClasses": ["coal", "coking-coal"], "reason": "Kattupalli's tariff doesn't name coal and refers unlisted cargo to the Tamil Nadu Maritime Board's own scale, which we don't hold, so it isn't included."}],
         "notes": ["Kattupalli's tariff lists only some cargo for the Tamil Nadu Maritime Board's landing and shipping charges and refers to the Board's own scale for the rest, which we don't hold."],
     },
     "pipavav": {
@@ -136,18 +137,12 @@ WHARFAGE = {
             charge("iron-ore", "iron ore", ["iron-ore"], [row("|IRON ORE|T|70|", rate="70")]),
             charge("fertilizer", "fertiliser", ["fertilizer"], [row("|FERTILIZER|T|65|", rate="65")]),
             charge("steel", "hot-rolled steel coils", ["steel"], [row("|H.R. COILS|T|74|", rate="74")], conditions=["Pipes, plates, sheets and billets pay Rs 80 a tonne; hot and cold rolled slabs Rs 84."]),
-            charge("crude-oil", "crude oil", ["crude-oil"], [row("|CRUDE OIL|T|118|", rate="118")]),
-            charge("diesel", "diesel and kerosene", ["diesel", "jet-fuel"], [row("|DIESEL/KEROSENE|T|118|", rate="118")]),
-            charge("petrol", "petrol and naphtha", ["petrol", "naphtha"], [row("|PETROL/NAPHTHA/LDO & SKL|T|118|", rate="118")]),
-            charge("fuel-oil", "fuel oil and lubricating oil", ["fuel-oil"], [row("|LUBRICATING OIL / FUEL OIL / BASE OIL|T|106|", rate="106")]),
-            charge("lng", "LNG", ["lng"], [row("|LNG|T|303|", rate="303")]),
-            charge("lpg", "LPG", ["lpg"], [row("|LPG / LPG MIX / PROPANE / BUTANE|T|275|", rate="275")]),
-            charge("chemicals", "liquid chemicals", ["chemicals"], [row("|ALL OTHER LIQUID CHEMICALS WHICH ARE NOT PETROLEUM<br>PRODUCTS OR DERIVATIVES|T|106|", rate="106")], conditions=["Acids, ammonia and EDC pay Rs 120 a tonne."]),
-            charge("edible-oil", "edible oil in bulk", ["edible-oil"], [row("|Oil vegetable & edible bulk|T|80|", rate="80")]),
+            charge("fertilizer-raw", "rock phosphate", ["fertilizer-raw-materials"], [row("|ROCK PHOSPHATE|T|60|", rate="60")], conditions=["Sulphur pays Rs 80 a tonne."]),
             charge("food-grains", "food grains", ["food-grains"], [row("|FOODGRAINS, OIL SEEDS, PULSES|T|44|", rate="44")]),
             charge("cement", "cement and clinker", ["cement"], [row("|CEMENT/CLINKER|T|48|", rate="48")]),
         ],
-        "notPriced": [{"type": "wharfage", "cargoClasses": ["containers"], "reason": "At Pipavav, wharfage on containers is part of the container terminal's consolidated handling charge, which this estimate doesn't include.", "needle": "wharfage on tare weight of the containers"}],
+        "notPriced": [{"type": "wharfage", "cargoClasses": POL + ["crude-oil", "lpg", "lng", "chemicals", "edible-oil"], "reason": "At Pipavav, wharfage on liquids lighter than water is charged per 1,000 litres, not per tonne, so it can't be priced from the cargo's weight.", "needle": "**“Tonne”** for liquids in bulk means"},
+            {"type": "wharfage", "cargoClasses": ["containers"], "reason": "At Pipavav, wharfage on containers is part of the container terminal's consolidated handling charge, which this estimate doesn't include.", "needle": "wharfage on tare weight of the containers"}],
     },
     "chennai": {
         "doc": "tn-gazette-2026-sor", "versions": ["chennai-sor-2026"],
@@ -206,7 +201,7 @@ WHARFAGE = {
             charge("cement", "cement", ["cement"], [row("|(a)upto 3.00 lakh tonnesper annum|M**.**T**.**|49.65|81.86|", "81.86", "49.65")],
                 context=["|V**Construction Materials/ Cement**||||"], conditions=["Rate for users handling up to 3 lakh tonnes a year; larger users pay less. Clinker pays Rs 39.35 a tonne (foreign)."]),
         ],
-        "notPriced": [{"type": "wharfage", "cargoClasses": ["containers"], "reason": "At New Mangalore, container wharfage is part of the composite box rate for container handling, which this estimate doesn't include.", "needle": "**Note:** Composite box-rate for container prescribed above covers wharfage"}],
+        "notPriced": [{"type": "wharfage", "cargoClasses": ["containers"], "reason": "At New Mangalore, a loaded container pays a composite box rate covering wharfage and basic handling, which this estimate doesn't include; separate container wharfage is for hazardous and special containers.", "needle": "**Note:** Composite box-rate for container prescribed above covers wharfage"}],
     },
     "paradip": {
         "doc": "sor-2026-new-18092026", "versions": ["paradip-sor-2026"],
@@ -244,7 +239,7 @@ WHARFAGE = {
             charge("crude-oil", "crude oil", ["crude-oil"], [
                 row("|(a).|Crude Oil to be handled at SPM|M**.**T**.**|28.38|28.38|", "28.38", "28.38", {"terminals": ["vadinar"]}),
                 row("|(d).|Crude oil to be handled at Oil Jetties||36.50|36.50|", "36.50", "36.50", {"terminals": ["kandla"]}),
-            ]),
+            ], conditions=["Assumed handled at the single buoy moorings at Vadinar and at the oil jetties at Kandla; crude at a Vadinar jetty pays Rs 36.50 a tonne."]),
             charge("oil-products", "oil products", POL, [row("|(b).|POL Products|M**.**T**.**|70.96|70.96|", "70.96", "70.96")]),
             charge("edible-oil", "edible oil", ["edible-oil"], [row("|2.|Edible oil – crude and refined|M**.**T**.**|41.07|68.46|", "68.46", "41.07")]),
             charge("chemicals", "liquid chemicals", ["chemicals"], [row("|3.|Non Hazardous chemicals|M**.**T**.**|41.07|68.46|", "68.46", "41.07")], context=["|4.|Hazardous chemicals|M**.**T**.**|41.07|68.46|"]),
@@ -278,14 +273,15 @@ def main():
         document = next(d for d in version0["documents"] if d["id"] == spec["doc"])
         lines = (ROOT / document["markdown"]).read_text().splitlines()
 
-        def find(needle):
-            hits = [i for i, line in enumerate(lines) if needle in line]
+        def find(needle, doc=None):
+            source = lines if doc is None else (ROOT / next(d for d in version0["documents"] if d["id"] == doc)["markdown"]).read_text().splitlines()
+            hits = [i for i, line in enumerate(source) if needle in line]
             if not hits:
                 problems.append(f"{port}: not found: {needle}")
                 return None, None
             index = hits[0]
-            page = next((int(m.group(1)) for line in reversed(lines[:index + 1]) if (m := re.search(r"<!-- page (\d+) -->", line))), 1)
-            return lines[index], page
+            page = next((int(m.group(1)) for line in reversed(source[:index + 1]) if (m := re.search(r"<!-- page (\d+) -->", line))), 1)
+            return source[index], page
 
         def snippet(line, figures=()):
             # The quote is the table line, cut at a cell boundary to stay under 400 characters.
@@ -337,9 +333,9 @@ def main():
         for entry in spec.get("notPriced", []):
             out = {"type": entry["type"], **({"cargoClasses": entry["cargoClasses"]} if "cargoClasses" in entry else {}), "reason": entry["reason"]}
             if "needle" in entry:
-                line, at = find(entry["needle"])
+                line, at = find(entry["needle"], entry.get("doc"))
                 if line:
-                    out["source"] = {"document": spec["doc"], "page": at}
+                    out["source"] = {"document": entry.get("doc", spec["doc"]), "page": at}
             elif "page" in entry:
                 out["source"] = {"document": spec["doc"], "page": entry["page"]}
             not_priced.append(out)
