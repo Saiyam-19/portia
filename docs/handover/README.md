@@ -9,6 +9,7 @@ Status on 26 October 2026: built and tested on branch `berthwise-v1`; **not depl
 | From the plan | Where it is |
 |---|---|
 | Estimate a port call: port dues, pilotage, towage, berth hire, mooring and other standard charges, with each line's working and source page, total before GST | `estimate_port_call`; estimate card |
+| Cargo charges (wharfage) for the main cargo types, from the cargo quantity | `estimate_port_call` with cargo; 123 rows across the 12 ports (`scripts/rulebook/wharfage.py`) |
 | Voyage view: departure and arrival with a combined total | `estimate_port_call` with two calls |
 | Compare ports: berth hire, whole bill, tariffs | `compare_ports` (views `berth-hire`, `whole-bill`, `tariff`) |
 | Check rates are current: schedule in force, when checked, what changed | `port_tariff`; monthly link check and fuel-surcharge warnings ([updating rates](updating-rates.md)) |
@@ -28,7 +29,7 @@ Out of v1, as agreed: supplier quotes, team accounts, email, GST lines, landing-
 - **Seven figures from the earlier, separately reviewed engine** reproduce exactly: `tests/berthwise/rulebook-oracles.test.ts`.
 - **The model can't make up numbers:** every figure in a reply must come from the user or a tool result, or the reply is rewritten once and otherwise replaced.
 - **Ship particulars, exchange rates and anchorage time come from the user,** never from the model: the tools drop anything the user didn't say.
-- **30 everyday questions** pass every automatic check on both models, after the code-review fixes: [Luna](evaluation/openai-gpt-6-luna-2026-10-25.md), [Sol](evaluation/openai-gpt-6-sol-2026-10-25.md).
+- **Everyday questions** run end to end through the real model: 30 of 30 on both models after the code-review fixes ([Luna](evaluation/openai-gpt-6-luna-2026-10-25.md), [Sol](evaluation/openai-gpt-6-sol-2026-10-25.md)); with wharfage added, 30 of 32 on Sol ([26 October](evaluation/openai-gpt-6-sol-2026-10-26.md)). Both wharfage questions passed; the two misses were correct answers worded in ways the automatic checks didn't list, and the checks now accept them.
 
 Points the documents leave unclear are listed for the client: [port-questions.md](port-questions.md).
 
@@ -53,7 +54,7 @@ Codex reviewed the whole branch and raised ten findings; all ten are fixed, each
 
 1. **Model for v1: Sol (decided 26 October 2026).** Both models pass all 30 questions; Sol showed steadier judgement in testing (Luna once compared ports with the wrong tool before the instructions were tightened). Sol cost about US$ 0.02 a question in testing, Luna about US$ 0.001. Sol is the default; `BERTHWISE_MODEL=openai/gpt-6-luna` switches to Luna.
 2. **Privacy routing for company documents (D-5).** Passages from uploaded documents are sent to the model through OpenRouter, routed only to Azure with zero data retention and data collection denied (`src/lib/migration/model.ts`). Confirm this is acceptable before clients upload real contracts.
-3. **OpenRouter spending limit.** The key has a US$ 9 limit for testing (about US$ 1.34 spent by 26 October 2026). Raise it for real use.
+3. **OpenRouter spending limit.** The key has a US$ 9 limit for testing (about US$ 2.04 spent by 26 October 2026). Raise it for real use.
 
 ## Deploying
 
@@ -77,7 +78,7 @@ Not verified yet, because they need the deployed system: sign-in journeys with r
 
 ## Known gaps
 
-- **Cargo charges (wharfage) aren't in the rule book yet.** The plan includes wharfage for the main cargo types; estimates with cargo say it is missing. Entering it for the 12 ports, with a second reading by Codex, is the next piece of data work.
+- **Wharfage has one reading so far.** It was entered on 26 October 2026 for 20 cargo kinds (coal, iron ore, fertilisers, steel, crude, oil products by product, LPG, LNG, chemicals, edible oil, grains, cement, containers per box). Codex's independent second reading is briefed in [codex-wharfage-reading.md](../codex-wharfage-reading.md). Rates that fall with a user's annual volume use the first slab; container wharfage at JNPA, New Mangalore and Pipavav is inside the terminals' handling charges, which Berthwise doesn't price.
 - Kamarajar's dry bulk anchorage (unclear unit) and Pipavav's tanker berth-hire minimum: see port-questions.md.
 - Not priced: offshore buoy moorings (SPM/SBM), Mundra's crude oil jetty, Chennai cruise ships, Jaigarh's pilotage surcharge by ship age, Pipavav general-cargo berth hire and tankers over 60,000 GRT, Paradip's roadstead charge.
 - A new schedule published under a new link (for example the annual indexation each 1 May) isn't detected automatically; check each port's tariff page in late April.

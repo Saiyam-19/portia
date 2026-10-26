@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ModelMessage } from "ai";
 import type { ZodType } from "zod";
-import { keepRate, keepShip, keepStay, readConversation } from "../../src/lib/berthwise/user-input";
+import { keepCharges, keepRate, keepShip, keepStay, readConversation } from "../../src/lib/berthwise/user-input";
 import { businessTools } from "../../src/lib/berthwise/tools";
 
 const user = (content: string): ModelMessage => ({ role: "user", content });
@@ -41,5 +41,16 @@ describe("what the user actually said", () => {
     const result = await tool.execute!(input as never, { toolCallId: "t", messages: [user("Paradip, foreign-going bulk ship of 30,000 GRT, 24 hours alongside")], context: {} } as never) as { card: { calls: Array<{ estimate: { totals: Array<{ amount: string }> } }>; inRupees?: unknown } };
     expect(result.card.calls[0]!.estimate.totals).toEqual([expect.objectContaining({ amount: "40858.32" })]);
     expect(result.card.inRupees).toBeUndefined();
+  });
+});
+
+describe("charges the user named", () => {
+  it("keeps only charges the user asked for, and treats a full list as the whole bill", () => {
+    const heard = readConversation([{ role: "user", content: "Kamarajar charges for a 50,000 GT container ship, 20 hours alongside" }]);
+    expect(keepCharges(["port-dues", "pilotage", "towage", "berth-hire", "mooring", "anchorage", "wharfage", "other"], heard)).toBeUndefined();
+    const hire = readConversation([{ role: "user", content: "Just the berth hire at Mumbai for 18 hours" }]);
+    expect(keepCharges(["berth-hire", "wharfage"], hire)).toEqual(["berth-hire"]);
+    // "Berthing charges" is the whole bill.
+    expect(keepCharges(["berth-hire"], readConversation([{ role: "user", content: "berthing charges at Paradip" }]))).toBeUndefined();
   });
 });

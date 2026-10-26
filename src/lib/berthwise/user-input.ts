@@ -139,3 +139,17 @@ export function keepRate(rate: string | undefined, heard: Conversation | undefin
   if (!heard) return rate;
   return heard.figures.some(item => item.value === Number(rate) && /exchange|rate\b|rupees?|₹|\binr\b|\brs\b|per (?:us )?(?:dollar|usd|\$)|\/\s*(?:usd|\$)|usd\s*=|dollar/.test(item.wide)) ? rate : undefined;
 }
+
+// The words that ask for one charge. "Berthing charges" means the whole bill, not berth hire.
+const CHARGE_WORDS: Record<string, RegExp> = {
+  "port-dues": /port dues|\bdues\b/, pilotage: /pilot/, towage: /\btow|\btugs?\b/, "pilotage-towage": /pilot|\btow|\btugs?\b/,
+  "berth-hire": /berth hire|berth rent|berthage/, mooring: /moor/, anchorage: /anchor/, wharfage: /wharfage|cargo charges?|cargo dues/,
+};
+
+/** The charges the user asked for by name; none means the whole bill. */
+export function keepCharges<T extends string>(charges: T[] | undefined, heard: Conversation | undefined): T[] | undefined {
+  if (!charges?.length || !heard) return charges?.length ? charges : undefined;
+  const text = heard.text.toLowerCase();
+  const kept = charges.filter(type => CHARGE_WORDS[type]?.test(text));
+  return kept.length ? kept : undefined;
+}

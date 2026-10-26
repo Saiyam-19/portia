@@ -7,7 +7,7 @@ import { estimate, money, versionFor, type Estimate, type EstimateRequest } from
 import { coverage, describeTariff, type TariffView } from "./rulebook/describe";
 import { CHARGE_GROUPS, type CompanyExcerptsCard, type ComparisonCard, type CoverageCard, type DocumentExcerptsCard, type EstimateCall, type EstimateCard, type FleetCard, type ShipCard, type TariffCard, type TariffComparisonCard } from "./card-types";
 import { searchDocuments } from "./documents";
-import { keepRate, keepShip, keepStay, readConversation, type Conversation } from "./user-input";
+import { keepCharges, keepRate, keepShip, keepStay, readConversation, type Conversation } from "./user-input";
 import { fleetShipSchema, findShip, type FleetAccess, type FleetShip } from "./fleet";
 import { applyAgreedRates, type AgreedRate } from "./agreed-rates";
 import type { CompanyAccess } from "./account-access";
@@ -214,8 +214,9 @@ export function businessTools(options: { fleet?: FleetAccess; company?: CompanyA
         charges: chargesField,
         usdToInr,
       }).strict(),
-      execute: async ({ ship: given, calls: asked, charges, usdToInr: offered }, { messages }) => {
+      execute: async ({ ship: given, calls: asked, charges: named, usdToInr: offered }, { messages }) => {
         const heard = readConversation(messages);
+        const charges = keepCharges(named, heard);
         const rate = keepRate(offered, heard);
         const { ship, filled } = await withFleet(keepShip(cleanShip(given), heard), fleet);
         const calls = asked.map(call => cleanStay(call, heard));
