@@ -59,7 +59,14 @@ Codex reviewed the whole branch and raised ten findings; all ten are fixed, each
 
 ## Deploying
 
-Nothing in this branch has been deployed. Deploying writes to the live Convex and Vercel projects, so do it deliberately, following [deployment.md](../deployment.md):
+**Deployed on 26 October 2026** from branch `berthwise-v1` (not yet merged into `main`):
+
+- **Convex** production `joyous-kookabura-196`: schema, functions, daily rate-link check and the document-reader packages. Backup taken just before, kept locally (not in git) at `.local/backups/convex-prod-2026-10-26-before-berthwise.zip`.
+- **Vercel** project `portia-berthing`, deployment `dpl_BuomLUv8Yp8G9xPjzW2gaNrQv33c`, promoted to https://portia-berthing.vercel.app. Rollback: promote the previous deployment in Vercel (the frontend only; see deployment.md).
+- **Old test chats were kept, not wiped:** 20 chats from the form-based version (5 accounts). The schema keeps their old fields and the "waiting" state as legacy values; the 5 chats that were waiting on a form can't be continued, so start a new chat instead.
+- **Open:** the production `OPENROUTER_API_KEY` on Vercel was rejected by OpenRouter (401) on 26 October 2026 and must be replaced, followed by a redeploy, before the chat can answer. Live checks with a real account (sign-in, chat, upload, fleet) follow that.
+
+How it was done, for next time, following [deployment.md](../deployment.md):
 
 1. **Convex.** The schema adds `fleetShips`, `companyDocuments`, `companyPassages` (with a full-text search index), `agreedRates` and `sourceChecks`, plus a daily cron (`convex/crons.ts`). `convex.json` tells Convex to install `unpdf`, `mammoth` and `exceljs` for the document reader. Old test chats from before the rebuild are wiped first (decision D-2): back up, clear the chat tables, then `npx convex deploy`. `convex/_generated/api.d.ts` was updated by hand; `npx convex dev` or `deploy` regenerates it.
 2. **Environment (Next.js).** `OPENROUTER_API_KEY`, `LLM_ALLOW_PAID=true`, optionally `BERTHWISE_MODEL`, and the existing Convex and auth values in `.env.example`.
