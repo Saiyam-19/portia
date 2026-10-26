@@ -30,3 +30,42 @@ export const CARGO_CLASS_IDS = Object.keys(CARGO_CLASSES) as [CargoClass, ...Car
 
 export const cargoLabel = (id: string) => (CARGO_CLASSES as Record<string, { label: string }>)[id]?.label ?? id.replace(/-/g, " ");
 export const cargoParent = (id: string): string | undefined => (CARGO_CLASSES as Record<string, { parent?: string }>)[id]?.parent;
+
+/** Words that name each kind, most specific first ("crude palm oil" is edible oil, "coking coal" isn't steam coal). */
+const WORDS: Array<[CargoClass, RegExp]> = [
+  ["edible-oil", /edible|palm|soya|soybean oil|vegetable oil|sunflower|rapeseed oil|canola/],
+  ["coking-coal", /coking|met(?:allurgical)? coke|met coal/],
+  ["fertilizer-raw-materials", /rock phosphate|sulphur|sulfur|fertili[sz]er raw|\bfrm\b/],
+  ["fertilizer", /fertili[sz]er|\burea\b|\bdap\b|\bmop\b|\bnpk\b|potash/],
+  ["lpg", /\blpg\b|propane|butane/],
+  ["lng", /\blng\b/],
+  ["diesel", /diesel|\bhsd\b|gas ?oil|\bldo\b|\bmgo\b/],
+  ["petrol", /petrol|gasoline|motor spirit|mogas/],
+  ["naphtha", /naphtha|naptha/],
+  ["fuel-oil", /fuel oil|furnace oil|\bhsfo\b|\bvlsfo\b|\blsfo\b|\bfo\b/],
+  ["jet-fuel", /jet fuel|\batf\b|kerosene|\bsko\b|jet a/],
+  ["petroleum-products", /petroleum|oil products?|\bpol\b|refined products?|clean products?/],
+  ["crude-oil", /crude/],
+  ["chemicals", /chemical|acid|ammonia|methanol|caustic|\bedc\b|benzene|xylene/],
+  ["steel", /steel|coils?\b|\bhrc\b|\bcrc\b|billets?|pig iron|sponge iron|\bplates\b|\bpipes\b/],
+  ["iron-ore", /iron ore|\bore\b|pellets?|iron fines/],
+  ["coal", /coal|\bcoke\b/],
+  ["containers", /containers?|\bteu\b|\bfeu\b|\bboxes\b/],
+  ["food-grains", /grains?|wheat|rice|maize|\bcorn\b|pulses|lentils?|barley|soybeans?|peas\b/],
+  ["cement", /cement|clinker/],
+];
+
+/** The cargo kind a phrase names ("steam coal" is coal), if it is one we price. */
+export function cargoKind(text: string): CargoClass | undefined {
+  const lower = text.toLowerCase().replace(/[_-]+/g, " ");
+  if ((CARGO_CLASS_IDS as string[]).includes(text)) return text as CargoClass;
+  return WORDS.find(([, pattern]) => pattern.test(lower))?.[0];
+}
+
+/** Whether the user's words name this kind of cargo. */
+export function namesCargo(kind: string, words: string): boolean {
+  const lower = words.toLowerCase();
+  // Naming a product names its group too ("diesel" is an oil product).
+  const kinds = WORDS.filter(([id]) => id === kind || cargoParent(id) === kind);
+  return kinds.length ? kinds.some(([, pattern]) => pattern.test(lower)) : lower.includes(kind.toLowerCase().replace(/-/g, " "));
+}

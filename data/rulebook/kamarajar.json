@@ -717,6 +717,185 @@
               "|296/-per hour|237/-per hour|10.8 per hour|8.64 per hour|"
             ]
           }
+        },
+        {
+          "id": "wharfage-coal",
+          "type": "wharfage",
+          "label": "Wharfage on coal and coke (coastal cargo)",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "coal",
+                  "coking-coal"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "146.92"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "The schedule prints this rate for coastal cargo only.",
+            "Applies at the port's own berths and terminals."
+          ],
+          "source": {
+            "document": "sor-consolidated",
+            "page": 9,
+            "quote": "|1|Coal and Coke|1 Tonne|146.92|--|"
+          }
+        },
+        {
+          "id": "wharfage-petrol",
+          "type": "wharfage",
+          "label": "Wharfage on petrol",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "petrol"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "89"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Applies at the port's own berths and terminals."
+          ],
+          "source": {
+            "document": "sor-consolidated",
+            "page": 9,
+            "quote": "|(i)|Motor Spirit|1 Tonne|89|89|"
+          }
+        },
+        {
+          "id": "wharfage-diesel",
+          "type": "wharfage",
+          "label": "Wharfage on diesel",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "diesel"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "76"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Applies at the port's own berths and terminals."
+          ],
+          "source": {
+            "document": "sor-consolidated",
+            "page": 9,
+            "quote": "|(ii)|High Speed Diesel|1 Tonne|76|76|"
+          }
+        },
+        {
+          "id": "wharfage-jet-fuel",
+          "type": "wharfage",
+          "label": "Wharfage on kerosene, jet fuel and lubricants",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "jet-fuel"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "80"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Applies at the port's own berths and terminals."
+          ],
+          "source": {
+            "document": "sor-consolidated",
+            "page": 9,
+            "quote": "|(iii)|Kerosene Oil & Aviation Turbine Fuel<br>(ATF),Base Oil & Lubricants|1 Tonne|80|80|"
+          }
+        },
+        {
+          "id": "wharfage-fuel-oil",
+          "type": "wharfage",
+          "label": "Wharfage on furnace oil",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "fuel-oil"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "67"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Applies at the port's own berths and terminals."
+          ],
+          "source": {
+            "document": "sor-consolidated",
+            "page": 9,
+            "quote": "|(iv)|Furnace Oil|1 Tonne|67|67|"
+          }
+        },
+        {
+          "id": "wharfage-naphtha",
+          "type": "wharfage",
+          "label": "Wharfage on naphtha",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "naphtha"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "85"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Applies at the port's own berths and terminals."
+          ],
+          "source": {
+            "document": "sor-consolidated",
+            "page": 9,
+            "quote": "|(v)|Naptha|1 Tonne|85|85|"
+          }
         }
       ],
       "notes": [
@@ -755,9 +934,13 @@
             "page": 8,
             "section": "5"
           }
+        },
+        {
+          "text": "Kamarajar's schedule says cargo it doesn't list pays the rate of nearby major ports; Berthwise doesn't apply other ports' rates."
         }
       ],
-      "effectiveTo": "2026-03-31"
+      "effectiveTo": "2026-03-31",
+      "notPriced": []
     },
     {
       "id": "kamarajar-sor-with-aectpl-2026-27",
@@ -1513,6 +1696,185 @@
             "section": "Chapter III",
             "quote": "| Any volume of GT | 0.0204 | 0.7619 |"
           }
+        },
+        {
+          "id": "wharfage-coal",
+          "type": "wharfage",
+          "label": "Wharfage on coal and coke (coastal cargo)",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "coal",
+                  "coking-coal"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "146.92"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "The schedule prints this rate for coastal cargo only.",
+            "Applies at the port's own berths and terminals."
+          ],
+          "source": {
+            "document": "sor-consolidated",
+            "page": 9,
+            "quote": "|1|Coal and Coke|1 Tonne|146.92|--|"
+          }
+        },
+        {
+          "id": "wharfage-petrol",
+          "type": "wharfage",
+          "label": "Wharfage on petrol",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "petrol"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "89"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Applies at the port's own berths and terminals."
+          ],
+          "source": {
+            "document": "sor-consolidated",
+            "page": 9,
+            "quote": "|(i)|Motor Spirit|1 Tonne|89|89|"
+          }
+        },
+        {
+          "id": "wharfage-diesel",
+          "type": "wharfage",
+          "label": "Wharfage on diesel",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "diesel"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "76"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Applies at the port's own berths and terminals."
+          ],
+          "source": {
+            "document": "sor-consolidated",
+            "page": 9,
+            "quote": "|(ii)|High Speed Diesel|1 Tonne|76|76|"
+          }
+        },
+        {
+          "id": "wharfage-jet-fuel",
+          "type": "wharfage",
+          "label": "Wharfage on kerosene, jet fuel and lubricants",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "jet-fuel"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "80"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Applies at the port's own berths and terminals."
+          ],
+          "source": {
+            "document": "sor-consolidated",
+            "page": 9,
+            "quote": "|(iii)|Kerosene Oil & Aviation Turbine Fuel<br>(ATF),Base Oil & Lubricants|1 Tonne|80|80|"
+          }
+        },
+        {
+          "id": "wharfage-fuel-oil",
+          "type": "wharfage",
+          "label": "Wharfage on furnace oil",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "fuel-oil"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "67"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Applies at the port's own berths and terminals."
+          ],
+          "source": {
+            "document": "sor-consolidated",
+            "page": 9,
+            "quote": "|(iv)|Furnace Oil|1 Tonne|67|67|"
+          }
+        },
+        {
+          "id": "wharfage-naphtha",
+          "type": "wharfage",
+          "label": "Wharfage on naphtha",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "naphtha"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "85"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Applies at the port's own berths and terminals."
+          ],
+          "source": {
+            "document": "sor-consolidated",
+            "page": 9,
+            "quote": "|(v)|Naptha|1 Tonne|85|85|"
+          }
         }
       ],
       "notes": [
@@ -1551,8 +1913,12 @@
             "document": "aectpl-reference-tariff-2026-27",
             "page": 22
           }
+        },
+        {
+          "text": "Kamarajar's schedule says cargo it doesn't list pays the rate of nearby major ports; Berthwise doesn't apply other ports' rates."
         }
-      ]
+      ],
+      "notPriced": []
     }
   ]
 }

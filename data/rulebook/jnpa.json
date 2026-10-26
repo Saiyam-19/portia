@@ -612,6 +612,23 @@
         {
           "text": "NSIGT and BMCT charge their own berth hire in rupees (also for foreign ships). NSFT's tariff covers container handling only and has no ship charges (no port dues, pilotage or berth hire), so, as at GTI and NSICT, JNPA's all-berths berth hire is applied at NSFT."
         }
+      ],
+      "notPriced": [
+        {
+          "type": "wharfage",
+          "cargoClasses": [
+            "containers"
+          ],
+          "reason": "At JNPA, wharfage on containers is part of each container terminal's handling charge, which this estimate doesn't include.",
+          "source": {
+            "document": "nsict-2026",
+            "page": 3
+          }
+        },
+        {
+          "type": "wharfage",
+          "reason": "JNPA's schedules we hold don't price wharfage on bulk or liquid cargo, so it isn't included."
+        }
       ]
     }
   ]

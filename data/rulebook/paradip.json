@@ -436,6 +436,705 @@
             "section": "2.3.1",
             "quote": "|1.|Berth Hire Charges|0.0984|0.004006|"
           }
+        },
+        {
+          "id": "wharfage-diesel",
+          "type": "wharfage",
+          "label": "Wharfage on diesel, fuel oil and kerosene",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "diesel",
+                  "fuel-oil",
+                  "jet-fuel"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "42.99"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Rate for up to 2 million tonnes a year; Rs 40.11 above that."
+          ],
+          "source": {
+            "document": "sor-2026-new-18092026",
+            "page": 31,
+            "quote": [
+              "|(i).|POL and its products such as High<br>Speed Diesel, Aviation Turbine Fuel,<br>Fuel Oil, Light Cycle Oil, Superior<br>Kerosene Oil, Jet-1, Gas Oil, Marine<br>Gas Oil, Vacuum Gas Oil,Pipeline<br>Compatible Kerosene, Low Sulphur<br>Heavy Stock, Low Sulphur High Flash<br>High Speed Diesel, Very Low Sulphur<br>Fuel Oil||||",
+              "||In bulk Upto 2.00 MMTPA|M**.**T**.**|42.99|42.99|"
+            ]
+          }
+        },
+        {
+          "id": "wharfage-petrol",
+          "type": "wharfage",
+          "label": "Wharfage on petrol and naphtha",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "petrol",
+                  "naphtha"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "95.55"
+                }
+              ]
+            }
+          ],
+          "conditions": [],
+          "source": {
+            "document": "sor-2026-new-18092026",
+            "page": 31,
+            "quote": "|(ii).|POL and its products such as Motor<br>Spirit, Naptha, Reformate, Propylene,<br>MO Gas Run 95, Alkylate, Motor<br>Gasoline, PY Gas, Gasoline, Propane,<br>Butane|M**.**T**.**|95.55|95.55|"
+          }
+        },
+        {
+          "id": "wharfage-chemicals",
+          "type": "wharfage",
+          "label": "Wharfage on liquid chemicals",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "chemicals"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "71.45"
+                }
+              ]
+            }
+          ],
+          "conditions": [],
+          "source": {
+            "document": "sor-2026-new-18092026",
+            "page": 31,
+            "quote": "|(iv).|Liquid bulk including Acid, Fatty Acid<br>and Ammonia|M**.**T**.**|71.45|71.45|"
+          }
+        },
+        {
+          "id": "wharfage-gas",
+          "type": "wharfage",
+          "label": "Wharfage on LPG and LNG",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "lpg",
+                  "lng"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "95.55"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "lpg",
+                  "lng"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "57.34"
+                }
+              ]
+            }
+          ],
+          "conditions": [],
+          "source": {
+            "document": "sor-2026-new-18092026",
+            "page": 31,
+            "quote": "|(vi).|LPG and LNG|M**.**T**.**|57.34|95.55|"
+          }
+        },
+        {
+          "id": "wharfage-edible-oil",
+          "type": "wharfage",
+          "label": "Wharfage on edible oil",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "edible-oil"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "95.55"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "edible-oil"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "57.34"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Rate for up to 50,000 tonnes a year per user; larger users pay less."
+          ],
+          "source": {
+            "document": "sor-2026-new-18092026",
+            "page": 31,
+            "quote": [
+              "|(ix).|Edible Oil||||",
+              "|.|Upto 50,000 MT (per user) / per<br>commodity|M**.**T**.**|57.34|95.55|"
+            ]
+          }
+        },
+        {
+          "id": "wharfage-coal",
+          "type": "wharfage",
+          "label": "Wharfage on coal and coke",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "coal",
+                  "coking-coal"
+                ],
+                "directions": [
+                  "import"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "60.43"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "coal",
+                  "coking-coal"
+                ],
+                "directions": [
+                  "import"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "36.26"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "coal",
+                  "coking-coal"
+                ],
+                "directions": [
+                  "export"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "65.90"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "coal",
+                  "coking-coal"
+                ],
+                "directions": [
+                  "export"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "39.56"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Conventional handling, at the rate for the smallest annual volumes (imports up to 5 lakh tonnes, shipments up to 3.5 million tonnes a year); larger users pay less, and coal through the mechanised coal plant pays its own rates."
+          ],
+          "source": {
+            "document": "sor-2026-new-18092026",
+            "page": 32,
+            "quote": [
+              "|(iv). All types of Coal/Coke||||",
+              "|<br>(a). Peruser/per commodity import|M**.**T**.**|36.26|60.43|",
+              "|(d).Per user shipment of all types of<br>coal upto3.5million tonnes per annum<br>-conventional handling|M**.**T**.**|39.56|65.90|"
+            ]
+          }
+        },
+        {
+          "id": "wharfage-iron-ore",
+          "type": "wharfage",
+          "label": "Wharfage on iron ore",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "iron-ore"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "32.95"
+                }
+              ]
+            }
+          ],
+          "conditions": [],
+          "source": {
+            "document": "sor-2026-new-18092026",
+            "page": 33,
+            "quote": "|(xi).|Iron Ore/ Iron Ore Pellet/ Standard<br>magnetite Concentrate|M**.**T**.**|32.95|32.95|"
+          }
+        },
+        {
+          "id": "wharfage-cement",
+          "type": "wharfage",
+          "label": "Wharfage on cement and clinker",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "cement"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "76.43"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "cement"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "45.89"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Rate for up to 2 lakh tonnes a year per user; larger users pay less."
+          ],
+          "source": {
+            "document": "sor-2026-new-18092026",
+            "page": 32,
+            "quote": [
+              "|(vi).Cement, Clinker, Limestone, Dolomite,<br>Gypsum, Oliflux, Pyroxenite, Bentonite<br>and other fluxing materials||||",
+              "|<br>(a). Upto 2.00 Lakhs Tons (per user) /<br>per commodity|M**.**T**.**|45.89|76.43|"
+            ]
+          }
+        },
+        {
+          "id": "wharfage-fertilizer",
+          "type": "wharfage",
+          "label": "Wharfage on fertilisers and raw materials",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "fertilizer",
+                  "fertilizer-raw-materials"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "38.22"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "fertilizer",
+                  "fertilizer-raw-materials"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "22.91"
+                }
+              ]
+            }
+          ],
+          "conditions": [],
+          "source": {
+            "document": "sor-2026-new-18092026",
+            "page": 32,
+            "quote": "|<br>(vii). Finished Fertilizer/FRM|M**.**T**.**|22.91|38.22|"
+          }
+        },
+        {
+          "id": "wharfage-food-grains",
+          "type": "wharfage",
+          "label": "Wharfage on food grains",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "food-grains"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "95.55"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "food-grains"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "57.34"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Rate for up to 50,000 tonnes a year per user; larger users pay less."
+          ],
+          "source": {
+            "document": "sor-2026-new-18092026",
+            "page": 32,
+            "quote": [
+              "|(viii). Food grains, Oil seeds, cereals, pulses||||",
+              "|<br>(a). Upto 50,000 MT (per user) /per<br>commodity|M**.**T**.**|57.34|95.55|"
+            ]
+          }
+        },
+        {
+          "id": "wharfage-steel",
+          "type": "wharfage",
+          "label": "Wharfage on iron and steel",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "steel"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "71.67"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "steel"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "42.99"
+                }
+              ]
+            }
+          ],
+          "conditions": [],
+          "source": {
+            "document": "sor-2026-new-18092026",
+            "page": 33,
+            "quote": "|(i).|Iron & Steel<br>[Steel coils, slabs, steel pipes, steel<br>rails, plates, iron rods etc.]|M**.**T**.**|42.99|71.67|"
+          }
+        },
+        {
+          "id": "wharfage-container-box-20",
+          "type": "wharfage",
+          "label": "Wharfage on 20-foot containers (the box)",
+          "basis": "box20",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "containers"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "95.55"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "containers"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "57.34"
+                }
+              ]
+            }
+          ],
+          "conditions": [],
+          "source": {
+            "document": "sor-2026-new-18092026",
+            "page": 45,
+            "quote": "|1.|Wharfage<br>on<br>Container (Box<br>only)|57.34|95.55|86.00|143.34|114.65|191.10|"
+          }
+        },
+        {
+          "id": "wharfage-container-box-40",
+          "type": "wharfage",
+          "label": "Wharfage on 40-foot containers (the box)",
+          "basis": "box40",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "containers"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "143.34"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "containers"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "86.00"
+                }
+              ]
+            }
+          ],
+          "conditions": [],
+          "source": {
+            "document": "sor-2026-new-18092026",
+            "page": 45,
+            "quote": "|1.|Wharfage<br>on<br>Container (Box<br>only)|57.34|95.55|86.00|143.34|114.65|191.10|"
+          }
+        },
+        {
+          "id": "wharfage-container-cargo-20",
+          "type": "wharfage",
+          "label": "Wharfage on cargo in 20-foot containers",
+          "basis": "box20",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "containers"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "621.08"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "containers"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "372.66"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Reefer cargo pays Rs 764.41 a 20-foot box (foreign)."
+          ],
+          "source": {
+            "document": "sor-2026-new-18092026",
+            "page": 45,
+            "quote": "|3.|Wharfage<br>on<br>Non-Reefer<br>Cargo (Per Box)|372.66|621.08|558.99|931.63|745.30|1,242.18|"
+          }
+        },
+        {
+          "id": "wharfage-container-cargo-40",
+          "type": "wharfage",
+          "label": "Wharfage on cargo in 40-foot containers",
+          "basis": "box40",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "containers"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "931.63"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "containers"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "558.99"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Reefer cargo pays Rs 1,146.61 a 40-foot box (foreign)."
+          ],
+          "source": {
+            "document": "sor-2026-new-18092026",
+            "page": 45,
+            "quote": "|3.|Wharfage<br>on<br>Non-Reefer<br>Cargo (Per Box)|372.66|621.08|558.99|931.63|745.30|1,242.18|"
+          }
         }
       ],
       "notes": [
@@ -473,7 +1172,8 @@
             "section": "2.6"
           }
         }
-      ]
+      ],
+      "notPriced": []
     }
   ]
 }

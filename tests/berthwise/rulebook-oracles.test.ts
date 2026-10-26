@@ -55,7 +55,7 @@ describe("rule book against the earlier reviewed engine", () => {
   it("says cargo charges aren't included when a cargo is given (Codex finding 2)", () => {
     const result = estimate(book("paradip"), { date: "2026-10-25", status: "foreign", vesselType: "bulk", grt: "30000", hours: "24", cargo: { class: "salt", tonnes: "10000" } });
     expect(result.totals).toEqual([expect.objectContaining({ amount: "40858.32" })]);
-    expect(result.notCovered).toContainEqual({ type: "wharfage", reason: "Cargo charges (wharfage) at Paradip Port Authority aren't in our rule book yet, so they aren't included." });
+    expect(result.notCovered).toContainEqual({ type: "wharfage", reason: "We hold no wharfage rate for salt at Paradip Port Authority, so wharfage isn't included." });
   });
 
   it("NSIGT berth hire in rupees for a foreign ship", () => {

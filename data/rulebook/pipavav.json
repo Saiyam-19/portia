@@ -686,6 +686,417 @@
               "|**(Foreign/Coastal)**|**US$ 0.01**|"
             ]
           }
+        },
+        {
+          "id": "wharfage-coal",
+          "type": "wharfage",
+          "label": "Wharfage on coal and coke",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "coal",
+                  "coking-coal"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "60"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Payable in rupees by the importer or exporter, on the manifested quantity."
+          ],
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 16,
+            "quote": "|COAL & COKE|T|60|"
+          }
+        },
+        {
+          "id": "wharfage-iron-ore",
+          "type": "wharfage",
+          "label": "Wharfage on iron ore",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "iron-ore"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "70"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Payable in rupees by the importer or exporter, on the manifested quantity."
+          ],
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 16,
+            "quote": "|IRON ORE|T|70|"
+          }
+        },
+        {
+          "id": "wharfage-fertilizer",
+          "type": "wharfage",
+          "label": "Wharfage on fertiliser",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "fertilizer"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "65"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Payable in rupees by the importer or exporter, on the manifested quantity."
+          ],
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 16,
+            "quote": "|FERTILIZER|T|65|"
+          }
+        },
+        {
+          "id": "wharfage-steel",
+          "type": "wharfage",
+          "label": "Wharfage on hot-rolled steel coils",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "steel"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "74"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Pipes, plates, sheets and billets pay Rs 80 a tonne; hot and cold rolled slabs Rs 84.",
+            "Payable in rupees by the importer or exporter, on the manifested quantity."
+          ],
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 16,
+            "quote": "|H.R. COILS|T|74|"
+          }
+        },
+        {
+          "id": "wharfage-crude-oil",
+          "type": "wharfage",
+          "label": "Wharfage on crude oil",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "crude-oil"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "118"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Payable in rupees by the importer or exporter, on the manifested quantity."
+          ],
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 17,
+            "quote": "|CRUDE OIL|T|118|"
+          }
+        },
+        {
+          "id": "wharfage-diesel",
+          "type": "wharfage",
+          "label": "Wharfage on diesel and kerosene",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "diesel",
+                  "jet-fuel"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "118"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Payable in rupees by the importer or exporter, on the manifested quantity."
+          ],
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 17,
+            "quote": "|DIESEL/KEROSENE|T|118|"
+          }
+        },
+        {
+          "id": "wharfage-petrol",
+          "type": "wharfage",
+          "label": "Wharfage on petrol and naphtha",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "petrol",
+                  "naphtha"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "118"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Payable in rupees by the importer or exporter, on the manifested quantity."
+          ],
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 17,
+            "quote": "|PETROL/NAPHTHA/LDO & SKL|T|118|"
+          }
+        },
+        {
+          "id": "wharfage-fuel-oil",
+          "type": "wharfage",
+          "label": "Wharfage on fuel oil and lubricating oil",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "fuel-oil"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "106"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Payable in rupees by the importer or exporter, on the manifested quantity."
+          ],
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 17,
+            "quote": "|LUBRICATING OIL / FUEL OIL / BASE OIL|T|106|"
+          }
+        },
+        {
+          "id": "wharfage-lng",
+          "type": "wharfage",
+          "label": "Wharfage on LNG",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "lng"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "303"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Payable in rupees by the importer or exporter, on the manifested quantity."
+          ],
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 17,
+            "quote": "|LNG|T|303|"
+          }
+        },
+        {
+          "id": "wharfage-lpg",
+          "type": "wharfage",
+          "label": "Wharfage on LPG",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "lpg"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "275"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Payable in rupees by the importer or exporter, on the manifested quantity."
+          ],
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 17,
+            "quote": "|LPG / LPG MIX / PROPANE / BUTANE|T|275|"
+          }
+        },
+        {
+          "id": "wharfage-chemicals",
+          "type": "wharfage",
+          "label": "Wharfage on liquid chemicals",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "chemicals"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "106"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Acids, ammonia and EDC pay Rs 120 a tonne.",
+            "Payable in rupees by the importer or exporter, on the manifested quantity."
+          ],
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 18,
+            "quote": "|ALL OTHER LIQUID CHEMICALS WHICH ARE NOT PETROLEUM<br>PRODUCTS OR DERIVATIVES|T|106|"
+          }
+        },
+        {
+          "id": "wharfage-edible-oil",
+          "type": "wharfage",
+          "label": "Wharfage on edible oil in bulk",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "edible-oil"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "80"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Payable in rupees by the importer or exporter, on the manifested quantity."
+          ],
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 16,
+            "quote": "|Oil vegetable & edible bulk|T|80|"
+          }
+        },
+        {
+          "id": "wharfage-food-grains",
+          "type": "wharfage",
+          "label": "Wharfage on food grains",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "food-grains"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "44"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Payable in rupees by the importer or exporter, on the manifested quantity."
+          ],
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 16,
+            "quote": "|FOODGRAINS, OIL SEEDS, PULSES|T|44|"
+          }
+        },
+        {
+          "id": "wharfage-cement",
+          "type": "wharfage",
+          "label": "Wharfage on cement and clinker",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "cement"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "48"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Payable in rupees by the importer or exporter, on the manifested quantity."
+          ],
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 16,
+            "quote": "|CEMENT/CLINKER|T|48|"
+          }
         }
       ],
       "notes": [
@@ -723,6 +1134,19 @@
           "source": {
             "document": "tariffs-2026-01-01",
             "page": 9
+          }
+        }
+      ],
+      "notPriced": [
+        {
+          "type": "wharfage",
+          "cargoClasses": [
+            "containers"
+          ],
+          "reason": "At Pipavav, wharfage on containers is part of the container terminal's consolidated handling charge, which this estimate doesn't include.",
+          "source": {
+            "document": "tariffs-2026-01-01",
+            "page": 30
           }
         }
       ]

@@ -609,6 +609,180 @@
               "|Vessels above 500 GRT|Per day or part thereof|0.90|3456|"
             ]
           }
+        },
+        {
+          "id": "wharfage-containers-20",
+          "type": "wharfage",
+          "label": "Wharfage on loaded 20-foot containers",
+          "basis": "box20",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "containers"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "207.40"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Landing and shipping charges payable to the Tamil Nadu Maritime Board."
+          ],
+          "source": {
+            "document": "bpts-2025-10-15",
+            "page": 54,
+            "quote": "|b) Landing & Shipping Charges|INR 207.40|INR 311.05|INR 311.05|"
+          }
+        },
+        {
+          "id": "wharfage-containers-40",
+          "type": "wharfage",
+          "label": "Wharfage on loaded 40-foot containers",
+          "basis": "box40",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "containers"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "311.05"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Landing and shipping charges payable to the Tamil Nadu Maritime Board."
+          ],
+          "source": {
+            "document": "bpts-2025-10-15",
+            "page": 54,
+            "quote": "|b) Landing & Shipping Charges|INR 207.40|INR 311.05|INR 311.05|"
+          }
+        },
+        {
+          "id": "wharfage-iron-ore",
+          "type": "wharfage",
+          "label": "Wharfage on iron ore (all other minerals)",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "iron-ore"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "60.50"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Landing and shipping charges payable to the Tamil Nadu Maritime Board."
+          ],
+          "source": {
+            "document": "bpts-2025-10-15",
+            "page": 39,
+            "quote": "|2|All other minerals<br>Ton|INR 60.50|"
+          }
+        },
+        {
+          "id": "wharfage-steel",
+          "type": "wharfage",
+          "label": "Wharfage on steel coils",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "steel"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "86.40"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Landing and shipping charges payable to the Tamil Nadu Maritime Board."
+          ],
+          "source": {
+            "document": "bpts-2025-10-15",
+            "page": 39,
+            "quote": "|2|Ton<br>Hot rolled and cold rolled coils|INR<br>86.40|"
+          }
+        },
+        {
+          "id": "wharfage-food-grains",
+          "type": "wharfage",
+          "label": "Wharfage on food grains",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "food-grains"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "43.20"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Landing and shipping charges payable to the Tamil Nadu Maritime Board."
+          ],
+          "source": {
+            "document": "bpts-2025-10-15",
+            "page": 39,
+            "quote": "|**D**|**Food Grains and Food Products**<br>Ton|INR 43.20|"
+          }
+        },
+        {
+          "id": "wharfage-cement",
+          "type": "wharfage",
+          "label": "Wharfage on cement",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "cement"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "51.85"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Landing and shipping charges payable to the Tamil Nadu Maritime Board."
+          ],
+          "source": {
+            "document": "bpts-2025-10-15",
+            "page": 39,
+            "quote": "|**E**|**Cement**<br>Ton|INR 51.85|"
+          }
         }
       ],
       "notes": [
@@ -643,8 +817,12 @@
             "document": "bpts-2025-10-15",
             "page": 26
           }
+        },
+        {
+          "text": "Kattupalli's tariff lists only some cargo for the Tamil Nadu Maritime Board's landing and shipping charges and refers to the Board's own scale for the rest, which we don't hold."
         }
-      ]
+      ],
+      "notPriced": []
     }
   ]
 }

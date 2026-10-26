@@ -469,6 +469,7 @@ function CoverageView({ card }: { card: CoverageCard }) {
                 <TableCell className="px-4 py-2.5 align-top whitespace-normal">
                   <p className="font-medium">{port.name}</p>
                   <p className="mt-0.5 text-xs leading-5 text-muted-foreground">{port.charges.join(', ')}</p>
+                  {port.cargo && <p className="text-xs leading-5 text-muted-foreground">Wharfage on {port.cargo.join(', ')}</p>}
                 </TableCell>
                 <TableCell className="px-4 py-2.5 align-top whitespace-nowrap">{port.inForce ? day(port.inForce.effectiveFrom) : <span className="text-muted-foreground">None for today</span>}</TableCell>
                 <TableCell className="px-4 py-2.5 align-top whitespace-nowrap">{day(port.checkedOn)}</TableCell>

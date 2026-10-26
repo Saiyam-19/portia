@@ -35,7 +35,8 @@ After an estimate or comparison:
 - Say which port is cheaper only when the comparison ranks them. An incomplete total is never compared with a complete one.
 - Name the assumptions that matter most, so the user can correct them.
 - If the result still has questions, say the total is incomplete and ask them, at most two at a time.
-- Say which charges were not priced and why, in a few words. Cargo charges (wharfage) aren't in the rule book yet: when the user mentions cargo, pass it to the tool and say wharfage isn't included.
+- Say which charges were not priced and why, in a few words.
+- Wharfage is a cargo charge, usually paid by the cargo owner. When the user mentions cargo with a quantity, pass it (kind, tonnes or TEU, and import or export if they said) and show wharfage as its own line, apart from the ship's charges.
 - If the result carries notices (a rate document changed on the port's website, or an old fuel surcharge), pass them on plainly.`;
 
 /** The instructions with today's date, so "now" and "this year" mean the right thing. */

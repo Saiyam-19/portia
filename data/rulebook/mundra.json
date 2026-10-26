@@ -569,6 +569,348 @@
             "section": "DD",
             "quote": "|4<br>Anchorage|**$ 0.0341**Per GT Per Day|"
           }
+        },
+        {
+          "id": "wharfage-coal",
+          "type": "wharfage",
+          "label": "Wharfage on coal",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "coal"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "60"
+                }
+              ]
+            }
+          ],
+          "conditions": [],
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 45,
+            "quote": "||Coal(Except Cokingcoal)|**M.Ton**|**60/-**|"
+          }
+        },
+        {
+          "id": "wharfage-coking-coal",
+          "type": "wharfage",
+          "label": "Wharfage on coking coal",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "coking-coal"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "90"
+                }
+              ]
+            }
+          ],
+          "conditions": [],
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 45,
+            "quote": "||Cokingcoal|**M.Ton**|**90/-**|"
+          }
+        },
+        {
+          "id": "wharfage-iron-ore",
+          "type": "wharfage",
+          "label": "Wharfage on iron ore",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "iron-ore"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "41"
+                }
+              ]
+            }
+          ],
+          "conditions": [],
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 45,
+            "quote": "||Bauxite, Bentonite, Iron ore in bulk,<br>Limestone|**M.Ton**|**41/-**|"
+          }
+        },
+        {
+          "id": "wharfage-fertilizer",
+          "type": "wharfage",
+          "label": "Wharfage on fertilisers",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "fertilizer"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "68"
+                }
+              ]
+            }
+          ],
+          "conditions": [],
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 46,
+            "quote": "||Fertilizers of all types|**M.Ton**|**68/-**|"
+          }
+        },
+        {
+          "id": "wharfage-steel",
+          "type": "wharfage",
+          "label": "Wharfage on steel coils",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "steel"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "85"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Steel pipes pay Rs 48 a freight tonne."
+          ],
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 45,
+            "quote": "||Hot rolled and Cold Rolled Coils|**M.Ton**|**85/-**|"
+          }
+        },
+        {
+          "id": "wharfage-oil-products",
+          "type": "wharfage",
+          "label": "Wharfage on oil products",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "petroleum-products",
+                  "diesel",
+                  "petrol",
+                  "naphtha",
+                  "fuel-oil",
+                  "jet-fuel"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "115"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Lubricating oil pays Rs 95 a tonne."
+          ],
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 46,
+            "quote": [
+              "||HSD|**M.Ton**|**115/-**|",
+              "||Kerosene|**M.Ton**|**115/-**|",
+              "||Naphtha|**M.Ton**|**115/-**|",
+              "||Petrol, LDO|**M.Ton**|**115/-**|",
+              "||Furnace Oil|**M.Ton**|**115/-**|",
+              "||Other Liquid Petroleumproducts|**M.Ton**|**115/-**|"
+            ]
+          }
+        },
+        {
+          "id": "wharfage-lpg",
+          "type": "wharfage",
+          "label": "Wharfage on LPG",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "lpg"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "350"
+                }
+              ]
+            }
+          ],
+          "conditions": [],
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 46,
+            "quote": "||LPG|**M.Ton**|**350/-**|"
+          }
+        },
+        {
+          "id": "wharfage-lng",
+          "type": "wharfage",
+          "label": "Wharfage on LNG",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "lng"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "179.16"
+                }
+              ]
+            }
+          ],
+          "conditions": [],
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 46,
+            "quote": "||LNG|**M.Ton**|**179.16/-**|"
+          }
+        },
+        {
+          "id": "wharfage-chemicals",
+          "type": "wharfage",
+          "label": "Wharfage on liquid chemicals",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "chemicals"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "85"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Liquid ammonia, phosphoric acid and ethylene pay Rs 160 a tonne."
+          ],
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 45,
+            "quote": "||All other liquid chemicals which are not<br>petroleum orpetroleum derivatives|**M.Ton**|**85/-**|"
+          }
+        },
+        {
+          "id": "wharfage-edible-oil",
+          "type": "wharfage",
+          "label": "Wharfage on edible oil",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "edible-oil"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "69"
+                }
+              ]
+            }
+          ],
+          "conditions": [],
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 45,
+            "quote": "||Edible oil(bulk)|**M.Ton**|**69/-**|"
+          }
+        },
+        {
+          "id": "wharfage-food-grains",
+          "type": "wharfage",
+          "label": "Wharfage on food grains",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "food-grains"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "68"
+                }
+              ]
+            }
+          ],
+          "conditions": [],
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 45,
+            "quote": "||Foodgrains and Pulses|**M.Ton**|**68/-**|"
+          }
+        },
+        {
+          "id": "wharfage-cement",
+          "type": "wharfage",
+          "label": "Wharfage on cement and clinker",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "cement"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "75"
+                }
+              ]
+            }
+          ],
+          "conditions": [],
+          "source": {
+            "document": "bpts-2026-06-15",
+            "page": 46,
+            "quote": "||Cement, Clinker|**M.Ton**|**75/-**|"
+          }
         }
       ],
       "notes": [
@@ -614,6 +956,15 @@
             "document": "fuel-surcharge-2022-05-24",
             "page": 1
           }
+        }
+      ],
+      "notPriced": [
+        {
+          "type": "wharfage",
+          "cargoClasses": [
+            "containers"
+          ],
+          "reason": "Mundra's tariff we hold has no wharfage on containers; each container terminal charges for container handling itself."
         }
       ]
     }

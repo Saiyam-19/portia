@@ -1,4 +1,5 @@
 import Decimal from "decimal.js";
+import { cargoLabel } from "./cargo";
 import { versionFor } from "./calculate";
 import type { Charge, PortBook, RuleVersion, Status, VesselType } from "./schema";
 
@@ -7,9 +8,9 @@ import type { Charge, PortBook, RuleVersion, Status, VesselType } from "./schema
 const UNIT: Record<string, string> = {
   grt: "per GRT", "grt-hour": "per GRT per hour", "grt-day": "per GRT per day", nrt: "per NRT",
   "loa-hour": "per metre of length per hour", "loa-day": "per metre of length per day",
-  call: "per call", hour: "per hour", tonne: "per tonne", teu: "per TEU", percent: "",
+  call: "per call", hour: "per hour", tonne: "per tonne", teu: "per TEU", box20: "per 20-foot container", box40: "per 40-foot container", percent: "",
 };
-const SIZE_UNIT: Record<string, string> = { grt: "GRT", "grt-hour": "GRT", "grt-day": "GRT", nrt: "NRT", "loa-hour": "m", "loa-day": "m", call: "GRT", hour: "GRT", tonne: "tonnes", teu: "TEU", percent: "" };
+const SIZE_UNIT: Record<string, string> = { grt: "GRT", "grt-hour": "GRT", "grt-day": "GRT", nrt: "NRT", "loa-hour": "m", "loa-day": "m", call: "GRT", hour: "GRT", tonne: "tonnes", teu: "TEU", box20: "containers", box40: "containers", percent: "" };
 const ROUNDING: Record<string, string> = { "started-hour": "each started hour counts", "started-half-day": "each started half day counts", "started-day": "each started day counts" };
 
 const figure = (value: string) => new Decimal(value).toNumber().toLocaleString("en-US", { maximumFractionDigits: 6 });
@@ -60,7 +61,8 @@ function appliesTo(rate: Charge["rates"][number], port: PortBook) {
   const bits = [
     w.status?.map(s => s === "foreign" ? "foreign-going" : "coastal").join(" or "),
     w.vesselTypes && (w.vesselTypes.length >= 8 ? "most ship types" : w.vesselTypes.map(t => t.replace("-", " ")).join(", ")),
-    names(w.terminals)?.join(", "), names(w.berths)?.join(", "), w.cargoClasses?.join(", "),
+    names(w.terminals)?.join(", "), names(w.berths)?.join(", "), w.cargoClasses?.map(cargoLabel).join(", "),
+    w.directions?.map(direction => direction === "import" ? "discharged here (import)" : "loaded here (export)").join(" or "),
   ].filter(Boolean);
   return bits.length ? bits.join("; ") : "all ships";
 }
@@ -116,7 +118,7 @@ export type CoverageRow = {
   id: string; name: string; kind: string; terminals: string[]; checkedOn: string;
   inForce?: { id: string; effectiveFrom: string; effectiveTo?: string };
   versions: Array<{ id: string; effectiveFrom: string; effectiveTo?: string }>;
-  charges: string[]; gaps: string[];
+  charges: string[]; cargo?: string[]; gaps: string[];
 };
 
 /** Which ports and charges the rule book covers, for the coverage page and "which ports do you cover?". */
@@ -128,7 +130,10 @@ export function coverage(ports: PortBook[], date: string): CoverageRow[] {
       id: port.id, name: port.name, kind: port.kind, terminals: port.terminals.map(t => t.name), checkedOn: port.checkedOn,
       ...(inForce ? { inForce: { id: inForce.id, effectiveFrom: inForce.effectiveFrom, ...(inForce.effectiveTo ? { effectiveTo: inForce.effectiveTo } : {}) } } : {}),
       versions: port.versions.map(v => ({ id: v.id, effectiveFrom: v.effectiveFrom, ...(v.effectiveTo ? { effectiveTo: v.effectiveTo } : {}) })),
-      charges: [...new Set(version.charges.map(charge => charge.label))],
+      // Wharfage is one line per cargo kind; the coverage list names it once.
+      charges: [...new Set(version.charges.map(charge => charge.type === "wharfage" ? "Wharfage" : charge.label))],
+      ...(version.charges.some(charge => charge.type === "wharfage")
+        ? { cargo: [...new Set(version.charges.filter(charge => charge.type === "wharfage").flatMap(charge => charge.rates.flatMap(rate => rate.when.cargoClasses ?? [])))].map(cargoLabel) } : {}),
       gaps: version.notes.map(item => item.text).filter(text => /not (priced|entered|added|applied)/i.test(text)),
     };
   });

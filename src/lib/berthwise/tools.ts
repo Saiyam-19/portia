@@ -13,6 +13,7 @@ import { applyAgreedRates, type AgreedRate } from "./agreed-rates";
 import type { CompanyAccess } from "./account-access";
 import { freshnessNotices, tariffNotices, type SourceStatus } from "./rulebook/watch";
 import { chargeTypeSchema, statusSchema, vesselTypeSchema, type ChargeType, type PortBook } from "./rulebook/schema";
+import { CARGO_CLASSES, cargoKind } from "./rulebook/cargo";
 
 /** Berthwise business tools. Each returns { card, summary }: the card is drawn on
  * screen, the summary is what later turns of the chat remember. */
@@ -39,10 +40,12 @@ const stay = {
   anchorageHours: decimalText("Hours waiting at anchorage, only if the user mentions anchorage.").optional(),
   tugs: z.number().int().min(0).max(10).optional().describe("Tugs used, only if given."),
   cargo: z.object({
-    class: z.string().min(1).max(40).optional().describe("Cargo kind, e.g. coal, iron-ore, steel, fertilizer, containers."),
-    tonnes: decimalText("Cargo tonnes handled.").optional(),
-    teu: decimalText("Containers handled, in TEU.").optional(),
-  }).strict().optional(),
+    class: z.string().min(1).max(40).optional().describe(`What the cargo is, only if the user said. One of: ${Object.entries(CARGO_CLASSES).map(([id, item]) => "hint" in item ? `${id} (${item.hint})` : id).join("; ")}. For any other cargo, the user's own word.`),
+    tonnes: decimalText("Cargo tonnes loaded or discharged here, only if given.").optional(),
+    teu: decimalText("Containers loaded or discharged here, in TEU (a 40-foot container is 2 TEU), only if given.").optional(),
+    fortyFoot: decimalText("How many of those containers are 40-foot, only if given.").optional(),
+    direction: z.enum(["import", "export"]).optional().describe("import: cargo discharged at this port. export: cargo loaded here. Only if the user said."),
+  }).strict().optional().describe("Cargo loaded or discharged, for wharfage. Only what the user said."),
 };
 
 const callSchema = z.object({
@@ -74,8 +77,13 @@ function cleanShip(ship: Ship): Ship {
 /** Drops zeros and placeholders, and what the user never said (see user-input.ts). */
 function cleanStay<T extends Stay>(given: T, heard?: Conversation): T {
   const stay = keepStay(given, heard);
-  const cargo = stay.cargo && (positive(stay.cargo.tonnes) || positive(stay.cargo.teu))
-    ? { ...(meant(stay.cargo.class) ? { class: stay.cargo.class } : {}), ...(positive(stay.cargo.tonnes) ? { tonnes: stay.cargo.tonnes } : {}), ...(positive(stay.cargo.teu) ? { teu: stay.cargo.teu } : {}) } : undefined;
+  const asked_ = stay.cargo;
+  const named = meant(asked_?.class);
+  const cargo = asked_ && (positive(asked_.tonnes) || positive(asked_.teu)) ? {
+    ...(named ? { class: cargoKind(named) ?? named.toLowerCase() } : {}),
+    ...(positive(asked_.tonnes) ? { tonnes: asked_.tonnes } : {}), ...(positive(asked_.teu) ? { teu: asked_.teu } : {}),
+    ...(positive(asked_.fortyFoot) ? { fortyFoot: asked_.fortyFoot } : {}), ...(asked_.direction ? { direction: asked_.direction } : {}),
+  } : undefined;
   const { hoursAlongside, anchorageHours, tugs, cargo: _cargo, ...rest } = stay;
   return {
     ...rest, ...(positive(hoursAlongside) ? { hoursAlongside } : {}), ...(positive(anchorageHours) ? { anchorageHours } : {}),
@@ -114,7 +122,8 @@ function place(input: { port: string; terminal?: string; berth?: string }): Plac
 }
 
 type Ship = z.infer<typeof shipSchema>;
-type Stay = { hoursAlongside?: string; anchorageHours?: string; tugs?: number; cargo?: { class?: string; tonnes?: string; teu?: string }; date?: string };
+type Cargo = { class?: string; tonnes?: string; teu?: string; fortyFoot?: string; direction?: "import" | "export" };
+type Stay = { hoursAlongside?: string; anchorageHours?: string; tugs?: number; cargo?: Cargo; date?: string };
 
 function request(match: PortMatch, ship: Ship, details: Stay, charges?: ChargeType[]): EstimateRequest {
   return {

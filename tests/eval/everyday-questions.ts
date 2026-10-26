@@ -33,5 +33,7 @@ export const EVERYDAY_QUESTIONS: EverydayQuestion[] = [
   { id: "cheapest-small", question: "What's cheaper for a 15,000 GRT general cargo ship staying 12 hours: Jaigarh or Pipavav?", tools: ["compare_ports", "estimate_port_call"], say: ["Jaigarh", "Pipavav"], avoid: ["jaigarh is cheaper", "pipavav is cheaper", "cheaper on the priced"] },
   { id: "lng-mundra", question: "LNG carrier of 90,000 GT at Mundra for 2 days, what are the charges?", tools: ["estimate_port_call"], say: [["LNG terminal", "LNG"]] },
   { id: "vlcc-chennai", question: "How much would a VLCC of 160,000 GT pay in berth hire at Chennai for a day?", tools: ["estimate_port_call", "port_tariff", "compare_ports"], say: ["30,720"] },
+  { id: "wharfage-coal", question: "We're discharging 50,000 tonnes of imported coal at Paradip from a foreign-going 32,000 GT bulk carrier. What will wharfage come to?", tools: ["estimate_port_call"], say: [["30,21,500", "3,021,500", "30.2 lakh", "30.22 lakh"]] },
+  { id: "wharfage-containers", question: "Berthing charges at Chennai for a 25,000 GRT container ship, 24 hours alongside, discharging 400 TEU", tools: ["estimate_port_call"], say: ["wharfage", ["5,29,600", "529,600"]] },
   { id: "freshness-mumbai", question: "Are your Mumbai rates up to date?", tools: ["port_tariff", "list_ports"], say: [["May 2026", "1 May", "checked"]] },
 ];

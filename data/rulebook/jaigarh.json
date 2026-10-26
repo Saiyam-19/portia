@@ -383,6 +383,265 @@
               "|45000 and above|$ 0.09 Per GT/day|"
             ]
           }
+        },
+        {
+          "id": "wharfage-coal",
+          "type": "wharfage",
+          "label": "Wharfage on coal and coke",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "coal",
+                  "coking-coal"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "40"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Maharashtra Maritime Board wharfage, collected by the port."
+          ],
+          "source": {
+            "document": "tariff-2026-05",
+            "page": 7,
+            "quote": [
+              "|**_J-20 Wharfage Charges Asper Maharashtra Maritime Board as amended time to time.(effecti_**|**_vefrom 1_**<sup>**_st_**</sup>**_April, 2026)_**||",
+              "|Coal, Coke, Charcoal, Firewood|M.Ton|40|"
+            ]
+          }
+        },
+        {
+          "id": "wharfage-iron-ore",
+          "type": "wharfage",
+          "label": "Wharfage on iron ore",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "iron-ore"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "40"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Maharashtra Maritime Board wharfage, collected by the port."
+          ],
+          "source": {
+            "document": "tariff-2026-05",
+            "page": 7,
+            "quote": [
+              "|**_J-20 Wharfage Charges Asper Maharashtra Maritime Board as amended time to time.(effecti_**|**_vefrom 1_**<sup>**_st_**</sup>**_April, 2026)_**||",
+              "|Iron Ore and Iron Ore Pellets|M.Ton|40|"
+            ]
+          }
+        },
+        {
+          "id": "wharfage-fertilizer",
+          "type": "wharfage",
+          "label": "Wharfage on fertilisers and raw materials",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "fertilizer",
+                  "fertilizer-raw-materials"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "90"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Maharashtra Maritime Board wharfage, collected by the port."
+          ],
+          "source": {
+            "document": "tariff-2026-05",
+            "page": 7,
+            "quote": [
+              "|**_J-20 Wharfage Charges Asper Maharashtra Maritime Board as amended time to time.(effecti_**|**_vefrom 1_**<sup>**_st_**</sup>**_April, 2026)_**||",
+              "|Fertiliser and Fertiliser Raw Materials|M.Ton|90|"
+            ]
+          }
+        },
+        {
+          "id": "wharfage-steel",
+          "type": "wharfage",
+          "label": "Wharfage on steel coils",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "steel"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "90"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Steel pipes, plates and sheets pay Rs 100 a tonne.",
+            "Maharashtra Maritime Board wharfage, collected by the port."
+          ],
+          "source": {
+            "document": "tariff-2026-05",
+            "page": 7,
+            "quote": [
+              "|**_J-20 Wharfage Charges Asper Maharashtra Maritime Board as amended time to time.(effecti_**|**_vefrom 1_**<sup>**_st_**</sup>**_April, 2026)_**||",
+              "|HR / CR Coils|M.Ton|90|"
+            ]
+          }
+        },
+        {
+          "id": "wharfage-lpg",
+          "type": "wharfage",
+          "label": "Wharfage on LPG",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "lpg"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "370"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Maharashtra Maritime Board wharfage, collected by the port."
+          ],
+          "source": {
+            "document": "tariff-2026-05",
+            "page": 7,
+            "quote": [
+              "|**_J-20 Wharfage Charges Asper Maharashtra Maritime Board as amended time to time.(effecti_**|**_vefrom 1_**<sup>**_st_**</sup>**_April, 2026)_**||",
+              "|LPG, Butane, Propane|M.Ton|370|"
+            ]
+          }
+        },
+        {
+          "id": "wharfage-edible-oil",
+          "type": "wharfage",
+          "label": "Wharfage on vegetable oil",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "edible-oil"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "90"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Maharashtra Maritime Board wharfage, collected by the port."
+          ],
+          "source": {
+            "document": "tariff-2026-05",
+            "page": 7,
+            "quote": [
+              "|**_J-20 Wharfage Charges Asper Maharashtra Maritime Board as amended time to time.(effecti_**|**_vefrom 1_**<sup>**_st_**</sup>**_April, 2026)_**||",
+              "|Seeds, Vegetable Oil (Bulk)|M.Ton|90|"
+            ]
+          }
+        },
+        {
+          "id": "wharfage-food-grains",
+          "type": "wharfage",
+          "label": "Wharfage on food grains",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "food-grains"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "90"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Maharashtra Maritime Board wharfage, collected by the port."
+          ],
+          "source": {
+            "document": "tariff-2026-05",
+            "page": 7,
+            "quote": [
+              "|**_J-20 Wharfage Charges Asper Maharashtra Maritime Board as amended time to time.(effecti_**|**_vefrom 1_**<sup>**_st_**</sup>**_April, 2026)_**||",
+              "|Food grains and pulses|M.Ton|90|"
+            ]
+          }
+        },
+        {
+          "id": "wharfage-cement",
+          "type": "wharfage",
+          "label": "Wharfage on cement and clinker",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "cement"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "45"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Maharashtra Maritime Board wharfage, collected by the port."
+          ],
+          "source": {
+            "document": "tariff-2026-05",
+            "page": 7,
+            "quote": [
+              "|**_J-20 Wharfage Charges Asper Maharashtra Maritime Board as amended time to time.(effecti_**|**_vefrom 1_**<sup>**_st_**</sup>**_April, 2026)_**||",
+              "|Cement, Clinker|M.Ton|45|"
+            ]
+          }
         }
       ],
       "notes": [
@@ -435,7 +694,8 @@
             "section": "J-8"
           }
         }
-      ]
+      ],
+      "notPriced": []
     }
   ]
 }

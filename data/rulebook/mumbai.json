@@ -308,6 +308,442 @@
               "|3|Princes & Victoria Docks and its harbour<br>walls|0.0109|0.1676|"
             ]
           }
+        },
+        {
+          "id": "wharfage-coal",
+          "type": "wharfage",
+          "label": "Wharfage on coal",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "coal",
+                  "coking-coal"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "124"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Charged on the gross weight in the bill of lading or manifest; cargo handled overside pays half."
+          ],
+          "source": {
+            "document": "sor-2026-05",
+            "page": 27,
+            "quote": "|(ii)|Coal and Fire Wood|Tonne|124|124|"
+          }
+        },
+        {
+          "id": "wharfage-iron-ore",
+          "type": "wharfage",
+          "label": "Wharfage on iron ore",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "iron-ore"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "89"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Charged on the gross weight in the bill of lading or manifest; cargo handled overside pays half."
+          ],
+          "source": {
+            "document": "sor-2026-05",
+            "page": 27,
+            "quote": "|(iii)|Iron ore and Iron ore pellets|Tonne|89|89|"
+          }
+        },
+        {
+          "id": "wharfage-fertilizer",
+          "type": "wharfage",
+          "label": "Wharfage on fertilisers and raw materials",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "fertilizer",
+                  "fertilizer-raw-materials"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "111"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "fertilizer",
+                  "fertilizer-raw-materials"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "66"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Charged on the gross weight in the bill of lading or manifest; cargo handled overside pays half."
+          ],
+          "source": {
+            "document": "sor-2026-05",
+            "page": 27,
+            "quote": "|(iii)|Sulphur, Fertilisers and Fertiliser<br>raw materials|Tonne|111|66|"
+          }
+        },
+        {
+          "id": "wharfage-food-grains",
+          "type": "wharfage",
+          "label": "Wharfage on food grains",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "food-grains"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "89"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "food-grains"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "53"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Charged on the gross weight in the bill of lading or manifest; cargo handled overside pays half."
+          ],
+          "source": {
+            "document": "sor-2026-05",
+            "page": 27,
+            "quote": "|(iv)|Foodgrains, Oilseeds, Cereals and<br>Pulses.|Tonne|89|53|"
+          }
+        },
+        {
+          "id": "wharfage-cement",
+          "type": "wharfage",
+          "label": "Wharfage on cement and clinker",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "cement"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "89"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "cement"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "53"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Charged on the gross weight in the bill of lading or manifest; cargo handled overside pays half."
+          ],
+          "source": {
+            "document": "sor-2026-05",
+            "page": 27,
+            "quote": "|4 (i)|Cement, Clinker|Tonne|89|53|"
+          }
+        },
+        {
+          "id": "wharfage-steel",
+          "type": "wharfage",
+          "label": "Wharfage on iron and steel",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "steel"
+                ],
+                "directions": [
+                  "import"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "299"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "steel"
+                ],
+                "directions": [
+                  "import"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "179"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "steel"
+                ],
+                "directions": [
+                  "export"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "199"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "steel"
+                ],
+                "directions": [
+                  "export"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "120"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Rates at the Port Authority's own berths; steel at the Offshore Container Terminal (OCT) berths pays Rs 389 a tonne on import and Rs 259 on export (foreign cargo).",
+            "Charged on the gross weight in the bill of lading or manifest; cargo handled overside pays half."
+          ],
+          "source": {
+            "document": "sor-2026-05",
+            "page": 28,
+            "quote": [
+              "|13|Iron and Steel Materials (excluding<br>scrap, dross and ores)||||",
+              "||At MbPA berths||||",
+              "||Import|Tonne|299|179|",
+              "||Export|Tonne|199|120|"
+            ]
+          }
+        },
+        {
+          "id": "wharfage-crude-oil",
+          "type": "wharfage",
+          "label": "Wharfage on crude oil",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "crude-oil"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "108.79"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Rate at Jawahar Dweep.",
+            "Charged on the gross weight in the bill of lading or manifest; cargo handled overside pays half."
+          ],
+          "source": {
+            "document": "sor-2026-05",
+            "page": 36,
+            "quote": [
+              "##### **3.2** **<u>Wharfage charges leviable at Jawahar Dweep and Pir Pau</u>**",
+              "|1.|POL and POL Products<br>(i)<br>Crude Oil|108.79|108.79|"
+            ]
+          }
+        },
+        {
+          "id": "wharfage-chemicals",
+          "type": "wharfage",
+          "label": "Wharfage on liquid chemicals",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "chemicals"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "183.77"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "chemicals"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "110.26"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Charged on the gross weight in the bill of lading or manifest; cargo handled overside pays half."
+          ],
+          "source": {
+            "document": "sor-2026-05",
+            "page": 36,
+            "quote": [
+              "##### **3.2** **<u>Wharfage charges leviable at Jawahar Dweep and Pir Pau</u>**",
+              "|2.|Chemicals viz. Ammonia, EDC, Ethyle,<br>Benzine, Paraxylene, M.E.G., N.<br>Paraffin, Orthoxylene and other liquids<br>in bulk|183.77|110.26|"
+            ]
+          }
+        },
+        {
+          "id": "wharfage-edible-oil",
+          "type": "wharfage",
+          "label": "Wharfage on edible oil",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "edible-oil"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "50.11"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "edible-oil"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "30.05"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Rate at Pir Pau.",
+            "Charged on the gross weight in the bill of lading or manifest; cargo handled overside pays half."
+          ],
+          "source": {
+            "document": "sor-2026-05",
+            "page": 36,
+            "quote": "|3.|Edible oil handled at Pir Pau|50.11|30.05|"
+          }
         }
       ],
       "notes": [
@@ -332,6 +768,36 @@
             "document": "sor-2026-05",
             "page": 10,
             "section": "2.1 (C)"
+          }
+        }
+      ],
+      "notPriced": [
+        {
+          "type": "wharfage",
+          "cargoClasses": [
+            "petroleum-products",
+            "diesel",
+            "petrol",
+            "naphtha",
+            "fuel-oil",
+            "jet-fuel",
+            "lpg"
+          ],
+          "reason": "At Mumbai, wharfage on oil products and LPG differs between Jawahar Dweep and Pir Pau, so it isn't included.",
+          "source": {
+            "document": "sor-2026-05",
+            "page": 36
+          }
+        },
+        {
+          "type": "wharfage",
+          "cargoClasses": [
+            "containers"
+          ],
+          "reason": "At Mumbai, containers pay wharfage on the cargo inside them by commodity, so container wharfage isn't priced separately.",
+          "source": {
+            "document": "sor-2026-05",
+            "page": 47
           }
         }
       ]

@@ -439,6 +439,395 @@
             "section": "IV.I",
             "quote": "|Anchorage Charges:**USD** **0.00125**per GT<br>per hour.<br>*Minimum charges USD 150 applicable.|"
           }
+        },
+        {
+          "id": "wharfage-coal",
+          "type": "wharfage",
+          "label": "Wharfage on coal and coke",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "coal",
+                  "coking-coal"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "66"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazira Port wharfage (waterfront royalty)."
+          ],
+          "source": {
+            "document": "bpts-rev14-2026-10",
+            "page": 45,
+            "quote": "||d|Coal / Steam Coal / Met Coke / Coking<br>Coal / Foundry Coke / Anthrasite Coal<br>/ Pet Coke|**MT**|66|"
+          }
+        },
+        {
+          "id": "wharfage-iron-ore",
+          "type": "wharfage",
+          "label": "Wharfage on iron ore",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "iron-ore"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "74"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazira Port wharfage (waterfront royalty)."
+          ],
+          "source": {
+            "document": "bpts-rev14-2026-10",
+            "page": 45,
+            "quote": "||e|Iron Ore Pallets / Iron Ore Fines / Iron<br>Ore Coarse / Lumpy Ore|**MT**|74|"
+          }
+        },
+        {
+          "id": "wharfage-fertilizer",
+          "type": "wharfage",
+          "label": "Wharfage on fertilisers and rock phosphate",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "fertilizer",
+                  "fertilizer-raw-materials"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "75"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Sulphur pays Rs 84 a tonne.",
+            "Hazira Port wharfage (waterfront royalty)."
+          ],
+          "source": {
+            "document": "bpts-rev14-2026-10",
+            "page": 46,
+            "quote": "||c|Fertilizers & FRM (Rock Phosphate)<br>(DAP, Urea, NPK, MOP)|<br>**MT**|75|"
+          }
+        },
+        {
+          "id": "wharfage-steel",
+          "type": "wharfage",
+          "label": "Wharfage on steel",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "steel"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "94"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazira Port wharfage (waterfront royalty)."
+          ],
+          "source": {
+            "document": "bpts-rev14-2026-10",
+            "page": 44,
+            "quote": [
+              "||b|Steel Pipes, Steel Plates / Steel Angles<br>/ Steel Bar / Steel Rebar / Steel<br>Bends/Steel Rail/Any Steel product|**MT**|94|",
+              "||a||Steel Coils|**MT**|94|"
+            ]
+          }
+        },
+        {
+          "id": "wharfage-crude-oil",
+          "type": "wharfage",
+          "label": "Wharfage on crude oil",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "crude-oil"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "135"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazira Port wharfage (waterfront royalty)."
+          ],
+          "source": {
+            "document": "bpts-rev14-2026-10",
+            "page": 45,
+            "quote": "||c|Crude Oil|**MT**|135|"
+          }
+        },
+        {
+          "id": "wharfage-oil-products",
+          "type": "wharfage",
+          "label": "Wharfage on petrol, diesel, kerosene and fuel oil",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "petroleum-products",
+                  "diesel",
+                  "petrol",
+                  "fuel-oil",
+                  "jet-fuel"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "135"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Lube and base oil pay Rs 110 a tonne.",
+            "Hazira Port wharfage (waterfront royalty)."
+          ],
+          "source": {
+            "document": "bpts-rev14-2026-10",
+            "page": 45,
+            "quote": "||d|Petrol /Diesel/SKO<br>Furnace oil, bitumen, CBFS|**MT**|135|"
+          }
+        },
+        {
+          "id": "wharfage-naphtha",
+          "type": "wharfage",
+          "label": "Wharfage on naphtha",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "naphtha"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "175"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazira Port wharfage (waterfront royalty)."
+          ],
+          "source": {
+            "document": "bpts-rev14-2026-10",
+            "page": 45,
+            "quote": "||a|Naphtha/Ammonia|**MT**|175|"
+          }
+        },
+        {
+          "id": "wharfage-chemicals",
+          "type": "wharfage",
+          "label": "Wharfage on liquid chemicals",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "chemicals"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "115"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Ammonia pays Rs 175 a tonne.",
+            "Hazira Port wharfage (waterfront royalty)."
+          ],
+          "source": {
+            "document": "bpts-rev14-2026-10",
+            "page": 45,
+            "quote": "||a|<sup>All other Liquid Chemicals and</sup><br>Petrochemicals|**MT**|115|"
+          }
+        },
+        {
+          "id": "wharfage-edible-oil",
+          "type": "wharfage",
+          "label": "Wharfage on edible oil",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "edible-oil"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "110"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazira Port wharfage (waterfront royalty)."
+          ],
+          "source": {
+            "document": "bpts-rev14-2026-10",
+            "page": 45,
+            "quote": "||a|Edible Oil / Vegetable Oil|**MT**|110|"
+          }
+        },
+        {
+          "id": "wharfage-food-grains",
+          "type": "wharfage",
+          "label": "Wharfage on food grains",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "food-grains"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "65"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazira Port wharfage (waterfront royalty)."
+          ],
+          "source": {
+            "document": "bpts-rev14-2026-10",
+            "page": 45,
+            "quote": "||b|Grains / Chick Peas / Wheat / Yellow<br>Peas / Red Lentils / Rice / Mung Dal/|**MT**|65|"
+          }
+        },
+        {
+          "id": "wharfage-cement",
+          "type": "wharfage",
+          "label": "Wharfage on cement and clinker",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "cement"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "74"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazira Port wharfage (waterfront royalty)."
+          ],
+          "source": {
+            "document": "bpts-rev14-2026-10",
+            "page": 46,
+            "quote": "||b|Cement, Clinker|**MT**|74|"
+          }
+        },
+        {
+          "id": "wharfage-containers-20",
+          "type": "wharfage",
+          "label": "Wharfage on loaded 20-foot containers",
+          "basis": "box20",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "containers"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "696"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazira Port wharfage (waterfront royalty)."
+          ],
+          "source": {
+            "document": "bpts-rev14-2026-10",
+            "page": 46,
+            "quote": "||a|Loaded|**TEU**|696|"
+          }
+        },
+        {
+          "id": "wharfage-containers-40",
+          "type": "wharfage",
+          "label": "Wharfage on loaded 40-foot containers",
+          "basis": "box40",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "containers"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "1008"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazira Port wharfage (waterfront royalty)."
+          ],
+          "source": {
+            "document": "bpts-rev14-2026-10",
+            "page": 46,
+            "quote": "||b|Loaded|**FEU**|1008|"
+          }
         }
       ],
       "notes": [
@@ -475,7 +864,8 @@
         {
           "text": "LNG and LPG/chemical carriers are treated as tankers for berth hire ('Tankers' includes liquefied gases in the definitions). Berth hire is printed per GRT per hour without 'or part thereof', so exact hours are used; the US$ 900 minimum is per day, each started day counting as a full day (definition of 'Per day')."
         }
-      ]
+      ],
+      "notPriced": []
     }
   ]
 }

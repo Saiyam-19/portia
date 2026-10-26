@@ -520,6 +520,476 @@
               "|(b).|Vadinar|0.0206|0.0009|"
             ]
           }
+        },
+        {
+          "id": "wharfage-crude-oil",
+          "type": "wharfage",
+          "label": "Wharfage on crude oil",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "crude-oil"
+                ],
+                "terminals": [
+                  "vadinar"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "28.38"
+                }
+              ]
+            },
+            {
+              "when": {
+                "cargoClasses": [
+                  "crude-oil"
+                ],
+                "terminals": [
+                  "kandla"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "36.50"
+                }
+              ]
+            }
+          ],
+          "conditions": [],
+          "source": {
+            "document": "sor-escalated-2026-27",
+            "page": 14,
+            "quote": [
+              "|(a).|Crude Oil to be handled at SPM|M**.**T**.**|28.38|28.38|",
+              "|(d).|Crude oil to be handled at Oil Jetties||36.50|36.50|"
+            ]
+          }
+        },
+        {
+          "id": "wharfage-oil-products",
+          "type": "wharfage",
+          "label": "Wharfage on oil products",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "petroleum-products",
+                  "diesel",
+                  "petrol",
+                  "naphtha",
+                  "fuel-oil",
+                  "jet-fuel"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "70.96"
+                }
+              ]
+            }
+          ],
+          "conditions": [],
+          "source": {
+            "document": "sor-escalated-2026-27",
+            "page": 14,
+            "quote": "|(b).|POL Products|M**.**T**.**|70.96|70.96|"
+          }
+        },
+        {
+          "id": "wharfage-edible-oil",
+          "type": "wharfage",
+          "label": "Wharfage on edible oil",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "edible-oil"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "68.46"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "edible-oil"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "41.07"
+                }
+              ]
+            }
+          ],
+          "conditions": [],
+          "source": {
+            "document": "sor-escalated-2026-27",
+            "page": 14,
+            "quote": "|2.|Edible oil – crude and refined|M**.**T**.**|41.07|68.46|"
+          }
+        },
+        {
+          "id": "wharfage-chemicals",
+          "type": "wharfage",
+          "label": "Wharfage on liquid chemicals",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "chemicals"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "68.46"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "chemicals"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "41.07"
+                }
+              ]
+            }
+          ],
+          "conditions": [],
+          "source": {
+            "document": "sor-escalated-2026-27",
+            "page": 14,
+            "quote": [
+              "|4.|Hazardous chemicals|M**.**T**.**|41.07|68.46|",
+              "|3.|Non Hazardous chemicals|M**.**T**.**|41.07|68.46|"
+            ]
+          }
+        },
+        {
+          "id": "wharfage-fertilizer",
+          "type": "wharfage",
+          "label": "Wharfage on fertilisers and raw materials in bulk",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "fertilizer",
+                  "fertilizer-raw-materials"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "76.24"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "fertilizer",
+                  "fertilizer-raw-materials"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "45.75"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Rate for bulk cargo; in bags (break bulk) it is Rs 70.64 a tonne (foreign)."
+          ],
+          "source": {
+            "document": "sor-escalated-2026-27",
+            "page": 14,
+            "quote": [
+              "|**(B) **|**Dry Cargoes (Bulk)**<br>||||",
+              "|1.|Fertiliser and raw material including sulphur|M**.**T**.**|45.75|76.24|"
+            ]
+          }
+        },
+        {
+          "id": "wharfage-food-grains",
+          "type": "wharfage",
+          "label": "Wharfage on food grains in bulk",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "food-grains"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "70.98"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "food-grains"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "42.57"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Rate for bulk cargo; in bags it is Rs 118.43 a tonne (foreign)."
+          ],
+          "source": {
+            "document": "sor-escalated-2026-27",
+            "page": 14,
+            "quote": "|2.|Food grains**,**cereals**,**pulses and oilseeds||42.57|70.98|"
+          }
+        },
+        {
+          "id": "wharfage-cement",
+          "type": "wharfage",
+          "label": "Wharfage on cement and clinker in bulk",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "cement"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "30.80"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "cement"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "18.48"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Rate for bulk cargo; in bags it is Rs 216.53 a tonne (foreign)."
+          ],
+          "source": {
+            "document": "sor-escalated-2026-27",
+            "page": 14,
+            "quote": "|3.|Cement & clinker|M**.**T**.**|18.48|30.80|"
+          }
+        },
+        {
+          "id": "wharfage-iron-ore",
+          "type": "wharfage",
+          "label": "Wharfage on ores and minerals in bulk",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "iron-ore"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "50.69"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "iron-ore"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "30.42"
+                }
+              ]
+            }
+          ],
+          "conditions": [],
+          "source": {
+            "document": "sor-escalated-2026-27",
+            "page": 14,
+            "quote": "|4.|Ores and minerals including Mill scale &<br>Limestone(inall forms)|M**.**T**.**|30.42|50.69|"
+          }
+        },
+        {
+          "id": "wharfage-coal",
+          "type": "wharfage",
+          "label": "Wharfage on coal and coke in bulk",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "coal",
+                  "coking-coal"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "49.58"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "coal",
+                  "coking-coal"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "29.74"
+                }
+              ]
+            }
+          ],
+          "conditions": [],
+          "source": {
+            "document": "sor-escalated-2026-27",
+            "page": 14,
+            "quote": "|14.|Coal and coke (including firewood)|M**.**T**.**|29.74|49.58|"
+          }
+        },
+        {
+          "id": "wharfage-steel",
+          "type": "wharfage",
+          "label": "Wharfage on iron and steel (break bulk)",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "steel"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "119.32"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "steel"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "71.58"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Rate for break-bulk steel; metals moved in bulk pay Rs 51.35 a tonne (foreign)."
+          ],
+          "source": {
+            "document": "sor-escalated-2026-27",
+            "page": 15,
+            "quote": [
+              "|**(C)**|**Dry Cargoes (Break bulk)**||||",
+              "|6.|Metals (Ferrous / non- ferrous) (including<br>plates**,**pig iron, steel pipes, Wire Rod Coils,<br>othersteelcoils)|M**.**T**.**|71.58|119.32|"
+            ]
+          }
         }
       ],
       "notes": [
@@ -557,6 +1027,22 @@
             "document": "sor-escalated-2026-27",
             "page": 12
           }
+        }
+      ],
+      "notPriced": [
+        {
+          "type": "wharfage",
+          "cargoClasses": [
+            "lpg"
+          ],
+          "reason": "Deendayal charges propane and butane differently, so LPG wharfage isn't included."
+        },
+        {
+          "type": "wharfage",
+          "cargoClasses": [
+            "containers"
+          ],
+          "reason": "Deendayal's printed rate for loaded 20-foot containers can't be read reliably in our copy of the schedule, so container wharfage isn't included."
         }
       ]
     }

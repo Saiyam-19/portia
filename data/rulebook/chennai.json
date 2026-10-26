@@ -948,6 +948,674 @@
             "section": "2.3.4",
             "quote": "|2|Beyond 48 hours|<br>or part thereof|0.01641|0.00064|0.03281|0.00126|"
           }
+        },
+        {
+          "id": "wharfage-crude-oil",
+          "type": "wharfage",
+          "label": "Wharfage on crude oil",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "crude-oil"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "94.27"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazardous cargo pays 50% more."
+          ],
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 17,
+            "quote": "|**(a).**|Crude Oil|M.T.|94.27|94.27|"
+          }
+        },
+        {
+          "id": "wharfage-diesel",
+          "type": "wharfage",
+          "label": "Wharfage on diesel",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "diesel"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "114.11"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazardous cargo pays 50% more."
+          ],
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 17,
+            "quote": "|(i).|Diesel Oil|M.T.|114.11|114.11|"
+          }
+        },
+        {
+          "id": "wharfage-fuel-oil",
+          "type": "wharfage",
+          "label": "Wharfage on furnace oil",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "fuel-oil"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "100.89"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazardous cargo pays 50% more."
+          ],
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 17,
+            "quote": "|(ii).|Furnace Oil|M.T.|100.89|100.89|"
+          }
+        },
+        {
+          "id": "wharfage-jet-fuel",
+          "type": "wharfage",
+          "label": "Wharfage on kerosene and jet fuel",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "jet-fuel"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "120.73"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazardous cargo pays 50% more."
+          ],
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 17,
+            "quote": [
+              "|(iv).|Aviation Turbine Fuel (ATF)|M.T.|120.73|120.73|",
+              "|(iii).|Kerosene Oil|M.T.|120.73|120.73|"
+            ]
+          }
+        },
+        {
+          "id": "wharfage-petrol",
+          "type": "wharfage",
+          "label": "Wharfage on petrol",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "petrol"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "133.96"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazardous cargo pays 50% more."
+          ],
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 17,
+            "quote": "|(v).|Petrol|M.T.|133.96|133.96|"
+          }
+        },
+        {
+          "id": "wharfage-naphtha",
+          "type": "wharfage",
+          "label": "Wharfage on naphtha",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "naphtha"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "127.35"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazardous cargo pays 50% more."
+          ],
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 17,
+            "quote": "|(ix).|Naphtha|M.T.|127.35|127.35|"
+          }
+        },
+        {
+          "id": "wharfage-oil-products",
+          "type": "wharfage",
+          "label": "Wharfage on other oil products",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "petroleum-products"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "133.96"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazardous cargo pays 50% more."
+          ],
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 17,
+            "quote": "|(xiii).|Other POL Products|M.T.|133.96|133.96|"
+          }
+        },
+        {
+          "id": "wharfage-chemicals",
+          "type": "wharfage",
+          "label": "Wharfage on liquid chemicals",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "chemicals"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "209.48"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "chemicals"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "125.69"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Acids pay Rs 151.60 a tonne (foreign).",
+            "Hazardous cargo pays 50% more."
+          ],
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 17,
+            "quote": "|(v).|Other chemicals of all kinds including Ethylene<br>Glycol; MEG (Mono-ethylene Glycol); Di-ethylene<br>Glycol; Ethyl Hexanol; Methyl Alcohol; Palm Stearin;<br>Mineral Oil; Tallow; Alcohol; Ether, Methalene<br>Chloride, ISC Propylene Alcohol, Toluene, Carbon<br>Black, Linear Alkaline, Orthoxylene, Other Petro<br>Chemicals, Vinyl Chloride, Ethylene-di-chloride etc.|M.T.|125.69|209.48|"
+          }
+        },
+        {
+          "id": "wharfage-edible-oil",
+          "type": "wharfage",
+          "label": "Wharfage on edible oil",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "edible-oil"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "139.73"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "edible-oil"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "83.84"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazardous cargo pays 50% more."
+          ],
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 17,
+            "quote": "|(i).|Palm Oil, Vegetable Oil & Fats etc.|M.T.|83.84|139.73|"
+          }
+        },
+        {
+          "id": "wharfage-fertilizer",
+          "type": "wharfage",
+          "label": "Wharfage on finished fertilisers",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "fertilizer"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "62.02"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "fertilizer"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "37.21"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazardous cargo pays 50% more."
+          ],
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 18,
+            "quote": "|(i).|Finished Fertilizer i.e. Urea, Ammonium Sulphate,<br>Potash, Di-Ammonium Phosphate (DAP), Murate<br>of Potash (MoP), Boronated calcium nitrate, Mono<br>ammonium phosphate, Nitrogen fertilizer, Potassium<br>sulphatepowder, Monopotassiumphosphate etc.|M.T.|37.21|62.02|"
+          }
+        },
+        {
+          "id": "wharfage-fertilizer-raw",
+          "type": "wharfage",
+          "label": "Wharfage on fertiliser raw materials",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "fertilizer-raw-materials"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "62.02"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "fertilizer-raw-materials"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "37.21"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazardous cargo pays 50% more."
+          ],
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 18,
+            "quote": "|(ii).|Fertilizer raw material i.e. Sulphur, Rock Phosphate,<br>etc.|M.T.|37.21|62.02|"
+          }
+        },
+        {
+          "id": "wharfage-iron-ore",
+          "type": "wharfage",
+          "label": "Wharfage on iron ore",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "cargoClasses": [
+                  "iron-ore"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "74.43"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazardous cargo pays 50% more."
+          ],
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 18,
+            "quote": "|(vi).|Iron Ore Pellets / Lumps|M.T.|74.43|74.43|"
+          }
+        },
+        {
+          "id": "wharfage-cement",
+          "type": "wharfage",
+          "label": "Wharfage on cement and clinker",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "cement"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "68.23"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "cement"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "40.94"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazardous cargo pays 50% more."
+          ],
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 18,
+            "quote": "|(iii).|Cement Clinker|M.T.|40.94|68.23|"
+          }
+        },
+        {
+          "id": "wharfage-food-grains",
+          "type": "wharfage",
+          "label": "Wharfage on food grains",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "food-grains"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "62.02"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "food-grains"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "37.21"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazardous cargo pays 50% more."
+          ],
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 19,
+            "quote": "|(xvi).|Food grains, cereals, pulses, rice and oilseeds of<br>all kinds|M.T.|37.21|62.02|"
+          }
+        },
+        {
+          "id": "wharfage-steel",
+          "type": "wharfage",
+          "label": "Wharfage on iron and steel",
+          "basis": "tonne",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "steel"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "124.03"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "steel"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "74.41"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazardous cargo pays 50% more."
+          ],
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 20,
+            "quote": "|(xvi).|Metals (Ferrous/ non- ferrous) (including plates, pig<br>iron, steelpipes, Wire Rod Coils, other steel coils)|M.T.|74.41|124.03|"
+          }
+        },
+        {
+          "id": "wharfage-containers-20",
+          "type": "wharfage",
+          "label": "Wharfage on loaded 20-foot containers",
+          "basis": "box20",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "containers"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "1324"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "containers"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "795"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazardous cargo pays 50% more."
+          ],
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 26,
+            "quote": "||(a). Upto 20 Feet|Each|795|1324|"
+          }
+        },
+        {
+          "id": "wharfage-containers-40",
+          "type": "wharfage",
+          "label": "Wharfage on loaded 40-foot containers",
+          "basis": "box40",
+          "rates": [
+            {
+              "when": {
+                "status": [
+                  "foreign"
+                ],
+                "cargoClasses": [
+                  "containers"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "1986"
+                }
+              ]
+            },
+            {
+              "when": {
+                "status": [
+                  "coastal"
+                ],
+                "cargoClasses": [
+                  "containers"
+                ]
+              },
+              "currency": "INR",
+              "bands": [
+                {
+                  "rate": "1192"
+                }
+              ]
+            }
+          ],
+          "conditions": [
+            "Hazardous cargo pays 50% more."
+          ],
+          "source": {
+            "document": "tn-gazette-2026-sor",
+            "page": 26,
+            "quote": "||(b). Above 20 Feet and upto 40 Feet|Each|1192|1986|"
+          }
         }
       ],
       "notes": [
@@ -993,7 +1661,8 @@
             "section": "2.3.5"
           }
         }
-      ]
+      ],
+      "notPriced": []
     }
   ]
 }

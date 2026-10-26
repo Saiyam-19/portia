@@ -137,7 +137,7 @@ export function estimate(port: PortBook, request: EstimateRequest, today = new D
 
   const asked = new Set<string>();
   const ask = (question: string) => { if (!asked.has(question)) { asked.add(question); questions.push(question); } };
-  if (products.length) ask(`Which ${cargoLabel(cargoClass!)} is it: ${products.map(cargoLabel).join(", ")}?`);
+  if (products.length) ask(`Which product is it: ${products.map(cargoLabel).join(", ")}?`);
   // A percentage of other charges (e.g. a surcharge on port dues) is priced once those are.
   const ordered = [...selected.filter(charge => charge.basis !== "percent"), ...selected.filter(charge => charge.basis === "percent")];
   for (const charge of ordered) {

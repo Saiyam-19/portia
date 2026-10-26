@@ -1,4 +1,5 @@
 import type { ModelMessage } from "ai";
+import { namesCargo } from "./rulebook/cargo";
 
 /** What the user actually said, so tool inputs the model made up can be dropped.
  * A ship's tonnage, length and IMO number, the stay, anchorage time and an exchange
@@ -6,8 +7,8 @@ import type { ModelMessage } from "ai";
  * that answers the assistant's question ("30000" after "What is the ship's GRT?") counts
  * as that answer. With no user messages at all (direct calls), nothing is dropped. */
 
-type Kind = "grt" | "nrt" | "loa" | "hours" | "anchorage" | "rate";
-type Figure = { value: number; around: string; wide: string };
+type Kind = "grt" | "nrt" | "loa" | "hours" | "anchorage" | "rate" | "tonnes" | "teu";
+type Figure = { value: number; around: string; wide: string; before: string; after: string };
 export type Conversation = { text: string; figures: Figure[]; durations: Set<number> };
 
 const textOf = (message: ModelMessage) => typeof message.content === "string" ? message.content
@@ -17,8 +18,9 @@ const textOf = (message: ModelMessage) => typeof message.content === "string" ? 
 const ASKED: Array<[Kind, RegExp]> = [
   ["grt", /gross tonnage|\bgrt\b|\bgt\b/i], ["nrt", /net tonnage|\bnrt\b/i], ["loa", /length overall|\bloa\b/i],
   ["anchorage", /anchorage|at anchor/i], ["hours", /how many hours|hours alongside|how long|alongside/i], ["rate", /exchange rate|rupees per|per (?:us )?dollar/i],
+  ["tonnes", /tonnes of cargo|how much cargo|cargo quantity/i], ["teu", /how many containers|\(teu\)/i],
 ];
-const SAYS: Record<Kind, string> = { grt: "GRT", nrt: "NRT", loa: "m LOA", hours: "hours alongside", anchorage: "hours at anchorage", rate: "rupees per dollar" };
+const SAYS: Record<Kind, string> = { grt: "GRT", nrt: "NRT", loa: "m LOA", hours: "hours alongside", anchorage: "hours at anchorage", rate: "rupees per dollar", tonnes: "tonnes of cargo", teu: "TEU" };
 const LABELLED = /\b(?:grt|gt|gross|nrt|nt|net|loa|length|m|metres?|meters?|tons?|tonnes?|tonnage|hours?|hrs?|h|days?|weeks?|teu|usd|inr|rs|rupees?|dollars?|imo|k)\b|₹|\$|%/i;
 const NUMBER = /(\d{1,3}(?:,\d{2,3})+|\d+(?:\.\d+)?)\s*(k\b)?/gi;
 
@@ -57,6 +59,8 @@ export function readConversation(messages: ModelMessage[] | undefined): Conversa
     value: Number(match[1]!.replace(/,/g, "")) * (match[2] ? 1000 : 1),
     around: text.slice(Math.max(0, match.index! - 12), match.index! + match[0].length + 12).toLowerCase(),
     wide: text.slice(Math.max(0, match.index! - 14), match.index! + match[0].length + 24).toLowerCase(),
+    before: text.slice(Math.max(0, match.index! - 16), match.index!).toLowerCase(),
+    after: text.slice(match.index! + match[0].length, match.index! + match[0].length + 16).toLowerCase(),
   }));
   const durations = new Set<number>(fromTools);
   const lower = text.toLowerCase();
@@ -89,7 +93,27 @@ export function keepShip<T extends ShipInput>(ship: T, heard: Conversation | und
   return Object.fromEntries(Object.entries(kept).filter(([, value]) => value !== undefined)) as T;
 }
 
-type StayInput = { hoursAlongside?: string; anchorageHours?: string; tugs?: number; cargo?: unknown };
+type CargoInput = { class?: string; tonnes?: string; teu?: string; fortyFoot?: string; direction?: "import" | "export" };
+type StayInput = { hoursAlongside?: string; anchorageHours?: string; tugs?: number; cargo?: CargoInput };
+
+/** The cargo the user gave: its kind in their words, tonnes and TEU as figures they said. */
+function keepCargo(cargo: CargoInput | undefined, heard: Conversation): CargoInput | undefined {
+  if (!cargo) return undefined;
+  // The unit right after the figure ("50,000 tonnes"), or a word right before it ("cargo of 50,000").
+  const figure = (value: string | undefined, after: RegExp, before: RegExp) =>
+    value !== undefined && heard.figures.some(item => item.value === Number(value) && (after.test(item.after) || before.test(item.before))) ? value : undefined;
+  const text = heard.text.toLowerCase();
+  const kept: CargoInput = {
+    class: cargo.class && namesCargo(cargo.class, text) ? cargo.class : undefined,
+    tonnes: figure(cargo.tonnes, /^\s*(?:tonnes?|tons?|mt|t|metric)\b/, /(?:cargo|quantity|parcel)(?: of)?\s*:?\s*$/),
+    teu: figure(cargo.teu, /^\s*(?:teu|containers?|boxes)\b/, /(?:teu|containers?)\s*:?\s*$/),
+    fortyFoot: cargo.fortyFoot !== undefined && heard.figures.some(item => item.value === Number(cargo.fortyFoot) && /40|forty|\bfeu\b/.test(item.wide)) ? cargo.fortyFoot : undefined,
+    direction: cargo.direction === "import" ? (/import|discharg|unload/.test(text) ? "import" : undefined)
+      : cargo.direction === "export" ? (/export|\bload(?:ing|ed|s)?\b|shipment/.test(text) ? "export" : undefined) : undefined,
+  };
+  const out = Object.fromEntries(Object.entries(kept).filter(([, value]) => value !== undefined)) as CargoInput;
+  return out.tonnes || out.teu ? out : undefined;
+}
 
 /** The stay the user gave: hours alongside and at anchorage only as durations they said
  * (2 days = 48 hours), tugs and cargo only when mentioned. */
@@ -105,7 +129,7 @@ export function keepStay<T extends StayInput>(stay: T, heard: Conversation | und
     hoursAlongside: said(stay.hoursAlongside) ?? (stay.hoursAlongside !== undefined ? only : undefined),
     anchorageHours: anchorage ? said(stay.anchorageHours) : undefined,
     tugs: /\btugs?\b/.test(text) ? stay.tugs : undefined,
-    cargo: /tonnes?|\bteu|\bmt\b|wharfage|containers?|cargo of|metric tons?/.test(text) ? stay.cargo : undefined,
+    cargo: keepCargo(stay.cargo, heard),
   };
 }
 
