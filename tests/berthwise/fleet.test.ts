@@ -63,6 +63,18 @@ describe("My fleet in the chat", () => {
     expect(result.summary).toContain("From the user's fleet");
   });
 
+  it("still finds the saved ship when the model repeats its name and invents the rest", async () => {
+    // The exact input Sol sent on 26 October 2026 for "Port costs for MV Ocean Star at Paradip, 24 hours alongside".
+    const asked = { ship: { name: "MV Ocean Star MV Ocean Star MV Ocean Star MV Ocean Star MV Ocean Star MV Ocean S", imo: "1234567", grt: "25000", nrt: "14000", loa: "180", type: "bulk", status: "foreign" },
+      calls: [{ port: "Paradip", terminal: "Paradip", berth: "Paradip", date: "2026-10-26", hoursAlongside: "24", anchorageHours: "0", tugs: 2, cargo: { class: "coal", tonnes: "50000", teu: "0", fortyFoot: "0", direction: "import" } }],
+      charges: ["port-dues", "pilotage", "towage", "pilotage-towage", "berth-hire", "mooring", "anchorage", "wharfage", "other"], usdToInr: "83" };
+    const messages = [{ role: "user" as const, content: "Port costs for MV Ocean Star at Paradip, 24 hours alongside" }];
+    const result = await tools.estimate_port_call!.execute!((tools.estimate_port_call!.inputSchema as ZodType).parse(asked) as never, { toolCallId: "t", messages, context: {} }) as { card: { ship: unknown; calls: Array<{ estimate: { lines: unknown[]; questions: string[] } }> } };
+    expect(result.card.ship).toMatchObject({ name: "MV Ocean Star", grt: "32450", imo: "9876543" });
+    expect(result.card.calls[0]!.estimate.questions).toEqual([]);
+    expect(result.card.calls[0]!.estimate.lines.length).toBeGreaterThan(0);
+  });
+
   it("lets what the user says now win over the saved figure", async () => {
     const result = await run("estimate_port_call", { ship: { name: "Ocean Star", status: "coastal" }, calls: [{ port: "Paradip", date: "2026-10-25" }] });
     expect(result.card.ship.status).toBe("coastal");

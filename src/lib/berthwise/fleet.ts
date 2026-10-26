@@ -29,10 +29,21 @@ export function shipKey(name: string): string {
     .replace(/^(?:m ?v|m ?t|m ?s|s ?s|mv|mt|ms|ss)\s+/, "");
 }
 
+const PREFIXES = new Set(["m", "v", "t", "s", "mv", "mt", "ms", "ss"]);
+/** "ocean star mv ocean star mv ocean s" is "ocean star" said several times, cut short. */
+function repeats(key: string, name: string): boolean {
+  const words = name.split(" ");
+  return Boolean(name) && key.startsWith(`${name} `) && key.split(" ").every(word => PREFIXES.has(word) || words.some(part => part.startsWith(word)));
+}
+
 /** The saved ship a name or IMO number refers to, if any. */
 export function findShip(ships: FleetShip[], query: { name?: string; imo?: string }): FleetShip | undefined {
   if (query.imo) { const byImo = ships.find(ship => ship.imo === query.imo); if (byImo) return byImo; }
-  if (query.name) { const key = shipKey(query.name); return ships.find(ship => shipKey(ship.name) === key); }
+  if (query.name) {
+    const key = shipKey(query.name);
+    // Models sometimes repeat a name ("MV Ocean Star MV Ocean Star MV Oc…"); a saved name it starts with still counts.
+    return ships.find(ship => shipKey(ship.name) === key) ?? ships.find(ship => repeats(key, shipKey(ship.name)));
+  }
   return undefined;
 }
 

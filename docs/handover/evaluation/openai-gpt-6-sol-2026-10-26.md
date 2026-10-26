@@ -1,132 +1,132 @@
 # Everyday questions: openai/gpt-6-sol, 2026-10-26
 
-30 of 32 answers passed every automatic check. Cost of this run: about US$ 0.774 from token counts (OpenRouter showed US$ 2.0363 spent of the US$ 9 limit when the run ended; its figure can lag).
+30 of 32 answers passed every automatic check. Cost of this run: about US$ 0.7601 from token counts (OpenRouter showed US$ 2.6368 spent of the US$ 9 limit when the run ended; its figure can lag).
 
 Sample data used: one saved ship (MV Ocean Star), one charter-party passage and a 15% berth-hire discount at Hazira. Figures below come from the rule book; nothing was sent to anyone.
 
 | Question | Tools | Checks | Steps | Seconds |
 |---|---|---|---|---|
-| estimate-paradip | estimate_port_call | pass | 2 | 7 |
-| estimate-mundra-tanker | estimate_port_call | pass | 3 | 30 |
-| voyage | estimate_port_call | pass | 2 | 18 |
-| compare-berth-hire | compare_ports | pass | 2 | 6 |
+| estimate-paradip | estimate_port_call | pass | 2 | 9 |
+| estimate-mundra-tanker | estimate_port_call | pass | 2 | 10 |
+| voyage | estimate_port_call | **says total / combined** | 2 | 10 |
+| compare-berth-hire | compare_ports | pass | 2 | 8 |
 | compare-whole-bill | compare_ports | pass | 2 | 8 |
-| tariff-hazira-pilotage | port_tariff | pass | 2 | 10 |
-| what-changed-paradip | port_tariff | pass | 2 | 13 |
+| tariff-hazira-pilotage | search_port_documents | pass | 2 | 13 |
+| what-changed-paradip | port_tariff | pass | 2 | 7 |
 | coverage | list_ports | pass | 2 | 6 |
-| draft-chennai | search_port_documents | pass | 2 | 10 |
-| documents-mundra | search_port_documents | pass | 2 | 12 |
-| pilotage-compulsory-mumbai | search_port_documents | pass | 2 | 8 |
-| night-pipavav | search_port_documents | pass | 2 | 6 |
-| unsupported-port | estimate_port_call | **says don't cover / do not cover / not one of / isn't covered / not covered / only cover / isn't among / not among / isn't one of / isn't in / not in our / outside / isn't a port / not a port / does not cover / doesn't cover** | 2 | 7 |
-| pilotage-jnpa | estimate_port_call | pass | 2 | 9 |
-| kandla-tanker | estimate_port_call | pass | 2 | 15 |
+| draft-chennai | search_port_documents | pass | 2 | 9 |
+| documents-mundra | search_port_documents | pass | 2 | 11 |
+| pilotage-compulsory-mumbai | search_port_documents | pass | 2 | 6 |
+| night-pipavav | search_port_documents | pass | 2 | 7 |
+| unsupported-port | estimate_port_call | pass | 2 | 6 |
+| pilotage-jnpa | estimate_port_call | pass | 2 | 10 |
+| kandla-tanker | estimate_port_call | pass | 2 | 7 |
 | coastal-nmpa | estimate_port_call | pass | 2 | 7 |
-| anchorage-chennai | estimate_port_call | pass | 2 | 7 |
-| fleet-autofill | estimate_port_call | pass | 2 | 6 |
+| anchorage-chennai | estimate_port_call | pass | 2 | 9 |
+| fleet-autofill | estimate_port_call | pass | 2 | 7 |
 | fleet-save | save_ship | pass | 2 | 5 |
-| company-docs | search_company_documents | pass | 2 | 5 |
-| agreed-rates | estimate_port_call | pass | 2 | 6 |
-| general-term | none | pass | 1 | 2 |
-| fuel-surcharge-now | search_port_documents | **says twice a month / latest / revise** | 2 | 5 |
-| rupees | estimate_port_call | pass | 2 | 12 |
-| tariff-comparison | compare_ports | pass | 2 | 9 |
-| kamarajar-container | estimate_port_call | pass | 2 | 7 |
-| cheapest-small | compare_ports | pass | 2 | 17 |
-| lng-mundra | estimate_port_call | pass | 2 | 11 |
-| vlcc-chennai | estimate_port_call | pass | 2 | 8 |
-| wharfage-coal | estimate_port_call | pass | 2 | 7 |
-| wharfage-containers | estimate_port_call | pass | 2 | 7 |
+| company-docs | search_company_documents | pass | 2 | 6 |
+| agreed-rates | estimate_port_call | pass | 2 | 8 |
+| general-term | none | pass | 1 | 3 |
+| fuel-surcharge-now | search_port_documents | **says twice a month / latest / revise / newer** | 2 | 10 |
+| rupees | estimate_port_call | pass | 2 | 8 |
+| tariff-comparison | compare_ports | pass | 2 | 10 |
+| kamarajar-container | estimate_port_call | pass | 2 | 14 |
+| cheapest-small | compare_ports | pass | 2 | 10 |
+| lng-mundra | estimate_port_call | pass | 2 | 7 |
+| vlcc-chennai | estimate_port_call | pass | 2 | 7 |
+| wharfage-coal | estimate_port_call | pass | 2 | 6 |
+| wharfage-containers | estimate_port_call | pass | 2 | 8 |
 | freshness-mumbai | port_tariff | pass | 2 | 7 |
 
 ## estimate-paradip
 
 > What will it cost to berth a 32,000 GT bulk carrier at Paradip for 2 days?
 
-The estimated cost to berth a **32,000 GT bulk carrier at Paradip for 2 days** is **USD 46,315.02 before GST**.
+The estimated **whole port-call cost at Paradip is USD 46,315.02 before GST** for the 32,000 GT bulk carrier alongside for 2 days. This is more than berth hire alone: it includes port dues, pilotage and towage, and berth hire. Pilotage is the service of guiding the ship into and out of port.
 
-That includes port dues, pilotage and towage (guiding and assisting the ship in and out), and berth hire. The estimate assumes the ship is **foreign-going**, spends **48 hours alongside**, and makes an arrival and departure movement. If it is an Indian coastal voyage, the cost will differ.
-
-Paradip’s tariff is stated in US dollars but collected in rupees at the applicable reference rate. I haven’t converted it because you haven’t given an exchange rate.
+I assumed the ship is **foreign-going** and makes a normal arrival and departure. If it is trading coastally, or if “2 days” includes time waiting rather than time alongside, the estimate will need adjusting.
 
 ## estimate-mundra-tanker
 
 > port charges at mundra for a 45k grt tanker staying 30 hrs
 
-**Estimated Mundra port charges: USD 84,685.00 before GST** for a 45,000 GRT tanker staying alongside for 30 hours. GRT is the ship’s gross tonnage, used here to calculate several charges.
+**Estimated Mundra port charges: USD 84,685.00 before GST** for a 45,000 GRT tanker staying alongside for 30 hours.
 
-The main charges are pilotage with tugs (guidance into and out of port), USD 53,678.34; a fuel surcharge, USD 10,213.20; and berth hire, USD 15,638.40. The estimate assumes a foreign-going tanker making a normal arrival and departure at a berth.
+This assumes a foreign-going ship, a standard berth, and arrival and departure movements. It includes USD 15,638.40 in berth hire and USD 53,678.34 for pilotage with tugs. The total does not include cargo-related charges.
 
-**Check the fuel surcharge before relying on the total.** The rate used is from Mundra’s 1 October 2026 notice, and the port usually revises it about twice a month.
+The pilotage fuel surcharge uses the notice dated 1 October 2026. Mundra revises it regularly, so check the latest notice before relying on the estimate. If the tanker will use the crude-oil jetty or single-point mooring, tell me: those calls are charged by contract and are **not priced by this estimate**.
 
 ## voyage
 
 > We're sailing from Mundra to Chennai with a 40,000 GRT bulk ship, about a day alongside at each. What will the port costs come to in total?
 
-The estimated **total port cost is USD 131,580.28 before GST** for the Mundra–Chennai voyage.
+**Estimated port costs: USD 131,580.28 before GST** for the Mundra-to-Chennai voyage.
 
-- Mundra: USD 72,584.28
-- Chennai: USD 58,996.00
+- Mundra departure call: **USD 72,584.28**
+- Chennai arrival call: **USD 58,996.00**
 
-This assumes a foreign-going bulk ship of 40,000 GRT (gross registered tonnage), 24 hours alongside at each port, and an arrival and departure movement at each. No cargo charge is included because you did not give a cargo quantity.
+This assumes a foreign-going bulk ship of **40,000 GRT** (gross tonnage), **24 hours alongside at each port**, and arrival and departure movements at both ports. It does not include cargo wharfage because no cargo quantity was given.
 
-**Check before relying on the figure:** Mundra’s fuel surcharge can change, and the estimate uses its 1 October 2026 notice. Chennai’s published schedule does not say whether pilotage—the service of guiding the ship in and out—includes berthing tugs, so any separately hired tugs are not included.
+Mundra’s pilotage fuel surcharge can change, so check the latest notice before relying on the estimate. Chennai’s published schedule does not say whether its pilotage charge includes tugs; separately hired tugs could add to the cost.
 
 ## compare-berth-hire
 
 > Compare berth hire at Mumbai and JNPA for a 25,000 GT container ship staying 18 hours
 
-I can’t price or compare the berth hire yet. The rate depends on the berth at Mumbai and the terminal at JNPA, so neither total before GST is available.
+I can’t price or rank berth hire yet. Mumbai’s rate depends on the **berth**, and JNPA’s depends on the **terminal**. The comparison assumes a foreign-going container ship with 25,000 GT (gross tonnage) staying alongside for 18 hours.
 
-Which **Mumbai berth** and **JNPA terminal** should I use? I’ve treated the ship as foreign-going; tell me if it’s trading coastally instead.
+Which Mumbai berth and JNPA terminal should I use?
 
 ## compare-whole-bill
 
 > Which is cheaper overall for a 30,000 GRT bulk carrier staying 24 hours: Kattupalli, Chennai or Kamarajar?
 
-**I can’t rank all 3 ports yet.** Kattupalli’s bill includes rupees, while the other bills are in US dollars. The totals before GST are:
+**Before GST**, the estimated standard port-call totals are:
 
-| Port | Estimated total |
+| Port | Total |
 |---|---:|
-| Kattupalli | USD 34,017.30 + INR 3,43,200.00 |
+| Kattupalli | USD 34,017.30 **plus** INR 3,43,200.00 |
 | Chennai | USD 35,760.00 |
 | Kamarajar | USD 37,620.00 |
 
-**Chennai is cheaper than Kamarajar** on these estimates. To tell whether Kattupalli is cheapest overall, what INR-per-USD exchange rate should I use?
+**Chennai is cheaper than Kamarajar.** I can’t say which is cheapest overall because Kattupalli’s bill includes rupees as well as dollars. If you give me a rupees-per-dollar exchange rate, I can rank all 3.
 
-I assumed a foreign-going bulk carrier, 24 hours alongside, and an arrival and departure movement. No cargo charge is included.
+I assumed a foreign-going bulk carrier, 24 hours alongside, and an arrival and departure movement. GRT means gross tonnage, a measure of the ship’s size used to calculate these charges. No cargo quantity was given, so cargo wharfage is not included.
 
 ## tariff-hazira-pilotage
 
 > How does Hazira charge pilotage?
 
-At Hazira, **pilotage includes the pilot’s assistance for 1 berthing and 1 unberthing, plus all tug charges**. For most ships, the charge is **USD 1.45331 per GRT**, subject to a minimum based on the ship’s size. GRT (gross registered tonnage) is a measure of the ship’s internal volume, not its weight.
+Hazira charges **pilotage by the ship’s gross tonnage (GRT)**, a measure of the ship’s enclosed volume. The charge covers 1 berthing and 1 unberthing, with tug charges included. The rate depends on the vessel type:
 
-| Ship size | Minimum pilotage charge |
-|---|---:|
-| Up to 3,000 GRT | USD 6,000 |
-| Over 3,000 to 15,000 GRT | USD 14,500 |
-| Over 15,000 GRT | USD 25,300 |
+| Vessel | Pilotage charge |
+|---|---|
+| LNG | USD 0.6691 per GRT |
+| Container | USD 1.18566 per GRT; minimum USD 11,260 |
+| Other vessels, including tankers and dry cargo | USD 1.45331 per GRT, subject to a minimum of USD 6,000 up to 3,000 GRT; USD 14,500 from 3,001–15,000 GRT; and USD 25,300 above 15,000 GRT |
 
-*Source: Adani Hazira Port Berthing Policy and Tariff Structure, issue 3 revision 14, p. 26, section IV.B(i).*
+A **fuel surcharge** is added to pilotage. The port’s circular sets it at **USD 0.225070 per GT from 1 October 2026**. [Adani Hazira Port Berthing Policy and Tariff Structure, p. 26](https://www.adaniports.com/-/media/project/ports/portsandterminals/hazira-port-documents/tariff/bpts_hazira_issue-03_rev-14_oct-2026.pdf); [Hazira fuel surcharge circular, p. 1](https://www.adaniports.com/-/media/project/ports/portsandterminals/hazira-port-documents/trade-notice/fs_hazira_dtd_01-10-2026.pdf).
 
-A **fuel surcharge of USD 0.225070 per GRT** is charged separately; it does **not** apply to LNG ships. That rate comes from the *Hazira fuel surcharge on pilotage* circular dated 1 October 2026, p. 1. The port reviews it fortnightly, so check the latest notice before relying on it.
+If you give me the vessel type and GRT, I can estimate the charge.
 
 ## what-changed-paradip
 
 > What changed in Paradip's port charges this year?
 
-Paradip introduced a new **Scale of Rates effective 10 October 2026**. Compared with the schedule in force from 1 May 2026, the main changes for foreign-going ships are:
+Paradip’s **new Scale of Rates took effect on 10 October 2026**. Compared with the schedule in force immediately before it, the main ship charges rose. For a foreign-going ship:
 
-| Charge | Previous rate | New rate |
+| Charge | Before | Now |
 |---|---:|---:|
 | Port dues | USD 0.34 per GRT | USD 0.408 per GRT |
 | Pilotage and towage, up to 30,000 GRT | USD 0.7148 per GRT | USD 0.8578 per GRT |
 | Berth hire | USD 0.003338 per GRT per hour | USD 0.004006 per GRT per hour |
 
-**GRT** is a measure of a ship’s internal volume. *Pilotage and towage* covers the pilots and tugs used to move the ship in and out. Larger ships have banded pilotage and towage rates, which also changed. The new schedule lists cargo charges (*wharfage*), but the comparison does not give previous wharfage rates, so I can’t say how those changed.
+**GRT** measures a ship’s enclosed volume. **Pilotage** is the service of guiding a ship into or out of port; Paradip’s listed charge combines it with tug assistance. Berth hire is charged for each started hour alongside.
 
-These are tariff rates, not a port-call total. The schedule was last checked on 25 October 2026. Source: [Paradip Port Authority Scale of Rates 2026](https://www.paradipport.gov.in/uploads/2026/09/Scale-of-Rates-2026-_18092026_compressed.pdf), pp. 17, 18 and 25.
+The new schedule also lists cargo-specific **wharfage** rates, but the comparison available here does not give the previous wharfage rates. I therefore can’t say how much those changed.
+
+Source: *Paradip Port Authority Scale of Rates 2026*, pp. 17, 18 and 25. The schedule was last checked on 25 October 2026.
 
 ## coverage
 
@@ -134,128 +134,134 @@ These are tariff rates, not a port-call total. The schedule was last checked on 
 
 I cover these Indian ports:
 
-- Mumbai
-- Jawaharlal Nehru Port (JNPA/Nhava Sheva)
+- Mumbai Port
+- Jawaharlal Nehru Port (Nhava Sheva)
 - JSW Jaigarh
 - New Mangalore
 - Paradip
-- Deendayal (Kandla and Vadinar)
+- Deendayal Port (Kandla and Vadinar)
 - Chennai
-- Kamarajar (Ennore)
-- Adani Mundra
-- Adani Hazira
-- Adani Kattupalli
-- Gujarat Pipavav
+- Kamarajar Port (Ennore)
+- Mundra
+- Hazira
+- Kattupalli
+- Pipavav
 
-Coverage includes port-call charges, though some terminals and specialised calls have pricing gaps. The rate schedules were last checked on 25 October 2026.
+Coverage includes port-call charges, but some terminals, vessel types and charges have gaps. Tell me the port and terminal you’re considering, and I can check what’s priced.
 
 ## draft-chennai
 
 > What's the permissible draft at Chennai's berths?
 
-Chennai Port Authority lists these **permissible drafts** by berth, as of 01 January 2026:
+Chennai Port Authority lists these **permissible drafts by berth**, as of 01 January 2026. Draft is the depth of a ship below the waterline.
 
 | Dock | Berth | Permissible draft |
 |---|---|---:|
 | Dr. Ambedkar | 19A North Quay | 8.50 m |
-| Dr. Ambedkar | 18A West Quay 1 | 11.00 m |
-| Dr. Ambedkar | 17A West Quay 2; 16A Centre Berth; 15A West Quay III | 12.00 m |
-| Dr. Ambedkar | 14A West Quay IV | 11.00 m* |
-| Dr. Ambedkar | 13A South Quay 1; 6A South Quay II | 9.50 m |
-| Dr. Ambedkar | 5A, 4A and 3A CITPL-SCB | 15.00 m† |
-| Jawahar | 12J JD-1; 09J JD-6 | 12.50 m‡ |
-| Jawahar | 11J JD-3; 10J JD-5 | 13.00 m |
-| Jawahar | 07J JD-2; 08J JD-4 | 14.00 m |
+| | 18A West Quay 1 | 11.00 m |
+| | 17A West Quay 2; 16A Centre Berth; 15A West Quay III | 12.00 m each |
+| | 14A West Quay IV | 11.00 m* |
+| | 13A South Quay 1; 6A South Quay II | 9.50 m each |
+| | 5A, 4A and 3A CITPL | 15.00 m each† |
+| Jawahar | 12J JD-1; 09J JD-6 | 12.50 m each‡ |
+| | 11J JD-3; 10J JD-5 | 13.00 m each |
+| | 07J JD-2; 08J JD-4 | 14.00 m each |
 | Bharathi | 26B Bharathi Dock 1 | 14.60 m |
-| Bharathi | 24B Bharathi Dock II; 27B Bharathi Dock III | 16.50 m§ |
-| Bharathi | 20B–22B CCTPL-CTB 1–3 | 13.40 m |
-| Bharathi | 23B CCTPL-CTB 4 | 15.00 m |
-| Bharathi | 01B Coastal Berth 1 | 11.00 m |
-| Bharathi | 02B Coastal Berth 2 | 10.00 m |
-| Bharathi | Bunker Berth | 9.00 m |
+| | 24B Bharathi Dock II; 27B Bharathi Dock III | 16.50 m each§ |
+| | 20B, 21B and 22B CCTPL | 13.40 m each |
+| | 23B CCTPL | 15.00 m |
+| | 01B Coastal Berth 1 | 11.00 m |
+| | 02B Coastal Berth 2 | 10.00 m |
+| | Bunker Berth | 9.00 m |
 
-\* The port adds a location-specific note for 14A: “11M upto 795 Mtrs. 9.5M upto 810 mtrs.”  
-† For the CITPL-SCB berths, the port specifies **port side alongside from 12.5 m onwards**.  
-‡ The port permits **13.00 m during high water** at 09J.  
-§ The port permits **17.00 m during high water** at 27B.
+\* The port adds a location-specific note for 14A: **11 m up to 795 m; 9.5 m up to 810 m**.  
+† For the CITPL berths, the port specifies **port side alongside from 12.5 m onwards**.  
+‡ The port notes **13.0 m during high water** at 09J.  
+§ The port notes **17.0 m during high water** at 27B.
 
-Source: Chennai Port Authority, *BERTH DETAILS – Permissible Draft at Berths as on 01.01.2026*, p. 1.
+Source: Chennai Port Authority, *Berth Details – Permissible Draft at Berths as on 01.01.2026*, p. 1.
 
 ## documents-mundra
 
 > What documents do I need to submit before arriving at Mundra?
 
-For a vessel arriving at **Mundra**, your agent should submit the pre-arrival documents through the port’s APMS/IPOS system. The port also requires **official vessel acceptance before the vessel is fixed to call at Mundra**. [Mundra vessel-declaration procedure, p. 1](https://www.adaniports.com/-/media/project/ports/portsandterminals/mundra-documents/marine-documents/standard-procedure-for-vessel-declarations-ndc-and-submission-of-documents.pdf)
+For a vessel arriving at **Mundra**, your agent should obtain the port’s official vessel acceptance and submit the declaration through **APMS/IPOS**. If the ship has not called before, the agent must first create its vessel record and upload its ship particulars, international tonnage certificate, class certificate and registry certificate. The port says it will not generate a vessel call number if that record or its required certificates are incomplete. [Mundra vessel-declaration procedure, pp. 1–2](https://www.adaniports.com/-/media/project/ports/portsandterminals/mundra-documents/marine-documents/standard-procedure-for-vessel-declarations-ndc-and-submission-of-documents.pdf)
 
-**For every vessel declaration, prepare:**
+For **all vessel declarations**, the procedure lists:
 
-- The berthing application, vessel and cargo particulars, and vessel-acceptance navigational checklist.
-- Ship particulars and certificates for tonnage, registry, class, load line, safety equipment, safety construction, safety radio, safe manning, security, air-pollution prevention, oil-pollution prevention, and ballast-water management.
-- The document of compliance, Safety Management Certificate, ship sanitation control exemption, P&I insurance certificate, wreck-removal liability certificate, the listed civil-liability certificates, and the owner’s or operator’s agency appointment letter.
-- Pre-arrival notices at **5, 3, 2 and 1 days**, including the notice required under the ship-security code.
+- Berthing application; vessel and cargo particulars; and vessel-acceptance navigational checklist.
+- Ship particulars and the international tonnage, class, registry, load line, safety equipment, safety construction, safety radio, safe manning and ship-sanitation-exemption certificates.
+- Air-pollution, oil-pollution and ballast-water certificates; safety-management and document-of-compliance certificates; ship-security certificate; P&I insurance and wreck-removal liability certificates; and the listed civil-liability and bunker-pollution certificates.
+- The owner’s or operator’s agency appointment letter and pre-arrival notices.
 
-These are listed across pages 1–2 of the [Mundra vessel-declaration procedure](https://www.adaniports.com/-/media/project/ports/portsandterminals/mundra-documents/marine-documents/standard-procedure-for-vessel-declarations-ndc-and-submission-of-documents.pdf). The procedure also says to submit the **prior IGM to the Port Operations Centre 24 hours before arrival**. [p. 2](https://www.adaniports.com/-/media/project/ports/portsandterminals/mundra-documents/marine-documents/standard-procedure-for-vessel-declarations-ndc-and-submission-of-documents.pdf)
+These are listed for upload in APMS; the procedure says not to upload or email documents the system generates automatically. [Mundra vessel-declaration procedure, pp. 1–2](https://www.adaniports.com/-/media/project/ports/portsandterminals/mundra-documents/marine-documents/standard-procedure-for-vessel-declarations-ndc-and-submission-of-documents.pdf)
 
-If this is the vessel’s **first Mundra call**, the agent must first create its vessel definition in IPOS and upload ship particulars, the international tonnage certificate, class certificate and registry certificate. The port says it will not generate the vessel-call number if the definition or required certificates are incomplete. [Procedure, pp. 1–2](https://www.adaniports.com/-/media/project/ports/portsandterminals/mundra-documents/marine-documents/standard-procedure-for-vessel-declarations-ndc-and-submission-of-documents.pdf)
+**Before arrival**, send the pre-arrival security notice (PANS) and crew list to the addresses specified in the procedure. It says the vessel cannot enter port limits until PANS is received. Send arrival-time updates at **5/3/2/1 days** and **12/6 hours** before arrival. The procedure also calls for the import general manifest (IGM) to reach the Port Operations Centre **24 hours before arrival**. [Mundra vessel-declaration procedure, pp. 2–3](https://www.adaniports.com/-/media/project/ports/portsandterminals/mundra-documents/marine-documents/standard-procedure-for-vessel-declarations-ndc-and-submission-of-documents.pdf)
 
-**Extra documents depend on the cargo.** For bulk or breakbulk calls, the procedure lists a stowage plan and loading or discharge sequence, plus cargo-specific items such as a packing list for breakbulk. For liquid-cargo vessels, it lists a stowage plan and pre-arrival exchange-information checklist, with temperature reports and heating instructions for heated cargo. Older vessels and liquid tankers may need additional clearances or certificates. [Procedure, p. 2](https://www.adaniports.com/-/media/project/ports/portsandterminals/mundra-documents/marine-documents/standard-procedure-for-vessel-declarations-ndc-and-submission-of-documents.pdf)
-
-Tell me the vessel type and cargo if you want the cargo-specific list narrowed down.
+Extra documents depend on the ship and cargo. The procedure lists additional paperwork for bulk and break-bulk cargo, liquid cargo, older vessels and older liquid tankers. Tell me the **ship type and cargo**, and I can narrow that list down. [Mundra vessel-declaration procedure, p. 2](https://www.adaniports.com/-/media/project/ports/portsandterminals/mundra-documents/marine-documents/standard-procedure-for-vessel-declarations-ndc-and-submission-of-documents.pdf)
 
 ## pilotage-compulsory-mumbai
 
 > Is pilotage compulsory in Mumbai?
 
-Yes. Mumbai Port Authority says pilotage—having a port pilot guide the ship—is compulsory **in and out of the harbour** for ships of **100 net tons or more**. Net tonnage measures a ship’s usable internal space. The cited rule does not state whether smaller ships must use a pilot. [Mumbai Port Authority, *Pilotage*, p. 1](https://mumbaiport.gov.in/WriteReadData/RTF1984/1710398100.pdf)
+Yes. At **Mumbai Port**, pilotage is compulsory for ships of **100 net tons and above** entering or leaving the harbour. Pilotage means a local pilot guides the ship through port waters. The port document does not say it is compulsory below that threshold. [Mumbai Port Authority, *Pilotage*, p. 1](https://mumbaiport.gov.in/WriteReadData/RTF1984/1710398100.pdf)
 
 ## night-pipavav
 
 > Can ships enter Pipavav at night?
 
-Yes. Pipavav permits ships to enter and berth at night, **except LPG vessels, which are restricted to daytime navigation**. Night berthing is still subject to the port’s tidal and vessel-specific restrictions, and ships need a pilot to enter. [Our Port, p. 1](https://www.apmterminals.com/en/pipavav/about/our-terminal); [SAFE MEMO – PIPAVAV PORT – INDIA, pp. 1–2](https://cms-cd.apmterminals.com/pipavav/-/media/mainsite/asia-and-pacific/Pipavav/Information/Safe-Memo-Sep-2025.pdf).
+Yes. Pipavav allows ships to enter and berth at night, **except LPG vessels, which are limited to daytime navigation**. A pilot is mandatory, and the timing of berthing can depend on the tide, the ship and conditions. [APM Terminals Pipavav, *Our Port*, p. 1](https://www.apmterminals.com/en/pipavav/about/our-terminal); [*SAFE MEMO – PIPAVAV PORT – INDIA*, pp. 1–2](https://cms-cd.apmterminals.com/pipavav/-/media/mainsite/asia-and-pacific/Pipavav/Information/Safe-Memo-Sep-2025.pdf).
 
 ## unsupported-port
 
 > What would a call at Colombo cost for a 20,000 GT ship?
 
-I can’t give a reliable cost for Colombo because I don’t have its tariff. I won’t substitute rates from another port.
+I can’t give a reliable cost for a Colombo call by a 20,000 GT ship because Colombo isn’t covered by the port tariffs I have. I won’t substitute another port’s rates.
 
-You’ve given the ship’s gross tonnage (GT), but a call estimate would also need its time alongside and, depending on the tariff, details such as ship type and cargo.
+If you have Colombo’s tariff or a port agent’s quote, share it and I can help review the charges.
 
 ## pilotage-jnpa
 
 > How much is pilotage for a 10000 GT ship at JNPA?
 
-At JNPA, the estimated **pilotage and towage charge is USD 3,464 before GST** for a 10,000 GT ship. JNPA prices them together, so a pilotage-only amount is not available from this rate.
+For a **10,000 GT ship at JNPA**, the published charge is **USD 3,464 before GST** for **pilotage and towage together**. JNPA does not price pilotage separately in this rate. The charge covers the ship’s arrival and departure movements.
 
-The estimate assumes a foreign-going container ship making both an arrival and a departure movement. If your ship is coastal, or you need just 1 movement, the charge will differ.
+I assumed a foreign-going ship and a normal arrival and departure. If it is a coastal voyage, tell me and I can check the applicable charge.
+
+Source: *JNPA Scale of Rates effective 1 May 2026*, p. 3, §2.2 A.
 
 ## kandla-tanker
 
 > berth hire at kandla for a 20k GT liquid tanker, 36 hours
 
-**Estimated berth hire at Kandla: USD 6,048.00 before GST.** This is for a 20,000 GT liquid tanker alongside for 36 hours at a liquid-cargo berth. I assumed the ship is foreign-going.
+**Berth hire at Kandla: USD 6,048.00 before GST** for a 20,000 GT liquid tanker alongside for 36 hours.
 
-This is **berth hire only**, not the full port-call bill. If the ship is coastal-going, or will use the port’s shore cranes, the charge may differ.
+The estimate assumes a foreign-going ship at a liquid-cargo berth, without the port’s shore cranes. GT (gross tonnage) measures the ship’s enclosed volume. Berth hire is charged for the time alongside; this is **berth hire only**, not the full port-call bill. If the port’s shore cranes are used, the tariff says the berth-hire rate doubles.
+
+Source: Deendayal Port Authority’s escalated rate schedule, p. 10.
 
 ## coastal-nmpa
 
 > Estimate port dues and pilotage at New Mangalore for a coastal general cargo ship of 8,000 GRT
 
-At New Mangalore, **port dues and pilotage total ₹1,65,780.80 before GST** for a coastal general cargo ship of 8,000 GRT (gross registered tonnage).
+**Estimated port dues and pilotage at New Mangalore: ₹1,65,780.80 before GST.**
 
-- Port dues: ₹53,260.80
-- Pilotage, including tugs and mooring: ₹1,12,520.00
+| Charge | Estimate |
+|---|---:|
+| Port dues | ₹53,260.80 |
+| Pilotage, including tugs and mooring | ₹1,12,520.00 |
 
-This assumes 1 arrival and 1 departure. It is **not a full port-call estimate**; berth hire and other charges are excluded.
+This uses the coastal general-cargo rate for the **8,000 GRT** you gave. GRT (gross register tonnage) is the ship-size measure used for these charges. The pilotage estimate assumes an arrival and a departure; pilotage is the service of guiding the ship into and out of port.
+
+Sources: *New Mangalore Port Authority Indexed Scale of Rates, 1 May 2026 to 30 April 2027*, pp. 17–18.
 
 ## anchorage-chennai
 
 > What's the anchorage charge at Chennai for a 30,000 GRT bulk ship if it waits 72 hours?
 
-The **anchorage charge at Chennai is USD 907.20 before GST** for a 30,000 GRT bulk ship waiting 72 hours. The first 48 hours are free, so the charge covers 24 hours.
+For a 30,000 GRT bulk ship waiting at anchorage for 72 hours at Chennai, the **anchorage charge is USD 907.20 before GST**. The tariff allows the first 48 hours free, then charges for the remaining 24 hours.
 
-I assumed the ship is foreign-going. The charge does **not** apply if the ship is ready in all respects and waiting for a berth, or if it is anchored for the port’s convenience. Source: *Chennai Port Authority revised Scale of Rates*, section 2.3.4, p. 15.
+This assumes a foreign-going ship. The charge does **not** apply if the ship is ready in all respects and waiting for a berth, or if it is anchored for the port’s convenience. Source: *Chennai Port Authority revised Scale of Rates*, section 2.3.4, p. 15.
 
 ## fleet-autofill
 
@@ -263,134 +269,142 @@ I assumed the ship is foreign-going. The charge does **not** apply if the ship i
 
 **Estimated port costs at Paradip: USD 43,773.93 before GST** for MV Ocean Star with 24 hours alongside.
 
-The estimate uses the ship’s saved gross tonnage (GRT) of 32,450 and foreign-going status. It assumes an arrival and a departure. The total includes port dues, pilotage and towage, and berth hire. It does not include cargo charges because no cargo quantity was given.
+This uses the ship particulars saved in your fleet: a foreign-going bulk ship of 32,450 GRT. GRT is a measure of the ship’s enclosed volume. The estimate assumes an arrival and a departure. The largest charge is USD 27,414.46 for pilotage and towage—the pilot and tug assistance for those movements.
 
-Paradip’s tariff is stated in USD; the port converts it to rupees for payment.
+The estimate is in USD because you have not provided an exchange rate. It does not include cargo wharfage; no cargo quantity was given.
 
 ## fleet-save
 
 > Please save our ship Sea Breeze: 12,000 GRT general cargo ship, IMO 9123456
 
-Saved **Sea Breeze** to your fleet: IMO 9123456, 12,000 GRT, general cargo.
-
-I also sent length, net tonnage and trading-status details that you did not provide. They do **not** appear in the saved record.
+Saved **Sea Breeze** to your fleet with IMO **9123456**, **12,000 GRT** (gross tonnage), and ship type **general cargo**.
 
 ## company-docs
 
 > What does our charter party say about laytime?
 
-Your **Sample charter party 2026** allows **72 running hours of laytime**, excluding Sundays and holidays. If that allowance is exceeded, demurrage is **USD 18,000 per day, calculated pro rata**. (*Sample charter party 2026*, p. 3, clause 14.)
+Your *Sample charter party 2026* allows **72 running hours of laytime**, excluding Sundays and holidays. Laytime is the time allowed for loading or unloading. If that allowance is exceeded, **demurrage is USD 18,000 per day, pro rata**—charged in proportion to the extra time used. (*Sample charter party 2026*, p. 3, clause 14.)
 
-The passage I found does not say when laytime starts or how notice of readiness works.
+The passage does not say when laytime starts or specify other exceptions.
 
 ## agreed-rates
 
 > Price a call at Hazira for a 30,000 GRT bulk ship for 24 hours, with our agreed rates
 
-For a **30,000 GRT bulk ship alongside at Hazira for 24 hours**, the estimated total before GST is **USD 62,133.24 with your agreed rates**, versus **USD 63,528.60 at published rates**. The agreed rate applies to berth hire; the other charges use published rates.
+For the **Hazira call**, the estimated total before GST is **USD 62,133.24 with your agreed rates**, versus **USD 63,528.60 at published rates**. The agreed rate applies to berth hire; the other priced charges use published rates.
 
-I assumed a foreign-going ship, with arrival and departure movements. No cargo quantity was given, so **wharfage is not included**. The pilotage fuel surcharge comes from the 1 October 2026 notice and may have changed; check the latest notice before relying on the total.
+I assumed a foreign-going bulk ship, with arrival and departure included. The estimate uses your **30,000 GRT** and **24 hours alongside**. It does not include cargo charges because no cargo quantity was given.
+
+The pilotage fuel surcharge uses the notice dated **1 October 2026**. It changes regularly, so check the latest notice before relying on this estimate.
 
 ## general-term
 
 > What is pilotage, in simple words?
 
-Pilotage is when a local navigation expert, called a **pilot**, helps guide a ship into or out of a port. The pilot knows the harbour’s channels, tides and local rules. The ship’s captain remains in command.
+Pilotage is the service of having a local expert, called a pilot, guide a ship into or out of a port. The pilot knows the local channels, tides and port rules. The ship’s captain remains in command.
 
 ## fuel-surcharge-now
 
 > How much is the fuel surcharge at Mundra right now?
 
-Mundra’s published **fuel surcharge on pilotage is USD 0.22696 per GT** (gross tonnage, a measure of a ship’s size). It is added to the regular pilotage charge and took effect on 1 October 2026. The notice was retrieved on 25 October 2026; I can’t confirm from the documents held whether a newer notice has appeared since then. [Mundra fuel surcharge circular, p. 1](https://www.adaniports.com/-/media/project/ports/portsandterminals/mundra-documents/trade-notices/fs_mundra_dtd_01-10-2026.pdf)
+Mundra’s **fuel surcharge on pilotage is USD 0.22696 per GT** (gross tonnage). It is added to the regular pilotage charge. The port’s circular says this rate took effect on **1 October 2026**; it can change with fuel prices, so I would confirm it with the port before billing a call. [Mundra fuel surcharge circular, p. 1](https://www.adaniports.com/-/media/project/ports/portsandterminals/mundra-documents/trade-notices/fs_mundra_dtd_01-10-2026.pdf)
+
+If you give me the ship’s GT, I can work out the surcharge for that ship.
 
 ## rupees
 
 > Give me the total in rupees at 84.5 per dollar for a 30,000 GT bulk ship at Mundra for 24 hours
 
-The estimated **Mundra port-call total is ₹46,00,028.75 before GST**, using your rate of ₹84.5 per US dollar.
+**Estimated total at Mundra: ₹46,00,028.75 before GST**, using your rate of ₹84.5 per US dollar. The tariff total is **US$54,438.21** for a 30,000 GT bulk ship alongside for 24 hours.
 
-This assumes the 30,000 GT bulk ship is foreign-going, stays alongside for 24 hours, and makes an arrival and a departure. **GT** means gross tonnage, a measure of the ship’s enclosed volume used to calculate these charges.
+This assumes a foreign-going ship, with arrival and departure pilotage. No cargo quantity was given, so cargo wharfage is not included.
 
-The estimate uses a fuel surcharge dated 1 October 2026. Mundra revises that surcharge regularly, so check the latest notice before relying on the total.
+The estimate uses the fuel surcharge notice dated 1 October 2026. Mundra usually revises that surcharge about twice a month, so check the latest notice before relying on the total.
 
 ## tariff-comparison
 
 > Compare how JNPA and Mundra charge container ships
 
-**JNPA and Mundra charge container ships in different ways.** This is a comparison of published tariffs, not a cost estimate. I assumed a foreign-going container ship; without its gross tonnage (GRT), time alongside and terminal, there is no total before GST or reliable cheaper-port ranking.
+**JNPA and Mundra charge container ships differently.** Assuming a foreign-going container ship, here is how their published ship charges compare. This is a comparison of rates, not a cost estimate, so it does not establish which port would be cheaper for a particular call.
 
 | Charge | JNPA | Mundra |
 |---|---|---|
-| Port dues | USD 0.1558 per GRT | USD 0.024344 per GRT, minimum USD 400 |
-| Pilotage and tugs | Combined charge with GRT bands | Combined charge with GRT bands, **plus** a fuel surcharge of USD 0.22696 per GRT |
-| Berth hire | USD 0.0053 per GRT per started hour at GTI, NSICT and NSFT. NSIGT and BMCT instead publish rupee rates. | USD 0.011584 per GRT per hour, minimum USD 810 per day |
-| Other ship charges | Anchorage is charged if used. | Mooring and a sustainability charge apply. An environment-protection charge also applies at the MICT container berths. Anchorage is charged if used. |
+| **Port dues** — a charge for entering the port | USD 0.1558 per GRT | USD 0.024344 per GRT, minimum USD 400 |
+| **Pilotage and tugs** — help moving the ship in and out | A combined charge with GRT bands | A combined charge with GRT bands and minimums, **plus** a fuel surcharge of USD 0.22696 per GRT |
+| **Berth hire** — time alongside | At several terminals, USD 0.0053 per GRT for each started hour. NSIGT and BMCT instead publish berth hire in INR. | USD 0.011584 per GRT per hour, minimum USD 810 per day |
+| **Other listed ship charges** | Anchorage, if used | Mooring and sustainability charges; anchorage, if used. An environment charge also applies at the MICT container berths. |
 
-*GRT* measures a ship’s enclosed volume; it is not its cargo weight. *Pilotage* is the service of guiding the ship into or out of port.
+**GRT** means gross tonnage, a measure of a ship’s enclosed volume—not its cargo weight. At JNPA, the terminal matters particularly for berth hire. At Mundra, the pilotage fuel surcharge can change with fuel prices; the rate shown is from its 1 October 2026 circular.
 
-JNPA’s berth-hire currency depends on the container terminal, so choosing a terminal matters. Mundra’s pilotage fuel surcharge can change with fuel prices; the rate shown is from its 1 October 2026 circular. These tariffs were checked on 25 October 2026.
-
-Sources: [JNPA Scale of Rates, pp. 2–3, 6](https://www.jnport.gov.in/uploads/content_manager/SOR_w_e_f_01_05_2026_including_MBPA.pdf); [NSIGT Scale of Rates, p. 3](https://www.jnport.gov.in/uploads/content_manager/Scale_of_Rates_1st_April_2026.pdf); [BMCT Scale of Rates, p. 3](https://www.jnport.gov.in/uploads/content_manager/SoR-_BMCT_w_e_f_06-Apr-2026.pdf); [Mundra tariff, pp. 30–32](https://www.adaniports.com/-/media/project/ports/portsandterminals/mundra-documents/tariff/berthing-policy-and-tariff-structure-wef-15th-june-2026.pdf); [Mundra fuel-surcharge circular, p. 1](https://www.adaniports.com/-/media/project/ports/portsandterminals/mundra-documents/trade-notices/fs_mundra_dtd_01-10-2026.pdf).
+If you give me the ship’s GRT, the terminal and expected hours alongside, I can compare estimated bills before GST rather than rates alone.
 
 ## kamarajar-container
 
 > Kamarajar charges for a 50,000 GT container ship, 20 hours alongside
 
-The estimated **Kamarajar port-call cost is USD 75,710 before GST** for a 50,000 GT container ship alongside for 20 hours. This covers port dues, pilotage and towage, and berth hire at Adani Ennore Container Terminal. Pilotage is the service of guiding the ship into and out of port.
+**Estimated Kamarajar port-call charges: USD 75,710.00 before GST** for a 50,000 GT container ship alongside for 20 hours.
 
-I assumed a foreign-going ship making an arrival and departure. No exchange rate was given, so I have not converted the total to rupees. The terminal’s berth-hire rate is a published ceiling and it may charge less. The port’s vessel-charge schedule may also be out of date; no later revision was found.
+| Charge | Amount |
+|---|---:|
+| Port dues | USD 15,900.00 |
+| Pilotage and towage | USD 39,410.00 |
+| Berth hire | USD 20,400.00 |
+
+This assumes a foreign-going ship arriving and departing through the Adani Ennore Container Terminal. Pilotage and towage cover the port pilot, required tugs and mooring crew for those movements. No cargo quantity was given, so **wharfage**—a separate cargo charge—was not priced.
+
+The berth-hire rate is the terminal’s published **reference tariff**, so the terminal may charge less. Kamarajar’s consolidated port schedule may be out of date; no 2026 revision to its vessel charges was found.
 
 ## cheapest-small
 
 > What's cheaper for a 15,000 GRT general cargo ship staying 12 hours: Jaigarh or Pipavav?
 
-I can’t reliably say which port is cheaper yet. The **before-GST figures are incomplete**, so they are not comparable:
+I can’t say which port is cheaper yet. The **before-GST figures are incomplete**, so they are not comparable:
 
-- **Jaigarh:** USD 675.00 priced so far. Its remaining charges depend on the berth.
-- **Pipavav:** USD 13,800.00 priced so far. Its published schedule has no berth-hire rate for a foreign-going general cargo ship.
+- **Jaigarh:** USD 675.00 priced so far. The berth is needed to price the remaining charges.
+- **Pipavav:** USD 13,800.00 priced so far. Its schedule has no berth-hire rate for a foreign-going general cargo ship.
 
-I assumed the ship is **foreign-going** and makes an arrival and departure movement. Which berth would it use at Jaigarh?
+I assumed a foreign-going ship and arrival and departure movements. **Which berth would the ship use at Jaigarh?**
 
 ## lng-mundra
 
 > LNG carrier of 90,000 GT at Mundra for 2 days, what are the charges?
 
-**Estimated Mundra charges: USD 171,179.99 before GST** for a 90,000 GT LNG carrier alongside for 2 days.
+**Estimated Mundra charges: USD 171,179.99 before GST** for a 90,000 GT LNG carrier alongside for 2 days. GT (gross tonnage) measures the ship’s enclosed volume; it is not the weight of LNG carried.
 
-The largest charges are pilotage (the service of guiding the ship into and out of port) at USD 101,297.25, berth hire at USD 40,383.54, and a pilotage fuel surcharge of USD 20,426.40. The estimate also includes port dues and other standard charges.
+The largest items are pilotage (the service of guiding the ship into and out of port) at USD 101,297.25, berth hire at USD 40,383.54, and the pilotage fuel surcharge at USD 20,426.40. Port dues and other priced charges are included in the total.
 
-I assumed a foreign-going ship at the LNG terminal, with an arrival and a departure. **Mooring is not priced** because the schedule does not give a rate for this ship. The fuel surcharge uses the notice dated 1 October 2026; Mundra revises it regularly, so check the latest notice before relying on the total.
+I assumed a foreign-going ship with an arrival and departure. **Mooring is not priced**, because the schedule has no applicable rate, so the final bill may be higher. The fuel surcharge uses a notice dated 1 October 2026 and may have changed; check the latest notice before relying on the estimate.
 
 ## vlcc-chennai
 
 > How much would a VLCC of 160,000 GT pay in berth hire at Chennai for a day?
 
-**Berth hire at Chennai: USD 30,720 before GST** for a VLCC of 160,000 GT alongside for 24 hours.
+**Berth hire at Chennai: USD 30,720 before GST** for a 160,000 GT VLCC alongside for 24 hours.
 
-I assumed it is a foreign-going ship. This is berth hire only, not the full port-call bill. The tariff says dollar-denominated charges are collected in rupees at the applicable reference rate; no conversion rate was provided.
+This assumes the ship is foreign-going. Chennai’s rate is USD 0.0080 per gross ton (GT, a measure of the ship’s enclosed size) per hour. This is **berth hire only**, not the full port-call bill. Source: *Chennai Port Authority revised Scale of Rates*, p. 13, §2.3.1.
 
 ## wharfage-coal
 
 > We're discharging 50,000 tonnes of imported coal at Paradip from a foreign-going 32,000 GT bulk carrier. What will wharfage come to?
 
-Wharfage for discharging **50,000 tonnes of imported coal at Paradip** is estimated at **₹30,21,500 before GST**. The calculation is 50,000 tonnes × ₹60.43 per tonne. Wharfage is a cargo charge, usually paid by the cargo owner; it is separate from the ship’s port-call charges.
+Estimated **wharfage is ₹30,21,500 before GST** for 50,000 tonnes of imported coal at Paradip. The rate used is ₹60.43 per tonne for conventional handling. Source: *Paradip Port Authority Scale of Rates 2026*, p. 32.
 
-This uses the conventional-handling rate for the smallest annual import-volume band. Larger annual volumes, or handling through the mechanised coal plant, would have different rates. Source: *Paradip Port Authority Scale of Rates 2026*, p. 32.
+This assumes the lowest annual-volume band. Larger annual volumes or handling through the mechanised coal plant would change the rate. Wharfage is a cargo charge, usually paid by the cargo owner; it is separate from the ship’s port-call charges.
 
 ## wharfage-containers
 
 > Berthing charges at Chennai for a 25,000 GRT container ship, 24 hours alongside, discharging 400 TEU
 
-**Estimated Chennai charges before GST:** **USD 25,770.00** for the ship, plus **INR 5,29,600.00** in container wharfage. Wharfage is a cargo charge, usually paid by the cargo owner. The currencies are kept separate because you did not provide an exchange rate.
+**Chennai estimate before GST:** **USD 25,770.00** in ship charges, plus **INR 5,29,600.00** in container wharfage. Wharfage is a cargo charge, usually paid by the cargo owner, so it is shown separately.
 
-The estimate assumes a foreign-going ship, an arrival and departure, and that all **400 TEU** are loaded 20-foot containers. Chennai charges 40-foot containers at a different rate, so the wharfage will change if the mix differs.
+This assumes a foreign-going container ship, 24 hours alongside, an arrival and departure, and that all 400 TEU are loaded 20-foot containers. A TEU is the space taken by a 20-foot container; a 40-foot container counts as 2 TEU but has its own wharfage rate.
 
-The ship total includes port dues, pilotage (the charge for guiding the ship in and out), and berth hire for **24 hours**. **Tugs are not included:** Chennai’s schedule does not say whether they are covered by pilotage.
+**Towage is not priced.** The Chennai schedule does not say whether the pilotage charge—the charge for guided ship movements—includes berthing tugs. No tug hire has been added, so the estimate may be incomplete if tugs are charged separately.
 
 ## freshness-mumbai
 
 > Are your Mumbai rates up to date?
 
-Yes. I last checked the Mumbai Port Authority rates on **25 October 2026**. The schedule I hold covers **1 May 2026 to 30 April 2027**, and I use the indexed berth-hire rates effective **9 May 2026**, rather than the lower base rates also shown in the amendment. Sources: *Mumbai Port Authority Scale of Rates (updated May 2026)*, p. 22, and *berth hire amendment (May 2026)*.
+Yes—for **Mumbai Port Authority**, not JNPT, the rates I hold were checked against the port’s published schedule on **25 October 2026**. The schedule covers **1 May 2026 to 30 April 2027**, and the berth-hire rates include the amendment effective **9 May 2026**.
 
-There is a coverage limit: the pilotage and towage rates I have entered are for ships berthing in the docks. I do not have those rates entered for the stream, Jawahar Dweep or Pir Pau, or for shifting movements.
+There is a coverage limit: the pilotage and towage rates I have are for ships berthing in the docks. I don’t have those rates entered for stream berths, Jawahar Dweep or Pir Pau, so I wouldn’t treat an estimate for those locations as complete.

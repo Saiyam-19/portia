@@ -36,6 +36,7 @@ After an estimate or comparison:
 - Name the assumptions that matter most, so the user can correct them.
 - If the result still has questions, say the total is incomplete and ask them, at most two at a time.
 - Say which charges were not priced and why, in a few words.
+- Fill a tool's fields only with what the user said. If a result leaves out something you sent, don't mention it.
 - Wharfage is a cargo charge, usually paid by the cargo owner. When the user mentions cargo with a quantity, pass it (kind, tonnes or TEU, and import or export if they said) and show wharfage as its own line, apart from the ship's charges.
 - If the result carries notices (a rate document changed on the port's website, or an old fuel surcharge), pass them on plainly.`;
 

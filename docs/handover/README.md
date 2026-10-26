@@ -30,7 +30,7 @@ Out of v1, as agreed: supplier quotes, team accounts, email, GST lines, landing-
 - **Seven figures from the earlier, separately reviewed engine** reproduce exactly: `tests/berthwise/rulebook-oracles.test.ts`.
 - **The model can't make up numbers:** every figure in a reply must come from the user or a tool result, or the reply is rewritten once and otherwise replaced.
 - **Ship particulars, exchange rates and anchorage time come from the user,** never from the model: the tools drop anything the user didn't say.
-- **Everyday questions** run end to end through the real model: 30 of 30 on both models after the code-review fixes ([Luna](evaluation/openai-gpt-6-luna-2026-10-25.md), [Sol](evaluation/openai-gpt-6-sol-2026-10-25.md)); with wharfage added, 30 of 32 on Sol ([26 October](evaluation/openai-gpt-6-sol-2026-10-26.md)). Both wharfage questions passed; the two misses were correct answers worded in ways the automatic checks didn't list, and the checks now accept them.
+- **Everyday questions** run end to end through the real model: 30 of 30 on both models after the code-review fixes ([Luna](evaluation/openai-gpt-6-luna-2026-10-25.md), [Sol](evaluation/openai-gpt-6-sol-2026-10-25.md)); with wharfage added, on the final code, 30 of 32 on Sol ([26 October](evaluation/openai-gpt-6-sol-2026-10-26.md)). Every answer was also read by hand: the two misses were correct answers worded in ways the automatic checks didn't list (the checks now accept them), and a reading by hand found one real fault the checks had passed, the saved ship not being filled in when the model repeated its name, which is fixed and covered by a test.
 
 Points the documents leave unclear are listed for the client: [port-questions.md](port-questions.md).
 
@@ -55,7 +55,7 @@ Codex reviewed the whole branch and raised ten findings; all ten are fixed, each
 
 1. **Model for v1: Sol (decided 26 October 2026).** Both models pass all 30 questions; Sol showed steadier judgement in testing (Luna once compared ports with the wrong tool before the instructions were tightened). Sol cost about US$ 0.02 a question in testing, Luna about US$ 0.001. Sol is the default; `BERTHWISE_MODEL=openai/gpt-6-luna` switches to Luna.
 2. **Privacy routing for company documents (D-5).** Passages from uploaded documents are sent to the model through OpenRouter, routed only to Azure with zero data retention and data collection denied (`src/lib/migration/model.ts`). Confirm this is acceptable before clients upload real contracts.
-3. **OpenRouter spending limit.** The key has a US$ 9 limit for testing (about US$ 2.04 spent by 26 October 2026). Raise it for real use.
+3. **OpenRouter spending limit.** The key has a US$ 9 limit for testing (about US$ 2.64 spent by 26 October 2026). Raise it for real use.
 
 ## Deploying
 
