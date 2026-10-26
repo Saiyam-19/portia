@@ -2,7 +2,7 @@
 
 Two readers entered the same 12 ports independently from `data/sources/`:
 
-- **First reading:** `data/rulebook/` (Claude), commit `67057e0`.
+- **First reading:** `data/rulebook/` (Claude), commit `f73d541`.
 - **Second reading:** Codex, commit `ffd6f16` on branch `codex/rulebook-second-reading` (`data/rulebook-codex/`). Codex did not see the first reading.
 
 Both readings were run through the same calculator for every port, terminal, berth, vessel type, foreign and coastal status, call date and the ship sizes on either side of every band limit (14,700 calls, each priced with both readings). Every difference was checked against the source document. Outcomes:

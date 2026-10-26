@@ -2,7 +2,7 @@
 
 Two readers entered wharfage for the 12 ports independently from `data/sources/`:
 
-- **First reading:** `data/rulebook/` (Claude), entered by `scripts/rulebook/wharfage.py`, commit `a00cb30`.
+- **First reading:** `data/rulebook/` (Claude), entered by `scripts/rulebook/wharfage.py`, commit `393f6f2`.
 - **Second reading:** Codex, commit `71f07b6` on branch `codex/wharfage-second-reading` (`data/rulebook-codex/wharfage/`), following [codex-wharfage-reading.md](codex-wharfage-reading.md). Codex did not see the first reading.
 
 Both readings were compared rate by rate: each cargo kind, unit (per tonne, per 20-foot or 40-foot box), part (box or cargo inside), import or export, and terminal, for foreign and coastal cargo. **140 rates were identical and 37 differed.** Each difference was checked against the document; after the fixes 143 match, and the 20 that remain are deliberate (Kept or Note below). Checked on 26 October 2026.

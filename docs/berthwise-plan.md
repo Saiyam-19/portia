@@ -1,6 +1,6 @@
 # Berthwise agent — fastest plan to v1 handover
 
-**Version 3 · 25 October 2026** · Code base: `pass1/golden-and-repairs` at `a9cdcbf`
+**Version 3 · 25 October 2026** · Code base: `pass1/golden-and-repairs` at `bc7cbaa`
 **Status:** reviewed independently (verdict: approve with changes; the changes are applied here). Not yet built.
 **Goal:** hand a working v1 to the client as soon as possible. The client then reviews it for mistakes.
 
