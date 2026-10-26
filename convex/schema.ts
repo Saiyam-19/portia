@@ -34,6 +34,7 @@ export default defineSchema({
     nextFence: v.number(),
     state: vConversationState,
     activeRunId: v.optional(v.id("migrationRuns")),
+    pendingFormId: v.optional(v.id("migrationForms")), // only on chats saved before Berthwise v1
     creationRequestId: v.optional(v.string()),
     creationPayloadHash: v.optional(v.string()),
     initialIntent: v.optional(v.object({requestId:v.string(),question:v.string(),modelAlias:vModelAlias})),
@@ -61,6 +62,7 @@ export default defineSchema({
     checkpointStep: v.optional(v.number()),
     checkpointHash: v.optional(v.string()),
     checkpointFinishReason: v.optional(vFinishReason),
+    checkpointHasText: v.optional(v.boolean()), // only on runs saved before Berthwise v1
     errorCode: v.optional(v.string()),
     startedAt: v.number(),
     updatedAt: v.number(),
@@ -70,6 +72,13 @@ export default defineSchema({
     .index("by_conversation_and_prompt_message", ["conversationId", "promptMessageId"])
     .index("by_conversation_and_prompt_position", ["conversationId", "promptOrder", "promptStepOrder"])
     .index("by_owner_and_status", ["ownerId", "status"]),
+
+  // Forms from the chats saved before Berthwise v1; nothing writes here any more.
+  migrationForms: defineTable({
+    conversationId: v.id("migrationConversations"), ownerId: v.string(), runId: v.id("migrationRuns"), fence: v.number(), toolCallId: v.string(),
+    title: v.string(), description: v.optional(v.string()), fields: v.array(v.any()), status: v.string(), values: v.optional(v.any()),
+    note: v.optional(v.string()), createdAt: v.number(), resolvedAt: v.optional(v.number()),
+  }).index("by_conversation_and_status", ["conversationId", "status"]).index("by_conversation_and_tool_call_id", ["conversationId", "toolCallId"]),
 
   // "My fleet": one login is one company in v1, so ships belong to the account.
   fleetShips: defineTable({
