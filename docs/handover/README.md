@@ -62,9 +62,9 @@ Codex reviewed the whole branch and raised ten findings; all ten are fixed, each
 **Deployed on 26 October 2026** from branch `berthwise-v1` (not yet merged into `main`):
 
 - **Convex** production `joyous-kookabura-196`: schema, functions, daily rate-link check and the document-reader packages. Backup taken just before, kept locally (not in git) at `.local/backups/convex-prod-2026-10-26-before-berthwise.zip`.
-- **Vercel** project `portia-berthing`, deployment `dpl_BuomLUv8Yp8G9xPjzW2gaNrQv33c`, promoted to https://portia-berthing.vercel.app. Rollback: promote the previous deployment in Vercel (the frontend only; see deployment.md).
+- **Vercel** project `portia-berthing`, deployment `dpl_Ep8QVNx1FzobG2t5xqsJKkF8jHeN` (rebuilt after the OpenRouter key was replaced), promoted to https://portia-berthing.vercel.app. Rollback: promote the previous deployment in Vercel (the frontend only; see deployment.md).
 - **Old test chats were kept, not wiped:** 20 chats from the form-based version (5 accounts). The schema keeps their old fields and the "waiting" state as legacy values; the 5 chats that were waiting on a form can't be continued, so start a new chat instead.
-- **Open:** the production `OPENROUTER_API_KEY` on Vercel was rejected by OpenRouter (401) on 26 October 2026 and must be replaced, followed by a redeploy, before the chat can answer. Live checks with a real account (sign-in, chat, upload, fleet) follow that.
+- **OpenRouter key:** the production key on Vercel was rejected (401) and was replaced on 26 October 2026 with the tested key, stored as a Vercel secret. Live checks with a real account (sign-in, chat, upload, fleet) are next.
 
 How it was done, for next time, following [deployment.md](../deployment.md):
 
