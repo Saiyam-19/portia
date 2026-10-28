@@ -289,6 +289,10 @@ describe("migration Convex state machine", () => {
           toolCallId: "lookup-1",
           toolName: "get_vessel",
           input: { id: "1234567", id_type: "imo" },
+        }, {
+          type: "tool-call" as const, toolCallId: "workspace-1", toolName: "bash", input: { command: "false" },
+        }, {
+          type: "tool-call" as const, toolCallId: "calculate-1", toolName: "calculate_charge_batch", input: { calculations: [] },
         }],
       },
       {
@@ -298,6 +302,10 @@ describe("migration Convex state machine", () => {
           toolCallId: "lookup-1",
           toolName: "get_vessel",
           output: { type: "text" as const, value: "GRT: 50000" },
+        }, {
+          type: "tool-result" as const, toolCallId: "workspace-1", toolName: "bash", output: { type: "json" as const, value: { stdout: "", stderr: "recoverable", exitCode: 1 } },
+        }, {
+          type: "tool-result" as const, toolCallId: "calculate-1", toolName: "calculate_charge_batch", output: { type: "json" as const, value: { error: "missing calculation" } },
         }],
       },
     ];

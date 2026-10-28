@@ -16,9 +16,9 @@ const COMMANDS = [
   { cmd: '/vessel', desc: 'Look up a vessel by IMO or name', icon: Ship, fill: 'Look up vessel IMO ' },
 ]
 
-export const MODELS: { id: ChatModel; name: string; desc: string; icon: typeof Zap }[] = [
-  { id: 'model-1', name: 'Model 1', desc: 'Fast · everyday estimates', icon: Zap },
-  { id: 'model-2', name: 'Model 2', desc: 'Deeper reasoning on complex tariffs', icon: Sparkles },
+export const MODELS: { id: ChatModel; name: string; icon: typeof Zap }[] = [
+  { id: 'model-1', name: 'Model 1', icon: Zap },
+  { id: 'model-2', name: 'Model 2', icon: Sparkles },
 ]
 
 type Menu =
@@ -68,7 +68,7 @@ function ModelPicker({ model, onChange, disabled }: { model: ChatModel; onChange
         <current.icon className="size-3.5! text-ink-3" strokeWidth={2} />
         {current.name}
       </Button>
-      <Popover open={open} origin="bottom-left" className="bottom-[calc(100%+8px)] left-0 w-64">
+      <Popover open={open} origin="bottom-left" className="bottom-[calc(100%+8px)] left-0 w-44">
         <div className="px-2 pt-1.5 pb-1 text-[11.5px] font-medium text-ink-3">Model</div>
         <GlideMenu>
           {MODELS.map((m) => (
@@ -82,7 +82,6 @@ function ModelPicker({ model, onChange, disabled }: { model: ChatModel; onChange
               }}
             >
               <span className="block text-[13px] text-ink">{m.name}</span>
-              <span className="block truncate text-[11.5px] text-ink-3">{m.desc}</span>
             </MenuItem>
           ))}
         </GlideMenu>

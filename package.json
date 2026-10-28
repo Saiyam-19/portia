@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --hostname localhost --port 3001",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -13,7 +13,7 @@
     "memory:lab": "node --import ./prototypes/memory-persistence/node_modules/tsx/dist/loader.mjs scripts/memory-chat-lab.mts"
   },
   "engines": {
-    "node": "22.x"
+    "node": "24.x"
   },
   "dependencies": {
     "@ai-sdk/react": "4.0.137",

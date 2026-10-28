@@ -1,4 +1,6 @@
 export type MemoryFact = { key: string; value: string; sources: string[] };
+export type WorkspaceResult = { stdout: string; stderr: string; exitCode: number };
+export type WorkspaceReplay = null | { status: "pending"; epoch: number } | { status: "done"; epoch: number; result: WorkspaceResult };
 export type MemoryOperation =
   | { kind: "remember"; key: string; value: string; source: string }
   | { kind: "forget"; key: string }

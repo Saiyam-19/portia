@@ -94,6 +94,11 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const controller = new AbortController();
+  const deadline = AbortSignal.timeout(Math.max(1, MIGRATION_CHAT_TIMEOUT.totalMs - (Date.now() - requestStartedAt)));
+  const abortSignal = AbortSignal.any([controller.signal, request.signal, deadline]);
+  const forwardAbort = () => controller.abort(abortSignal.reason);
+  abortSignal.addEventListener("abort", forwardAbort, { once: true });
+  if (abortSignal.aborted) forwardAbort();
   const manager = new MigrationTokenManager(
     request.headers.get("cookie") ?? "",
     origin,
@@ -144,6 +149,7 @@ export async function POST(request: Request): Promise<Response> {
       ).catch(() => undefined);
     },
     cleanup: async () => {
+      abortSignal.removeEventListener("abort", forwardAbort);
       statusPollingEnabled = false;
       if (statusTimer) {
         clearInterval(statusTimer);
@@ -186,6 +192,7 @@ export async function POST(request: Request): Promise<Response> {
         });
 
     if (claim.replayed) {
+      abortSignal.removeEventListener("abort", forwardAbort);
       manager.stop();
       return Response.json(
         {
@@ -224,22 +231,23 @@ export async function POST(request: Request): Promise<Response> {
         .finally(() => { statusCheckPending = false; });
     }, 2_000);
 
-    const memory = memoryFeatureEnabled() ? new MemorySession(manager, context.conversationId, {runId:claim.runId,runFence:claim.fence}).agent() : undefined;
+    const memorySession = new MemorySession(manager, context.conversationId, {runId:claim.runId,runFence:claim.fence}, memoryFeatureEnabled());
+    const workspace = await memorySession.workspace();
     const agent = createMigrationMainAgent({
-      memory,
+      workspace,
+      memory: memorySession.context(),
       alias: context.modelAlias,
       runId: claim.runId,
       assertCanContinue: () => {
+        controller.signal.throwIfAborted();
+        request.signal.throwIfAborted();
         if (checkpointFailure) throw checkpointFailure;
       },
     });
 
-    const deadline = AbortSignal.timeout(MIGRATION_CHAT_TIMEOUT.totalMs);
-    const abortSignal = AbortSignal.any([controller.signal, request.signal, deadline]);
     const result = await agent.stream({
       messages: context.messages,
       abortSignal,
-      timeout: MIGRATION_CHAT_TIMEOUT,
       onStepEnd: async (step) => {
         try {
           abortSignal.throwIfAborted();

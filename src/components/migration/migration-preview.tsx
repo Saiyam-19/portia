@@ -55,7 +55,7 @@ function Login() {
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-orange">Development preview</p>
         <h1 className="mt-2 text-2xl font-semibold text-ink">Migration sign in</h1>
         <p className="mt-2 text-sm leading-6 text-ink-2">
-          Separate Convex and AI SDK migration environment with bundled tariff specialists, bounded decimal calculation, and vessel lookup fallback.
+          Separate Convex and AI SDK migration environment with a bundled tariff workspace, bounded decimal calculation, and vessel lookup fallback.
         </p>
         <label htmlFor="migration-email" className="mt-5 block text-sm font-medium text-ink">Email</label>
         <input
@@ -309,7 +309,7 @@ function AuthenticatedMigrationPreview({ developmentModel }: { developmentModel:
         <header className="flex items-center gap-3 border-b border-line px-4 py-3">
           <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-orange">Separate development preview</p>
-            <p className="truncate text-sm text-ink-2">AI SDK + Convex with bundled tariff specialists and durable tool history</p>
+            <p className="truncate text-sm text-ink-2">AI SDK + Convex with a bundled tariff workspace and durable tool history</p>
           </div>
           {developmentModel && <span className="rounded-full bg-orange/10 px-2 py-1 text-xs text-orange">Development test model</span>}
           <select value={modelAlias} onChange={(event) => setModelAlias(event.target.value as ModelAlias)} disabled={running} className="rounded-control border border-line bg-surface px-2 py-1.5 text-sm">

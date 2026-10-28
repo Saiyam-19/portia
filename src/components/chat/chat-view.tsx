@@ -24,7 +24,7 @@ export type FormCard = { toolCallId: string; title: string; description?: string
 export type Segment = { kind: 'text'; content: string } | { kind: 'tool'; id: string; tool: string; label: string; status: 'running' | 'done' | 'error' } | { kind: 'card'; formCard: FormCard }
 type ChatMessage = { id: string; role: 'user' | 'assistant'; segments: Segment[]; streaming?: boolean; interrupted?: boolean }
 type LiveMessage = UIMessage<{ conversationId?: string; runId?: string; revision?: number }>
-const TOOL_LABELS: Record<string, string> = { consult_port_agent: 'Consulting port tariff', calculate_charges: 'Calculating charges', search_vessels: 'Searching vessels', get_vessel: 'Checking vessel details', ask_user_input: 'Preparing details', remember_memory: 'Saving memory', recall_memory: 'Recalling saved memory', forget_memory: 'Forgetting memory', write_scratchpad: 'Saving working notes', read_scratchpad: 'Reading working notes' }
+const TOOL_LABELS: Record<string, string> = { bash: 'Working in your workspace', calculate_charge_batch: 'Calculating charges', consult_port_agent: 'Consulting port tariff', calculate_charges: 'Calculating charges', search_vessels: 'Searching vessels', get_vessel: 'Checking vessel details', ask_user_input: 'Preparing details', remember_memory: 'Saving memory', recall_memory: 'Recalling saved memory', forget_memory: 'Forgetting memory', write_scratchpad: 'Saving working notes', read_scratchpad: 'Reading working notes' }
 
 export default function ChatView({ conversationId, initialMessage, initialRequestId, initialModel = 'model-1' }: { conversationId: string; initialMessage?: string; initialRequestId?: string; initialModel?: ChatModel }) {
   const router = useRouter()
@@ -133,11 +133,20 @@ export default function ChatView({ conversationId, initialMessage, initialReques
     return { toolCallId, title: form.title, description: form.description ?? undefined, fields: form.fields, response: form.status === 'pending' ? null : { cancelled: form.status === 'cancelled', content: [...Object.entries(form.values ?? {}).filter(([,value]) => value.trim()).map(([key,value]) => `${key}: ${value}`), form.note ? `Note: ${form.note}` : ''].filter(Boolean).join('\n') } }
   }
   const items: ChatMessage[] = []
+  const append = (message: ChatMessage) => {
+    const previous = items.at(-1)
+    if (message.role === 'assistant' && previous?.role === 'assistant' && previous.id === message.id) {
+      previous.segments.push(...message.segments)
+      previous.streaming ||= message.streaming
+      previous.interrupted ||= message.interrupted
+    } else items.push(message)
+  }
   const seenTools = new Map<string, Extract<Segment, {kind: 'tool'}>>()
   const seenForms = new Set<string>()
   const liveRun = streamedRunId ?? (transportBusy ? conversation?.conversation.activeRunId : undefined)
   for (const message of [...history.results].sort((a,b) => a.order - b.order || a.stepOrder - b.stepOrder)) {
     if (messages.length && liveRun && message.runId === liveRun) continue
+    const responseId = `response:${message.runId ?? message.order}`
     const segments: Segment[] = []
     for (const part of message.parts) {
       if (part.type === 'text') segments.push({ kind: 'text', content: part.text })
@@ -145,13 +154,14 @@ export default function ChatView({ conversationId, initialMessage, initialReques
         const card = formCard(part.toolCallId)
         if (card && !seenForms.has(part.toolCallId)) { segments.push({ kind: 'card', formCard: card }); seenForms.add(part.toolCallId) }
       } else {
-        const prior = seenTools.get(part.toolCallId)
+        const toolKey = `${responseId}:${part.toolCallId}`
+        const prior = seenTools.get(toolKey)
         const toolStatus = part.status === 'error' ? 'error' : part.status === 'completed' ? 'done' : message.runStatus === 'active' ? 'running' : 'error'
         if (prior) prior.status = toolStatus
-        else { const tool: Extract<Segment, {kind:'tool'}> = { kind: 'tool', id: part.toolCallId, tool: part.toolName, label: TOOL_LABELS[part.toolName] ?? 'Working', status: toolStatus }; seenTools.set(part.toolCallId, tool); segments.push(tool) }
+        else { const tool: Extract<Segment, {kind:'tool'}> = { kind: 'tool', id: part.toolCallId, tool: part.toolName, label: TOOL_LABELS[part.toolName] ?? 'Working', status: toolStatus }; seenTools.set(toolKey, tool); segments.push(tool) }
       }
     }
-    if (segments.length) items.push({ id: message.id, role: message.role, segments, interrupted: ['cancelled','expired','error'].includes(message.runStatus ?? '') && message.role === 'assistant' })
+    if (segments.length) append({ id: message.role === 'assistant' ? responseId : message.id, role: message.role, segments, streaming: message.role === 'assistant' && message.runStatus === 'active', interrupted: ['cancelled','expired','error'].includes(message.runStatus ?? '') && message.role === 'assistant' })
   }
   for (const message of messages) {
     const segments: Segment[] = []
@@ -160,17 +170,19 @@ export default function ChatView({ conversationId, initialMessage, initialReques
     for (const part of message.parts) {
       if (part.type === 'text') segments.push({ kind: 'text', content: part.text })
       else if (part.type.startsWith('tool-') || part.type === 'dynamic-tool') {
-        const tool = part as unknown as { toolCallId: string; toolName?: string; state: string; input?: unknown }
+        const tool = part as unknown as { toolCallId: string; toolName?: string; state: string; input?: unknown; output?: unknown }
         const name = tool.toolName ?? part.type.slice(5)
+        const output = tool.output && typeof tool.output === 'object' ? tool.output as Record<string, unknown> : undefined
+        const failed = (name === 'bash' && typeof output?.exitCode === 'number' && output.exitCode !== 0) || (name === 'calculate_charge_batch' && Boolean(output?.error))
         if (name === 'ask_user_input') {
           const existing = formCard(tool.toolCallId)
           const parsed = formDefinitionSchema.safeParse({ ...(tool.input && typeof tool.input === 'object' ? tool.input : {}), toolCallId: tool.toolCallId })
           const card = existing ?? (parsed.success ? { ...parsed.data, response: null } : null)
           if (card && !seenForms.has(tool.toolCallId)) { segments.push({ kind:'card', formCard: card }); seenForms.add(tool.toolCallId) }
-        } else if (TOOL_LABELS[name]) segments.push({ kind:'tool', id: tool.toolCallId, tool:name, label:TOOL_LABELS[name], status: tool.state === 'output-error' ? 'error' : tool.state === 'output-available' ? 'done' : running ? 'running' : 'error' })
+        } else if (TOOL_LABELS[name]) segments.push({ kind:'tool', id: tool.toolCallId, tool:name, label:TOOL_LABELS[name], status: tool.state === 'output-error' || failed ? 'error' : tool.state === 'output-available' ? 'done' : running ? 'running' : 'error' })
       }
     }
-    if (message.role === 'user' || message.role === 'assistant') items.push({ id: message.id, role: message.role, segments, streaming: message.role === 'assistant' && transportBusy })
+    if (message.role === 'user' || message.role === 'assistant') append({ id: message.role === 'assistant' ? `response:${message.metadata?.runId ?? message.id}` : message.id, role: message.role, segments, streaming: message.role === 'assistant' && transportBusy })
   }
   const itemSignature = JSON.stringify(items)
   useEffect(() => { if (followRef.current) bottomRef.current?.scrollIntoView({ block: 'end' }) }, [itemSignature])
@@ -186,7 +198,7 @@ export default function ChatView({ conversationId, initialMessage, initialReques
             {history.status === 'CanLoadMore' && <Button variant="ghost" onClick={() => { followRef.current = false; history.loadMore(40) }}>Load earlier messages</Button>}
             {history.status === 'LoadingMore' && <p role="status" className="text-xs text-muted-foreground">Loading earlier messages…</p>}
             {items.length === 0 && <p className="py-20 text-center text-sm text-muted-foreground">Start with a port, a vessel, or a question.</p>}
-            {items.map(message => <div key={message.id}><Message role={message.role} segments={message.segments} streaming={message.streaming} formDisabled={running} onFormSubmit={(id,values,note) => void handleForm(id,values,note,false)} onFormCancel={(id,note) => void handleForm(id,{},note,true)} />{message.interrupted && <p className="mt-2 text-xs text-destructive">Interrupted response · partial work</p>}</div>)}
+            {items.map(message => <Message key={message.id} role={message.role} segments={message.segments} streaming={message.streaming} interrupted={message.interrupted} formDisabled={running} onFormSubmit={(id,values,note) => void handleForm(id,values,note,false)} onFormCancel={(id,note) => void handleForm(id,{},note,true)} />)}
             {running && !transportBusy && <div role="status" className="text-xs text-muted-foreground">A response is running. Completed steps appear here as they are saved.</div>}
             {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
             <div ref={bottomRef} />

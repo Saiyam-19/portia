@@ -1,7 +1,7 @@
 export type ModelErrorContext = {
   runId?: string;
   modelAlias?: "model-1" | "model-2";
-  agent?: "main" | "specialist";
+  agent?: "main";
   phase?: "generate" | "stream-start" | "stream-read";
 };
 

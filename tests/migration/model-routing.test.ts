@@ -58,14 +58,14 @@ describe("temporary free migration routing", () => {
     expect(bodies).toHaveLength(0);
   });
 
-  it("keeps the original paid mapping available for an explicit later opt-in", async () => {
+  it("uses the configured default models when paid routing is enabled", async () => {
     vi.stubEnv("MIGRATION_TEST_MODE", "false");
     vi.stubEnv("LLM_ALLOW_PAID", "true");
     for (const alias of ["model-1", "model-2"] as const) {
       await generateText({ model: migrationLanguageModel(alias), prompt: "Synthetic routing test", maxRetries: 0 });
     }
     expect(bodies[0].model).toBe("openai/gpt-6.1-sol");
-    expect(bodies[1].model).toBe("anthropic/claude-opus-5.5");
+    expect(bodies[1].model).toBe("deepseek/deepseek-v4.1-flash-1017");
     for (const body of bodies) {
       // These endpoints support tools, but not this optional parallel-call parameter.
       // Sending it with require_parameters=true filters out every eligible endpoint.

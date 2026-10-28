@@ -34,6 +34,7 @@ yarn-error.log*
 .env*
 !.env.example
 .local/
+.firecrawl/
 
 # local assistant configuration and delivery evidence
 .claude/

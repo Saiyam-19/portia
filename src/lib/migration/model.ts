@@ -7,7 +7,7 @@ import type { ModelErrorContext } from "./error-reporting";
 
 const MODEL_IDS: Record<ModelAlias, string> = {
   "model-1": "openai/gpt-6.1-sol",
-  "model-2": "anthropic/claude-opus-5.5",
+  "model-2": "deepseek/deepseek-v4.1-flash-1017",
 };
 
 export function migrationLanguageModel(alias: ModelAlias, context: ModelErrorContext = {}) {

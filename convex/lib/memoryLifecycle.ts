@@ -37,6 +37,40 @@ export async function hashMemory(value: unknown) {
   const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify(value)));
   return Array.from(new Uint8Array(bytes)).map(b => b.toString(16).padStart(2,"0")).join("");
 }
+export function memoryRowOperations(row: Doc<"memoryOperations">) {
+  return row.workspace?.operations ?? (row.operation ? [row.operation] : []);
+}
+export async function projectMemory(index: Doc<"memoryNamespaces">["factIndex"], operations: Infer<typeof memoryOperation>[]) {
+  let facts = [...index];
+  for (const operation of operations) {
+    if (operation.kind === "remember") {
+      if (!/^[a-z][a-z0-9_]{0,79}$/.test(operation.key) || !operation.value.trim() || new TextEncoder().encode(operation.value).length > 1024 || operation.value.includes("\0") || !/^[a-zA-Z0-9_-]{1,100}$/.test(operation.source)) return memoryError("INVALID_MEMORY");
+      const prior = facts.find(fact => fact.key === operation.key), hash = await hashMemory(operation.value);
+      const sources = prior?.hash === hash ? [...new Set([...prior.sources, operation.source])] : [operation.source];
+      if (sources.length > 8 || (!prior && facts.length >= 64)) return memoryError("MEMORY_LIMIT");
+      facts = [...facts.filter(fact => fact.key !== operation.key), { key: operation.key, hash, sources }];
+    } else if (operation.kind === "forget") {
+      if (!/^[a-z][a-z0-9_]{0,79}$/.test(operation.key)) return memoryError("INVALID_MEMORY");
+      facts = facts.filter(fact => fact.key !== operation.key);
+    } else if (operation.kind === "clear") facts = [];
+    else facts = facts.map(fact => ({ ...fact, sources: fact.sources.filter(source => source !== operation.source) })).filter(fact => fact.sources.length);
+  }
+  return facts;
+}
+export async function memoryBarrier(ctx: MutationCtx, ns: Doc<"memoryNamespaces">, epoch: number, initiatingRun?: Doc<"migrationRuns">) {
+  const ownerId = ns.ownerId;
+  const noteReceipts = await ctx.db.query("memoryNoteReceipts").withIndex("by_owner", q => q.eq("ownerId", ownerId)).take(128);
+  for (const row of noteReceipts) await ctx.db.delete(row._id);
+  if (initiatingRun) await ctx.db.patch(initiatingRun._id, { memoryEpoch: epoch });
+  const stale = await ctx.db.query("memoryScratchpads").withIndex("by_owner_and_epoch", q => q.eq("ownerId", ownerId).lt("epoch", epoch)).take(50);
+  for (const row of stale) await ctx.db.delete(row._id);
+  if (stale.length === 50) await ctx.scheduler.runAfter(0, internal.memory.cleanupNotes, { ownerId, epoch });
+  // Epoch checks hide every old output immediately. Physical redaction is
+  // bounded; queued note payloads are also removed before any future publish.
+  const pending = await ctx.db.query("memoryOperations").withIndex("by_namespace_and_status_and_sequence", q => q.eq("namespaceId", ns._id).eq("status", "pending")).take(96);
+  for (const row of pending) if (row.epoch < epoch && row.workspace?.markdown !== undefined) await ctx.db.patch(row._id, { workspace: { ...row.workspace, markdown: undefined } });
+  await ctx.scheduler.runAfter(0, internal.memory.redactWorkspaceReceipts, { ownerId, epoch });
+}
 export async function enqueueMemory(ctx: MutationCtx, ownerId: string, requestId: string, expectedEpoch: number, operation: Infer<typeof memoryOperation>, initiatingRun?: Doc<"migrationRuns">) {
   const ns = await ensureMemory(ctx, ownerId);
   if (requestId.length < 1 || requestId.length > 240) return memoryError("INVALID_REQUEST");
@@ -50,32 +84,13 @@ export async function enqueueMemory(ctx: MutationCtx, ownerId: string, requestId
   // Deletion barriers must remain admissible even if ordinary writes filled their queue.
   const barrier = operation.kind !== "remember";
   if (ns.nextSequence - ns.appliedSequence >= (barrier ? 96 : 32)) return memoryError("MEMORY_BUSY");
-  let factIndex = [...ns.factIndex];
-  if (operation.kind === "remember") {
-    if (!/^[a-z][a-z0-9_]{0,79}$/.test(operation.key) || !operation.value.trim() || new TextEncoder().encode(operation.value).length > 1024 || operation.value.includes("\0")) return memoryError("INVALID_MEMORY");
-    const prior = factIndex.find(f => f.key === operation.key);
-    const valueHash = await hashMemory(operation.value);
-    const sources = prior?.hash === valueHash ? [...new Set([...prior.sources, operation.source])] : [operation.source];
-    if (sources.length > 8 || (!prior && factIndex.length >= 64)) return memoryError("MEMORY_LIMIT");
-    factIndex = [...factIndex.filter(f => f.key !== operation.key), {key: operation.key, hash: valueHash, sources}];
-  } else if (operation.kind === "forget") {
-    if (!/^[a-z][a-z0-9_]{0,79}$/.test(operation.key)) return memoryError("INVALID_MEMORY");
-    factIndex = factIndex.filter(f => f.key !== operation.key);
-  } else if (operation.kind === "clear") factIndex = [];
-  else factIndex = factIndex.map(f => ({ ...f, sources: f.sources.filter(s => s !== operation.source) })).filter(f => f.sources.length);
+  const factIndex = await projectMemory(ns.factIndex, [operation]);
   const sequence = ns.nextSequence + 1;
   const epoch = ns.epoch + Number(barrier);
   await ctx.db.insert("memoryOperations", { namespaceId: ns._id, requestId, hash, sequence, epoch, status: "pending", operation });
   await ctx.db.patch(ns._id, { nextSequence: sequence, factIndex,
     ...(barrier ? { epoch, blockedThrough: sequence, lease: undefined } : {}) });
-  if (barrier) {
-    const noteReceipts=await ctx.db.query("memoryNoteReceipts").withIndex("by_owner",q=>q.eq("ownerId",ownerId)).take(128);
-    for(const row of noteReceipts)await ctx.db.delete(row._id);
-    if (initiatingRun) await ctx.db.patch(initiatingRun._id, { memoryEpoch: epoch });
-    const stale = await ctx.db.query("memoryScratchpads").withIndex("by_owner_and_epoch", q => q.eq("ownerId",ownerId).lt("epoch",epoch)).take(50);
-    for (const row of stale) await ctx.db.delete(row._id);
-    if (stale.length === 50) await ctx.scheduler.runAfter(0, internal.memory.cleanupNotes, { ownerId, epoch });
-  }
+  if (barrier) await memoryBarrier(ctx, ns, epoch, initiatingRun);
   return { epoch, sequence };
 }
 export async function deleteConversationMemory(ctx: MutationCtx, ownerId: string, conversationId: Id<"migrationConversations">) {
@@ -85,4 +100,5 @@ export async function deleteConversationMemory(ctx: MutationCtx, ownerId: string
   for(const row of receipts)await ctx.db.delete(row._id);
   const ns = await findMemory(ctx, ownerId);
   if (ns) await enqueueMemory(ctx, ownerId, "delete-source:"+conversationId, ns.epoch, {kind:"delete_source",source:conversationId});
+  await ctx.scheduler.runAfter(0, internal.memory.cleanupWorkspaceConversation, { conversationId });
 }

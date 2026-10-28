@@ -1,6 +1,6 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
-import { memoryOperation } from "./memoryValidators";
+import { memoryOperation, workspaceEnvelope, workspaceResult } from "./memoryValidators";
 import {
   vConversationState,
   vFormField,
@@ -23,8 +23,14 @@ export default defineSchema({
   memorySnapshots: defineTable({namespaceId:v.id("memoryNamespaces"),image:v.string()}).index("by_namespace",["namespaceId"]),
   memoryOperations: defineTable({
     namespaceId:v.id("memoryNamespaces"),requestId:v.string(),hash:v.string(),sequence:v.number(),epoch:v.number(),
-    status:v.union(v.literal("pending"),v.literal("done")),operation:v.optional(memoryOperation),
+    status:v.union(v.literal("pending"),v.literal("done")),operation:v.optional(memoryOperation),workspace:v.optional(workspaceEnvelope),
   }).index("by_namespace_and_request",["namespaceId","requestId"]).index("by_namespace_and_status_and_sequence",["namespaceId","status","sequence"]),
+  workspaceReceipts: defineTable({
+    ownerId:v.string(),runId:v.id("migrationRuns"),conversationId:v.id("migrationConversations"),
+    toolCallId:v.string(),commandHash:v.string(),payloadHash:v.string(),epoch:v.number(),sequence:v.optional(v.number()),
+    status:v.union(v.literal("pending"),v.literal("done"),v.literal("invalidated")),result:v.optional(workspaceResult),
+  }).index("by_run_and_tool_call",["runId","toolCallId"]).index("by_run",["runId"])
+    .index("by_conversation",["conversationId"]).index("by_owner_and_status_and_epoch",["ownerId","status","epoch"]),
   memoryNoteReceipts: defineTable({ownerId:v.string(),conversationId:v.id("migrationConversations"),requestId:v.string(),hash:v.string(),revision:v.number()})
     .index("by_owner_and_request",["ownerId","requestId"]).index("by_owner",["ownerId"]).index("by_conversation",["conversationId"]),
   memoryScratchpads: defineTable({

@@ -125,10 +125,11 @@ function safeMessageParts(content: unknown): SafeMessagePart[] {
       typeof part.toolName === "string" &&
       ALLOWED_MAIN_TOOLS.has(part.toolName)
     ) {
-      const outputType = part.output && typeof part.output === "object"
-        ? (part.output as { type?: unknown }).type
-        : undefined;
-      const errored = part.isError === true || outputType === "error-text" || outputType === "error-json";
+      const output = part.output && typeof part.output === "object" ? part.output as Record<string, unknown> : undefined;
+      const value = output?.type === "json" && output.value && typeof output.value === "object" ? output.value as Record<string, unknown> : undefined;
+      const errored = part.isError === true || output?.type === "error-text" || output?.type === "error-json" ||
+        (part.toolName === "bash" && typeof value?.exitCode === "number" && value.exitCode !== 0) ||
+        (part.toolName === "calculate_charge_batch" && Boolean(value?.error));
       safe.push({
         type: "tool",
         toolCallId: part.toolCallId.slice(0, 200),
@@ -209,6 +210,7 @@ function canonicalJson(value: unknown): string {
 }
 
 const ALLOWED_MAIN_TOOLS = new Set([
+  "bash", "calculate_charge_batch",
   "consult_port_agent",
   "search_vessels",
   "get_vessel",

@@ -16,6 +16,8 @@ Acceptance to verify on the chosen DEV deployment: signup/signin/signout; saved 
 
 As of 2026-10-12, the deployed frontend is `portia-berthing` under Vercel team `saiyam-19s-projects`, public origin `https://portia-berthing.vercel.app`. Convex production is `o-one-labs:portia:prod`, slug `joyous-kookabura-196`. Development `brilliant-whale-380` is separate. Node 22 is configured on both the package and Vercel project. See [production memory acceptance](memory-production-acceptance.md).
 
+The current development branch targets Node 24 LTS (`24.x`). This development refactor has not changed the existing production Vercel runtime setting.
+
 Configure `PORTIA_MEMORY_ENABLED=true` in Next and Convex. Memory SQLite workers and WASM are included in route tracing. Keep `PORTIA_LOCAL_BACKEND=false` and `MIGRATION_TEST_MODE=false` in hosted production.
 
 The initial release found no legacy Supabase users, conversations or messages and backed up the empty Convex target before deployment. Production is deployed from `main`; the Vercel project currently has no Git integration, so a push alone does not deploy it. Stage with `deploy --prod --skip-domain`, inspect the exact ready artifact, then promote it. Canonical-origin auth/browser acceptance follows promotion; staging smoke checks alone do not prove it.

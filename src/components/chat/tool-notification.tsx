@@ -1,9 +1,9 @@
 'use client'
 
-import { Loader2, Check, Anchor, Ship, XCircle, BookOpen, NotebookPen } from 'lucide-react'
+import { Loader2, Check, Anchor, Ship, XCircle, BookOpen, NotebookPen, FolderOpen, Calculator } from 'lucide-react'
 
 interface Props { tool: string; label: string; status: 'running' | 'done' | 'error' }
-const TOOL_ICONS: Record<string, React.ElementType> = { consult_port_agent: Anchor, search_vessels: Ship, get_vessel: Ship, remember_memory: BookOpen, recall_memory: BookOpen, forget_memory: BookOpen, write_scratchpad: NotebookPen, read_scratchpad: NotebookPen }
+const TOOL_ICONS: Record<string, React.ElementType> = { bash: FolderOpen, calculate_charge_batch: Calculator, consult_port_agent: Anchor, search_vessels: Ship, get_vessel: Ship, remember_memory: BookOpen, recall_memory: BookOpen, forget_memory: BookOpen, write_scratchpad: NotebookPen, read_scratchpad: NotebookPen }
 
 export default function ToolNotification({ tool, label, status }: Props) {
   const Icon = TOOL_ICONS[tool] ?? Anchor

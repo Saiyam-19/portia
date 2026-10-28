@@ -10,12 +10,19 @@ const operation=z.discriminatedUnion("kind",[
   z.object({kind:z.literal("remember"),key:z.string(),value:z.string().max(1024),source:id}).strict(),
   z.object({kind:z.literal("forget"),key:z.string()}).strict(),z.object({kind:z.literal("clear")}).strict(),
 ]);
+const workspaceCall = { ...actor, toolCallId: z.string().min(1).max(200), commandHash: z.string().regex(/^[a-f0-9]{64}$/) };
 const schema=z.discriminatedUnion("op",[
   z.object({op:z.literal("open"),args:z.object({...actor,conversationId:id.optional()}).strict()}).strict(),
   z.object({op:z.literal("enqueue"),args:z.object({...actor,requestId:z.string().max(240),expectedEpoch:z.number().int().nonnegative(),operation}).strict()}).strict(),
   z.object({op:z.literal("claim"),args:z.object({}).strict()}).strict(),
   z.object({op:z.literal("publish"),args:z.object({token:id,fence:z.number().int().positive(),epoch:z.number().int().nonnegative(),baseRevision:z.number().int().nonnegative(),through:z.number().int().positive(),image:z.string().max(700000)}).strict()}).strict(),
   z.object({op:z.literal("writeNotes"),args:z.object({...actor,requestId:z.string().max(240),expectedEpoch:z.number().int().nonnegative(),markdown:z.string().max(6000)}).strict()}).strict(),
+  z.object({op:z.literal("workspaceReplay"),args:z.object(workspaceCall).strict()}).strict(),
+  z.object({op:z.literal("workspaceAccept"),args:z.object({ ...workspaceCall,
+    expectedEpoch:z.number().int().nonnegative(),baseRevision:z.number().int().nonnegative(),baseScratchpadRevision:z.number().int().nonnegative(),
+    operations:z.array(operation).max(16),markdown:z.string().max(6000).optional(),
+    result:z.object({stdout:z.string().max(16384),stderr:z.string().max(16384),exitCode:z.number().int().min(0).max(255)}).strict(),
+  }).strict()}).strict(),
 ]);
 function json(body:unknown,status=200){return Response.json(body,{status,headers:{"Cache-Control":"no-store"}});}
 export const memoryBridge=httpAction(async(ctx,request)=>{
@@ -38,10 +45,12 @@ export const memoryBridge=httpAction(async(ctx,request)=>{
     if(body.op==="enqueue")return json(await ctx.runMutation(internal.memory.enqueue,{ownerId:user._id,...body.args,runId:body.args.runId as Id<"migrationRuns">|undefined}));
     if(body.op==="claim")return json(await ctx.runMutation(internal.memory.claim,{ownerId:user._id}));
     if(body.op==="publish")return json(await ctx.runMutation(internal.memory.publish,{ownerId:user._id,...body.args}));
+    if(body.op==="workspaceReplay")return json(await ctx.runMutation(internal.memory.workspaceReplay,{ownerId:user._id,...body.args,runId:body.args.runId as Id<"migrationRuns">|undefined}));
+    if(body.op==="workspaceAccept")return json(await ctx.runMutation(internal.memory.workspaceAccept,{ownerId:user._id,...body.args,runId:body.args.runId as Id<"migrationRuns">|undefined}));
     return json(await ctx.runMutation(internal.memory.writeNotes,{ownerId:user._id,...body.args,runId:body.args.runId as Id<"migrationRuns">|undefined}));
   }catch(error){
     const message=error instanceof Error?error.message:String(error);
-    const code=/Unauthenticated/i.test(message)?"UNAUTHENTICATED":(["NOT_FOUND","STALE_WRITER","MEMORY_CHANGED","MEMORY_BUSY","MEMORY_LIMIT","STALE_RUN","RUN_REQUIRED","MEMORY_REPLAY_CONFLICT"].find(c=>message.includes(c))??"MEMORY_UNAVAILABLE");
+    const code=/Unauthenticated/i.test(message)?"UNAUTHENTICATED":(["NOT_FOUND","STALE_WRITER","MEMORY_CHANGED","MEMORY_BUSY","MEMORY_LIMIT","STALE_RUN","RUN_REQUIRED","MEMORY_REPLAY_CONFLICT","MEMORY_DELETE_WITH_NOTES","INVALID_OPERATION"].find(c=>message.includes(c))??"MEMORY_UNAVAILABLE");
     return json({code},code==="UNAUTHENTICATED"?401:409);
   }
 });

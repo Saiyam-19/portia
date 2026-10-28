@@ -27,9 +27,9 @@ it("records HTTP-equivalent codes from streamed OpenRouter errors and nested cau
 
 it("distinguishes timeouts without recording their potentially private message", () => {
   const log = vi.spyOn(console, "warn").mockImplementation(() => undefined);
-  reportMigrationStreamError({ error: new DOMException("private details", "TimeoutError"), phase: "generate", agent: "specialist", runId: "run-fixture" });
+  reportMigrationStreamError({ error: new DOMException("private details", "TimeoutError"), phase: "generate", agent: "main", runId: "run-fixture" });
   expect(log.mock.calls).toEqual([["migration_inference_error", {
-    statusCode: null, errorType: "timeout", phase: "generate", agent: "specialist", runId: "run-fixture",
+    statusCode: null, errorType: "timeout", phase: "generate", agent: "main", runId: "run-fixture",
   }]]);
 });
 

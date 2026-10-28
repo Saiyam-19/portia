@@ -43,7 +43,7 @@ The local lab configures fresh backend/auth/bridge secrets and synthetic account
 
 ## Reproduce locally
 
-Use Node 22. The harness requires macOS ps/lsof, a cached convex-local-backend (or MEMORY_CONVEX_BINARY), and an installed Chromium (or MEMORY_CHROMIUM_PATH).
+Use Node 24 LTS (`24.x`). The harness requires macOS ps/lsof, a cached convex-local-backend (or MEMORY_CONVEX_BINARY), and an installed Chromium (or MEMORY_CHROMIUM_PATH).
 
 From this worktree:
 

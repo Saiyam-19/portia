@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { Ellipsis, PanelLeft, Pencil, Pin, PinOff, Search, SquarePen, Trash2, X } from 'lucide-react'
+import { useState } from 'react'
+import { PanelLeft, Search, SquarePen, X } from 'lucide-react'
 export type Conversation = { id: string; title: string; updatedAt: number; pinned?: boolean }
 import { cn } from '@/lib/utils'
 import { Button, Tooltip } from '@/components/berthwise/ui/button'
-import { GlideMenu, MenuItem, Popover, useDismiss } from '@/components/berthwise/ui/popover'
+import { GlideMenu } from '@/components/berthwise/ui/popover'
 
 export function Logo({ className }: { className?: string }) {
   return (
@@ -42,123 +42,30 @@ function Row({
   active,
   running,
   onSelect,
-  onRename,
-  onPin,
-  onDelete,
 }: {
   c: Conversation
   active: boolean
   running: boolean
   onSelect: () => void
-  onRename: (t: string) => void
-  onPin: () => void
-  onDelete: () => void
 }) {
-  const [menu, setMenu] = useState(false)
-  const [editing, setEditing] = useState(false)
-  const wrap = useRef<HTMLDivElement>(null)
-  const input = useRef<HTMLInputElement>(null)
-  useDismiss(menu, () => setMenu(false), [wrap])
-
-  useEffect(() => {
-    if (editing) input.current?.select()
-  }, [editing])
-
   return (
-    <div
-      ref={wrap}
+    <button
+      type="button"
       data-menu-row
-      className={cn('relative grid transition-[grid-template-rows,opacity] duration-250', menu ? 'z-30' : 'z-10')}
-      style={{
-        gridTemplateRows: '1fr',
-        opacity: 1,
-        transitionTimingFunction: 'cubic-bezier(0.23,1,0.32,1)',
-      }}
+      onClick={onSelect}
+      aria-current={active ? 'page' : undefined}
+      className={cn(
+        'relative z-10 flex h-8 w-full items-center gap-2 rounded-[8px] px-2 text-left text-[13px] transition-colors duration-150',
+        active ? 'bg-hover-2 font-medium text-ink' : 'text-ink-2 hover:text-ink',
+      )}
     >
-      <div className={cn('group/row relative min-h-0', !menu && 'overflow-hidden')}>
-        {editing ? (
-          <input
-            ref={input}
-            defaultValue={c.title}
-            maxLength={120}
-            aria-label="Conversation title"
-            onBlur={(e) => {
-              onRename(e.currentTarget.value)
-              setEditing(false)
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') e.currentTarget.blur()
-              if (e.key === 'Escape') setEditing(false)
-            }}
-            className="h-8 w-full rounded-[8px] bg-surface px-2 text-[13px] text-ink shadow-[inset_0_0_0_1px_var(--line-strong),0_0_0_3px_color-mix(in_oklch,var(--accent)_14%,transparent)] outline-none"
-          />
-        ) : (
-          <button
-            type="button"
-            onClick={onSelect}
-            aria-current={active ? 'page' : undefined}
-            className={cn(
-              'flex h-8 w-full items-center gap-2 rounded-[8px] pr-8 pl-2 text-left text-[13px] transition-colors duration-150',
-              active ? 'bg-hover-2 font-medium text-ink' : 'text-ink-2 hover:text-ink',
-            )}
-          >
-            {running && (
-              <span className="relative flex size-1.5 shrink-0">
-                <span className="absolute inset-0 rounded-full bg-accent" style={{ animation: 'pulse-dot 1.2s ease-in-out infinite' }} />
-              </span>
-            )}
-            <span className="truncate">{c.title}</span>
-          </button>
-        )}
-        {!editing && (
-          <button
-            type="button"
-            aria-label="Conversation options"
-            aria-expanded={menu}
-            onClick={() => setMenu(!menu)}
-            className={cn(
-              'absolute top-1 right-1 flex size-6 items-center justify-center rounded-[6px] text-ink-3 transition-[opacity,background-color,color] duration-150 hover:bg-line-strong/60 hover:text-ink',
-              menu || active ? 'opacity-100' : 'opacity-0 group-hover/row:opacity-100 focus-visible:opacity-100',
-            )}
-          >
-            <Ellipsis className="size-4" strokeWidth={2} />
-          </button>
-        )}
-        <Popover open={menu} origin="top-right" className="top-8 right-0 w-44">
-          <GlideMenu>
-            <MenuItem
-              icon={<Pencil strokeWidth={1.9} />}
-              onSelect={() => {
-                setMenu(false)
-                setEditing(true)
-              }}
-            >
-              Rename
-            </MenuItem>
-            <MenuItem
-              icon={c.pinned ? <PinOff strokeWidth={1.9} /> : <Pin strokeWidth={1.9} />}
-              onSelect={() => {
-                setMenu(false)
-                onPin()
-              }}
-            >
-              {c.pinned ? 'Unpin' : 'Pin'}
-            </MenuItem>
-            <div className="mx-2 my-1 h-px bg-line" />
-            <MenuItem
-              danger
-              icon={<Trash2 strokeWidth={1.9} />}
-              onSelect={() => {
-                setMenu(false)
-                onDelete()
-              }}
-            >
-              Delete
-            </MenuItem>
-          </GlideMenu>
-        </Popover>
-      </div>
-    </div>
+      {running && (
+        <span className="relative flex size-1.5 shrink-0">
+          <span className="absolute inset-0 rounded-full bg-accent" style={{ animation: 'pulse-dot 1.2s ease-in-out infinite' }} />
+        </span>
+      )}
+      <span className="truncate">{c.title}</span>
+    </button>
   )
 }
 
@@ -168,9 +75,6 @@ export function Sidebar({
   running,
   onSelect,
   onNew,
-  onRename,
-  onPin,
-  onDelete,
   onCollapse,
   searchRef,
   account,
@@ -185,9 +89,6 @@ export function Sidebar({
   running: Set<string>
   onSelect: (id: string) => void
   onNew: () => void
-  onRename: (id: string, t: string) => void
-  onPin: (id: string) => void
-  onDelete: (id: string) => void
   onCollapse: () => void
   searchRef: React.RefObject<HTMLInputElement | null>
 }) {
@@ -263,9 +164,6 @@ export function Sidebar({
                   active={c.id === activeId}
                   running={running.has(c.id)}
                   onSelect={() => onSelect(c.id)}
-                  onRename={(t) => onRename(c.id, t)}
-                  onPin={() => onPin(c.id)}
-                  onDelete={() => onDelete(c.id)}
                 />
               ))}
             </GlideMenu>

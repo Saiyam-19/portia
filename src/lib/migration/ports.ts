@@ -27,7 +27,7 @@ export const SUPPORTED_PORTS = [...new Set(
   Object.keys(PORT_ASSET_MANIFEST).map((relative) => relative.split("/")[0]!),
 )].sort();
 
-export async function loadPortTariffBundle(slug: string): Promise<string> {
+export async function loadPortTariffDocuments(slug: string): Promise<{ path: string; contents: string }[]> {
   if (!SUPPORTED_PORTS.includes(slug)) throw new Error("Unsupported port identifier.");
   const entries = Object.entries(PORT_ASSET_MANIFEST)
     .filter(([relative]) => relative.startsWith(`${slug}/`))
@@ -36,8 +36,12 @@ export async function loadPortTariffBundle(slug: string): Promise<string> {
     const contents = await readFile(path.join(process.cwd(), "data", "ports", relative));
     const actualHash = createHash("sha256").update(contents).digest("hex");
     if (actualHash !== expectedHash) throw new Error(`Tariff asset checksum mismatch: ${relative}`);
-    const text = contents.toString("utf8");
-    return text.trim() ? `### ${path.basename(relative)}\n${text}` : "";
+    return { path: `/ports/${relative}`, contents: contents.toString("utf8") };
   }));
-  return documents.filter(Boolean).join("\n\n");
+  return documents;
+}
+
+export async function loadPortTariffBundle(slug: string): Promise<string> {
+  const documents = await loadPortTariffDocuments(slug);
+  return documents.map(({ path: filename, contents }) => contents.trim() ? `### ${path.basename(filename)}\n${contents}` : "").filter(Boolean).join("\n\n");
 }

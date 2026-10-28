@@ -17,6 +17,12 @@ async function account(t:ReturnType<typeof setup>,email:string){
 async function claim(t:ReturnType<typeof setup>,ownerId:string,id:string){
   return t.mutation(internal.migration.claimQuestion,{ownerId,conversationId:null,requestId:id,payloadHash:id,question:"Synthetic memory test",modelAlias:"model-1",expectedRevision:null});
 }
+async function publishMemory(t:ReturnType<typeof setup>,ownerId:string) {
+  const job=(await t.mutation(internal.memory.claim,{ownerId}))!;
+  const runtime=await ChatMemoryRuntime.restore(job.image);await runtime.apply(job.operations);
+  await t.mutation(internal.memory.publish,{ownerId,token:job.token,fence:job.fence,epoch:job.epoch,baseRevision:job.baseRevision,through:job.through,image:await runtime.snapshot()});
+  return job;
+}
 beforeEach(()=>{vi.stubEnv("MIGRATION_DEV_ENABLED","true");vi.stubEnv("PORTIA_CONVEX_DEPLOYMENT","brilliant-whale-380");vi.stubEnv("CONVEX_SITE_URL","https://brilliant-whale-380.convex.site");vi.stubEnv("PORTIA_AUTH_MODE","basic");vi.stubEnv("PORTIA_MEMORY_ENABLED","true");});
 afterEach(()=>vi.unstubAllEnvs());
 it("keeps a deletion barrier closed across batches and rejects the stale run",async()=>{
@@ -45,6 +51,7 @@ it("isolates notes and makes chat deletion remove notes plus source-derived memo
   const t=setup();const a=await account(t,"a@example.com"),b=await account(t,"b@example.com");
   const run=await claim(t,a.ownerId,"a"),second=await claim(t,a.ownerId,"a2");
   await t.mutation(internal.memory.writeNotes,{ownerId:a.ownerId,runId:run.runId,runFence:run.fence,expectedEpoch:0,requestId:"notes",markdown:"PRIVATE_NOTES"});
+  await t.mutation(internal.memory.workspaceAccept,{ownerId:a.ownerId,runId:run.runId,runFence:run.fence,toolCallId:"private-output",commandHash:"a".repeat(64),expectedEpoch:0,baseRevision:0,baseScratchpadRevision:1,operations:[],result:{stdout:"PRIVATE_OUTPUT",stderr:"",exitCode:0}});
   expect(await t.mutation(internal.memory.open,{ownerId:a.ownerId,conversationId:second.conversationId})).toMatchObject({scratchpad:""});
   await expect(t.mutation(internal.memory.open,{ownerId:b.ownerId,conversationId:run.conversationId})).rejects.toThrow("NOT_FOUND");
   await expect(t.mutation(internal.memory.writeNotes,{ownerId:b.ownerId,runId:run.runId,runFence:run.fence,expectedEpoch:0,requestId:"evil",markdown:"cross-user"})).rejects.toThrow("NOT_FOUND");
@@ -52,6 +59,7 @@ it("isolates notes and makes chat deletion remove notes plus source-derived memo
   await a.client.mutation(api.migration.deleteConversation,{conversationId:run.conversationId});
   const state=await t.query(internal.memory.inspect,{ownerId:a.ownerId});
   expect(state).toMatchObject({blocked:true,notes:0,noteReceipts:0,epoch:1});
+  await expect(t.mutation(internal.memory.workspaceReplay,{ownerId:a.ownerId,runId:run.runId,runFence:run.fence,toolCallId:"private-output",commandHash:"a".repeat(64)})).rejects.toThrow("NOT_FOUND");
   await expect(t.mutation(internal.memory.writeNotes,{ownerId:a.ownerId,runId:run.runId,runFence:run.fence,expectedEpoch:0,requestId:"late",markdown:"resurrection"})).rejects.toThrow();
   const job=(await t.mutation(internal.memory.claim,{ownerId:a.ownerId}))!;
   expect(job.operations.at(-1)).toEqual({kind:"delete_source",source:run.conversationId});
@@ -72,6 +80,7 @@ it("rejects client-chosen memory source, oversized values and stale note epochs"
   const t=setup();const run=await claim(t,"owner","first");
   await expect(t.mutation(internal.memory.enqueue,{ownerId:"owner",runId:run.runId,runFence:run.fence,requestId:"bad",expectedEpoch:0,operation:{kind:"remember",key:"note",value:"valid",source:"another-chat"}})).rejects.toThrow("RUN_REQUIRED");
   await expect(t.mutation(internal.memory.enqueue,{ownerId:"owner",runId:run.runId,runFence:run.fence,requestId:"big",expectedEpoch:0,operation:{kind:"remember",key:"note",value:"x".repeat(1025),source:run.conversationId}})).rejects.toThrow("INVALID_MEMORY");
+  await expect(t.mutation(internal.memory.workspaceAccept,{ownerId:"owner",runId:run.runId,runFence:run.fence,toolCallId:"forged",commandHash:"a".repeat(64),expectedEpoch:0,baseRevision:0,baseScratchpadRevision:0,operations:[{kind:"remember",key:"note",value:"valid",source:"another-chat"}],result:{stdout:"",stderr:"",exitCode:0}})).rejects.toThrow("INVALID_OPERATION");
   await t.mutation(internal.memory.enqueue,{ownerId:"owner",requestId:"clear",expectedEpoch:0,operation:{kind:"clear"}});
   await expect(t.mutation(internal.memory.writeNotes,{ownerId:"owner",runId:run.runId,runFence:run.fence,expectedEpoch:0,requestId:"late",markdown:"old context"})).rejects.toThrow("MEMORY_CHANGED");
 });
@@ -109,3 +118,69 @@ it("rejects a corrupt snapshot without replacing the current version",async()=>{
   await t.mutation(internal.memory.publish,{...args,image});
   expect(await t.mutation(internal.memory.open,{ownerId:"owner"})).toMatchObject({revision:1,pending:false});
 },15_000);
+
+it("publishes facts, notes and durable workspace receipts as one envelope",async()=>{
+  const t=setup(),ownerId="workspace-owner",run=await claim(t,ownerId,"workspace"),other=await claim(t,ownerId,"other-workspace");
+  const base={ownerId,runId:run.runId,runFence:run.fence,toolCallId:"batch",commandHash:"a".repeat(64),expectedEpoch:0,baseRevision:0,baseScratchpadRevision:0};
+  const lookup={ownerId,runId:run.runId,runFence:run.fence,toolCallId:base.toolCallId,commandHash:base.commandHash};
+  const request={...base,operations:[{kind:"remember" as const,key:"alpha",value:"one",source:run.conversationId},{kind:"remember" as const,key:"beta",value:"two",source:run.conversationId}],markdown:"Both facts committed",result:{stdout:"Saved",stderr:"",exitCode:0}};
+  const accepted=await t.mutation(internal.memory.workspaceAccept,request);
+  expect(accepted).toMatchObject({status:"pending",sequence:1});
+  expect(await t.mutation(internal.memory.workspaceAccept,request)).toEqual(accepted);
+  expect(await t.mutation(internal.memory.workspaceReplay,lookup)).toMatchObject({status:"pending"});
+  await expect(t.mutation(internal.memory.workspaceAccept,{...request,result:{...request.result,stdout:"changed payload"}})).rejects.toThrow("MEMORY_REPLAY_CONFLICT");
+  await expect(t.mutation(internal.memory.workspaceReplay,{...lookup,commandHash:"b".repeat(64)})).rejects.toThrow("MEMORY_REPLAY_CONFLICT");
+  await expect(t.mutation(internal.memory.workspaceAccept,{...request,runId:other.runId,runFence:other.fence,toolCallId:"race",operations:[]})).rejects.toThrow("MEMORY_BUSY");
+  await expect(t.mutation(internal.memory.writeNotes,{ownerId,runId:run.runId,runFence:run.fence,expectedEpoch:0,requestId:"racing-notes",markdown:"Lost update"})).rejects.toThrow("MEMORY_BUSY");
+  expect(await t.mutation(internal.memory.open,{ownerId,conversationId:run.conversationId})).toMatchObject({pending:true,revision:0,scratchpad:""});
+  const stale=(await t.mutation(internal.memory.claim,{ownerId}))!;
+  await t.run(async ctx=>{
+    const ns=(await ctx.db.query("memoryNamespaces").withIndex("by_owner",q=>q.eq("ownerId",ownerId)).unique())!;
+    await ctx.db.patch(ns._id,{lease:{...ns.lease!,expiresAt:Date.now()-1}});
+  });
+  const staleRuntime=await ChatMemoryRuntime.restore(stale.image);await staleRuntime.apply(stale.operations);
+  const job=(await t.mutation(internal.memory.claim,{ownerId}))!;
+  await expect(t.mutation(internal.memory.publish,{ownerId,token:stale.token,fence:stale.fence,epoch:stale.epoch,baseRevision:stale.baseRevision,through:stale.through,image:await staleRuntime.snapshot()})).rejects.toThrow("STALE_WRITER");
+  expect(job.operations).toHaveLength(2);
+  const runtime=await ChatMemoryRuntime.restore(job.image);await runtime.apply(job.operations);
+  await t.mutation(internal.memory.publish,{ownerId,token:job.token,fence:job.fence,epoch:job.epoch,baseRevision:job.baseRevision,through:job.through,image:await runtime.snapshot()});
+  const state=await t.mutation(internal.memory.open,{ownerId,conversationId:run.conversationId});
+  expect(state).toMatchObject({revision:1,pending:false,scratchpad:"Both facts committed",scratchpadRevision:1});
+  expect((await (await ChatMemoryRuntime.restore(state.image)).facts()).map(f=>f.key)).toEqual(["alpha","beta"]);
+  expect(await t.mutation(internal.memory.workspaceReplay,lookup)).toMatchObject({status:"done",result:request.result});
+  const read={...base,toolCallId:"read",baseRevision:1,baseScratchpadRevision:1,operations:[],result:{stdout:"one",stderr:"",exitCode:0}};
+  expect(await t.mutation(internal.memory.workspaceAccept,read)).toMatchObject({status:"done",sequence:null});
+  expect(await t.mutation(internal.memory.claim,{ownerId})).toBeNull();
+  await expect(t.mutation(internal.memory.workspaceAccept,{...read,toolCallId:"old-notes",baseScratchpadRevision:0})).rejects.toThrow("MEMORY_BUSY");
+  await expect(t.mutation(internal.memory.workspaceAccept,{...read,toolCallId:"old-revision",baseRevision:0})).rejects.toThrow("MEMORY_BUSY");
+  await expect(t.mutation(internal.memory.workspaceAccept,{...read,toolCallId:"old-fence",runFence:run.fence+1})).rejects.toThrow("STALE_RUN");
+  await t.mutation(internal.memory.workspaceAccept,{...read,toolCallId:"accepted-notes",markdown:"Accepted before cancellation"});
+  await t.run(ctx=>ctx.db.patch(run.runId,{status:"cancelled"}));
+  await publishMemory(t,ownerId);
+  expect(await t.mutation(internal.memory.open,{ownerId,conversationId:run.conversationId})).toMatchObject({scratchpad:"Accepted before cancellation",pending:false});
+},30_000);
+
+it("privacy barriers invalidate queued notes and pending or completed workspace output",async()=>{
+  const t=setup(),ownerId="privacy-owner",run=await claim(t,ownerId,"privacy");
+  const base={ownerId,runId:run.runId,runFence:run.fence,toolCallId:"private",commandHash:"a".repeat(64),expectedEpoch:0,baseRevision:0,baseScratchpadRevision:0};
+  const lookup={ownerId,runId:run.runId,runFence:run.fence,toolCallId:base.toolCallId,commandHash:base.commandHash};
+  await t.mutation(internal.memory.workspaceAccept,{...base,operations:[{kind:"remember",key:"secret",value:"OLD_VALUE",source:run.conversationId}],markdown:"OLD_NOTES",result:{stdout:"OLD_OUTPUT",stderr:"",exitCode:0}});
+  await t.mutation(internal.memory.claim,{ownerId});
+  await t.mutation(internal.memory.enqueue,{ownerId,runId:run.runId,runFence:run.fence,requestId:"clear",expectedEpoch:0,operation:{kind:"clear"}});
+  await expect(t.mutation(internal.memory.workspaceReplay,lookup)).rejects.toThrow("MEMORY_CHANGED");
+  const queued=await t.run(ctx=>ctx.db.query("memoryOperations").withIndex("by_namespace_and_status_and_sequence").take(16));
+  expect(queued.find(row=>row.workspace)?.workspace?.markdown).toBeUndefined();
+  await publishMemory(t,ownerId);
+  const state=await t.mutation(internal.memory.open,{ownerId,conversationId:run.conversationId});
+  expect(state).toMatchObject({epoch:1,scratchpad:"",pending:false});
+  expect(await (await ChatMemoryRuntime.restore(state.image)).facts()).toEqual([]);
+  await t.mutation(internal.memory.redactWorkspaceReceipts,{ownerId,epoch:1});
+  const invalidated=await t.run(ctx=>ctx.db.query("workspaceReceipts").withIndex("by_run",q=>q.eq("runId",run.runId)).unique());
+  expect(invalidated?.status).toBe("invalidated");expect(invalidated?.result).toBeUndefined();
+  const fresh={...base,toolCallId:"fresh",expectedEpoch:1,baseRevision:1,operations:[],result:{stdout:"NEW_OUTPUT",stderr:"",exitCode:0}};
+  await t.mutation(internal.memory.workspaceAccept,fresh);
+  await t.mutation(internal.memory.enqueue,{ownerId,runId:run.runId,runFence:run.fence,requestId:"forget",expectedEpoch:1,operation:{kind:"forget",key:"secret"}});
+  await expect(t.mutation(internal.memory.workspaceReplay,{...lookup,toolCallId:"fresh"})).rejects.toThrow("MEMORY_CHANGED");
+  await publishMemory(t,ownerId);
+  expect(await t.mutation(internal.memory.open,{ownerId,runId:run.runId,runFence:run.fence})).toMatchObject({epoch:2,scratchpad:"",pending:false});
+},30_000);
