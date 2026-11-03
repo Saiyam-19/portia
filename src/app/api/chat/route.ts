@@ -33,7 +33,7 @@ export async function POST(request: Request) {
       ...(body.message ? { message: body.message } : {}),
       ...(body.formResponse ? { formResponse: body.formResponse } : {}),
     });
-    const agent = berthwiseAgent();
+    const agent = await berthwiseAgent();
     if (claim.replayed) {
       if (claim.status === "running" && claim.fxSessionId) {
         return ndjson(agent.reconnect({ fxSessionId: claim.fxSessionId, requestId: claim.requestId, turnId: claim.turnId }));

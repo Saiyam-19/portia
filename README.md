@@ -15,7 +15,7 @@ The model is mocked by default (`PORTIA_MODEL_MODE=mock`): a scripted OpenAI-com
 ## Agent
 
 - **Sessions.** One libfx session per conversation (`src/lib/agent`). The session log is the source of truth for model history; Convex `turns` is a projection for display, written when a turn ends. Turns stream to the browser as NDJSON public events; a reload reconnects through `/api/chat/stream`, which replays the session stream for the running turn.
-- **Durability.** Locally sessions live in `.fx/sessions` (`local()`); on Vercel they use Vercel Workflow (`vercel()`), and `/api/libfx` receives queue deliveries that continue a turn after a function stops. Its trigger is in [vercel.json](vercel.json).
+- **Durability.** Locally sessions live in `.fx/sessions` (`local()`); on Vercel they use Vercel Workflow (`vercel()`), and `/api/libfx` receives queue deliveries that continue a turn after a function stops. Its trigger is in [vercel.json](vercel.json). libfx allows one configuration per agent name in a process, so the agent is kept on `globalThis` (`src/lib/agent/server.ts`); in development a reloaded module closes the previous agent, after its running turns finish, before making its own.
 - **Tools.** `bash` runs in a per-conversation [just-bash](https://www.npmjs.com/package/just-bash) workspace with read-only tariffs under `/ports`, plus `calculate_charge_batch` (Decimal arithmetic), `search_vessels`, `get_vessel`, and `ask_user_input`. A form ends the turn; the user's answers arrive as the next prompt.
 - **Caching.** The system prompt and tool list are byte-identical for every request. Anything that varies (date, memory, form answers) is sent in a `<context>` envelope at the start of each user turn, so history is append-only and every request reuses the previous prefix. The transport adds a sticky `session_id` per conversation, pins the provider (no fallbacks, no data collection), adds cache breakpoints for models that need them, and records cached-token usage per turn.
 - **Compaction.** The default 400k-token window with a 25k output reserve compacts at about 300k tokens (`PORTIA_CONTEXT_WINDOW` overrides it). After compaction the next turn resends full memory and notes.
@@ -29,7 +29,7 @@ Memory is a set of small markdown files the agent edits with bash, not text past
 - `/notes/current.md` holds the conversation's working notes and survives compaction.
 - `/work` and `/tmp` are scratch space.
 
-After each bash call the workspace diffs `/memories` and `/notes` and commits them to Convex with a version check, so concurrent conversations cannot overwrite each other; a rejected write is rolled back and reported to the model. Each conversation records which memory version it has seen, so a turn carries a full snapshot, only what changed, or nothing. The Memory panel shows saved files and lets the user forget one or all of them.
+After each bash call the workspace diffs `/memories` and `/notes` and commits them to Convex with a version check, so concurrent conversations cannot overwrite each other; a rejected write is rolled back and reported to the model. Each conversation records which memory version it has seen, so a turn carries a full snapshot, only what changed, or nothing. Memory has no UI; to change or clear it, the user asks Berthwise.
 
 ## Authentication and boundaries
 
