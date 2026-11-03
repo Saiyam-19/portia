@@ -12,11 +12,11 @@ describe("request shaping", () => {
     expect(stickyKey([system, { role: "user", content: "other" }])).not.toBe(stickyKey(first));
   });
 
-  it("pins private, non-fallback routing and adds breakpoints only where needed", () => {
+  it("routes privately with fallbacks and adds breakpoints only where needed", () => {
     const messages = [system, { role: "user", content: "hello" }];
     const openai = shapeRequest({ model: "openai/gpt-6.1-sol", messages });
     expect(openai.messages).toBe(messages);
-    expect(openai.provider).toEqual({ allow_fallbacks: false, require_parameters: true, data_collection: "deny", zdr: true });
+    expect(openai.provider).toEqual({ allow_fallbacks: true, require_parameters: true, data_collection: "deny" });
     expect(openai.usage).toEqual({ include: true });
     const anthropic = shapeRequest({ model: "anthropic/claude-x", messages });
     expect(anthropic.messages.map(message => (message.content as Array<{ cache_control?: unknown }>)[0].cache_control)).toEqual([{ type: "ephemeral" }, { type: "ephemeral" }]);
@@ -40,6 +40,28 @@ describe("request shaping", () => {
     expect(sent.session_id).toBeTypeOf("string");
     expect(ledger.take("gen-1")).toEqual({ inputTokens: 2000, outputTokens: 5, cacheReadTokens: 1792, cacheWriteTokens: 0 });
     expect(ledger.take("gen-1")).toBeUndefined();
+  });
+});
+
+describe("provider errors", () => {
+  const request = () => new TextEncoder().encode(JSON.stringify({ model: "openai/gpt-6.1-sol", messages: [system, { role: "user", content: "hello" }], stream: true }));
+  const sseFrom = (...events: string[]) => async () => new Response(events.join(""), { headers: { "content-type": "text/event-stream", "retry-after": "2" } });
+  const rateLimited = `data: ${JSON.stringify({ id: "gen-2", provider: "Azure", choices: [], error: { code: 429, message: "rate-limited upstream", metadata: { error_type: "rate_limit_exceeded" } } })}\n\n`;
+
+  it("turns an error that arrives before any output into its HTTP status", async () => {
+    const transport = createTransport({ ledger: new UsageLedger(), upstream: sseFrom(": OPENROUTER PROCESSING\n\n", rateLimited) });
+    const response = await transport("https://openrouter.ai/api/v1/chat/completions", { method: "POST", body: request() });
+    expect(response.status).toBe(429);
+    expect(response.headers.get("retry-after")).toBe("2");
+    expect(await response.json()).toMatchObject({ error: { code: 429, metadata: { error_type: "rate_limit_exceeded" } } });
+  });
+
+  it("streams an error after output through unchanged", async () => {
+    const text = `data: ${JSON.stringify({ id: "gen-3", choices: [{ delta: { content: "Hel" } }] })}\n\n`;
+    const transport = createTransport({ ledger: new UsageLedger(), upstream: sseFrom(": OPENROUTER PROCESSING\n\n", text, rateLimited) });
+    const response = await transport("https://openrouter.ai/api/v1/chat/completions", { method: "POST", body: request() });
+    expect(response.status).toBe(200);
+    expect(await response.text()).toBe(`: OPENROUTER PROCESSING\n\n${text}${rateLimited}`);
   });
 });
 
