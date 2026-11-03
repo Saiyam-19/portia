@@ -1,6 +1,6 @@
 {
   "installCommand": "bun install --frozen-lockfile",
-  "buildCommand": "bun run build",
+  "buildCommand": "if [ \"$VERCEL_ENV\" = production ]; then bunx convex deploy --cmd 'bun run build'; else bun run build; fi",
   "outputDirectory": ".next",
   "framework": "nextjs",
   "functions": {
