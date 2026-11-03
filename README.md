@@ -1,29 +1,38 @@
-# Portia / Plisto
+# Portia / Berthwise
 
-Maritime tariff assistant: Next.js 16, AI SDK 7 and OpenRouter; Convex owns authenticated conversations, runs, forms, and Agent-component message history. Better Auth provides fresh email/password accounts. The normal app is `/dashboard`; `/chat` redirects there.
+Maritime tariff assistant on Next.js 16, [libfx](https://fx.sh/docs) and Convex. libfx runs the agent and stores each conversation as a durable session; Convex holds accounts (Better Auth), the conversation list, a display copy of each turn, and saved memory. The app is `/dashboard`; `/chat` redirects there.
+
+`/` is the marketing site, ported from the `berthwise-landing` repo (WebGPU ocean, isometric harbour, GSAP and Lenis). It has its own root layout in `src/app/(site)` so its global styles never reach the app, whose routes live under `src/app/(app)`; moving between the two is a full page load. Its components are in `src/components/landing`, and its `.wgsl` shaders are compiled at build time by the Turbopack rule in `next.config.ts`. The hero composer and the closing email form only acknowledge input locally for now.
 
 ## Local setup
 
-Use Node 24 LTS (`24.x`), `npm install`, and the variables documented in [.env.example](.env.example). `PORTIA_CONVEX_DEPLOYMENT` must match both configured Convex URLs exactly. Next and Convex must share the frontend `SITE_URL`, auth mode, enable flag, and server bridge secret. Convex additionally needs `BETTER_AUTH_SECRET`.
+Use Node 24 (`24.x`), bun (`bun install`; `bun.lock` is the only lockfile), and the variables in [.env.example](.env.example). `PORTIA_CONVEX_DEPLOYMENT` must match both Convex URLs exactly. Next and Convex share `SITE_URL`, `PORTIA_AUTH_MODE`, `PORTIA_ENABLED` and `PORTIA_SERVER_SECRET`; Convex also needs `BETTER_AUTH_SECRET`, and `PORTIA_ALLOWED_EMAILS` in private mode.
 
-Run `bun run dev` at `http://localhost:3001`; the dev command pins the hostname and port so Next cannot silently move to an origin auth does not trust. Set both `SITE_URL` and `NEXT_PUBLIC_SITE_URL` in the frontend, and `SITE_URL` on the selected Convex development deployment, to that exact origin. If you intentionally change the local origin, update both sides together. Reuse an existing healthy preview when present. Set `PORTIA_ENABLED=true` only after the matching Convex target and secrets are configured. Configure/push the explicitly selected Convex project separately; a local frontend build does not deploy Convex. Run `npm test`, `npm run typecheck`, and `npm run build` for local checks.
+`bun run dev` serves `http://localhost:3001` (hostname and port are pinned so auth's trusted origin cannot drift). Push Convex functions to the selected deployment separately; a frontend build does not deploy Convex. Checks: `bun run test`, `bun run typecheck` (TypeScript 7; the `typescript` package stays on 6 for typescript-eslint and Next, which need its compiler API), `bun run lint`, `bun run build`.
 
-## Authentication
+The model is mocked by default (`PORTIA_MODEL_MODE=mock`): a scripted OpenAI-compatible stream that exercises tools, forms, memory, prefix caching and compaction without network calls. `PORTIA_MODEL_MODE=openrouter` uses OpenRouter and requires `LLM_ALLOW_PAID=true` and `OPENROUTER_API_KEY`.
 
-`PORTIA_AUTH_MODE=basic` enables fresh signup/signin with passwords of 8–128 characters. Email verification is intentionally disabled by the current product decision; accounts retain truthful `emailVerified=false`. Google, magic links and email password recovery are unavailable. `private` mode retains the allowlist and server-secret account provisioning restriction. The established session cookie prefix remains `portia-migration` for compatibility.
+## Agent
 
-## Chat and safety boundaries
+- **Sessions.** One libfx session per conversation (`src/lib/agent`). The session log is the source of truth for model history; Convex `turns` is a projection for display, written when a turn ends. Turns stream to the browser as NDJSON public events; a reload reconnects through `/api/chat/stream`, which replays the session stream for the running turn.
+- **Durability.** Locally sessions live in `.fx/sessions` (`local()`); on Vercel they use Vercel Workflow (`vercel()`), and `/api/libfx` receives queue deliveries that continue a turn after a function stops. Its trigger is in [vercel.json](vercel.json).
+- **Tools.** `bash` runs in a per-conversation [just-bash](https://www.npmjs.com/package/just-bash) workspace with read-only tariffs under `/ports`, plus `calculate_charge_batch` (Decimal arithmetic), `search_vessels`, `get_vessel`, and `ask_user_input`. A form ends the turn; the user's answers arrive as the next prompt.
+- **Caching.** The system prompt and tool list are byte-identical for every request. Anything that varies (date, memory, form answers) is sent in a `<context>` envelope at the start of each user turn, so history is append-only and every request reuses the previous prefix. The transport adds a sticky `session_id` per conversation, pins the provider (no fallbacks, no data collection), adds cache breakpoints for models that need them, and records cached-token usage per turn.
+- **Compaction.** The default 400k-token window with a 25k output reserve compacts at about 300k tokens (`PORTIA_CONTEXT_WINDOW` overrides it). After compaction the next turn resends full memory and notes.
+- **Limits.** 24 model calls per turn, a 15-minute turn expiry, one running turn per conversation, and per-user rolling request limits.
 
-`/api/chat` and `/api/chat/cancel` are canonical; `/api/migration/chat` and `/api/migration/cancel` remain compatibility aliases. `/api/auth` is canonical, with the old auth URL rewritten to it. Browser users never receive provider model identifiers: only Model 1 / Model 2.
+## Memory
 
-Conversation creation, reads and deletion require a live owner session. New chats create a saved empty conversation before navigation and first inference. Run claims and form continuations use revisions, idempotency, fencing, expiry, periodic session refresh, and per-user rolling limits. Stop applies across tabs. Deletion revokes the root immediately, fences the active run, then schedules bounded cleanup.
+Memory is a set of small markdown files the agent edits with bash, not text pasted into the system prompt:
 
-Tariff references live in `data/ports`; they include historical documents, not live tariff feeds. One agent reads them through its isolated workspace and uses the bounded Decimal batch calculator for financial arithmetic. Saved tool steps and interrupted work are distinguished from completed responses. No uploads or RAG have been added.
+- `/memories/*.md` (at most one folder level) is shared across the user's conversations and changes only when the user asks. 32 files, 4 KiB each, 32 KiB in total.
+- `/notes/current.md` holds the conversation's working notes and survives compaction.
+- `/work` and `/tmp` are scratch space.
 
-Python sources remain in `backend/` solely as reference/parity fixtures. They are excluded from the frontend deployment; their old Vercel serving configuration is archived in `docs/archive`. Frontend runtime has no Supabase or Python API dependency. No historical account/chat import is required for the empty source database.
+After each bash call the workspace diffs `/memories` and `/notes` and commits them to Convex with a version check, so concurrent conversations cannot overwrite each other; a rejected write is rolled back and reported to the model. Each conversation records which memory version it has seen, so a turn carries a full snapshot, only what changed, or nothing. The Memory panel shows saved files and lets the user forget one or all of them.
 
-See [architecture](docs/architecture.md), [verified development acceptance](docs/migration-acceptance.md), and [deployment configuration](docs/deployment.md). Production now runs on Vercel and Convex; see [production acceptance](docs/memory-production-acceptance.md) for the tested release and scope.
+## Authentication and boundaries
 
-## Chat memory
+`PORTIA_AUTH_MODE=basic` allows fresh email/password signup (passwords of 8–128 characters, no email verification or recovery); `private` restricts accounts to `PORTIA_ALLOWED_EMAILS`. The session cookie prefix remains `portia-migration` for compatibility. Browsers only ever see Model 1 and Model 2, never provider model identifiers. The agent's Convex functions require the server secret; user functions require a live owner session. libfx has no session-delete API, so deleting a conversation removes its Convex records and drops the reference to its session.
 
-See the current [agent workspace contracts](docs/agent-workspace.md). Earlier [chat memory integration](docs/memory-integration.md), [local acceptance](docs/memory-integration-acceptance.md), and [production acceptance](docs/memory-production-acceptance.md) retain the preceding release's evidence.
+Tariff references in `data/ports` are historical documents, not live tariff feeds.

@@ -48,3 +48,6 @@ yarn-error.log*
 next-env.d.ts
 
 AGENTS.override.md
+
+# libfx local session store (development durability)
+.fx/

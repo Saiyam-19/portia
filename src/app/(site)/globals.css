@@ -1,0 +1,1429 @@
+@import "tailwindcss";
+
+/* Palette from design/README.md (Berthwise exploration). Light mode by default. */
+:root {
+  --paper: #f7f5ec;
+  --card: #fdfcf7;
+  --charcoal: #252820;
+  --charcoal-rgb: 37, 40, 32;
+  --muted: #77786b;
+  --pale: #ece5b5;
+  --gold: #b39346;
+  --rust: #b0573a;
+  --sea: #4f6f6a;
+
+  --font-heading: var(--font-newsreader), "Times New Roman", serif;
+  --font-body: var(--font-dm-sans), system-ui, sans-serif;
+  --font-mono: var(--font-dm-mono), ui-monospace, monospace;
+}
+
+html {
+  background: var(--paper);
+  color: var(--charcoal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--paper);
+}
+
+::selection {
+  background: var(--pale);
+  color: var(--charcoal);
+}
+
+/* Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+/* The native bar is swapped for an overlay thumb (Scrollbar.tsx) that takes no gutter. */
+html {
+  scrollbar-width: none;
+}
+html::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 100;
+  width: 12px; /* hit area; the visible pill is the ::before */
+  cursor: default;
+  touch-action: none;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.scrollbar::before {
+  content: "";
+  position: absolute;
+  inset: 2px 2px 2px auto;
+  width: 3px;
+  border-radius: 3px;
+  background: rgba(var(--charcoal-rgb), 0.38);
+  transition: width 0.2s, background-color 0.2s;
+}
+.scrollbar.is-on,
+.scrollbar:hover {
+  opacity: 1;
+  transition-duration: 0.12s;
+}
+.scrollbar:hover::before,
+.scrollbar.is-drag::before {
+  width: 6px;
+  background: rgba(var(--charcoal-rgb), 0.55);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ── Layout shell ─────────────────────────────────────────
+   The hero is sticky; the sheet rises over it (Kaiko). The footer ends the
+   sheet and its bottom margin uncovers the fixed wordmark beneath (Lassie). */
+.shell {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 29vw;
+  --peek: 0px; /* the sheet no longer peeks into the hero */
+}
+
+/* ── Buttons (Lassie) ───────────────────────────────────── */
+.btn {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  height: 42px;
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font: 400 15px/20px var(--font-body);
+  letter-spacing: 0.005em;
+  text-decoration: none;
+  outline: none;
+}
+.btn:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+.btn-label,
+.btn-chevron {
+  display: flex;
+  align-items: center;
+  border-radius: 12px;
+  transition:
+    color 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+    margin 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-label {
+  z-index: 1;
+  padding: 0 14px;
+  border: 2px solid transparent;
+  white-space: nowrap;
+}
+.btn-chevron {
+  z-index: 0;
+  width: 36px;
+  justify-content: center;
+}
+.btn-chevron svg {
+  width: 20px;
+  height: 20px;
+}
+@media (hover: hover) {
+  .btn-chevron {
+    margin-left: -36px;
+  }
+  .btn:hover .btn-chevron,
+  .btn:focus-visible .btn-chevron {
+    margin-left: 0;
+  }
+}
+.btn-dark {
+  background: var(--charcoal);
+  color: var(--paper);
+}
+.btn-light {
+  background: #fff;
+  color: var(--charcoal);
+}
+.btn:not(:disabled):hover .btn-light {
+  background: var(--charcoal);
+  color: var(--paper);
+}
+.btn:not(:disabled):active .btn-label {
+  background: #474b40;
+  color: var(--paper);
+}
+.btn:focus-visible .btn-label {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(179, 147, 70, 0.3);
+}
+@media (max-width: 1023px) {
+  .btn {
+    height: 40px;
+    font-size: 13px;
+    line-height: 18px;
+  }
+}
+
+/* ── Sign-up pill (Lassie) ──────────────────────────────── */
+/* Shared input surface, adapted from glasscn's liquid GlassInput variant.
+   Apply to a standalone field or its compound input/button capsule, never both.
+   Keep the centre clear on this pale, fine-grained backdrop; broad white highlights
+   and a large blur erase the ocean. Retain existing motion instead of liquid-drift. */
+.input-glass {
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background-color: rgba(255, 255, 255, 0.03);
+  background-image:
+    radial-gradient(120% 85% at 15% 8%, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0) 65%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0) 45%, rgba(255, 255, 255, 0.04) 100%);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  -webkit-backdrop-filter: blur(2px) saturate(1.5);
+  backdrop-filter: blur(2px) saturate(1.5);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.85),
+    inset 0 -1px 0 0 rgba(37, 40, 32, 0.12),
+    inset 1px 0 0 0 rgba(255, 255, 255, 0.4),
+    inset -1px 0 0 0 rgba(255, 255, 255, 0.3),
+    0 8px 24px -8px rgba(15, 23, 42, 0.16);
+}
+/* The hero's composer: the same liquid surface as a roomy prompt box. The textarea grows to three
+   lines; its own placeholder is transparent and a cascading overlay stands in while it is empty. */
+.composer {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  width: min(560px, 100vw - 32px);
+  min-height: 56px;
+  padding: 7px 7px 7px 18px;
+  border-radius: 18px;
+  text-align: left;
+  transition: box-shadow 0.3s cubic-bezier(0, 0, 0.2, 1);
+}
+.composer:focus-within {
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.85),
+    inset 0 -1px 0 0 rgba(37, 40, 32, 0.12),
+    inset 1px 0 0 0 rgba(255, 255, 255, 0.4),
+    inset -1px 0 0 0 rgba(255, 255, 255, 0.3),
+    0 0 0 3px rgba(179, 147, 70, 0.18),
+    0 10px 28px -8px rgba(15, 23, 42, 0.2);
+}
+.composer-field {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  align-self: center;
+}
+.composer textarea {
+  display: block;
+  field-sizing: content;
+  width: 100%;
+  min-height: 24px;
+  max-height: 72px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+  color: var(--charcoal);
+  font: 400 16px/24px var(--font-body);
+}
+.composer textarea::placeholder {
+  color: transparent;
+}
+.composer-placeholder {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 24px;
+  overflow: hidden;
+  pointer-events: none;
+  color: var(--muted);
+  font: 400 16px/24px var(--font-body);
+  white-space: nowrap;
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+  transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.composer-field:has(textarea:not(:placeholder-shown)) .composer-placeholder {
+  opacity: 0;
+}
+.cascade-layer {
+  position: absolute;
+  inset: 0;
+}
+.cascade-char {
+  display: inline-block;
+  white-space: pre;
+}
+.composer-send {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  background: var(--charcoal);
+  color: var(--paper);
+  cursor: pointer;
+  outline: none;
+  transition:
+    background-color 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.composer-send svg {
+  width: 20px;
+  height: 20px;
+}
+.composer-send:not(:disabled):hover {
+  background: #474b40;
+}
+.composer-send:not(:disabled):active {
+  transform: scale(0.94);
+}
+.composer-send:focus-visible {
+  box-shadow: 0 0 0 2px var(--paper), 0 0 0 4px var(--gold);
+}
+.composer-send:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+@media (max-width: 1023px) {
+  .composer textarea,
+  .composer-placeholder {
+    font-size: 15px;
+  }
+}
+
+/* ── Loader ─────────────────────────────────────────────── */
+.loader {
+  display: none;
+}
+.js .loader {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  background: var(--paper);
+  border-radius: 0 0 32px 32px;
+}
+.is-loading {
+  overflow: hidden;
+}
+.loader-mark {
+  position: relative;
+  width: 72px;
+}
+.loader-mark svg {
+  display: block;
+  width: 100%;
+}
+.loader-ghost {
+  color: var(--charcoal);
+  opacity: 0.1;
+}
+/* Fills from the waterline up as the hero settles (--p: 0 → 1). */
+.loader-fill {
+  position: absolute;
+  inset: 0;
+  color: var(--charcoal);
+  clip-path: inset(calc(100% - var(--p, 0) * 100%) 0 0 0);
+}
+@media (max-width: 767px) {
+  .loader-mark {
+    width: 56px;
+  }
+}
+
+/* ── Navigation (Lassie) ────────────────────────────────── */
+.nav-group,
+.nav-mobile {
+  position: fixed;
+  top: 16px;
+  z-index: 50;
+  display: flex;
+}
+.js .nav-group,
+.js .nav-mobile {
+  visibility: hidden;
+}
+.nav-main {
+  left: 50%;
+  translate: -50% 0;
+}
+.nav-actions {
+  right: 22px;
+}
+.nav-frame {
+  pointer-events: none;
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  width: calc(100% + 8px);
+  height: 48px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(227, 221, 207, 0.4);
+  backdrop-filter: blur(13px);
+}
+.nav-pill {
+  pointer-events: none;
+  position: absolute;
+  height: 40px;
+  width: 0;
+  border-radius: 12px;
+  background: #fff;
+  transition: background-color 0.15s cubic-bezier(0, 0, 0.2, 1);
+}
+.nav-group:active .nav-pill {
+  opacity: 0;
+}
+.nav-item {
+  --item-bg: #fff;
+  --item-text: var(--charcoal);
+  --item-pressed: rgba(227, 221, 207, 0.4);
+  position: relative;
+  height: 40px;
+  cursor: pointer;
+  outline: none;
+  text-decoration: none;
+}
+.nav-item-accent {
+  --item-bg: var(--charcoal);
+  --item-text: var(--paper);
+  --item-pressed: #474b40;
+}
+.nav-item-tile {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: var(--item-bg);
+  transition: background-color 0.3s cubic-bezier(0, 0, 0.2, 1);
+}
+.nav-group.is-hovered .nav-item-tile {
+  background: transparent;
+  transition-duration: 0s;
+}
+.nav-item:active .nav-item-tile {
+  background: var(--item-pressed);
+}
+.nav-item:focus-visible .nav-item-tile {
+  box-shadow:
+    inset 0 0 0 2px var(--gold),
+    0 0 0 3px rgba(179, 147, 70, 0.3);
+}
+.nav-item-label {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 12px;
+  font: 400 14px/14px var(--font-body);
+  white-space: nowrap;
+  color: var(--item-text);
+  transition: color 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.nav-group.is-hovered .nav-item:not(:hover):not(:focus-visible) .nav-item-label {
+  color: var(--charcoal);
+}
+.nav-wordmark {
+  display: inline-flex;
+  align-items: center;
+  font: 400 20px/1 var(--font-heading);
+  letter-spacing: -0.01em;
+}
+.nav-mark {
+  width: 21px;
+  flex-shrink: 0;
+}
+.nav-wordmark-rest {
+  display: inline-block;
+  overflow: hidden;
+}
+.nav-wordmark-rest > span {
+  display: inline-block;
+  padding-left: 6px;
+}
+/* Centred by auto margins, not translate: GSAP folds CSS translate into px when it tweens the width. */
+.nav-mobile {
+  left: 0;
+  right: 0;
+  width: max-content;
+  margin: 0 auto;
+  flex-direction: column;
+}
+.nav-mobile .nav-frame {
+  height: calc(100% + 8px);
+  min-height: 48px;
+}
+.nav-mobile-row {
+  position: relative;
+  display: flex;
+}
+.nav-mobile button.nav-item {
+  padding: 0;
+  border: none;
+  background: none;
+}
+.nav-mobile .nav-item.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+.nav-mobile-close {
+  position: absolute;
+  top: 0;
+  right: 4px;
+  z-index: 2;
+  height: 40px;
+  padding: 0 14px;
+  border: none;
+  background: none;
+  color: var(--charcoal);
+  cursor: pointer;
+  font: 400 14px/14px var(--font-body);
+}
+.nav-sheet {
+  position: relative;
+  overflow: hidden;
+}
+.nav-sheet ul {
+  margin: 0;
+  padding: 24px 8px 8px;
+  list-style: none;
+}
+.nav-sheet li a {
+  display: block;
+  padding: 6px 8px;
+  color: var(--charcoal);
+  text-decoration: none;
+  font: 350 36px/1.05 var(--font-heading);
+}
+.nav-sheet-actions {
+  display: flex;
+  gap: 8px;
+  padding: 16px 8px 8px;
+}
+.nav-sheet-cta {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--charcoal);
+  text-decoration: none;
+  font: 400 15px/1 var(--font-body);
+}
+.nav-sheet-cta.is-accent {
+  background: var(--charcoal);
+  color: var(--paper);
+}
+@media (min-width: 1024px) {
+  .nav-mobile {
+    display: none;
+  }
+}
+@media (max-width: 1023px) {
+  .nav-group {
+    display: none;
+  }
+}
+
+/* ── Hero (Kaiko shell) ─────────────────────────────────── */
+.hero {
+  position: sticky;
+  z-index: 0;
+  min-height: 100svh;
+  overflow: hidden;
+  background: var(--paper);
+}
+.ocean {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.ocean canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* Fully under the sheet: drop it from paint and compositing (it costs about half a frame otherwise). */
+.hero.is-covered {
+  visibility: hidden;
+}
+/* No WebGPU: a still, staggered dot field that thins out toward the horizon. */
+.ocean-fallback {
+  background-image: radial-gradient(rgba(var(--charcoal-rgb), 0.38) 1px, transparent 1.6px),
+    radial-gradient(rgba(var(--charcoal-rgb), 0.38) 1px, transparent 1.6px);
+  background-position: 0 0, 7px 6px;
+  background-size: 14px 12px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 22%, #000 70%);
+  mask-image: linear-gradient(to bottom, transparent 22%, #000 70%);
+}
+/* The harbour is a full-bleed layer: it spills off the right edge and runs its piles
+   below the fold, where the sheet masks them. Only the ship itself takes clicks. */
+.hero-figure {
+  --fig-w: min(82vw, 144svh);
+  position: absolute;
+  top: 55%;
+  bottom: 0;
+  left: 0;
+  z-index: 2;
+  width: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+.hero-figure .sh {
+  width: var(--fig-w);
+  left: calc(50% - var(--fig-w) * 0.5);
+  top: calc(var(--fig-w) * -0.26);
+}
+.hero-figure svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.hero-figure [role="button"] {
+  pointer-events: auto;
+}
+.hero-grid {
+  position: relative;
+  z-index: 4;
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  max-width: 1440px;
+  min-height: 100svh;
+  margin: 0 auto;
+  padding: clamp(168px, 23svh, 232px) 32px calc(var(--peek) + 32px);
+  text-align: center;
+  pointer-events: none;
+}
+.hero-grid > * {
+  pointer-events: auto;
+}
+.hero-copy {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 760px;
+}
+.hero-glow {
+  position: absolute;
+  inset: -22% -18%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(closest-side, rgba(247, 245, 236, 0.94) 52%, rgba(247, 245, 236, 0));
+}
+.hero-title {
+  position: relative;
+  isolation: isolate;
+  margin: 0;
+  font: 350 clamp(44px, 5.4vw, 84px) / 0.98 var(--font-heading);
+  letter-spacing: -0.02em;
+}
+.js .hero-title {
+  visibility: hidden;
+}
+.hero-title em {
+  font-style: italic;
+}
+.hero-layer {
+  display: block;
+  transform-origin: 50% 50%;
+}
+.hero-layer-1 {
+  color: var(--gold);
+}
+.hero-layer-2,
+.hero-layer-3 {
+  position: absolute;
+  inset: 0;
+}
+.hero-layer-2 {
+  color: var(--sea);
+}
+.hero-layer-3 {
+  color: var(--charcoal);
+}
+.hero-capture {
+  margin-top: 40px;
+}
+.js [data-rise] {
+  opacity: 0;
+}
+@media (max-width: 1023px) {
+  .hero-grid {
+    padding: clamp(140px, 20svh, 176px) 16px calc(var(--peek) + 8px);
+  }
+  .hero-capture {
+    margin-top: 32px;
+  }
+  .hero-figure {
+    /* Centred on the middle berth's ship (51.2% across the drawing), sized so it fits the width;
+       the other berths, their cranes and the quay spill off both sides. */
+    --fig-w: min(calc((100vw - 24px) * 3.2), 144svh);
+  }
+  .hero-figure .sh {
+    left: calc(50% - var(--fig-w) * 0.512);
+    top: calc(var(--fig-w) * -0.4);
+  }
+}
+
+/* ── Sheet (Kaiko content card) ─────────────────────────── */
+/* The "secondary" section. Starts just below the fold as a 90% card (scaled by GSAP from its top
+   edge) and is full bleed by the time its top is 40% down the viewport. */
+.sheet {
+  --sheet-r: 24px; /* top corners, tweened to 0 by the hero's rise */
+  --sheet-rb: 64px;
+  position: relative;
+  z-index: 1;
+  border-radius: var(--sheet-r) var(--sheet-r) var(--sheet-rb) var(--sheet-rb);
+  background: var(--card);
+  box-shadow:
+    0 -1px 0 rgba(var(--charcoal-rgb), 0.04),
+    0 -24px 48px -32px rgba(var(--charcoal-rgb), 0.18);
+  transform-origin: 50% 0;
+  will-change: transform;
+  /* Clips the depth gradient to the rounded card; clip, not hidden, so sticky children still stick. */
+  overflow: clip;
+}
+@media (max-width: 1023px) {
+  .sheet {
+    --sheet-r: 12px;
+    --sheet-rb: 32px;
+  }
+}
+
+/* ── Depth (Kaiko's "scale comes from depth") ───────────── */
+/* Heading, then a tall track whose sticky slide pairs the accordion with the isometric stack. */
+.depth {
+  position: relative;
+  isolation: isolate;
+}
+/* The sheet's shader background: a sticky viewport-sized canvas under everything in the sheet
+   (z-index -1 paints it over the sheet's own fill but under its content). */
+.sheet-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  /* The sticky canvas is composited, so the sheet's overflow + radius clip does not paint-clip it in
+     Chrome; it would square off the sheet's corners wherever it sits on them. */
+  clip-path: inset(0 round var(--sheet-r) var(--sheet-r) var(--sheet-rb) var(--sheet-rb));
+}
+.sheet-bg canvas {
+  position: sticky;
+  top: 0;
+  display: block;
+  width: 100%;
+  height: 100vh;
+}
+.sheet-bg.is-static canvas {
+  display: none;
+}
+
+/* ── Harbour strip (closes the depth section) ───────────── */
+/* The rear harbour, full bleed and wider than narrow screens: centred on the middle berth. */
+.strip {
+  position: relative;
+  overflow: hidden;
+  padding-top: 8vh;
+}
+/* Doubled class: ShipHarbor.css sets .sh { width: 100% } and may load after this sheet. */
+.strip-fig.strip-fig {
+  --fig-w: max(100%, 1180px);
+  width: var(--fig-w);
+  margin-left: calc(50% - var(--fig-w) / 2);
+}
+@media (max-width: 767px) {
+  .strip-fig.strip-fig {
+    --fig-w: 290vw;
+  }
+}
+/* The hero's ocean from the strip's camera, dots only over the sheet. */
+.strip-sea {
+  position: absolute;
+  left: 0;
+  z-index: 0;
+  width: 100%;
+  pointer-events: none;
+}
+.strip-sea canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* No WebGPU: still rows of dots that thin out toward the horizon. */
+.strip-sea.is-still {
+  background-image: radial-gradient(rgba(var(--charcoal-rgb), 0.38) 1px, transparent 1.6px);
+  background-size: 15px 15px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 12%, #000 95%);
+  mask-image: linear-gradient(to bottom, transparent 12%, #000 95%);
+}
+.strip-sea.is-still canvas {
+  display: none;
+}
+.depth-head,
+.depth-grid {
+  width: 91.667%;
+  max-width: 1320px;
+  margin: 0 auto;
+}
+.depth-head {
+  padding-top: 56px;
+}
+.depth-title {
+  max-width: 18ch;
+  margin: 0 0 16px;
+  font: 350 2rem/1 var(--font-heading);
+  letter-spacing: -0.01em;
+}
+.depth-sub {
+  max-width: 34ch;
+  margin: 0;
+  color: var(--muted);
+  font: 300 1.125rem/1.25 var(--font-body);
+}
+.depth-track {
+  position: relative;
+  height: 300svh;
+}
+.depth-slide {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+}
+.depth-grid {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.depth-txt {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  margin-top: 80px;
+}
+.depth-col {
+  padding: 16px 0;
+  cursor: pointer;
+  outline: none;
+}
+.depth-col + .depth-col {
+  border-top: 1px solid rgba(var(--charcoal-rgb), 0.1);
+}
+.depth-col.is-active {
+  cursor: auto;
+}
+.depth-col:focus-visible .depth-col-title {
+  text-decoration: underline;
+  text-decoration-color: var(--gold);
+  text-underline-offset: 6px;
+}
+.depth-col-title {
+  margin: 0;
+  color: rgba(var(--charcoal-rgb), 0.26);
+  font: 350 1.5rem/1 var(--font-heading);
+  letter-spacing: -0.01em;
+  transition: color 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.depth-col.is-active .depth-col-title {
+  color: var(--charcoal);
+}
+.depth-reveal {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.depth-col.is-active .depth-reveal {
+  grid-template-rows: 1fr;
+}
+.depth-reveal-in {
+  min-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.depth-col.is-active .depth-reveal-in {
+  opacity: 1;
+}
+.depth-col-body {
+  max-width: 42ch;
+  margin: 12px 0 0;
+  color: #4a4d43;
+  font: 400 0.9375rem/1.35 var(--font-body);
+}
+.depth-cta {
+  margin-top: 16px;
+}
+.depth-col:not(.is-active) .depth-cta {
+  visibility: hidden;
+}
+.depth-stage {
+  position: relative;
+  display: grid;
+  flex: 1;
+  min-height: 0;
+  place-items: center;
+  container-type: size;
+}
+.dp-fit {
+  position: relative;
+  width: min(100cqw, 100cqh * var(--dp-ratio));
+}
+.dp-piece {
+  position: absolute;
+  display: block;
+  overflow: visible;
+  opacity: 0;
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+@media (min-width: 768px) {
+  .depth-head {
+    padding-top: 64px;
+  }
+  .depth-title {
+    margin-bottom: 24px;
+    font-size: 2.5rem;
+  }
+  .depth-sub {
+    font-size: 1.5rem;
+  }
+  .depth-col-title {
+    font-size: 2rem;
+  }
+  .depth-col-body {
+    font-size: 1.125rem;
+  }
+}
+@media (min-width: 1024px) {
+  .depth-head,
+  .depth-grid {
+    width: 83.333%;
+  }
+  .depth-head {
+    padding-top: 122px;
+  }
+  .depth-title {
+    margin-bottom: 32px;
+  }
+  .depth-track {
+    margin-top: -20vh;
+  }
+  .depth-grid {
+    display: grid;
+    grid-template-columns: 34% 66%;
+    align-items: center;
+  }
+  .depth-txt {
+    margin-top: 0;
+    padding-right: 28px;
+  }
+  .depth-col {
+    padding: 18px 0;
+  }
+  .depth-col + .depth-col {
+    border-top: none;
+  }
+  .depth-stage {
+    height: 100%;
+  }
+  .depth-reveal,
+  .depth-reveal-in {
+    transition-duration: 0.3s;
+    transition-timing-function: cubic-bezier(0.333, 0, 0, 1);
+  }
+  .depth-col-title {
+    transition-duration: 0.45s;
+  }
+}
+@media (min-width: 1366px) {
+  .depth-title {
+    font-size: 4rem;
+  }
+  .depth-sub {
+    font-size: 1.75rem;
+  }
+  .depth-col-title {
+    font-size: 2.5rem;
+  }
+  .depth-col-body {
+    font-size: 1.25rem;
+  }
+}
+
+/* Figure tones not in the harbour set, and the figure's own linework. */
+.sh-m-cream { --t: #fdfcf6; --s3: #f7f5eb; --s2: #efecdf; --s1: #e5e2d1; --s0: #cdcab8; --o: #252820; --c: rgba(37, 40, 32, 0.2); --r: rgba(37, 40, 32, 0.16); --l: rgba(37, 40, 32, 0.34); }
+.sh-m-sea { --t: #93aaa5; --s3: #7b9792; --s2: #65837d; --s1: #4f6f6a; --s0: #3f5a56; --o: #1b2321; --c: rgba(247, 245, 236, 0.22); --r: rgba(247, 245, 236, 0.12); --l: rgba(247, 245, 236, 0.22); }
+.sh-m-paper { --t: #fffef9; --s3: #fbfaf2; --s2: #f4f2e6; --s1: #ebe8d9; --s0: #d9d6c5; --o: #252820; --c: rgba(37, 40, 32, 0.18); }
+/* Line weights are css px: --px is one css px in viewBox units, set from the figure width on
+   resize. (vector-effect: non-scaling-stroke would do the same but re-rasterises every layer on
+   every transform, which is most of a frame.) The harbour classes are re-weighted to match. */
+.dp-fit { --px: 0.5; }
+.dp-piece .sh-o { stroke-width: calc(0.7 * var(--px)); }
+.dp-piece .sh-c,
+.dp-piece .sh-hl { stroke-width: calc(0.6 * var(--px)); }
+.dp-piece .sh-l,
+.dp-piece .sh-r,
+.dp-piece .sh-k,
+.dp-piece .sh-hw { stroke-width: calc(0.5 * var(--px)); }
+.dp-piece .sh-stay { stroke-width: calc(0.9 * var(--px)); }
+.dp-water { fill: #e9ece5; stroke: none; }
+.dp-shadow { fill: rgba(var(--charcoal-rgb), 0.035); stroke: none; }
+.dp-sound,
+.dp-screw,
+.dp-stone,
+.dp-hub {
+  fill: none;
+  stroke-linecap: round;
+}
+.dp-sound { stroke: var(--charcoal); stroke-width: calc(1.5 * var(--px)); }
+.dp-sound-0 { stroke-opacity: 0.14; }
+.dp-sound-1 { stroke-opacity: 0.22; }
+.dp-sound-2 { stroke-opacity: 0.3; }
+.dp-sound-3 { stroke-opacity: 0.38; }
+.dp-sound-4 { stroke-opacity: 0.46; }
+.dp-screw { stroke: rgba(var(--charcoal-rgb), 0.55); stroke-width: calc(1.4 * var(--px)); }
+.dp-stone { stroke: rgba(var(--charcoal-rgb), 0.45); stroke-width: calc(2.2 * var(--px)); }
+.dp-hub { stroke: var(--charcoal); stroke-width: calc(3 * var(--px)); }
+.dp-ring { fill: none; stroke: rgba(var(--charcoal-rgb), 0.28); stroke-width: calc(0.5 * var(--px)); }
+.dp-contour,
+.dp-grid,
+.dp-rule,
+.dp-tick,
+.dp-tick-major,
+.dp-leaf,
+.dp-band,
+.dp-hoist,
+.dp-ribbon,
+.dp-rope,
+.dp-needle {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.dp-contour { stroke: rgba(79, 111, 106, 0.55); stroke-width: calc(0.7 * var(--px)); }
+.dp-grid { stroke: rgba(var(--charcoal-rgb), 0.1); stroke-width: calc(0.5 * var(--px)); }
+.dp-rule { stroke: rgba(var(--charcoal-rgb), 0.3); stroke-width: calc(0.8 * var(--px)); }
+.dp-tick { stroke: rgba(var(--charcoal-rgb), 0.38); stroke-width: calc(0.5 * var(--px)); }
+.dp-tick-major { stroke: rgba(var(--charcoal-rgb), 0.7); stroke-width: calc(0.6 * var(--px)); }
+.dp-leaf { stroke: rgba(var(--charcoal-rgb), 0.16); stroke-width: calc(0.5 * var(--px)); }
+.dp-band { stroke: var(--rust); stroke-width: calc(2 * var(--px)); stroke-linecap: butt; }
+.dp-hoist { stroke: rgba(var(--charcoal-rgb), 0.7); stroke-width: calc(0.5 * var(--px)); }
+.dp-ribbon { stroke: var(--rust); stroke-width: calc(1.4 * var(--px)); }
+.dp-rope { stroke: #c9c1a0; stroke-width: calc(1.6 * var(--px)); }
+.dp-needle { stroke: var(--rust); stroke-width: calc(1.2 * var(--px)); }
+.dp-plate { fill: #f1efe4; stroke: rgba(var(--charcoal-rgb), 0.55); stroke-width: calc(0.5 * var(--px)); }
+.dp-face { fill: #fbfaf3; }
+.dp-hole { fill: #6f6a52; stroke: rgba(var(--charcoal-rgb), 0.5); stroke-width: calc(0.5 * var(--px)); }
+.dp-coin { fill: none; stroke: rgba(var(--charcoal-rgb), 0.3); stroke-width: calc(0.5 * var(--px)); }
+
+/* ── FAQ (Lassie) ───────────────────────────────────────── */
+/* Paper tiles on the card sheet, stacked edge to edge; one answer open at a time. */
+.faq {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 160px 16px 100px;
+}
+.faq-title {
+  margin: 0 0 32px;
+  font: 350 clamp(44px, 4.05vw, 58px) / 1 var(--font-heading);
+  letter-spacing: -0.01em;
+}
+.faq-list {
+  isolation: isolate;
+  width: 100%;
+  max-width: 680px;
+}
+.faq-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  background: var(--paper);
+  cursor: pointer;
+}
+.faq-item:has(.faq-q:focus-visible) {
+  z-index: 1;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(179, 147, 70, 0.3);
+}
+.faq-body {
+  flex: 1;
+}
+.faq-q {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 30px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--charcoal);
+  font: 400 17px/24px var(--font-body);
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+}
+/* Grid rows ease the height without measuring; visibility keeps a shut answer out of tab and AT order. */
+.faq-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition:
+    grid-template-rows 0.2s,
+    visibility 0.2s;
+}
+.faq-item[data-open] .faq-panel {
+  grid-template-rows: 1fr;
+  visibility: visible;
+}
+.faq-panel > div {
+  /* clip isn't a scroll container, so the grid item keeps its content min-height without this */
+  min-height: 0;
+  overflow: clip;
+}
+.faq-a {
+  margin: 0;
+  padding-top: 4px;
+  max-width: 48ch;
+  color: var(--muted);
+  font: 400 15px/20px var(--font-body);
+  letter-spacing: 0.005em;
+}
+.faq-chevron {
+  flex-shrink: 0;
+  display: block;
+  border-radius: 18px;
+  color: var(--charcoal);
+  transition: background-color 0.2s ease-out;
+}
+.faq-item:hover .faq-chevron,
+.faq-item[data-open] .faq-chevron {
+  background: var(--card);
+}
+.faq-chevron svg {
+  display: block;
+  width: 42px;
+  height: 32px;
+  rotate: 180deg;
+  transition: rotate 0.2s ease-out;
+}
+.faq-item[data-open] .faq-chevron svg {
+  rotate: 0deg;
+}
+@media (min-width: 768px) {
+  .faq {
+    padding-inline: 0;
+  }
+  .faq-list {
+    width: 50%;
+    max-width: none;
+  }
+  .faq-item {
+    padding: 24px;
+  }
+}
+@media (min-width: 1024px) {
+  .faq {
+    padding-bottom: 160px;
+  }
+  .faq-list {
+    width: 30%;
+    min-width: 540px;
+  }
+  .faq-item {
+    gap: 32px;
+  }
+  .faq-a {
+    padding-top: 8px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .faq-panel,
+  .faq-chevron svg {
+    transition: none;
+  }
+}
+
+/* ── CTA (Lassie) ───────────────────────────────────────── */
+.cta {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+}
+.cta-card {
+  position: relative;
+  width: 100%;
+  max-width: 2056px;
+  aspect-ratio: 362 / 463;
+  max-height: 465px;
+  overflow: clip;
+  border-radius: 32px;
+  /* the photo is composited; clip-path holds the corners where overflow + radius would not (see .ag) */
+  clip-path: inset(0 round 32px);
+  background: var(--sea);
+}
+.cta-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 62%;
+}
+.cta-body {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  text-align: center;
+  color: #fff;
+}
+.cta-mark {
+  width: 64px;
+  margin-bottom: 24px;
+}
+.cta-title {
+  margin: 0 0 16px;
+  font: 350 clamp(36px, 4.05vw, 58px) / 1.05 var(--font-heading);
+  letter-spacing: -0.01em;
+  text-shadow: 0 1px 24px rgba(37, 40, 32, 0.25);
+}
+.cta-form {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 50px;
+  margin-top: 16px;
+  padding: 3px;
+  width: fit-content;
+  min-width: min(275px, 100vw - 32px);
+  max-width: calc(100vw - 32px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(227, 221, 207, 0.2);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition: min-width 0.3s ease-out;
+}
+.cta-form input {
+  field-sizing: content;
+  flex-grow: 1;
+  min-width: 0;
+  padding: 0 8px;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #fff;
+  font: 16px/24px var(--font-body);
+}
+.cta-form input::placeholder {
+  color: rgba(255, 255, 255, 0.8);
+}
+.cta-form .btn {
+  height: 100%;
+}
+@media (min-width: 768px) {
+  .cta-form:focus-within {
+    min-width: 360px;
+  }
+  .cta-form input {
+    padding-inline: 16px;
+  }
+}
+@media (min-width: 1024px) {
+  .cta {
+    padding: 20px 32px;
+  }
+  .cta-card {
+    aspect-ratio: 1664 / 876;
+    max-height: 876px;
+    border-radius: 64px;
+    clip-path: inset(0 round 64px);
+  }
+  .cta-mark {
+    width: 120px;
+    margin-bottom: 32px;
+  }
+  .cta-title {
+    margin-bottom: 24px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cta-form {
+    transition: none;
+  }
+}
+
+/* ── Footer (Lassie)────────────────────────────────────── */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 32px;
+  min-height: 517px;
+  padding: 80px 32px 24px;
+}
+.footer-title {
+  margin: 0 0 32px;
+  font: 350 clamp(36px, 4.05vw, 58px) / 1.05 var(--font-heading);
+  letter-spacing: -0.01em;
+}
+.footer-title em {
+  font-style: italic;
+}
+.footer-side {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-right: 74px;
+}
+.footer-links {
+  display: flex;
+  gap: 150px;
+}
+.footer-links dl {
+  margin: 0;
+}
+.footer-links dt {
+  margin-bottom: 10px;
+  color: var(--muted);
+  font: 400 15px/20px var(--font-body);
+}
+.footer-links dd {
+  margin: 0 0 7px;
+  font: 400 15px/20px var(--font-body);
+}
+.footer-links a {
+  color: var(--charcoal);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 2px;
+  transition: text-decoration-color 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.footer-links a:hover {
+  text-decoration-color: currentColor;
+}
+.footer-links a:focus-visible {
+  border-radius: 4px;
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+.footer-mark {
+  display: block;
+  width: 43px;
+  margin-bottom: 12px;
+}
+@media (max-width: 767px) {
+  .footer-colophon {
+    display: flex;
+    gap: 16px;
+  }
+  .footer-mark {
+    width: 34px;
+    flex-shrink: 0;
+    margin-bottom: 0;
+  }
+}
+.footer-colophon p {
+  margin: 0;
+  font: 400 14px/16px var(--font-mono);
+  letter-spacing: -0.01em;
+}
+@media (max-width: 1023px) {
+  .footer {
+    flex-direction: column;
+    min-height: 56svh;
+    padding: 32px 16px 24px;
+  }
+  .footer-side {
+    flex: 1;
+    gap: 64px;
+    padding-right: 0;
+  }
+  .footer-links {
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 24px 0;
+  }
+  .footer-links dl {
+    min-width: 49%;
+  }
+  .footer-links dt,
+  .footer-links dd {
+    font-size: 13px;
+    line-height: 18px;
+  }
+  .footer-colophon p {
+    font-size: 12px;
+    line-height: 12px;
+  }
+}
+
+.wordmark {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 0;
+  width: 100%;
+  height: 900px;
+  background: linear-gradient(var(--card) 0%, var(--paper) 30%, var(--pale) 100%);
+}
+.wordmark span {
+  position: absolute;
+  bottom: calc(1rem - 0.2em); /* sit the baseline, not the line box, 1rem off the edge */
+  left: 50%;
+  translate: -50% 0;
+  color: #fffdf5;
+  font: 400 100px/1 var(--font-heading);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+@media (max-width: 1023px) {
+  .shell {
+    margin-bottom: 30vw;
+  }
+  .wordmark {
+    height: 480px;
+  }
+}

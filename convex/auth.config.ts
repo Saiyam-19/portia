@@ -1,9 +1,9 @@
 import { getAuthConfigProvider } from "@convex-dev/better-auth/auth-config";
 import type { AuthConfig } from "convex/server";
-import { isMigrationDevEnabled } from "./lib/migrationGate";
+import { portiaEnabled } from "./lib/gate";
 
 export default {
-  providers: isMigrationDevEnabled()
+  providers: portiaEnabled()
     ? [getAuthConfigProvider({ basePath: "/api/auth" })]
     : [],
 } satisfies AuthConfig;

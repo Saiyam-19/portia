@@ -4,7 +4,7 @@ import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { ChevronsUpDown, LogOut, Monitor, Moon, Sun } from 'lucide-react'
-import { migrationAuthClient } from '@/lib/migration/auth-client'
+import { authClient } from '@/lib/auth/client'
 import { GlideMenu, MenuItem, Popover, useDismiss } from './ui/popover'
 
 export function AccountMenu({ name, email }: { name: string; email: string }) {
@@ -21,7 +21,7 @@ export function AccountMenu({ name, email }: { name: string; email: string }) {
     if (busy) return
     setBusy(true); setError('')
     try {
-      const result = await migrationAuthClient.signOut()
+      const result = await authClient.signOut()
       if (result.error) throw result.error
       router.replace('/login'); router.refresh()
     } catch { setError('Sign out failed. Please try again.'); setBusy(false) }

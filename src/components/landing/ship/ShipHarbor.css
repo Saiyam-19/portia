@@ -1,0 +1,122 @@
+/* ShipHarbor: four tones from charcoal #252820 on paper #f7f5ec, colour only on cargo.
+   Selectors inside the drawing are single classes so they also reach <use> clones. */
+
+.sh {
+  --sh-ink: #252820;
+  position: relative;
+  width: 100%;
+}
+
+.sh-svg {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  height: auto;
+  /* The quay, yard and piles run on past the box; the hero clips them. */
+  overflow: visible;
+  transform: translateZ(0);
+  pointer-events: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sh-water,
+.sh-static {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transform: translateZ(0);
+}
+.sh-water { z-index: 0; }
+.sh-static { z-index: 1; }
+/* Seen from behind the quay the standing yard is nearest of all, so it rides over the drawing. */
+.sh-front { z-index: 3; }
+
+.sh-svg path,
+.sh-svg circle,
+.sh-static path,
+.sh-water path {
+  vector-effect: non-scaling-stroke;
+}
+
+.sh-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- materials
+   Light falls from the upper left of the mirrored picture: --s3 is the lit end of a part, --s1 its
+   broadside (the face toward us, a step into shade) and carries a material's own colour; --s2 and
+   --s0 cover the faces of curved parts turning between. --t is the top. */
+
+.sh-m-steel { --t: #f8f7ef; --s3: #efeee4; --s2: #dedecf; --s1: #c9c9bb; --s0: #a6a799; --o: #252820; --c: rgba(37, 40, 32, 0.32); }
+.sh-m-concrete { --t: #f3f1e5; --s3: #ebe9dc; --s2: #dcdacc; --s1: #c8c7b8; --s0: #adad9e; --o: #252820; --c: rgba(37, 40, 32, 0.28); }
+.sh-m-deck { --t: #8e9085; --s3: #7d7f74; --s2: #6c6e64; --s1: #5c5f55; --s0: #4b4e44; --o: #252820; --c: rgba(247, 245, 236, 0.18); }
+.sh-m-hull { --t: #74766b; --s3: #5b5e54; --s2: #4a4d43; --s1: #3d4037; --s0: #30332a; --o: #1b1d17; --c: rgba(247, 245, 236, 0.16); }
+.sh-m-dark { --t: #5d6056; --s3: #575a50; --s2: #484b41; --s1: #3c3f36; --s0: #2f3229; --o: #1b1d17; --c: rgba(247, 245, 236, 0.16); }
+.sh-m-pile { --t: #7d7f74; --s3: #6c6e64; --s2: #575a50; --s1: #46493f; --s0: #383b31; --o: #1b1d17; --c: rgba(247, 245, 236, 0.14); }
+.sh-m-rust { --t: #d49a82; --s3: #c97c60; --s2: #bc694c; --s1: #b0573a; --s0: #944830; --o: #3a2117; --c: rgba(247, 245, 236, 0.25); }
+.sh-m-gold { --t: #ddca92; --s3: #cfb675; --s2: #c1a35c; --s1: #b39346; --s0: #977b3a; --o: #3b3120; --c: rgba(247, 245, 236, 0.3); }
+.sh-m-pale { --t: #f6f1d2; --s3: #f3edc8; --s2: #f0e9bf; --s1: #ece5b5; --s0: #d7d0a0; --o: #252820; --c: rgba(37, 40, 32, 0.25); }
+
+/* Cargo: the broadside (--s1) shows each box's colour; ends catch the light. */
+.sh-k-cream { --t: #fdfcf6; --s3: #f7f5eb; --s2: #efecdf; --s1: #e5e2d1; --s0: #cdcab8; --o: #252820; --c: rgba(37, 40, 32, 0.2); --r: rgba(37, 40, 32, 0.16); --l: rgba(37, 40, 32, 0.34); }
+.sh-k-char { --t: #6e7166; --s3: #5e6157; --s2: #50534a; --s1: #43463c; --s0: #34372e; --o: #1b1d17; --c: rgba(247, 245, 236, 0.16); --r: rgba(247, 245, 236, 0.1); --l: rgba(247, 245, 236, 0.2); }
+.sh-k-grey { --t: #d4d4c7; --s3: #c7c8ba; --s2: #b6b7a9; --s1: #a3a496; --s0: #898a7e; --o: #252820; --c: rgba(37, 40, 32, 0.2); --r: rgba(37, 40, 32, 0.16); --l: rgba(37, 40, 32, 0.3); }
+.sh-k-gold { --t: #dcc78f; --s3: #ceb473; --s2: #c0a25a; --s1: #b39346; --s0: #967b3a; --o: #2d2617; --c: rgba(247, 245, 236, 0.28); --r: rgba(37, 40, 32, 0.16); --l: rgba(37, 40, 32, 0.32); }
+.sh-k-pale { --t: #f6f1d2; --s3: #f3edc7; --s2: #efe9be; --s1: #ece5b5; --s0: #d5ce9f; --o: #252820; --c: rgba(37, 40, 32, 0.2); --r: rgba(37, 40, 32, 0.14); --l: rgba(37, 40, 32, 0.3); }
+.sh-k-rust { --t: #d39880; --s3: #c87b5f; --s2: #bc684b; --s1: #b0573a; --s0: #93482f; --o: #2f1b13; --c: rgba(247, 245, 236, 0.25); --r: rgba(37, 40, 32, 0.18); --l: rgba(37, 40, 32, 0.34); }
+.sh-k-sea { --t: #93aaa5; --s3: #7b9792; --s2: #65837d; --s1: #4f6f6a; --s0: #3f5a56; --o: #1b2321; --c: rgba(247, 245, 236, 0.22); --r: rgba(247, 245, 236, 0.12); --l: rgba(247, 245, 236, 0.22); }
+
+/* ---------- faces and lines */
+
+.sh-f { fill: var(--s2); }
+.sh-0 { fill: var(--s0); }
+.sh-1 { fill: var(--s1); }
+.sh-2 { fill: var(--s2); }
+.sh-3 { fill: var(--s3); }
+.sh-t { fill: var(--t); }
+.sh-f, .sh-0, .sh-1, .sh-2, .sh-3, .sh-t { stroke: none; }
+
+.sh-o, .sh-c, .sh-l, .sh-r, .sh-k, .sh-hl, .sh-hw, .sh-rail, .sh-stay, .sh-rope, .sh-moor, .sh-brace {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.sh-o { stroke: var(--o); stroke-width: 0.7px; }
+.sh-c { stroke: var(--c); stroke-width: 0.6px; }
+.sh-l { stroke: var(--l, rgba(37, 40, 32, 0.38)); stroke-width: 0.5px; }
+.sh-r { stroke: var(--r, rgba(37, 40, 32, 0.18)); stroke-width: 0.5px; }
+.sh-k { stroke: rgba(37, 40, 32, 0.2); stroke-width: 0.5px; }
+.sh-hl { stroke: rgba(247, 245, 236, 0.42); stroke-width: 0.6px; }
+.sh-hw { stroke: rgba(247, 245, 236, 0.1); stroke-width: 0.5px; }
+.sh-rail { stroke: rgba(37, 40, 32, 0.5); stroke-width: 0.6px; }
+.sh-stay { stroke: #252820; stroke-width: 0.9px; }
+.sh-brace { stroke: #3d4037; stroke-width: 1.1px; }
+.sh-rope { stroke: rgba(37, 40, 32, 0.75); stroke-width: 0.5px; }
+.sh-moor { stroke: #3b3e35; stroke-width: 0.8px; stroke-dasharray: 1 1; stroke-dashoffset: 1; opacity: 0; }
+.sh-win { fill: #2d3028; stroke: none; }
+.sh-beacon { fill: #b0573a; stroke: none; }
+
+/* Wake dots: zero-length round caps, sized in css px (inline) like the ocean's, at any figure width. */
+.sh-dot { fill: none; stroke: #252820; stroke-linecap: round; }
+
+/* ---------- the ship is the button */
+
+.sh-hit {
+  fill: transparent;
+  stroke: none;
+  pointer-events: all;
+  cursor: pointer;
+  outline: none;
+}
+.sh-hit[aria-disabled="true"] { cursor: default; }
+.sh-hit:focus-visible {
+  stroke: rgba(37, 40, 32, 0.55);
+  stroke-width: 1px;
+  stroke-dasharray: 3 4;
+}

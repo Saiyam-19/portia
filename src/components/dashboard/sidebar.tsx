@@ -11,7 +11,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '
 import { Button } from '@/components/berthwise/ui/button'
 
 export default function Sidebar({ email, name }: { email: string; name: string }) {
-  const history = usePaginatedQuery(api.migration.listConversations, {}, { initialNumItems: 30 })
+  const history = usePaginatedQuery(api.conversations.list, {}, { initialNumItems: 30 })
   const search = useRef<HTMLInputElement>(null)
   const pathname = usePathname()
   const router = useRouter()

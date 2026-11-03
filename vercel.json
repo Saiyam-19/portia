@@ -1,5 +1,17 @@
 {
-  "buildCommand": "npm run build",
+  "installCommand": "bun install --frozen-lockfile",
+  "buildCommand": "bun run build",
   "outputDirectory": ".next",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "functions": {
+    "src/app/api/libfx/route.ts": {
+      "experimentalTriggers": [
+        {
+          "type": "queue/v2beta",
+          "topic": "__libfx_wkf_workflow_session",
+          "retryAfterSeconds": 5
+        }
+      ]
+    }
+  }
 }

@@ -1,104 +1,64 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
-import { memoryOperation, workspaceEnvelope, workspaceResult } from "./memoryValidators";
-import {
-  vConversationState,
-  vFormField,
-  vFormStatus,
-  vFormValues,
-  vFinishReason,
-  vModelAlias,
-  vRunStatus,
-} from "./validators";
+import { vConversationState, vForm, vFormResponse, vModelAlias, vSegment, vTurnStatus, vUsage } from "./validators";
 
 export default defineSchema({
-  memoryNamespaces: defineTable({
-    ownerId: v.string(), epoch: v.number(), revision: v.number(), fence: v.number(),
-    nextSequence: v.number(), appliedSequence: v.number(), blockedThrough: v.number(),
-    appliedIndex: v.array(v.object({key:v.string(),hash:v.string(),sources:v.array(v.string())})),
-    factIndex: v.array(v.object({key:v.string(),hash:v.string(),sources:v.array(v.string())})),
-    snapshotId: v.optional(v.id("memorySnapshots")),
-    lease: v.optional(v.object({token:v.string(),fence:v.number(),expiresAt:v.number(),through:v.number()})),
-  }).index("by_owner",["ownerId"]),
-  memorySnapshots: defineTable({namespaceId:v.id("memoryNamespaces"),image:v.string()}).index("by_namespace",["namespaceId"]),
-  memoryOperations: defineTable({
-    namespaceId:v.id("memoryNamespaces"),requestId:v.string(),hash:v.string(),sequence:v.number(),epoch:v.number(),
-    status:v.union(v.literal("pending"),v.literal("done")),operation:v.optional(memoryOperation),workspace:v.optional(workspaceEnvelope),
-  }).index("by_namespace_and_request",["namespaceId","requestId"]).index("by_namespace_and_status_and_sequence",["namespaceId","status","sequence"]),
-  workspaceReceipts: defineTable({
-    ownerId:v.string(),runId:v.id("migrationRuns"),conversationId:v.id("migrationConversations"),
-    toolCallId:v.string(),commandHash:v.string(),payloadHash:v.string(),epoch:v.number(),sequence:v.optional(v.number()),
-    status:v.union(v.literal("pending"),v.literal("done"),v.literal("invalidated")),result:v.optional(workspaceResult),
-  }).index("by_run_and_tool_call",["runId","toolCallId"]).index("by_run",["runId"])
-    .index("by_conversation",["conversationId"]).index("by_owner_and_status_and_epoch",["ownerId","status","epoch"]),
-  memoryNoteReceipts: defineTable({ownerId:v.string(),conversationId:v.id("migrationConversations"),requestId:v.string(),hash:v.string(),revision:v.number()})
-    .index("by_owner_and_request",["ownerId","requestId"]).index("by_owner",["ownerId"]).index("by_conversation",["conversationId"]),
-  memoryScratchpads: defineTable({
-    ownerId:v.string(),conversationId:v.id("migrationConversations"),epoch:v.number(),revision:v.number(),
-    markdown:v.string(),requestId:v.string(),hash:v.string(),updatedAt:v.number(),
-  }).index("by_conversation",["conversationId"]).index("by_owner_and_epoch",["ownerId","epoch"]),
-
-  requestBudgets: defineTable({ ownerId: v.string(), kind: v.string(), timestamps: v.array(v.number()) }).index("by_owner_and_kind", ["ownerId", "kind"]),
-
-  migrationConversations: defineTable({
+  conversations: defineTable({
     ownerId: v.string(),
     title: v.string(),
     pinned: v.optional(v.boolean()),
-    agentThreadId: v.string(),
-    revision: v.number(),
-    nextFence: v.number(),
+    modelAlias: vModelAlias,
+    /** libfx session holding the model-facing history; set once its first prompt is accepted. */
+    fxSessionId: v.optional(v.string()),
     state: vConversationState,
-    activeRunId: v.optional(v.id("migrationRuns")),
-    pendingFormId: v.optional(v.id("migrationForms")),
-    lastError: v.optional(v.string()),
+    activeTurnId: v.optional(v.id("turns")),
+    pendingForm: v.optional(vForm),
+    nextOrder: v.number(),
+    /** Memory files (path → content hash) this conversation's model context already contains. */
+    memorySeen: v.array(v.object({ path: v.string(), hash: v.string() })),
+    /** Set after compaction or a failed prompt: the next turn carries a full memory snapshot. */
+    memoryRefresh: v.boolean(),
     updatedAt: v.number(),
   })
     .index("by_owner_and_updated_at", ["ownerId", "updatedAt"])
-    .index("by_owner_and_state", ["ownerId", "state"]),
+    .index("by_fx_session", ["fxSessionId"]),
 
-  migrationRuns: defineTable({
-    conversationId: v.id("migrationConversations"),
+  turns: defineTable({
+    conversationId: v.id("conversations"),
     ownerId: v.string(),
     requestId: v.string(),
-    payloadHash: v.string(),
-    modelAlias: vModelAlias,
-    fence: v.number(),
-    revision: v.number(),
-    status: vRunStatus,
-    leaseExpiresAt: v.number(),
-    promptMessageId: v.string(),
-    promptOrder: v.optional(v.number()),
-    promptStepOrder: v.optional(v.number()),
-    memoryEpoch: v.optional(v.number()),
-    checkpointStep: v.optional(v.number()),
-    checkpointHash: v.optional(v.string()),
-    checkpointHasText: v.optional(v.boolean()),
-    checkpointFinishReason: v.optional(vFinishReason),
-    errorCode: v.optional(v.string()),
+    order: v.number(),
+    prompt: v.string(),
+    formResponse: v.optional(vFormResponse),
+    segments: v.array(vSegment),
+    status: vTurnStatus,
+    error: v.optional(v.string()),
+    usage: v.optional(vUsage),
     startedAt: v.number(),
     updatedAt: v.number(),
   })
-    .index("by_owner_and_request_id", ["ownerId", "requestId"])
-    .index("by_conversation_and_status", ["conversationId", "status"])
-    .index("by_conversation_and_prompt_message", ["conversationId", "promptMessageId"])
-    .index("by_conversation_and_prompt_position", ["conversationId", "promptOrder", "promptStepOrder"])
-    .index("by_owner_and_status", ["ownerId", "status"]),
+    .index("by_conversation_and_order", ["conversationId", "order"])
+    .index("by_owner_and_request", ["ownerId", "requestId"]),
 
-  migrationForms: defineTable({
-    conversationId: v.id("migrationConversations"),
+  /** Long-term, cross-conversation memory: small markdown files the agent sees under /memories. */
+  memories: defineTable({
     ownerId: v.string(),
-    runId: v.id("migrationRuns"),
-    fence: v.number(),
-    toolCallId: v.string(),
-    title: v.string(),
-    description: v.optional(v.string()),
-    fields: v.array(vFormField),
-    status: vFormStatus,
-    values: v.optional(vFormValues),
-    note: v.optional(v.string()),
-    createdAt: v.number(),
-    resolvedAt: v.optional(v.number()),
-  })
-    .index("by_conversation_and_status", ["conversationId", "status"])
-    .index("by_conversation_and_tool_call_id", ["conversationId", "toolCallId"]),
+    path: v.string(),
+    content: v.string(),
+    hash: v.string(),
+    conversationId: v.optional(v.id("conversations")),
+    updatedAt: v.number(),
+  }).index("by_owner_and_path", ["ownerId", "path"]),
+  memoryHeads: defineTable({ ownerId: v.string(), version: v.number() }).index("by_owner", ["ownerId"]),
+
+  /** Per-conversation working notes (/notes/current.md); they anchor long tasks across compaction. */
+  notes: defineTable({
+    conversationId: v.id("conversations"),
+    ownerId: v.string(),
+    content: v.string(),
+    updatedAt: v.number(),
+  }).index("by_conversation", ["conversationId"]),
+
+  requestBudgets: defineTable({ ownerId: v.string(), kind: v.string(), timestamps: v.array(v.number()) })
+    .index("by_owner_and_kind", ["ownerId", "kind"]),
 });
