@@ -1,0 +1,3 @@
+# Preserve exact tariff bytes: the manifest hashes mixed original line endings.
+data/ports/**/*.md -text
+backend/ports/**/*.md -text

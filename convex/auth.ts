@@ -8,11 +8,7 @@ import { components } from "./_generated/api";
 import type { DataModel } from "./_generated/dataModel";
 import { query } from "./_generated/server";
 import authConfig from "./auth.config";
-import {
-  isMigrationDevEnabled,
-  isAllowedEmail,
-  basicAuthEnabled,
-} from "./lib/migrationGate";
+import { basicAuthEnabled, hasServerSecret, isAllowedEmail, portiaEnabled } from "./lib/gate";
 
 const AUTH_BASE_PATH = "/api/auth";
 const COOKIE_PREFIX = "portia-migration";
@@ -21,28 +17,18 @@ const siteUrl = process.env.SITE_URL;
 export const authComponent = createClient<DataModel>(components.betterAuth);
 
 function assertAuthRequestAllowed(path: string, email: unknown): void {
-  if (!isMigrationDevEnabled()) {
+  if (!portiaEnabled()) {
     throw new APIError("SERVICE_UNAVAILABLE", {
-      message: "Migration development preview is disabled.",
+      message: "Portia is disabled.",
     });
   }
   if (path !== "/sign-up/email" && path !== "/sign-in/email") return;
   const normalized = typeof email === "string" ? email.trim().toLowerCase() : "";
   if (!normalized || !isAllowedEmail(normalized)) {
     throw new APIError("FORBIDDEN", {
-      message: "This account is not allowed in the migration preview.",
+      message: "This account is not allowed.",
     });
   }
-}
-
-function hasProvisioningSecret(supplied: string | null): boolean {
-  const expected = process.env.PORTIA_SERVER_SECRET ?? "";
-  if (expected.length < 32 || supplied?.length !== expected.length) return false;
-  let mismatch = 0;
-  for (let index = 0; index < expected.length; index += 1) {
-    mismatch |= expected.charCodeAt(index) ^ supplied.charCodeAt(index);
-  }
-  return mismatch === 0;
 }
 
 export const createAuthOptions = (ctx: GenericCtx<DataModel>) =>
@@ -65,7 +51,7 @@ export const createAuthOptions = (ctx: GenericCtx<DataModel>) =>
         assertAuthRequestAllowed(hookCtx.path, hookCtx.body?.email);
         if (
           hookCtx.path === "/sign-up/email" && !basicAuthEnabled() &&
-          !hasProvisioningSecret(hookCtx.headers?.get("x-portia-provision-secret") ?? null)
+          !hasServerSecret(hookCtx.headers?.get("x-portia-provision-secret") ?? null)
         ) {
           throw new APIError("FORBIDDEN", {
             message: "Account provisioning is restricted.",
@@ -94,7 +80,7 @@ export const getCurrentUser = query({
   args: {},
   returns: currentUserValidator,
   handler: async (ctx) => {
-    if (!isMigrationDevEnabled()) return null;
+    if (!portiaEnabled()) return null;
     const user = await authComponent.safeGetAuthUser(ctx);
     if (!user || !isAllowedEmail(user.email)) return null;
     return { id: user._id, email: user.email, name: user.name };

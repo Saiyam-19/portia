@@ -8,14 +8,14 @@
  * @module
  */
 
+import type * as agent from "../agent.js";
 import type * as auth from "../auth.js";
+import type * as conversations from "../conversations.js";
 import type * as http from "../http.js";
-import type * as lib_memoryLifecycle from "../lib/memoryLifecycle.js";
-import type * as lib_migrationGate from "../lib/migrationGate.js";
+import type * as lib_chat from "../lib/chat.js";
+import type * as lib_gate from "../lib/gate.js";
+import type * as lib_memory from "../lib/memory.js";
 import type * as memory from "../memory.js";
-import type * as memoryHttp from "../memoryHttp.js";
-import type * as memoryValidators from "../memoryValidators.js";
-import type * as migration from "../migration.js";
 import type * as validators from "../validators.js";
 
 import type {
@@ -25,14 +25,14 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  agent: typeof agent;
   auth: typeof auth;
+  conversations: typeof conversations;
   http: typeof http;
-  "lib/memoryLifecycle": typeof lib_memoryLifecycle;
-  "lib/migrationGate": typeof lib_migrationGate;
+  "lib/chat": typeof lib_chat;
+  "lib/gate": typeof lib_gate;
+  "lib/memory": typeof lib_memory;
   memory: typeof memory;
-  memoryHttp: typeof memoryHttp;
-  memoryValidators: typeof memoryValidators;
-  migration: typeof migration;
   validators: typeof validators;
 }>;
 
@@ -63,6 +63,5 @@ export declare const internal: FilterApi<
 >;
 
 export declare const components: {
-  agent: import("@convex-dev/agent/_generated/component.js").ComponentApi<"agent">;
   betterAuth: import("@convex-dev/better-auth/_generated/component.js").ComponentApi<"betterAuth">;
 };

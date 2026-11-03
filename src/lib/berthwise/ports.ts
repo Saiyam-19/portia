@@ -1,0 +1,18 @@
+export const PORTS = [
+  { slug: 'mumbai', name: 'Mumbai Port Authority' },
+  { slug: 'jawahar-nehru-port-authority-jnpa', name: 'JNPA' },
+  { slug: 'mumbai-container-terminal', name: 'Mumbai Container Terminal' },
+  { slug: 'mumbai-cruise-terminal', name: 'Mumbai Cruise Terminal' },
+  { slug: 'nhava-sheva-international-container-terminal', name: 'NSICT' },
+  { slug: 'nhava-sheva-gateway-terminal', name: 'Nhava Sheva Gateway Terminal' },
+  { slug: 'nhava-sheva-freeport-terminal', name: 'Nhava Sheva Freeport Terminal' },
+  { slug: 'gateway-terminals-india-pvt-ltd', name: 'Gateway Terminals India' },
+  { slug: 'jsw-jnpt-liquid-terminal', name: 'JSW JNPT Liquid Terminal' },
+  { slug: 'bpcl-cargo-jetty', name: 'BPCL Cargo Jetty' },
+  { slug: 'bpcl-liquid-cargo-jetty', name: 'BPCL Liquid Cargo Jetty' },
+  { slug: 'konkan-lng-ltd', name: 'Konkan LNG' },
+  { slug: 'jaigarh', name: 'Jaigarh' },
+  { slug: 'redi', name: 'Redi' },
+  { slug: 'ranpar-finolex', name: 'Ranpar (Finolex)' },
+  { slug: 'ictpl', name: 'ICTPL' },
+]

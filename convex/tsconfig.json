@@ -11,6 +11,8 @@
     "jsx": "react-jsx",
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
+    /* TypeScript 6+ no longer includes every @types package by default. */
+    "types": ["node"],
 
     /* These compiler options are required by Convex */
     "target": "ESNext",

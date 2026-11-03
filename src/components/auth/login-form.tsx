@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { migrationAuthClient } from '@/lib/migration/auth-client'
+import { authClient } from '@/lib/auth/client'
 import { Anchor, Eye, EyeOff } from 'lucide-react'
 
 export default function LoginForm({ basicSignup }: { basicSignup: boolean }) {
@@ -30,13 +30,13 @@ export default function LoginForm({ basicSignup }: { basicSignup: boolean }) {
 
     try {
       if (tab === 'signin') {
-        const { error } = await migrationAuthClient.signIn.email({ email, password });
+        const { error } = await authClient.signIn.email({ email, password });
         if (error) setError(error.message ?? 'Sign in failed.');
         // Reset cached Better Auth/Convex state from the previous signed-out user.
         else { window.location.assign('/dashboard'); }
       } else {
         if (!basicSignup) { setError('Account creation is not enabled for this preview.'); return; }
-        const { error } = await migrationAuthClient.signUp.email({ email, password, name: email.split('@')[0] });
+        const { error } = await authClient.signUp.email({ email, password, name: email.split('@')[0] });
         if (error) setError(error.message ?? 'Account creation failed.');
         else { window.location.assign('/dashboard'); }
       }
@@ -51,7 +51,7 @@ export default function LoginForm({ basicSignup }: { basicSignup: boolean }) {
         <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center">
           <Anchor className="w-5 h-5 text-white" />
         </div>
-        <span className="text-2xl font-bold text-slate-900 tracking-tight">plisto</span>
+        <span className="text-2xl font-bold text-slate-900 tracking-tight">Berthwise</span>
       </Link>
 
       <div className="w-full max-w-md">

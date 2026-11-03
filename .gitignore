@@ -34,6 +34,7 @@ yarn-error.log*
 .env*
 !.env.example
 .local/
+.firecrawl/
 
 # local assistant configuration and delivery evidence
 .claude/
@@ -45,3 +46,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+AGENTS.override.md
+
+# libfx local session store (development durability)
+.fx/

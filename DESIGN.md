@@ -120,7 +120,7 @@ Official shadcn/ui `radix-nova` primitives, Geist, Lucide icons, and semantic CS
 - Compact controls around generous reading space.
 - Visible, accessible states for loading, errors, forms, and keyboard interaction.
 
-Authority: `src/app/globals.css`, `components.json`, and the current dashboard/chat components. Product constraints live in `PRODUCT.md`; surface direction lives in `.impeccable/chat-workspace.md`. Local visual evidence: `.local/ui-refactor/{desktop-light-welcome,desktop-dark-welcome,mobile-light-welcome,mobile-dark-conversation}.png`. These screenshots contain synthetic UI fixtures and do not establish live calculation accuracy.
+Authority: `src/app/(app)/globals.css`, `components.json`, and the current dashboard/chat components. Product constraints live in `PRODUCT.md`; surface direction lives in `.impeccable/chat-workspace.md`. Local visual evidence: `.local/ui-refactor/{desktop-light-welcome,desktop-dark-welcome,mobile-light-welcome,mobile-dark-conversation}.png`. These screenshots contain synthetic UI fixtures and do not establish live calculation accuracy.
 
 ## Colors
 
