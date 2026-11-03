@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   try {
     const target = await authHelpers().fetchAuthQuery(api.conversations.streamTarget, { conversationId: parsed.data.conversationId as Id<"conversations"> });
     if (!target) return new Response(null, { status: 204 });
-    return ndjson(berthwiseAgent().reconnect(target));
+    return ndjson((await berthwiseAgent()).reconnect(target));
   } catch (error) {
     return errorResponse(error);
   }

@@ -12,6 +12,6 @@ export const maxDuration = 300;
 const handle = wakeHandler();
 
 export async function POST(request: Request) {
-  berthwiseAgent();
+  await berthwiseAgent();
   return handle(request);
 }

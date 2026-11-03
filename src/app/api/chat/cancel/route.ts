@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   if (!parsed.success) return json({ error: "Invalid request." }, 400);
   try {
     const cancelled = await authHelpers().fetchAuthMutation(api.conversations.requestCancel, { conversationId: parsed.data.conversationId as Id<"conversations"> });
-    if (cancelled?.fxSessionId) await berthwiseAgent().cancel(cancelled.fxSessionId);
+    if (cancelled?.fxSessionId) await (await berthwiseAgent()).cancel(cancelled.fxSessionId);
     return json({ cancelled: Boolean(cancelled) });
   } catch (error) {
     return errorResponse(error);
