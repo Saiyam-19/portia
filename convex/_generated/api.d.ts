@@ -15,7 +15,6 @@ import type * as http from "../http.js";
 import type * as lib_chat from "../lib/chat.js";
 import type * as lib_gate from "../lib/gate.js";
 import type * as lib_memory from "../lib/memory.js";
-import type * as memory from "../memory.js";
 import type * as validators from "../validators.js";
 
 import type {
@@ -32,7 +31,6 @@ declare const fullApi: ApiFromModules<{
   "lib/chat": typeof lib_chat;
   "lib/gate": typeof lib_gate;
   "lib/memory": typeof lib_memory;
-  memory: typeof memory;
   validators: typeof validators;
 }>;
 

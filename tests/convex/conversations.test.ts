@@ -87,7 +87,7 @@ it("rejects a stale memory write and invalid memory files", async () => {
   expect(await commit(t, conversationId, ownerId, 0, [{ path: "profile.md", content: "b" }])).toMatchObject({ ok: false });
   expect(await commit(t, conversationId, ownerId, 1, [{ path: "Bad.txt", content: "b" }])).toMatchObject({ ok: false });
   expect(await commit(t, conversationId, ownerId, 1, [{ path: "big.md", content: "x".repeat(5000) }])).toMatchObject({ ok: false });
-  expect((await client.query(api.memory.view, {})).files).toMatchObject([{ path: "profile.md", content: "a" }]);
+  expect(await t.run(ctx => ctx.db.query("memories").collect())).toMatchObject([{ ownerId, path: "profile.md", content: "a" }]);
 });
 
 it("refuses server functions without the secret and keeps owners apart", async () => {

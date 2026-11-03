@@ -1,5 +1,5 @@
 /** Limits and helpers shared by the Convex memory store and the agent workspace. */
-export const MEMORY_LIMITS = {
+const MEMORY_LIMITS = {
   files: 32,
   fileBytes: 4_096,
   totalBytes: 32_768,

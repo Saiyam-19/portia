@@ -29,7 +29,7 @@ Memory is a set of small markdown files the agent edits with bash, not text past
 - `/notes/current.md` holds the conversation's working notes and survives compaction.
 - `/work` and `/tmp` are scratch space.
 
-After each bash call the workspace diffs `/memories` and `/notes` and commits them to Convex with a version check, so concurrent conversations cannot overwrite each other; a rejected write is rolled back and reported to the model. Each conversation records which memory version it has seen, so a turn carries a full snapshot, only what changed, or nothing. The Memory panel shows saved files and lets the user forget one or all of them.
+After each bash call the workspace diffs `/memories` and `/notes` and commits them to Convex with a version check, so concurrent conversations cannot overwrite each other; a rejected write is rolled back and reported to the model. Each conversation records which memory version it has seen, so a turn carries a full snapshot, only what changed, or nothing. Memory has no UI; to change or clear it, the user asks Berthwise.
 
 ## Authentication and boundaries
 
