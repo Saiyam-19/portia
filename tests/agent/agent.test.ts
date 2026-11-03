@@ -9,13 +9,13 @@ import { FakeStore } from "./fake-store";
 const agents: BerthwiseAgent[] = [];
 let agentCount = 0;
 
-function setup(env: Record<string, string> = {}) {
+function setup(env: Record<string, string> = {}, upstream: typeof fetch | ReturnType<typeof createMockFetch> = createMockFetch()) {
   const store = new FakeStore();
   const pending: Promise<unknown>[] = [];
   const agent = new BerthwiseAgent({
     store,
     durability: memory(),
-    upstream: createMockFetch(),
+    upstream,
     waitUntil: work => { pending.push(work); },
     env: { PORTIA_MODEL_MODE: "mock", ...env },
     log: () => undefined,
@@ -61,6 +61,20 @@ describe("BerthwiseAgent with the mock model", () => {
     expect(finished?.status).toBe("completed");
     expect(finished?.segments[0]).toMatchObject({ type: "text" });
     expect(finished?.usage?.modelCalls).toBe(1);
+  });
+
+  it("retries a provider that is rate-limited before it answers", async () => {
+    const mock = createMockFetch();
+    let calls = 0;
+    const flaky: typeof mock = async (input, init) => {
+      if (++calls > 1) return mock(input, init);
+      const error = { id: "gen-x", provider: "Azure", choices: [], error: { code: 429, message: "rate-limited upstream" } };
+      return new Response(`: OPENROUTER PROCESSING\n\ndata: ${JSON.stringify(error)}\n\n`, { headers: { "content-type": "text/event-stream" } });
+    };
+    const { events, finished } = await turn(setup({}, flaky), { conversationId: "c-retry", message: "hello there" });
+    expect(calls).toBe(2);
+    expect(events.at(-1)).toEqual({ type: "end", status: "completed" });
+    expect(finished?.status).toBe("completed");
   });
 
   it("runs bash against the bundled tariffs", async () => {

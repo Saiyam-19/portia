@@ -68,7 +68,11 @@ export function shapeRequest(body: ChatBody): ChatBody {
     session_id: stickyKey(body.messages),
     reasoning: { effort: "low", exclude: true },
     usage: { include: true },
-    provider: { allow_fallbacks: false, require_parameters: true, data_collection: "deny", zdr: true },
+    // Fallbacks let OpenRouter move a request that fails before any output (a provider's
+    // rate limit or outage) to another provider that doesn't train on prompts; while the
+    // cache is warm a conversation still stays with the provider it started on. Zero data
+    // retention is not required: it left one provider's endpoints, sharing one rate limit.
+    provider: { allow_fallbacks: true, require_parameters: true, data_collection: "deny" },
   };
 }
 
@@ -113,10 +117,69 @@ function observeUsage(response: Response, ledger: UsageLedger): Response {
   return new Response(body, { status: response.status, statusText: response.statusText, headers: response.headers });
 }
 
+type StreamError = { code?: unknown; message?: unknown; metadata?: unknown };
+
+/** The first complete `data:` event of an SSE text: its JSON, `null` for `[DONE]` or non-JSON, `undefined` before one arrives. */
+function firstDataEvent(text: string): Record<string, unknown> | null | undefined {
+  const lines = text.split("\n");
+  lines.pop(); // possibly incomplete
+  const line = lines.find(item => item.startsWith("data:"));
+  if (line === undefined) return undefined;
+  const data = line.slice(5).trim();
+  if (data === "[DONE]") return null;
+  try { return JSON.parse(data) as Record<string, unknown>; } catch { return null; }
+}
+
+/**
+ * OpenRouter answers 200 before the provider produces anything, so when every
+ * provider fails first (all rate-limited or down) the error arrives as an SSE
+ * event, which libfx treats as final. Holding the response until its first data
+ * event lets such an error go back as its HTTP status instead, which libfx retries
+ * with backoff. Keep-alive comments before it are held too; anything after the first
+ * data event streams through untouched.
+ */
+async function surfaceEarlyError(response: Response): Promise<Response> {
+  if (!response.ok || !response.body || !response.headers.get("content-type")?.includes("text/event-stream")) return response;
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  const held: Uint8Array[] = [];
+  let text = "";
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    held.push(value);
+    text += decoder.decode(value, { stream: true });
+    const event = firstDataEvent(text);
+    if (event === undefined) continue;
+    const error = event?.error as StreamError | undefined;
+    const output = (event?.choices as Array<{ delta?: { content?: unknown; tool_calls?: unknown } }> | undefined)?.some(choice => choice.delta?.content || choice.delta?.tool_calls);
+    if (error && !output) {
+      await reader.cancel().catch(() => undefined);
+      const status = typeof error.code === "number" && error.code >= 400 && error.code < 600 ? error.code : 502;
+      const headers = new Headers({ "content-type": "application/json" });
+      const retryAfter = response.headers.get("retry-after");
+      if (retryAfter) headers.set("retry-after", retryAfter);
+      return new Response(JSON.stringify({ error }), { status, headers });
+    }
+    break;
+  }
+  const body = new ReadableStream<Uint8Array>({
+    start(controller) { for (const bytes of held) controller.enqueue(bytes); },
+    async pull(controller) {
+      const { value, done } = await reader.read();
+      if (done) controller.close();
+      else controller.enqueue(value);
+    },
+    cancel(reason) { return reader.cancel(reason); },
+  });
+  return new Response(body, { status: response.status, statusText: response.statusText, headers: response.headers });
+}
+
 /**
  * The fetch libfx uses for model requests. It shapes each chat completion for
  * OpenRouter (sticky cache routing, privacy-preserving provider preferences,
  * cache breakpoints) and hands it to `upstream`: the real network, or the mock.
+ * A provider error that arrives before any output becomes an HTTP error libfx retries.
  */
 export function createTransport(options: { upstream: Fetch; ledger: UsageLedger }): Fetch {
   return async (input, init) => {
@@ -124,7 +187,7 @@ export function createTransport(options: { upstream: Fetch; ledger: UsageLedger 
     const raw = typeof init?.body === "string" ? init.body : init?.body instanceof Uint8Array ? new TextDecoder().decode(init.body) : null;
     if (!url.endsWith("/chat/completions") || raw === null) return options.upstream(input, init);
     const body = shapeRequest(JSON.parse(raw) as ChatBody);
-    const response = await options.upstream(url, { ...init, body: JSON.stringify(body) });
+    const response = await surfaceEarlyError(await options.upstream(url, { ...init, body: JSON.stringify(body) }));
     return observeUsage(response, options.ledger);
   };
 }

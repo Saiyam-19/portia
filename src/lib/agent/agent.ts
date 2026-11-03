@@ -1,4 +1,4 @@
-import { createFxAgent, type FxHookEvent } from "libfx/node";
+import { createFxAgent, type FxAgentEvent, type FxHookEvent } from "libfx/node";
 import type { PublicEvent } from "../chat/contracts";
 import { createMockFetch } from "./mock-model";
 import { customProvider, MODEL_IDS, modelMode, type ModelMode } from "./models";
@@ -16,6 +16,11 @@ type Agent = ReturnType<typeof createFxAgent>;
 export const MAX_MODEL_CALLS = 24;
 /** How long a reconnecting reader waits for a line of its turn before giving up. */
 const RECONNECT_IDLE_MS = 30_000;
+/** libfx diagnostics worth a server log line: retries, failures, takeovers and deadlines. */
+const LOGGED_DIAGNOSTICS = new Set<FxAgentEvent["type"]>([
+  "transport.retry", "transport.error", "journal.error", "checkpoint.error",
+  "session.error", "session.fenced", "session.refused", "session.deadline", "ui.error",
+]);
 
 export type Claim = {
   turnId: string;
@@ -117,6 +122,9 @@ export class BerthwiseAgent {
       credentials: () => ({ apiKey: this.mode === "mock" ? "mock" : env.OPENROUTER_API_KEY! }),
       fetch: createTransport({ upstream, ledger: this.ledger }),
       ...(deps.durability ? { durability: deps.durability } : {}),
+      onEvent: (event: FxAgentEvent) => {
+        if (LOGGED_DIAGNOSTICS.has(event.type)) this.log(`libfx ${event.type}`, event);
+      },
       hooks: {
         onEvent: event => this.observe(event),
         onError: error => this.log("hook failed", error),
@@ -146,6 +154,9 @@ export class BerthwiseAgent {
         return;
       }
       case "model.end": {
+        if (event.data.error && !event.data.cancelled) {
+          this.log("model call failed", { sessionId: event.sessionId, turnId, provider: event.data.provider, finishReason: event.data.finishReason, error: event.data.error });
+        }
         if (!turnId) return;
         const recorded = this.ledger.take(event.data.generationId);
         const reported = event.data.usage;
@@ -161,6 +172,7 @@ export class BerthwiseAgent {
         if (!turnId) return;
         this.modelCalls.delete(turnId);
         const outcome = event.data.outcome;
+        if (event.data.error) this.log(`turn ${outcome}`, { sessionId: event.sessionId, turnId, error: event.data.error });
         // A turn this process ran without a reader (a queue delivery, a resumed turn) still needs its projection closed.
         if (!this.folding.has(turnId) && outcome !== "yielded" && outcome !== "paused" && outcome !== "fenced") {
           this.waitUntil(this.reconcile(event.sessionId, turnId));
