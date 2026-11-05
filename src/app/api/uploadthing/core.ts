@@ -21,15 +21,17 @@ export const fileRouter = {
         if (error) throw new UploadThingError(error);
       }
       const target = await authHelpers().fetchAuthQuery(api.artifacts.uploadTarget, input.artifactId ? { artifactId: input.artifactId as Id<'artifacts'> } : {});
-      const slots = target.artifactId ? [{ artifactId: target.artifactId, expectedRevision: target.expectedRevision }] : await authHelpers().fetchAuthMutation(api.artifacts.reserveUploads, { files: files.map(file => ({ name: file.name, mimeType: file.type, size: file.size })) });
-      return { ownerId: target.ownerId, slots, [UTFiles]: files.map((file, index) => ({ ...file, customId: slots[index].artifactId })) };
+      const targets = target.artifactId ? [{ artifactId: target.artifactId, expectedRevision: target.expectedRevision }] : await authHelpers().fetchAuthMutation(api.artifacts.reserveUploads, { files: files.map(file => ({ name: file.name, mimeType: file.type, size: file.size })) });
+      // UploadThing customIds are unique per object; replacing an artifact must not reuse the original's.
+      const slots = targets.map(slot => ({ ...slot, uploadId: crypto.randomUUID() }));
+      return { ownerId: target.ownerId, slots, [UTFiles]: files.map((file, index) => ({ ...file, customId: slots[index].uploadId })) };
     })
     .onUploadComplete(async ({ metadata, file }) => {
       const { client, secret } = artifactServer();
-      const target = metadata.slots.find(slot => slot.artifactId === file.customId);
+      const target = metadata.slots.find(slot => slot.uploadId === file.customId);
       if (!target) throw new UploadThingError('The upload does not belong to this request.');
       const result = await client.mutation(api.artifacts.registerUpload, {
-        secret, ownerId: metadata.ownerId, ...target, name: file.name, mimeType: file.type, size: file.size, fileKey: file.key,
+        secret, ownerId: metadata.ownerId, artifactId: target.artifactId, expectedRevision: target.expectedRevision, name: file.name, mimeType: file.type, size: file.size, fileKey: file.key,
       });
       if (!result) {
         await deleteStoredFiles([file.key]);
