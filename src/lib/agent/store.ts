@@ -2,6 +2,7 @@ import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
 import type { FormDefinition } from "../chat/contracts";
+import type { MountedArtifact } from '../artifacts/shared';
 
 export type Segment =
   | { type: "text"; text: string }
@@ -19,7 +20,7 @@ export type FinishedTurn = {
   usage?: TurnUsage;
 };
 
-export type WorkspaceState = { version: number; files: Array<{ path: string; content: string }>; notes: string };
+export type WorkspaceState = { version: number; files: Array<{ path: string; content: string }>; notes: string; artifacts?: MountedArtifact[] };
 export type WorkspaceCommit = {
   conversationId: string;
   ownerId: string;
@@ -37,6 +38,7 @@ export interface AgentStore {
   runningTurn(fxSessionId: string): Promise<{ turnId: string; requestId: string } | null>;
   workspaceState(conversationId: string, ownerId: string): Promise<WorkspaceState | null>;
   commitWorkspace(commit: WorkspaceCommit): Promise<{ ok: true; version: number } | { ok: false; reason: string }>;
+  artifactContent?(key: string): Promise<string>;
 }
 
 /** Convex over HTTP, authorized by the server secret: tools and queue workers run without a user session. */
@@ -53,6 +55,10 @@ export function convexStore(options: { convexUrl: string; secret: string }): Age
     async markCompacted(fxSessionId) { await client.mutation(api.agent.markCompacted, { secret, fxSessionId }); },
     async runningTurn(fxSessionId) { return await client.query(api.agent.runningTurn, { secret, fxSessionId }); },
     async workspaceState(id, ownerId) { return await client.query(api.agent.workspaceState, { secret, conversationId: conversationId(id), ownerId }); },
+    async artifactContent(key) {
+      const { readStoredMarkdown } = await import('../artifacts/storage');
+      return readStoredMarkdown(key);
+    },
     async commitWorkspace(commit) {
       return await client.mutation(api.agent.commitWorkspace, { secret, ...commit, conversationId: conversationId(commit.conversationId) });
     },

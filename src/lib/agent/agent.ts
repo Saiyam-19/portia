@@ -7,6 +7,7 @@ import { buildTurnInput, INSTRUCTIONS, type FormReply, type MemoryContext } from
 import type { AgentStore, TurnUsage } from "./store";
 import { createTools, type ToolScope } from "./tools";
 import { createTransport, UsageLedger } from "./transport";
+import type { FilesContext } from '../artifacts/shared';
 
 type Fetch = (input: string | URL | Request, init?: RequestInit) => Promise<Response>;
 type Durability = NonNullable<Parameters<typeof createFxAgent>[0]>["durability"];
@@ -33,6 +34,7 @@ export type Claim = {
   form: FormReply["form"];
   formResponse: FormReply["response"] | null;
   memoryContext: MemoryContext | null;
+  filesContext?: FilesContext | null;
 };
 
 export type AgentDeps = {
@@ -191,6 +193,7 @@ export class BerthwiseAgent {
     const input = buildTurnInput({
       today: new Date().toISOString().slice(0, 10),
       memory: claim.memoryContext,
+      files: claim.filesContext,
       message: claim.message,
       formReply: claim.formResponse ? { form: claim.form, response: claim.formResponse } : null,
     });

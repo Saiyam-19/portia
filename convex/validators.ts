@@ -53,6 +53,8 @@ export const vUsage = v.object({
   cacheWriteTokens: v.number(),
 });
 export const vMemoryFile = v.object({ path: v.string(), content: v.string() });
+export const vArtifactRef = v.object({ id: v.string(), name: v.string(), mimeType: v.string(), size: v.number(), revision: v.number() });
+export const vFilesContext = v.object({ files: v.array(vArtifactRef), removed: v.array(v.string()) });
 /** What a turn's prompt carries about saved memory, chosen atomically with the claim. */
 export const vMemoryContext = v.object({
   kind: v.union(v.literal("full"), v.literal("delta"), v.literal("none")),

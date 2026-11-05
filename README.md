@@ -36,3 +36,35 @@ After each bash call the workspace diffs `/memories` and `/notes` and commits th
 `PORTIA_AUTH_MODE=basic` allows fresh email/password signup (passwords of 8–128 characters, no email verification or recovery); `private` restricts accounts to `PORTIA_ALLOWED_EMAILS`. The session cookie prefix remains `portia-migration` for compatibility. Browsers only ever see Model 1 and Model 2, never provider model identifiers. The agent's Convex functions require the server secret; user functions require a live owner session. libfx has no session-delete API, so deleting a conversation removes its Convex records and drops the reference to its session.
 
 Tariff references in `data/ports` are historical documents, not live tariff feeds.
+
+## Attachments and Artifacts
+
+Users upload from the chat's paperclip, drag/drop or paste, or from
+`/dashboard/artifacts`. The Artifacts page lists, previews, downloads, renames,
+replaces and deletes their files. Saved files can be attached to another chat.
+Uploads belong to the signed-in account; only files attached to a conversation
+are mounted there, as read-only `/files/<artifact-id>.md`. Original files and
+their Markdown copies are public-by-link UploadThing objects; Convex stores ownership,
+status, revisions and turn references. No file contents enter saved memory.
+
+Setup: create an UploadThing Free app with its default public-read access and
+set `UPLOADTHING_TOKEN` in the Next server's `.env.local` and deployment environment.
+Never use a `NEXT_PUBLIC_` variable. Public-by-link storage was explicitly chosen
+for this release: anyone holding an original or text-view URL can read it without
+logging in. App authentication protects management and attachment selection, not
+the object URL. The upload UI discloses this before use. Deploy the new
+Convex functions/schema with the frontend using the existing deployment flow.
+
+PDF, DOCX, XLSX, Markdown, UTF-8 text, CSV, JSON, PNG/JPEG/WebP/GIF, MP3/WAV/M4A/OGG
+are accepted. Limits: 16 MB per original, four files per message, twenty files per
+conversation, 256 KB per Markdown copy, one hundred PDF pages. Text PDFs, Word and
+Excel are extracted locally. Images, audio and scanned PDFs need the existing
+live OpenRouter configuration and a compatible model: one bounded Model 1 call
+creates their reusable text view. Errors remain visible with Retry/Replace;
+partial model output is never marked ready. No paid inference is used in tests.
+
+Attachment changes append stable ids, paths and revisions to new user turns.
+The system prompt and tools stay fixed; complete documents and temporary signed
+URLs are not repeatedly inserted into model history. Before a bash command the
+workspace refreshes changed/deleted mounts. Deleting an artifact removes future
+file access and its storage objects; text already in chat/session history stays.

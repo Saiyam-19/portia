@@ -719,3 +719,8 @@ button:hover .animated-underline::after {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
+
+/* File errors use the current app foreground so both themes retain contrast. */
+.app-root .artifact-error {
+  color: color-mix(in oklch, var(--red) 65%, var(--ink));
+}

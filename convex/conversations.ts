@@ -5,6 +5,9 @@ import type { Doc } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import { claimMemoryContext, consumeBudget, currentOwner, fail, ownedConversation, requireOwner } from "./lib/chat";
 import { vConversationState, vForm, vFormResponse, vMemoryContext, vModelAlias, vSegment, vTurnStatus, vUsage } from "./validators";
+import { vArtifactRef, vFilesContext } from './validators';
+import { artifactRef, ownedArtifact } from './lib/artifacts';
+import { MAX_CONVERSATION_FILES, MAX_TURN_ATTACHMENTS } from '../src/lib/artifacts/shared';
 
 const MAX_MESSAGE_CHARS = 4_000;
 const MAX_VALUE_CHARS = 2_000;
@@ -27,6 +30,7 @@ const turnView = v.object({
   order: v.number(),
   prompt: v.string(),
   formResponse: v.union(vFormResponse, v.null()),
+  attachments: v.array(vArtifactRef),
   segments: v.array(vSegment),
   status: vTurnStatus,
   error: v.union(v.string(), v.null()),
@@ -97,6 +101,7 @@ export const turns = query({
         order: turn.order,
         prompt: turn.prompt,
         formResponse: turn.formResponse ?? null,
+        attachments: turn.attachments ?? [],
         segments: turn.segments,
         status: turn.status,
         error: turn.error ?? null,
@@ -171,6 +176,7 @@ const claimResult = v.object({
   form: v.union(vForm, v.null()),
   formResponse: v.union(vFormResponse, v.null()),
   memoryContext: v.union(vMemoryContext, v.null()),
+  filesContext: v.union(vFilesContext, v.null()),
 });
 
 /**
@@ -185,6 +191,7 @@ export const claimTurn = mutation({
     requestId: v.string(),
     modelAlias: vModelAlias,
     message: v.optional(v.string()),
+    attachmentIds: v.optional(v.array(v.id('artifacts'))),
     formResponse: v.optional(v.object({
       toolCallId: v.string(),
       values: v.record(v.string(), v.string()),
@@ -203,12 +210,25 @@ export const claimTurn = mutation({
       return {
         replayed: true, turnId: prior._id, requestId: prior.requestId, conversationId: conversation._id, ownerId,
         fxSessionId: conversation.fxSessionId ?? null, modelAlias: conversation.modelAlias, status: prior.status,
-        message: null, form: null, formResponse: prior.formResponse ?? null, memoryContext: null,
+        message: null, form: null, formResponse: prior.formResponse ?? null, memoryContext: null, filesContext: null,
       };
     }
     if (conversation.state === "running") fail("BUSY", "A response is still running in this conversation.");
 
-    const message = args.message?.trim() || undefined;
+    const attachmentIds = [...new Set(args.attachmentIds ?? [])];
+    if (attachmentIds.length > MAX_TURN_ATTACHMENTS) fail('INVALID_INPUT', `Attach at most ${MAX_TURN_ATTACHMENTS} files per message.`);
+    const attachments = await Promise.all(attachmentIds.map(id => ownedArtifact(ctx, id, ownerId)));
+    if (attachments.some(file => file.status !== 'ready' || !file.markdownKey)) fail('INVALID_INPUT', 'Wait until attached files are ready. Retry failed files from Artifacts.');
+    const artifactIds = [...new Set([...(conversation.artifactIds ?? []), ...attachmentIds])];
+    const available = (await Promise.all(artifactIds.map(id => ctx.db.get(id)))).filter(file => file && file.ownerId === ownerId && file.status !== 'deleting');
+    if (available.length > MAX_CONVERSATION_FILES) fail('INVALID_INPUT', `Use at most ${MAX_CONVERSATION_FILES} files per conversation. Start a new chat for more files.`);
+    const ready = available.filter(file => file!.status === 'ready' && file!.markdownKey).map(file => artifactRef(file!));
+    const seen = conversation.artifactSeen ?? [];
+    const full = conversation.memoryRefresh;
+    const changed = ready.filter(file => full || !seen.some(old => old.id === file.id && old.revision === file.revision && old.name === file.name));
+    const removed = seen.filter(old => !ready.some(file => file.id === old.id)).map(file => file.id);
+    const filesContext = changed.length || removed.length ? { files: changed, removed } : null;
+    const message = args.message?.trim() || (attachments.length ? 'Please review the attached files.' : undefined);
     if (message && message.length > MAX_MESSAGE_CHARS) fail("INVALID_INPUT", `Messages are limited to ${MAX_MESSAGE_CHARS} characters.`);
     const form = conversation.pendingForm ?? null;
     let formResponse: Doc<"turns">["formResponse"];
@@ -243,6 +263,7 @@ export const claimTurn = mutation({
     const turnId = await ctx.db.insert("turns", {
       conversationId: conversation._id, ownerId, requestId: args.requestId, order: conversation.nextOrder,
       prompt, ...(formResponse ? { formResponse } : {}), segments: [], status: "running", startedAt: now, updatedAt: now,
+      ...(attachments.length ? { attachments: attachments.map(artifactRef) } : {}),
     });
     await ctx.db.patch(conversation._id, {
       state: "running",
@@ -251,13 +272,15 @@ export const claimTurn = mutation({
       modelAlias: args.modelAlias,
       nextOrder: conversation.nextOrder + 1,
       updatedAt: now,
+      artifactIds: available.map(file => file!._id),
+      artifactSeen: ready,
       ...(conversation.nextOrder === 0 && message ? { title: titleFrom(message) } : {}),
     });
     await ctx.scheduler.runAfter(TURN_EXPIRY_MS, internal.agent.expireTurn, { turnId });
     return {
       replayed: false, turnId, requestId: args.requestId, conversationId: conversation._id, ownerId,
       fxSessionId: conversation.fxSessionId ?? null, modelAlias: args.modelAlias, status: "running" as const,
-      message: message ?? null, form: formResponse ? form : null, formResponse: formResponse ?? null, memoryContext,
+      message: message ?? null, form: formResponse ? form : null, formResponse: formResponse ?? null, memoryContext, filesContext,
     };
   },
 });

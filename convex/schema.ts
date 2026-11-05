@@ -1,6 +1,6 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
-import { vConversationState, vForm, vFormResponse, vModelAlias, vSegment, vTurnStatus, vUsage } from "./validators";
+import { vArtifactRef, vConversationState, vForm, vFormResponse, vModelAlias, vSegment, vTurnStatus, vUsage } from "./validators";
 
 export default defineSchema({
   conversations: defineTable({
@@ -18,6 +18,8 @@ export default defineSchema({
     memorySeen: v.array(v.object({ path: v.string(), hash: v.string() })),
     /** Set after compaction or a failed prompt: the next turn carries a full memory snapshot. */
     memoryRefresh: v.boolean(),
+    artifactIds: v.optional(v.array(v.id("artifacts"))),
+    artifactSeen: v.optional(v.array(vArtifactRef)),
     updatedAt: v.number(),
   })
     .index("by_owner_and_updated_at", ["ownerId", "updatedAt"])
@@ -30,6 +32,7 @@ export default defineSchema({
     order: v.number(),
     prompt: v.string(),
     formResponse: v.optional(vFormResponse),
+    attachments: v.optional(v.array(vArtifactRef)),
     segments: v.array(vSegment),
     status: vTurnStatus,
     error: v.optional(v.string()),
@@ -61,4 +64,16 @@ export default defineSchema({
 
   requestBudgets: defineTable({ ownerId: v.string(), kind: v.string(), timestamps: v.array(v.number()) })
     .index("by_owner_and_kind", ["ownerId", "kind"]),
+
+  artifacts: defineTable({
+    ownerId: v.string(), name: v.string(), sourceName: v.optional(v.string()), mimeType: v.string(), size: v.number(),
+    fileKey: v.string(), markdownKey: v.optional(v.string()),
+    retiredKeys: v.optional(v.array(v.string())),
+    revision: v.number(),
+    status: v.union(v.literal('uploading'), v.literal("processing"), v.literal("ready"), v.literal("error"), v.literal("deleting")),
+    error: v.optional(v.string()), createdAt: v.number(), updatedAt: v.number(),
+  })
+    .index("by_owner_and_updated_at", ["ownerId", "updatedAt"])
+    .index("by_file_key", ["fileKey"])
+    .searchIndex("by_name", { searchField: "name", filterFields: ["ownerId"] }),
 });
