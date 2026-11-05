@@ -53,7 +53,7 @@ export default function ArtifactsView() {
     finally { if (!controller.signal.aborted) setPreviewLoading(false) }
   }
   const requestAction = async (file: ArtifactItem, method: 'DELETE' | 'POST') => {
-    setBusyId(file.id); setError('')
+    setBusyId(file.id); setError(''); upload.setError('')
     try {
       const response = await fetch(`/api/artifacts/${file.id}`, { method })
       if (!response.ok) throw new Error(await responseError(response, 'Could not update the file. Try again.'))

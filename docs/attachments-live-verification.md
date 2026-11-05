@@ -27,6 +27,6 @@ The UploadThing server token is a Production secret and remains in ignored `.env
 
 ## Remaining acceptance
 
-Audio and scanned-PDF requests were rejected with HTTP 402. A controlled request returned: `This request requires at least $0.50 in balance for files`. Account balance was about $0.22 despite the key having over $2 remaining on its own cap. The owner will add credits; resume these checks afterward. Measured key-usage increase at this checkpoint: USD 0.014744335.
+Audio and scanned-PDF requests were rejected with HTTP 402. A controlled request returned: `This request requires at least $0.50 in balance for files`. The account wallet, rather than the key's own cap, was below that provider minimum. The owner will add credits; resume these checks afterward.
 
 After media acceptance: remove verification fixtures with the required approval, confirm deletion refreshes workspace access, and record final deployment/source state. Only generated document/image fixtures and a public-domain speech test clip were used; no company documents were uploaded for testing.
