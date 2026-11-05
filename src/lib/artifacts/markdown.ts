@@ -1,5 +1,5 @@
 import 'server-only';
-import { MODEL_IDS, modelMode, OPENROUTER_BASE_URL } from '../agent/models';
+import { MAX_REQUEST_OUTPUT_TOKENS, MODEL_IDS, modelMode, OPENROUTER_BASE_URL } from '../agent/models';
 import { ArtifactError, fileExtension, MAX_MARKDOWN_BYTES, uploadError } from './shared';
 
 type InputFile = { name: string; mimeType: string; bytes: Uint8Array };
@@ -76,7 +76,7 @@ async function nativeMarkdown(file: InputFile, options: Options) {
     method: 'POST', signal: AbortSignal.timeout(180_000),
     headers: { authorization: `Bearer ${env.OPENROUTER_API_KEY}`, 'content-type': 'application/json' },
     body: JSON.stringify({
-      model: audio ? 'google/gemini-2.5-flash-lite' : MODEL_IDS['model-1'], stream: false, max_tokens: audio ? 8_000 : 25_000,
+      model: audio ? 'google/gemini-2.5-flash-lite' : MODEL_IDS['model-1'], stream: false, max_tokens: audio ? 8_000 : MAX_REQUEST_OUTPUT_TOKENS,
       ...(audio ? {} : { reasoning: { effort: 'low', exclude: true } }),
       provider: { allow_fallbacks: true, data_collection: 'deny' },
       ...(ext === 'pdf' ? { plugins: [{ id: 'file-parser', pdf: { engine: 'native' } }] } : {}),

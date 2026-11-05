@@ -16,6 +16,7 @@ it('uses native multimodal input once and never fabricates a text view in mock m
     const body = JSON.parse(init!.body as string);
     expect(body.messages[1].content[1].image_url.url).toBe('data:image/png;base64,iVBORw==');
     expect(body.provider.data_collection).toBe('deny');
+    expect(body.max_tokens).toBeLessThanOrEqual(8192);
     return Response.json({ choices: [{ finish_reason: 'stop', message: { content: '## Page 1\nRate: 12.50 per tonne' } }] });
   });
   const env = { PORTIA_MODEL_MODE: 'openrouter', LLM_ALLOW_PAID: 'true', OPENROUTER_API_KEY: 'test-only' };

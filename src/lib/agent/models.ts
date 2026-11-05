@@ -7,6 +7,8 @@ export const MODEL_IDS: Record<ModelAlias, string> = {
 };
 
 export const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
+/** Bound provider credit preauthorization; libfx keeps its existing 25k compaction reserve. */
+export const MAX_REQUEST_OUTPUT_TOKENS = 8192;
 
 /**
  * libfx compacts when a request reaches 80% of the usable window (the context

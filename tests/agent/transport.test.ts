@@ -1,10 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { INSTRUCTIONS, buildTurnInput } from "../../src/lib/agent/prompt";
 import { UsageLedger, createTransport, shapeRequest, stickyKey } from "../../src/lib/agent/transport";
+import { contextLimits } from '../../src/lib/agent/models';
 
 const system = { role: "system", content: INSTRUCTIONS };
 
 describe("request shaping", () => {
+  it('bounds output preauthorization without shrinking the context or changing its cached prefix', () => {
+    const messages = [system, { role: 'user', content: 'hello' }];
+    const shaped = shapeRequest({ model: 'openai/gpt-6.1-sol', messages, max_tokens: 25_000 });
+    expect(shaped.max_tokens).toBe(8192);
+    expect(shaped.messages).toBe(messages);
+    expect(shaped.session_id).toBe(stickyKey(messages));
+    expect(shapeRequest({ model: 'openai/gpt-6.1-sol', messages, max_tokens: 1024 }).max_tokens).toBe(1024);
+    expect(contextLimits()).toEqual({ contextWindow: 400_000, maxOutputTokens: 25_000, compactAt: 300_000 });
+  });
   it("keys the cache by the system prompt and first user message only", () => {
     const first = [system, { role: "user", content: "hello" }];
     const later = [...first, { role: "assistant", content: "hi" }, { role: "user", content: "more" }];
