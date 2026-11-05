@@ -24,7 +24,7 @@ existing just-bash. Keep libfx, memory and append-only conversation caching.
 
 ## Verification
 
-Node 24.19.0: 83 tests pass, including a libfx turn reading an attachment through
+Node 24.19.0: 85 tests pass, including a libfx turn reading an attachment through
 bash. TypeScript and the local production build passed for the initial implementation.
 Source lint passes; existing gitignored `.local` release bundles must be excluded
 (`bun run lint --ignore-pattern '.local/**'`). Eight existing source warnings.
@@ -38,3 +38,5 @@ now also a Vercel Production secret. Required Convex Production settings match
 the owner's authoritative environment file. Production deployment and live
 upload/callback, agent-access, replacement/deletion and multimodal checks are
 authorized and are the remaining release work. No paid UploadThing upgrade.
+
+Live acceptance evidence and the current external credit dependency are in [attachments-live-verification.md](attachments-live-verification.md).
