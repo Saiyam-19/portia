@@ -38,3 +38,15 @@ it('rejects a truncated multimodal conversion instead of marking it ready', asyn
   const fetchImpl = vi.fn<typeof fetch>(async () => Response.json({ choices: [{ finish_reason: 'length', message: { content: 'incomplete transcript' } }] }));
   await expect(artifactMarkdown(file, { env: { PORTIA_MODEL_MODE: 'openrouter', LLM_ALLOW_PAID: 'true', OPENROUTER_API_KEY: 'test-only' }, fetchImpl })).rejects.toThrow(/complete text view/);
 });
+
+it('transcribes audio at upload time without changing either chat model', async () => {
+  const fetchImpl = vi.fn<typeof fetch>(async (_url, init) => {
+    const body = JSON.parse(init!.body as string);
+    expect(body.model).toBe('google/gemini-2.5-flash-lite');
+    expect(body.messages[1].content[1].input_audio.format).toBe('wav');
+    return Response.json({ choices: [{ finish_reason: 'stop', message: { content: 'Reference cedar seven.' } }] });
+  });
+  const text = await artifactMarkdown({ name: 'voice.wav', mimeType: 'audio/wav', bytes: new Uint8Array([1, 2]) }, { env: { PORTIA_MODEL_MODE: 'openrouter', LLM_ALLOW_PAID: 'true', OPENROUTER_API_KEY: 'test-only' }, fetchImpl });
+  expect(text).toContain('Reference cedar seven.');
+  expect(fetchImpl).toHaveBeenCalledTimes(1);
+});

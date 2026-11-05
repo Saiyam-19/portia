@@ -61,9 +61,12 @@ async function nativeMarkdown(file: InputFile, options: Options) {
   if (modelMode(env) !== 'openrouter') throw new ArtifactError('This file needs multimodal conversion. Enable the existing live model configuration, then retry from Artifacts.');
   const ext = fileExtension(file.name);
   const data = Buffer.from(file.bytes).toString('base64');
+  // The two chat models accept images/files but not audio. This is a one-time
+  // upload transcription, using the same provider/key; chat sessions are unchanged.
+  const audio = ['mp3', 'wav', 'm4a', 'ogg'].includes(ext);
   let attachment: Record<string, unknown>;
   if (ext === 'pdf') attachment = { type: 'file', file: { filename: file.name, file_data: `data:application/pdf;base64,${data}` } };
-  else if (['mp3', 'wav', 'm4a', 'ogg'].includes(ext)) attachment = { type: 'input_audio', input_audio: { data, format: ext } };
+  else if (audio) attachment = { type: 'input_audio', input_audio: { data, format: ext } };
   else {
     const mimeType = ({ png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp' } as Record<string, string>)[ext];
     if (!mimeType) throw new ArtifactError('This file type cannot be converted.');
@@ -73,8 +76,8 @@ async function nativeMarkdown(file: InputFile, options: Options) {
     method: 'POST', signal: AbortSignal.timeout(180_000),
     headers: { authorization: `Bearer ${env.OPENROUTER_API_KEY}`, 'content-type': 'application/json' },
     body: JSON.stringify({
-      model: MODEL_IDS['model-1'], stream: false, max_tokens: 25_000,
-      reasoning: { effort: 'low', exclude: true },
+      model: audio ? 'google/gemini-2.5-flash-lite' : MODEL_IDS['model-1'], stream: false, max_tokens: audio ? 8_000 : 25_000,
+      ...(audio ? {} : { reasoning: { effort: 'low', exclude: true } }),
       provider: { allow_fallbacks: true, data_collection: 'deny' },
       ...(ext === 'pdf' ? { plugins: [{ id: 'file-parser', pdf: { engine: 'native' } }] } : {}),
       messages: [
@@ -85,7 +88,7 @@ async function nativeMarkdown(file: InputFile, options: Options) {
   });
   if (!response.ok) throw new ArtifactError(`File conversion is unavailable (status ${response.status}). Retry from Artifacts.`);
   const result = await response.json() as { choices?: Array<{ message?: { content?: string }; finish_reason?: string }>; usage?: Record<string, unknown>; error?: unknown };
-  console.info('artifact_conversion', { modelAlias: 'model-1', usage: result.usage });
+  console.info('artifact_conversion', { modelAlias: audio ? 'audio-transcription' : 'model-1', usage: result.usage });
   const choice = result.choices?.[0];
   if (result.error || choice?.finish_reason !== 'stop' || !choice.message?.content?.trim()) throw new ArtifactError('The model could not produce a complete text view. Split the file or retry from Artifacts.');
   return `> Text view generated from the original file. Check unclear text and figures against the original.\n\n${choice.message.content}`;

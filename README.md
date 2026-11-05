@@ -59,8 +59,9 @@ PDF, DOCX, XLSX, Markdown, UTF-8 text, CSV, JSON, PNG/JPEG/WebP/GIF, MP3/WAV/M4A
 are accepted. Limits: 16 MB per original, four files per message, twenty files per
 conversation, 256 KB per Markdown copy, one hundred PDF pages. Text PDFs, Word and
 Excel are extracted locally. Images, audio and scanned PDFs need the existing
-live OpenRouter configuration and a compatible model: one bounded Model 1 call
-creates their reusable text view. Errors remain visible with Retry/Replace;
+live OpenRouter configuration: one bounded Model 1 call converts images/scans;
+audio uses one Gemini Flash-Lite transcription call through the same provider/key.
+The two chat models and agent loop are unchanged. Errors remain visible with Retry/Replace;
 partial model output is never marked ready. No paid inference is used in tests.
 
 Attachment changes append stable ids, paths and revisions to new user turns.
