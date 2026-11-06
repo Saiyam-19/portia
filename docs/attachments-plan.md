@@ -31,12 +31,16 @@ Source lint passes; existing gitignored `.local` release bundles must be exclude
 Desktop/mobile light/dark fixtures exercised upload selection, attachment-only
 send, preview, rename, search, retry, deletion and error recovery.
 
-## Release in progress
+## Release status
 
 The UploadThing key was created, authenticated and saved in `.env.local`; it is
 now also a Vercel Production secret. Required Convex Production settings match
-the owner's authoritative environment file. Production deployment and live
-upload/callback, agent-access, replacement/deletion and multimodal checks are
-authorized and are the remaining release work. No paid UploadThing upgrade.
+the owner's environment reference. The owner later authorized a new provider
+key from a credited OpenRouter account; it is installed locally and in
+Production. The release is live, with real upload/callback, agent-access,
+replacement, multimodal and deletion checks passing. Verification files and
+their storage copies were removed with approval; the existing agent workspace
+confirmed the deleted mounts were gone. The verification chat was then removed.
+No paid UploadThing upgrade.
 
-Live acceptance evidence and the current external credit dependency are in [attachments-live-verification.md](attachments-live-verification.md).
+Live acceptance evidence is in [attachments-live-verification.md](attachments-live-verification.md).
