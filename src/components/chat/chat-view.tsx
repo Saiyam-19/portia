@@ -15,16 +15,18 @@ import ModelSelector from './model-selector'
 import WorkspaceHeader from '@/components/dashboard/workspace-header'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import type { ArtifactRef } from '@/lib/artifacts/shared'
+import { AttachmentChips } from '@/components/artifacts/attachments'
 
 export type FormField = { name: string; label: string; type: 'text' | 'number' | 'radio' | 'textarea'; placeholder?: string; options?: string[]; unit?: string; hint?: string; required?: boolean }
 export type FormCard = { toolCallId: string; title: string; description?: string; fields: FormField[]; response: { content: string; cancelled: boolean } | null }
 export type Segment = { kind: 'text'; content: string } | { kind: 'tool'; id: string; tool: string; label: string; status: 'running' | 'done' | 'error' } | { kind: 'card'; formCard: FormCard }
-type ChatItem = { id: string; role: 'user' | 'assistant'; segments: Segment[]; streaming?: boolean; interrupted?: boolean }
+type ChatItem = { id: string; role: 'user' | 'assistant'; segments: Segment[]; streaming?: boolean; interrupted?: boolean; attachments?: ArtifactRef[] }
 type StoredSegment = { type: 'text'; text: string } | { type: 'tool'; id: string; name: string; status: 'running' | 'done' | 'error' } | { type: 'form'; form: Omit<FormCard, 'response'> }
 type FormResponse = { toolCallId: string; title: string; values: Record<string, string>; note?: string; cancelled: boolean }
 type EndStatus = Extract<PublicEvent, { type: 'end' }>['status']
 /** The turn this tab is streaming. It stands in for the stored turn until the stored copy has caught up. */
-type Live = { requestId: string; prompt: string; showPrompt: boolean; segments: Segment[]; ended: boolean; status?: EndStatus; error?: string }
+type Live = { requestId: string; prompt: string; showPrompt: boolean; segments: Segment[]; ended: boolean; status?: EndStatus; error?: string; attachments?: ArtifactRef[] }
 
 const FORM_TOOL = 'ask_user_input'
 const TOOL_LABELS: Record<string, string> = { bash: 'Working in the workspace', calculate_charge_batch: 'Calculating charges', search_vessels: 'Searching vessels', get_vessel: 'Checking vessel details' }
@@ -67,12 +69,13 @@ function responseText(form: Omit<FormCard, 'response'>, response: FormResponse) 
   return lines.join('\n') || (response.cancelled ? 'Closed without answers.' : '')
 }
 
-export default function ChatView({ conversationId, initialMessage, initialRequestId, initialModel = 'model-1' }: { conversationId: string; initialMessage?: string; initialRequestId?: string; initialModel?: ChatModel }) {
+export default function ChatView({ conversationId, initialMessage, initialRequestId, initialAttachmentIds = [], initialModel = 'model-1' }: { conversationId: string; initialMessage?: string; initialRequestId?: string; initialAttachmentIds?: string[]; initialModel?: ChatModel }) {
   const router = useRouter()
   const conversation = useQuery(api.conversations.get, { conversationId })
   const history = usePaginatedQuery(api.conversations.turns, conversation ? { conversationId: conversation.id } : 'skip', { initialNumItems: 20 })
   const removeConversation = useMutation(api.conversations.remove)
   const [input, setInput] = useState('')
+  const [attachments, setAttachments] = useState<ArtifactRef[]>([])
   const [selectedModel, selectModel] = useState<ChatModel>()
   const model = selectedModel ?? (initialMessage && conversation?.state === 'idle' && !history.results.length ? initialModel : conversation?.modelAlias ?? initialModel)
   const [streamed, setLive] = useState<Live | null>(null)
@@ -129,13 +132,13 @@ export default function ChatView({ conversationId, initialMessage, initialReques
     return () => clearTimeout(timer)
   }, [conversation, live, follow])
 
-  const submit = useCallback(async (request: Omit<ChatRequest, 'conversationId' | 'requestId' | 'modelAlias'>, prompt: string, options: { showPrompt: boolean; requestId?: string; restore?: string }) => {
+  const submit = useCallback(async (request: Omit<ChatRequest, 'conversationId' | 'requestId' | 'modelAlias'>, prompt: string, options: { showPrompt: boolean; requestId?: string; restore?: string; attachments?: ArtifactRef[] }) => {
     if (!conversation || sending.current) return
     sending.current = true
     reconnects.current = 0
     setLocalError(''); followRef.current = true
     const requestId = options.requestId ?? crypto.randomUUID()
-    setLive({ requestId, prompt, showPrompt: options.showPrompt, segments: [], ended: false })
+    setLive({ requestId, prompt, showPrompt: options.showPrompt, segments: [], ended: false, attachments: options.attachments })
     try {
       const response = await fetch('/api/chat', {
         method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
@@ -145,10 +148,11 @@ export default function ChatView({ conversationId, initialMessage, initialReques
         setLocalError(await responseError(response, 'Couldn’t send. Please try again.'))
         setLive(null)
         if (options.restore) setInput(options.restore)
+        if (options.attachments) setAttachments(options.attachments)
         return
       }
       sending.current = false
-      await follow(response, { prompt, showPrompt: options.showPrompt })
+      await follow(response, { prompt, showPrompt: options.showPrompt, attachments: options.attachments })
     } catch {
       setLocalError('Connection lost. The response continues in the background and appears here when saved.')
       setLive(null)
@@ -159,19 +163,21 @@ export default function ChatView({ conversationId, initialMessage, initialReques
 
   const send = useCallback(async (text: string, requestId?: string) => {
     const message = text.trim()
-    if (!message || running) return
+    const selected = attachments
+    if ((!message && !selected.length) || running) return
     setInput('')
-    await submit({ message }, message, { showPrompt: true, requestId, restore: text })
-  }, [running, submit])
+    setAttachments([])
+    await submit({ ...(message ? { message } : {}), ...(selected.length ? { attachmentIds: selected.map(file => file.id) } : {}) }, message || 'Please review the attached files.', { showPrompt: true, requestId, restore: text, attachments: selected })
+  }, [running, submit, attachments])
 
   useEffect(() => {
     if (!ready || !conversation || !initialMessage || initialSent.current) return
     initialSent.current = true
     const requestId = initialRequestId && /^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(initialRequestId) ? initialRequestId : undefined
     // A conversation with turns has already consumed this navigation intent.
-    if (!history.results.length) queueMicrotask(() => void send(initialMessage, requestId))
+    if (!history.results.length) queueMicrotask(() => void submit({ message: initialMessage, ...(initialAttachmentIds.length ? { attachmentIds: initialAttachmentIds } : {}) }, initialMessage, { showPrompt: true, requestId, restore: initialMessage }))
     window.history.replaceState(null, '', `/dashboard/chat/${conversationId}`)
-  }, [ready, conversation, history.results.length, initialMessage, initialRequestId, conversationId, send])
+  }, [ready, conversation, history.results.length, initialMessage, initialRequestId, initialAttachmentIds, conversationId, submit])
 
   const answerForm = (toolCallId: string, values: Record<string, string>, note: string, cancelled: boolean) => {
     const form = conversation?.pendingForm
@@ -210,13 +216,13 @@ export default function ChatView({ conversationId, initialMessage, initialReques
   for (const turn of turns) {
     const isLive = live?.requestId === turn.requestId
     const formOnly = turn.formResponse && turn.prompt === `${turn.formResponse.cancelled ? 'Dismissed' : 'Submitted'}: ${turn.formResponse.title}`
-    if (!formOnly) items.push({ id: `prompt:${turn.id}`, role: 'user', segments: [{ kind: 'text', content: turn.prompt }] })
+    if (!formOnly) items.push({ id: `prompt:${turn.id}`, role: 'user', segments: [{ kind: 'text', content: turn.prompt }], attachments: turn.attachments })
     const segments = isLive && live ? live.segments : turn.segments.map(segment => fromStored(segment as StoredSegment)).filter((segment): segment is Segment => segment !== null)
     const status = isLive && live?.status ? live.status : turn.status
     items.push({ id: `turn:${turn.id}`, role: 'assistant', segments: withResponses(segments), streaming: isLive ? !live?.ended : turn.status === 'running', interrupted: status === 'cancelled' || status === 'error' })
   }
   if (live && !stored) {
-    if (live.showPrompt && live.prompt) items.push({ id: `prompt:${live.requestId}`, role: 'user', segments: [{ kind: 'text', content: live.prompt }] })
+    if (live.showPrompt && live.prompt) items.push({ id: `prompt:${live.requestId}`, role: 'user', segments: [{ kind: 'text', content: live.prompt }], attachments: live.attachments })
     items.push({ id: `turn:${live.requestId}`, role: 'assistant', segments: withResponses(live.segments), streaming: !live.ended, interrupted: live.status === 'cancelled' || live.status === 'error' })
   }
 
@@ -236,7 +242,7 @@ export default function ChatView({ conversationId, initialMessage, initialReques
             {history.status === 'CanLoadMore' && <Button variant="ghost" onClick={() => { followRef.current = false; history.loadMore(20) }}>Load earlier messages</Button>}
             {history.status === 'LoadingMore' && <p role="status" className="text-xs text-muted-foreground">Loading earlier messages…</p>}
             {items.length === 0 && <p className="py-20 text-center text-sm text-muted-foreground">Start with a port, a vessel, or a question.</p>}
-            {items.map(item => <Message key={item.id} role={item.role} segments={item.segments} streaming={item.streaming} interrupted={item.interrupted} formDisabled={running} onFormSubmit={(id, values, note) => answerForm(id, values, note, false)} onFormCancel={(id, note) => answerForm(id, {}, note, true)} />)}
+            {items.map(item => <div key={item.id}>{!!item.attachments?.length && <div className="mb-2 flex justify-end"><AttachmentChips files={item.attachments} /></div>}<Message role={item.role} segments={item.segments} streaming={item.streaming} interrupted={item.interrupted} formDisabled={running} onFormSubmit={(id, values, note) => answerForm(id, values, note, false)} onFormCancel={(id, note) => answerForm(id, {}, note, true)} /></div>)}
             {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
             <div ref={bottomRef} />
           </div>
@@ -245,7 +251,7 @@ export default function ChatView({ conversationId, initialMessage, initialReques
           {showScrollDown && <Button variant="outline" size="icon-lg" className="absolute -top-12 left-1/2 -translate-x-1/2 rounded-full bg-background" aria-label="Scroll to latest message" onClick={scrollToBottom}><ArrowDown aria-hidden="true" /></Button>}
           <div aria-hidden className="pointer-events-none absolute inset-x-0 -top-10 h-10 bg-gradient-to-b from-transparent to-page" /><div className="relative mx-auto w-full max-w-[700px]">
             {awaitingForm && <div role="status" className="mb-2 flex items-center justify-between gap-3 rounded-xl border border-border bg-muted/40 px-4 py-2 text-xs text-muted-foreground">Complete the details above, or type a reply to skip the form.<ModelSelector value={model} onChange={selectModel} disabled={running} /></div>}
-            <Composer value={input} onChange={setInput} onSend={() => void send(input)} model={model} onModelChange={selectModel} loading={running} onStop={() => void stopRun()} textareaRef={textareaRef} placeholder={awaitingForm ? 'Or reply in your own words…' : 'Ask a follow-up question…'} />
+            <Composer value={input} onChange={setInput} onSend={() => void send(input)} model={model} onModelChange={selectModel} loading={running} onStop={() => void stopRun()} textareaRef={textareaRef} attachments={attachments} onAttachmentsChange={setAttachments} placeholder={awaitingForm ? 'Or reply in your own words…' : 'Ask a follow-up question…'} />
             <p className="mt-2 text-center text-[11px] leading-relaxed text-ink-3">Estimates come from bundled tariff schedules — confirm with the port authority before invoicing.</p>
             {confirmDelete && <div role="alert" className="mt-2 flex flex-wrap items-center gap-2 text-xs"><span>Delete this conversation and its messages?</span><Button variant="destructive" size="sm" disabled={deleting} onClick={() => void remove()}>{deleting ? 'Deleting…' : 'Delete'}</Button><Button variant="ghost" size="sm" disabled={deleting} onClick={() => setConfirmDelete(false)}>Keep conversation</Button></div>}
           </div>

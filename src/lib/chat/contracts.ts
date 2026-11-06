@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { MAX_TURN_ATTACHMENTS } from "../artifacts/shared";
 
 export const modelAliasSchema = z.enum(["model-1", "model-2"]);
 export type ModelAlias = z.infer<typeof modelAliasSchema>;
@@ -45,13 +46,14 @@ export const chatRequestSchema = z.object({
   requestId: z.string().uuid(),
   modelAlias: modelAliasSchema,
   message: z.string().trim().max(4_000).optional(),
+  attachmentIds: z.array(z.string().min(1).max(100)).max(MAX_TURN_ATTACHMENTS).optional(),
   formResponse: z.object({
     toolCallId: z.string().min(1).max(200),
     values: z.record(z.string(), z.string().max(2_000)),
     note: z.string().max(2_000).optional(),
     cancelled: z.boolean(),
   }).strict().optional(),
-}).strict().refine(request => Boolean(request.message) || Boolean(request.formResponse), "Write a message first.");
+}).strict().refine(request => Boolean(request.message) || Boolean(request.formResponse) || Boolean(request.attachmentIds?.length), "Write a message or attach a file first.");
 
 export type ChatRequest = z.infer<typeof chatRequestSchema>;
 

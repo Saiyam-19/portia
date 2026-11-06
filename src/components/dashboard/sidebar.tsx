@@ -35,6 +35,7 @@ export default function Sidebar({ email, name }: { email: string; name: string }
     <VisualSidebar conversations={history.results} activeId={activeId} running={new Set(history.results.filter(chat => chat.state === 'running').map(chat => chat.id))}
       onSelect={id => navigate(`/dashboard/chat/${id}`)} onNew={() => navigate('/dashboard')} onCollapse={() => isMobile ? setOpenMobile(false) : toggleSidebar()}
       searchRef={search}
+      onArtifacts={() => navigate('/dashboard/artifacts')} artifactsActive={pathname === '/dashboard/artifacts'}
       loading={history.status === 'LoadingFirstPage'} account={<AccountMenu name={name} email={email} />}
       footer={<>
         {history.status === 'CanLoadMore' && <Button variant="ghost" size="sm" onClick={() => history.loadMore(30)}>Load more chats</Button>}

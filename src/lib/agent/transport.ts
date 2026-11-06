@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { MAX_REQUEST_OUTPUT_TOKENS } from './models';
 
 type Fetch = (input: string | URL | Request, init?: RequestInit) => Promise<Response>;
 type Message = { role: string; content?: unknown; [key: string]: unknown };
@@ -64,6 +65,7 @@ function addBreakpoints(messages: Message[]): Message[] {
 export function shapeRequest(body: ChatBody): ChatBody {
   return {
     ...body,
+    ...(typeof body.max_tokens === 'number' ? { max_tokens: Math.min(body.max_tokens, MAX_REQUEST_OUTPUT_TOKENS) } : {}),
     messages: needsBreakpoints(body.model) ? addBreakpoints(body.messages) : body.messages,
     session_id: stickyKey(body.messages),
     reasoning: { effort: "low", exclude: true },

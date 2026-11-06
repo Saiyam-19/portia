@@ -3,6 +3,7 @@ import { MEMORY_PATH, memorySetError, notesError } from "../../../convex/lib/mem
 import { loadPortTariffDocuments, SUPPORTED_PORTS } from "../maritime/ports";
 import type { AgentStore, WorkspaceState } from "./store";
 import { MEMORY_DIR, NOTES_PATH, WorkspaceFileSystem } from "./workspace-fs";
+import { artifactPath, MAX_CONVERSATION_FILES, MAX_MARKDOWN_BYTES, type MountedArtifact } from '../artifacts/shared';
 
 export type BashResult = { stdout: string; stderr: string; exitCode: number };
 
@@ -40,10 +41,11 @@ export class ConversationWorkspace {
   private readonly shell: Bash;
   private tail: Promise<unknown> = Promise.resolve();
   private synced: WorkspaceState | undefined;
+  private mounted = new Map<string, string>();
 
   private constructor(private readonly options: { store: AgentStore; conversationId: string; ownerId: string }, documents: Array<{ path: string; contents: string }>) {
     const assetBytes = documents.reduce((total, document) => total + Buffer.byteLength(document.contents), 0);
-    this.fs = new InMemoryFs(Object.fromEntries(documents.map(document => [document.path, document.contents])), { maxTotalBytes: assetBytes + 2 * 1024 * 1024 });
+    this.fs = new InMemoryFs(Object.fromEntries(documents.map(document => [document.path, document.contents])), { maxTotalBytes: assetBytes + 2 * 1024 * 1024 + MAX_CONVERSATION_FILES * MAX_MARKDOWN_BYTES });
     this.commandFs = new WorkspaceFileSystem(this.fs);
     this.shell = new Bash({
       fs: this.commandFs, cwd: "/work", env: CLEAN_ENV,
@@ -58,7 +60,7 @@ export class ConversationWorkspace {
 
   static async create(options: { store: AgentStore; conversationId: string; ownerId: string }) {
     const workspace = new ConversationWorkspace(options, await ports());
-    for (const directory of [MEMORY_DIR, "/notes", "/tmp", "/work"]) await workspace.fs.mkdir(directory, { recursive: true });
+    for (const directory of [MEMORY_DIR, "/notes", "/tmp", "/work", '/files']) await workspace.fs.mkdir(directory, { recursive: true });
     return workspace;
   }
 
@@ -94,12 +96,36 @@ export class ConversationWorkspace {
     return { files, invalid };
   }
 
+  /** Refresh read-only Markdown mounts, including removal from a workspace already in memory. */
+  private async syncArtifacts(files: MountedArtifact[]) {
+    if (files.length > MAX_CONVERSATION_FILES) throw new Error('Too many files attached to this conversation.');
+    const current = new Set(files.map(file => file.id));
+    for (const id of this.mounted.keys()) if (!current.has(id)) {
+      await this.fs.rm(artifactPath(id), { force: true });
+      this.mounted.delete(id);
+    }
+    for (const file of files) {
+      if (!/^[a-zA-Z0-9_-]+$/.test(file.id)) throw new Error('Invalid attachment path.');
+      if (this.mounted.get(file.id) === file.markdownKey) continue;
+      // Invalidate first: failed downloads must never leave an older revision available.
+      await this.fs.rm(artifactPath(file.id), { force: true });
+      this.mounted.delete(file.id);
+      if (!this.options.store.artifactContent) throw new Error('File storage is unavailable.');
+      const content = await this.options.store.artifactContent(file.markdownKey);
+      if (Buffer.byteLength(content) > MAX_MARKDOWN_BYTES) throw new Error('The Markdown file exceeds the workspace limit.');
+      await this.fs.writeFile(artifactPath(file.id), content);
+      this.mounted.set(file.id, file.markdownKey);
+    }
+  }
+
   private async execute(command: string, signal?: AbortSignal): Promise<BashResult> {
     const { store, conversationId, ownerId } = this.options;
     if (!command.trim() || Buffer.byteLength(command) > 16 * 1024) return { stdout: "", stderr: "Commands must be 1 byte to 16 KiB.", exitCode: 2 };
     const state = await store.workspaceState(conversationId, ownerId);
     if (!state) return { stdout: "", stderr: "This conversation no longer exists.", exitCode: 1 };
     if (!sameState(this.synced, state)) await this.sync(state);
+    try { await this.syncArtifacts(state.artifacts ?? []); }
+    catch { return { stdout: '', stderr: 'Attached files could not be refreshed. Try again; no command was run.', exitCode: 1 }; }
 
     let result: BashResult;
     this.commandFs.clearViolation();

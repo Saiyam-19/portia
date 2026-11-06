@@ -19,6 +19,7 @@ The model is mocked by default (`PORTIA_MODEL_MODE=mock`): a scripted OpenAI-com
 - **Tools.** `bash` runs in a per-conversation [just-bash](https://www.npmjs.com/package/just-bash) workspace with read-only tariffs under `/ports`, plus `calculate_charge_batch` (Decimal arithmetic), `search_vessels`, `get_vessel`, and `ask_user_input`. A form ends the turn; the user's answers arrive as the next prompt.
 - **Caching.** The system prompt and tool list are byte-identical for every request. Anything that varies (date, memory, form answers) is sent in a `<context>` envelope at the start of each user turn, so history is append-only and every request reuses the previous prefix. The transport adds a sticky `session_id` per conversation, sets provider preferences (no data collection; fallbacks to another provider when one fails before answering, while a warm cache keeps a conversation on its provider), adds cache breakpoints for models that need them, and records cached-token usage per turn. A provider error that arrives before any output, such as a rate limit, is returned to libfx as an HTTP error so it retries with backoff instead of failing the turn.
 - **Compaction.** The default 400k-token window with a 25k output reserve compacts at about 300k tokens (`PORTIA_CONTEXT_WINDOW` overrides it). After compaction the next turn resends full memory and notes.
+- **Output budget.** Provider requests cap generated output at 8,192 tokens so preauthorization does not reserve 25k tokens against a small key limit. This leaves the context window, compaction reserve and cached input prefix unchanged. Native file conversions reject incomplete output and ask for a smaller file.
 - **Limits.** 24 model calls per turn, a 15-minute turn expiry, one running turn per conversation, and per-user rolling request limits.
 
 ## Memory
@@ -36,3 +37,36 @@ After each bash call the workspace diffs `/memories` and `/notes` and commits th
 `PORTIA_AUTH_MODE=basic` allows fresh email/password signup (passwords of 8–128 characters, no email verification or recovery); `private` restricts accounts to `PORTIA_ALLOWED_EMAILS`. The session cookie prefix remains `portia-migration` for compatibility. Browsers only ever see Model 1 and Model 2, never provider model identifiers. The agent's Convex functions require the server secret; user functions require a live owner session. libfx has no session-delete API, so deleting a conversation removes its Convex records and drops the reference to its session.
 
 Tariff references in `data/ports` are historical documents, not live tariff feeds.
+
+## Attachments and Artifacts
+
+Users upload from the chat's paperclip, drag/drop or paste, or from
+`/dashboard/artifacts`. The Artifacts page lists, previews, downloads, renames,
+replaces and deletes their files. Saved files can be attached to another chat.
+Uploads belong to the signed-in account; only files attached to a conversation
+are mounted there, as read-only `/files/<artifact-id>.md`. Original files and
+their Markdown copies are public-by-link UploadThing objects; Convex stores ownership,
+status, revisions and turn references. No file contents enter saved memory.
+
+Setup: create an UploadThing Free app with its default public-read access and
+set `UPLOADTHING_TOKEN` in the Next server's `.env.local` and deployment environment.
+Never use a `NEXT_PUBLIC_` variable. Public-by-link storage was explicitly chosen
+for this release: anyone holding an original or text-view URL can read it without
+logging in. App authentication protects management and attachment selection, not
+the object URL. The upload UI discloses this before use. Deploy the new
+Convex functions/schema with the frontend using the existing deployment flow.
+
+PDF, DOCX, XLSX, Markdown, UTF-8 text, CSV, JSON, PNG/JPEG/WebP/GIF, MP3/WAV/M4A/OGG
+are accepted. Limits: 16 MB per original, four files per message, twenty files per
+conversation, 256 KB per Markdown copy, one hundred PDF pages. Text PDFs, Word and
+Excel are extracted locally. Images, audio and scanned PDFs need the existing
+live OpenRouter configuration: one bounded Model 1 call converts images/scans;
+audio uses one Gemini Flash-Lite transcription call through the same provider/key.
+The two chat models and agent loop are unchanged. Errors remain visible with Retry/Replace;
+partial model output is never marked ready. No paid inference is used in tests.
+
+Attachment changes append stable ids, paths and revisions to new user turns.
+The system prompt and tools stay fixed; complete documents and temporary signed
+URLs are not repeatedly inserted into model history. Before a bash command the
+workspace refreshes changed/deleted mounts. Deleting an artifact removes future
+file access and its storage objects; text already in chat/session history stays.
