@@ -23,10 +23,12 @@ export async function processArtifact(artifactId: Id<'artifacts'>, ownerId: stri
     markdownKey = await storeMarkdown(artifactId, revision, markdown);
     const saved = await client.mutation(api.artifacts.conversionResult, { secret, artifactId, ownerId, revision, markdownKey });
     if (!saved) { await deleteStoredFiles([markdownKey]); return; }
-    if (file.retiredKeys?.length) {
+    // Saving the new version retires the one it replaced, so read the keys after the save.
+    const retired = (await client.query(api.artifacts.forServer, { secret, artifactId, ownerId })).retiredKeys ?? [];
+    if (retired.length) {
       try {
-        await deleteStoredFiles(file.retiredKeys);
-        await client.mutation(api.artifacts.cleanedUp, { secret, artifactId, ownerId, keys: file.retiredKeys });
+        await deleteStoredFiles(retired);
+        await client.mutation(api.artifacts.cleanedUp, { secret, artifactId, ownerId, keys: retired });
       } catch { console.error('[artifacts] Superseded files await cleanup on deletion', { artifactId }); }
     }
   } catch (error) {

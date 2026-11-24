@@ -1,6 +1,6 @@
 import 'server-only';
 import { MAX_REQUEST_OUTPUT_TOKENS, MODEL_IDS, modelMode, OPENROUTER_BASE_URL } from '../agent/models';
-import { ArtifactError, fileExtension, MAX_MARKDOWN_BYTES, uploadError } from './shared';
+import { ArtifactError, fileExtension, MAX_MARKDOWN_BYTES, MAX_PDF_PAGES, MAX_SCANNED_PDF_PAGES, uploadError } from './shared';
 
 type InputFile = { name: string; mimeType: string; bytes: Uint8Array };
 type Options = { env?: Record<string, string | undefined>; fetchImpl?: typeof fetch };
@@ -20,7 +20,9 @@ export async function artifactMarkdown(file: InputFile, options: Options = {}): 
   const ext = fileExtension(file.name);
   const title = `# ${file.name.replace(/[\r\n]/g, ' ')}\n\n`;
   if (['md', 'txt', 'csv', 'json'].includes(ext)) {
-    const text = new TextDecoder('utf-8', { fatal: true }).decode(file.bytes).replaceAll('\0', '');
+    let text: string;
+    try { text = new TextDecoder('utf-8', { fatal: true }).decode(file.bytes).replaceAll('\0', ''); }
+    catch { throw new ArtifactError('This file is not UTF-8 text. Save or export it as UTF-8, then upload it again.'); }
     if (!text.trim()) throw new ArtifactError('No readable text was found in this file.');
     return checked(title + text);
   }
@@ -43,13 +45,19 @@ export async function artifactMarkdown(file: InputFile, options: Options = {}): 
     return checked(title + '> Values are read from the saved workbook. Formulas are not recalculated.\n\n' + parts.join('\n\n'));
   }
   if (ext === 'pdf') {
-    const { extractText, getDocumentProxy } = await import('unpdf');
+    const { extractText, getDocumentProxy, inspectPages } = await import('unpdf');
     const pdf = await getDocumentProxy(new Uint8Array(file.bytes), { maxImageSize: 16_777_216 });
     try {
-      if (pdf.numPages > 100) throw new ArtifactError('PDFs may contain at most 100 pages. Split the document and upload it again.');
+      if (pdf.numPages > MAX_PDF_PAGES) throw new ArtifactError(`PDFs may contain at most ${MAX_PDF_PAGES} pages. Split the document and upload it again.`);
       const { text } = await extractText(pdf, { mergePages: false });
-      // A page without text may contain a scan or a table image. Do not silently drop it.
-      if (text.length && text.every(page => page.trim())) return checked(title + text.map((page, index) => `## Page ${index + 1}\n\n${page}`).join('\n\n'));
+      const { pages } = await inspectPages(pdf);
+      // A page without text is blank unless it paints an image, which may be a scan or a table image: never drop those silently.
+      const blank = (index: number) => !text[index]?.trim() && (pages[index]?.imageCount ?? 1) === 0;
+      if (text.length && text.some(page => page.trim()) && text.every((page, index) => page.trim() || blank(index))) {
+        return checked(title + text.map((page, index) => `## Page ${index + 1}\n\n${page.trim() ? page : '(blank page)'}`).join('\n\n'));
+      }
+      // One bounded conversion call cannot transcribe a long scan; fail early with a clear limit instead of after a paid call.
+      if (pdf.numPages > MAX_SCANNED_PDF_PAGES) throw new ArtifactError(`Scanned PDFs can be converted up to ${MAX_SCANNED_PDF_PAGES} pages at a time. Split the scan and upload the parts.`);
     } finally { await pdf.loadingTask.destroy(); }
   }
   return checked(title + await nativeMarkdown(file, options));

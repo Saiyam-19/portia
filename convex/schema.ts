@@ -69,6 +69,8 @@ export default defineSchema({
     ownerId: v.string(), name: v.string(), sourceName: v.optional(v.string()), mimeType: v.string(), size: v.number(),
     fileKey: v.string(), markdownKey: v.optional(v.string()),
     retiredKeys: v.optional(v.array(v.string())),
+    /** The last ready version while a replacement converts; restored if the replacement fails. */
+    fallback: v.optional(v.object({ fileKey: v.string(), markdownKey: v.string(), name: v.string(), sourceName: v.optional(v.string()), mimeType: v.string(), size: v.number() })),
     revision: v.number(),
     status: v.union(v.literal('uploading'), v.literal("processing"), v.literal("ready"), v.literal("error"), v.literal("deleting")),
     error: v.optional(v.string()), createdAt: v.number(), updatedAt: v.number(),

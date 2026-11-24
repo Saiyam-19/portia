@@ -22,7 +22,8 @@ export function useArtifactUpload() {
     try {
       const results = await startUpload(files, artifactId ? { artifactId } : {})
       const saved = results?.map(result => result.serverData) ?? []
-      const failed = saved.find(file => file.status !== 'ready')
+      // A ready file can still carry an error: a failed replacement that kept the previous version.
+      const failed = saved.find(file => file.status !== 'ready' || file.error)
       if (failed) setError(failed.error ?? 'Uploaded, but the text view is not ready. Retry from Artifacts.')
       return saved.filter(file => file.status === 'ready').map(({ id, name, mimeType, size, revision }) => ({ id, name, mimeType, size, revision }))
     } catch (cause) {

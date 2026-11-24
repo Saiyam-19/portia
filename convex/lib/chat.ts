@@ -34,9 +34,17 @@ function budgetLimit(name: string, fallback: number, ceiling: number) {
 }
 
 /** Atomic bounded rolling window. At most 120 timestamps/user/kind; deletion cannot reset usage. */
-export async function consumeBudget(ctx: MutationCtx, ownerId: string, kind: "run" | "create") {
-  const minute = budgetLimit(kind === "run" ? "PORTIA_RUNS_PER_MINUTE" : "PORTIA_CREATES_PER_MINUTE", kind === "run" ? 8 : 6, 20);
-  const hour = budgetLimit(kind === "run" ? "PORTIA_RUNS_PER_HOUR" : "PORTIA_CREATES_PER_HOUR", kind === "run" ? 60 : 30, 120);
+const BUDGETS = {
+  run: { minute: ["PORTIA_RUNS_PER_MINUTE", 8, 20], hour: ["PORTIA_RUNS_PER_HOUR", 60, 120] },
+  create: { minute: ["PORTIA_CREATES_PER_MINUTE", 6, 20], hour: ["PORTIA_CREATES_PER_HOUR", 30, 120] },
+  /** Upload batches (up to four files each); separate so uploading never blocks starting a chat. */
+  upload: { minute: ["PORTIA_UPLOADS_PER_MINUTE", 10, 30], hour: ["PORTIA_UPLOADS_PER_HOUR", 60, 120] },
+} as const;
+
+export async function consumeBudget(ctx: MutationCtx, ownerId: string, kind: keyof typeof BUDGETS) {
+  const limit = ([name, fallback, ceiling]: readonly [string, number, number]) => budgetLimit(name, fallback, ceiling);
+  const minute = limit(BUDGETS[kind].minute);
+  const hour = limit(BUDGETS[kind].hour);
   const now = Date.now();
   const row = await ctx.db.query("requestBudgets").withIndex("by_owner_and_kind", q => q.eq("ownerId", ownerId).eq("kind", kind)).unique();
   const timestamps = (row?.timestamps ?? []).filter(time => time > now - 3_600_000);
