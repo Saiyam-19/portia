@@ -2,6 +2,8 @@ import type { FileContent, IFileSystem, InMemoryFs } from "just-bash";
 
 export const MEMORY_DIR = "/memories";
 export const NOTES_PATH = "/notes/current.md";
+/** Writes here are discarded, as on a real system; reads return nothing. */
+export const NULL_DEVICE = "/dev/null";
 const MAX_ENTRIES = 1024;
 const MAX_SCRATCH_BYTES = 1024 * 1024;
 const MAX_MEMORY_FILE_BYTES = 4096;
@@ -10,21 +12,27 @@ const MAX_NOTES_BYTES = 8000;
 const isScratch = (path: string) => path.startsWith("/tmp/") || path.startsWith("/work/");
 const isMemory = (path: string) => path.startsWith(`${MEMORY_DIR}/`);
 
+/** A write the boundary refused. The write is skipped, the command keeps running, and the host reports it. */
+class DeniedWrite extends Error {}
+
 /**
  * The write boundary between a command and the workspace. Commands get this
  * wrapper; the host keeps the underlying filesystem to restore canonical state.
  * Tariffs and mount points are immutable; memory, notes and scratch are writable
- * within size limits, and links are disabled.
+ * within size limits, and links are disabled. A refused write is skipped rather
+ * than aborting the command, so its other output survives; the host then
+ * discards the command's memory and notes edits and reports the refusal.
  */
 export class WorkspaceFileSystem implements IFileSystem {
   private tail: Promise<unknown> = Promise.resolve();
-  private violation: string | undefined;
+  private refused: string | undefined;
   constructor(private readonly inner: InMemoryFs) {}
-  clearViolation() { this.violation = undefined; }
-  assertNoViolation() { if (this.violation) throw new Error(this.violation); }
+  clearViolation() { this.refused = undefined; }
+  /** The first write refused since `clearViolation`, if any. */
+  violation() { return this.refused; }
   private denied(message: string): never {
-    this.violation = message;
-    throw new Error(message);
+    this.refused ??= message;
+    throw new DeniedWrite(message);
   }
 
   private path(input: string) {
@@ -42,7 +50,7 @@ export class WorkspaceFileSystem implements IFileSystem {
     return path;
   }
   private mutate(action: () => Promise<void>) {
-    const next = this.tail.then(action);
+    const next = this.tail.then(action).catch(error => { if (!(error instanceof DeniedWrite)) throw error; });
     this.tail = next.catch(() => undefined);
     return next;
   }
@@ -94,11 +102,13 @@ export class WorkspaceFileSystem implements IFileSystem {
   getAllPaths = () => this.inner.getAllPaths();
 
   writeFile: IFileSystem["writeFile"] = (input, content, options) => this.mutate(async () => {
+    if (this.path(input) === NULL_DEVICE) return;
     const path = this.writable(input);
     await this.contentCapacity(path, this.contentBytes(content, options));
     await this.inner.writeFile(path, content, options);
   });
   appendFile: IFileSystem["appendFile"] = (input, content, options) => this.mutate(async () => {
+    if (this.path(input) === NULL_DEVICE) return;
     const path = this.writable(input);
     await this.contentCapacity(path, await this.size(path) + this.contentBytes(content, options));
     await this.inner.appendFile(path, content, options);
@@ -149,6 +159,6 @@ export class WorkspaceFileSystem implements IFileSystem {
   });
   chmod: IFileSystem["chmod"] = (input, mode) => this.mutate(() => this.inner.chmod(this.writable(input), mode));
   utimes: IFileSystem["utimes"] = (input, atime, mtime) => this.mutate(() => this.inner.utimes(this.writable(input), atime, mtime));
-  symlink: IFileSystem["symlink"] = async () => this.denied("EACCES: links are disabled");
-  link: IFileSystem["link"] = async () => this.denied("EACCES: links are disabled");
+  symlink: IFileSystem["symlink"] = () => this.mutate(async () => this.denied("EACCES: links are disabled"));
+  link: IFileSystem["link"] = () => this.mutate(async () => this.denied("EACCES: links are disabled"));
 }

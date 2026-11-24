@@ -219,10 +219,9 @@ class Parser {
     }
     if (name === "round" && (args.length === 1 || args.length === 2)) {
       const places = args[1]?.value ?? new D(0);
-      if (places.isInteger() && places.gte(0) && places.lte(8)) {
-        const count = places.toNumber();
-        return numeric(args[0]!.value.toDecimalPlaces(count, Decimal.ROUND_HALF_UP), -count);
-      }
+      if (!places.isInteger() || places.lt(0) || places.gt(8)) throw new Error("round() takes 0 to 8 decimal places, for example round(x, 2).");
+      const count = places.toNumber();
+      return numeric(args[0]!.value.toDecimalPlaces(count, Decimal.ROUND_HALF_UP), -count);
     }
     return this.invalid();
   }
@@ -230,7 +229,16 @@ class Parser {
 
 export function calculateTariffExpression(expression: string): string {
   if (expression.length > MAX_EXPRESSION_LENGTH) throw new Error("Expression too long.");
-  const result = new Parser(tokenize(expression)).parse();
+  let result: Numeric;
+  try {
+    result = new Parser(tokenize(expression)).parse();
+  } catch (error) {
+    // Commas separate function arguments, so 1,234.50 is not a number; when that is the likely cause, say so.
+    if (/\d,\d{2,3}(?:\D|$)/.test(expression) && /^Use numbers/.test((error as Error).message)) {
+      throw new Error("Remove thousands separators from numbers: write 1234.50, not 1,234.50.");
+    }
+    throw error;
+  }
   if (result.exponent !== undefined && result.exponent < 0) {
     const output = result.value.toFixed(-result.exponent);
     return result.value.isZero() && result.value.isNegative() ? `-${output}` : output;

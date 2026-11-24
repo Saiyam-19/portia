@@ -2,7 +2,7 @@ import { Bash, InMemoryFs } from "just-bash";
 import { MEMORY_PATH, memorySetError, notesError } from "../../../convex/lib/memory";
 import { loadPortTariffDocuments, SUPPORTED_PORTS } from "../maritime/ports";
 import type { AgentStore, WorkspaceState } from "./store";
-import { MEMORY_DIR, NOTES_PATH, WorkspaceFileSystem } from "./workspace-fs";
+import { MEMORY_DIR, NOTES_PATH, NULL_DEVICE, WorkspaceFileSystem } from "./workspace-fs";
 import { artifactPath, MAX_CONVERSATION_FILES, MAX_MARKDOWN_BYTES, type MountedArtifact } from '../artifacts/shared';
 
 export type BashResult = { stdout: string; stderr: string; exitCode: number };
@@ -60,7 +60,8 @@ export class ConversationWorkspace {
 
   static async create(options: { store: AgentStore; conversationId: string; ownerId: string }) {
     const workspace = new ConversationWorkspace(options, await ports());
-    for (const directory of [MEMORY_DIR, "/notes", "/tmp", "/work", '/files']) await workspace.fs.mkdir(directory, { recursive: true });
+    for (const directory of [MEMORY_DIR, "/notes", "/tmp", "/work", '/files', "/dev"]) await workspace.fs.mkdir(directory, { recursive: true });
+    await workspace.fs.writeFile(NULL_DEVICE, "");
     return workspace;
   }
 
@@ -130,13 +131,22 @@ export class ConversationWorkspace {
     let result: BashResult;
     this.commandFs.clearViolation();
     try {
-      result = bounded(await this.shell.exec(command, { replaceEnv: true, env: CLEAN_ENV, cwd: "/work", signal, rawScript: true }));
-      this.commandFs.assertNoViolation();
+      result = await this.shell.exec(command, { replaceEnv: true, env: CLEAN_ENV, cwd: "/work", signal, rawScript: true });
     } catch (cause) {
       await this.sync(state);
       signal?.throwIfAborted();
       return { stdout: "", stderr: `Command rejected: ${cause instanceof Error ? cause.message : "workspace error"}. Nothing was saved.`, exitCode: 1 };
     }
+    const violation = this.commandFs.violation();
+    if (violation) {
+      // The refused write was skipped; keep the output but none of this command's memory or notes edits.
+      await this.sync(state);
+      const note = `Write refused: ${violation}. That write was skipped and nothing in /memories or /notes was saved.`;
+      // Appended after bounding so the refusal is never truncated away.
+      const output = bounded(result);
+      return { ...output, stderr: `${output.stderr}${output.stderr && !output.stderr.endsWith("\n") ? "\n" : ""}${note}`, exitCode: output.exitCode || 1 };
+    }
+    result = bounded(result);
 
     const { files, invalid } = await this.readMemoryFiles();
     const notes = await this.fs.exists(NOTES_PATH) ? await this.fs.readFile(NOTES_PATH) : "";
