@@ -8,11 +8,11 @@ const system = { role: "system", content: INSTRUCTIONS };
 describe("request shaping", () => {
   it('bounds output preauthorization without shrinking the context or changing its cached prefix', () => {
     const messages = [system, { role: 'user', content: 'hello' }];
-    const shaped = shapeRequest({ model: 'openai/gpt-6.1-sol', messages, max_tokens: 25_000 });
+    const shaped = shapeRequest({ model: 'openai/gpt-6.1-terra', messages, max_tokens: 25_000 });
     expect(shaped.max_tokens).toBe(8192);
     expect(shaped.messages).toBe(messages);
     expect(shaped.session_id).toBe(stickyKey(messages));
-    expect(shapeRequest({ model: 'openai/gpt-6.1-sol', messages, max_tokens: 1024 }).max_tokens).toBe(1024);
+    expect(shapeRequest({ model: 'openai/gpt-6.1-terra', messages, max_tokens: 1024 }).max_tokens).toBe(1024);
     expect(contextLimits()).toEqual({ contextWindow: 400_000, maxOutputTokens: 25_000, compactAt: 300_000 });
   });
   it("keys the cache by the system prompt and first user message only", () => {
@@ -24,7 +24,7 @@ describe("request shaping", () => {
 
   it("routes privately with fallbacks and adds breakpoints only where needed", () => {
     const messages = [system, { role: "user", content: "hello" }];
-    const openai = shapeRequest({ model: "openai/gpt-6.1-sol", messages });
+    const openai = shapeRequest({ model: "openai/gpt-6.1-terra", messages });
     expect(openai.messages).toBe(messages);
     expect(openai.provider).toEqual({ allow_fallbacks: true, require_parameters: true, data_collection: "deny" });
     expect(openai.usage).toEqual({ include: true });
@@ -44,7 +44,7 @@ describe("request shaping", () => {
       sent = JSON.parse(String(init?.body));
       return new Response(sse, { headers: { "content-type": "text/event-stream" } });
     } });
-    const body = new TextEncoder().encode(JSON.stringify({ model: "openai/gpt-6.1-sol", messages: [system, { role: "user", content: "hello" }], stream: true }));
+    const body = new TextEncoder().encode(JSON.stringify({ model: "openai/gpt-6.1-terra", messages: [system, { role: "user", content: "hello" }], stream: true }));
     const response = await transport("https://openrouter.ai/api/v1/chat/completions", { method: "POST", body });
     expect(await response.text()).toBe(sse);
     expect(sent.session_id).toBeTypeOf("string");
@@ -54,7 +54,7 @@ describe("request shaping", () => {
 });
 
 describe("provider errors", () => {
-  const request = () => new TextEncoder().encode(JSON.stringify({ model: "openai/gpt-6.1-sol", messages: [system, { role: "user", content: "hello" }], stream: true }));
+  const request = () => new TextEncoder().encode(JSON.stringify({ model: "openai/gpt-6.1-terra", messages: [system, { role: "user", content: "hello" }], stream: true }));
   const sseFrom = (...events: string[]) => async () => new Response(events.join(""), { headers: { "content-type": "text/event-stream", "retry-after": "2" } });
   const rateLimited = `data: ${JSON.stringify({ id: "gen-2", provider: "Azure", choices: [], error: { code: 429, message: "rate-limited upstream", metadata: { error_type: "rate_limit_exceeded" } } })}\n\n`;
 

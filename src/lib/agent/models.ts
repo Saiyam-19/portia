@@ -2,7 +2,7 @@ import type { ModelAlias } from "../chat/contracts";
 
 /** OpenRouter model behind each alias. The UI and the model only ever say "Model 1" and "Model 2". */
 export const MODEL_IDS: Record<ModelAlias, string> = {
-  "model-1": "openai/gpt-6.1-sol",
+  "model-1": "openai/gpt-6.1-terra",
   "model-2": "deepseek/deepseek-v4.1-flash-1017",
 };
 
