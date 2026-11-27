@@ -58,11 +58,18 @@ Convex functions/schema with the frontend using the existing deployment flow.
 
 PDF, DOCX, XLSX, Markdown, UTF-8 text, CSV, JSON, PNG/JPEG/WebP/GIF, MP3/WAV/M4A/OGG
 are accepted. Limits: 16 MB per original, four files per message, twenty files per
-conversation, 256 KB per Markdown copy, one hundred PDF pages. Text PDFs, Word and
-Excel are extracted locally. Images, audio and scanned PDFs need the existing
+conversation, 256 KB per Markdown copy, one hundred PDF pages (ten for scanned PDFs,
+which go through one bounded model call). Text PDFs, Word and
+Excel are extracted locally; blank pages stay local, and only pages that paint images
+send a PDF to model conversion. Text files must be UTF-8. Images, audio and scanned PDFs need the existing
 live OpenRouter configuration: one bounded Model 1 call converts images/scans;
 audio uses one Gemini Flash-Lite transcription call through the same provider/key.
-The two chat models and agent loop are unchanged. Errors remain visible with Retry/Replace;
+The two chat models and agent loop are unchanged. A replacement that fails to convert
+keeps the previous ready version in use and shows the error. Upload batches have their
+own rolling limit (`PORTIA_UPLOADS_PER_MINUTE`/`_PER_HOUR`, default 10/60), separate from
+new chats. If an attached file cannot be downloaded, the agent's commands still run and
+the file is reported as unavailable. Chat answers show images as links and never load them,
+so a prompt injection cannot leak data through an image URL. Errors remain visible with Retry/Replace;
 partial model output is never marked ready. No paid inference is used in tests.
 
 Attachment changes append stable ids, paths and revisions to new user turns.

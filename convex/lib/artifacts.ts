@@ -12,6 +12,12 @@ export async function ownedArtifact(ctx: QueryCtx | MutationCtx, id: Id<'artifac
   if (!file || file.ownerId !== ownerId) fail('NOT_FOUND', 'File not found.');
   return file;
 }
+/** Route-supplied ids are untrusted strings: a malformed one is simply not found. */
+export function artifactIdFrom(ctx: QueryCtx | MutationCtx, raw: string): Id<'artifacts'> {
+  const id = ctx.db.normalizeId('artifacts', raw);
+  if (!id) fail('NOT_FOUND', 'File not found.');
+  return id;
+}
 export function artifactRef(file: Doc<'artifacts'>) {
   return { id: file._id as string, name: file.name, mimeType: file.mimeType, size: file.size, revision: file.revision };
 }

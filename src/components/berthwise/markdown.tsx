@@ -6,6 +6,12 @@ import remarkGfm from 'remark-gfm'
 import { cn } from '@/lib/utils'
 
 const components: Components = {
+  // Model output can echo text from uploaded documents. An image would load its URL
+  // without a click, so a prompt injection could leak data through the query string;
+  // show images as ordinary links instead.
+  img: ({ src, alt }) => typeof src === 'string' && /^https?:\/\//i.test(src)
+    ? <a href={src} target="_blank" rel="noreferrer noopener" className="text-accent-ink underline decoration-accent/30 underline-offset-[3px]">{alt?.trim() || 'Image link'}</a>
+    : <span>{alt}</span>,
   p: ({ children }) => <p className="stream-block my-2.5 first:mt-0 last:mb-0">{children}</p>,
   strong: ({ children }) => <strong className="font-semibold text-ink">{children}</strong>,
   em: ({ children }) => <em className="text-ink-2 italic">{children}</em>,

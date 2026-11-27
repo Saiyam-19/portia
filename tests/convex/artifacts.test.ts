@@ -73,3 +73,37 @@ it('cannot resurrect a reserved upload deleted before its completion callback', 
   await t.mutation(api.artifacts.finishDelete, { secret, artifactId: slot.artifactId, ownerId: a.ownerId, revision: target.revision });
   expect(await t.mutation(api.artifacts.registerUpload, { secret, ownerId: a.ownerId, ...slot, name: 'pending.txt', mimeType: 'text/plain', size: 10, fileKey: 'late-key' })).toBeNull();
 });
+
+it('keeps the previous version when a replacement fails to convert', async () => {
+  const t = setup(); const a = await account(t, 'a@example.com'); const file = await upload(t, a.ownerId);
+  const replaced = await t.mutation(api.artifacts.registerUpload, { secret, ownerId: a.ownerId, artifactId: file.id, expectedRevision: 1, name: 'new.txt', mimeType: 'text/plain', size: 50, fileKey: 'new-original' });
+  expect(replaced).toMatchObject({ started: true, revision: 2 });
+  expect(await t.mutation(api.artifacts.conversionResult, { secret, ownerId: a.ownerId, artifactId: file.id, revision: 2, error: 'Unreadable.' })).toBe(true);
+  const restored = await a.client.query(api.artifacts.get, { artifactId: file.id });
+  expect(restored).toMatchObject({ status: 'ready', name: 'contract.txt', markdownKey: 'markdown1', revision: 2 });
+  expect(restored.error).toMatch(/previous version is still in use/);
+  const conversationId = await a.client.mutation(api.conversations.create, {});
+  await a.client.mutation(api.conversations.claimTurn, { conversationId, requestId: crypto.randomUUID(), modelAlias: 'model-1', attachmentIds: [file.id] });
+  expect((await t.query(api.agent.workspaceState, { secret, conversationId, ownerId: a.ownerId }))?.artifacts).toMatchObject([{ id: file.id, markdownKey: 'markdown1' }]);
+  const target = await a.client.mutation(api.artifacts.beginDelete, { artifactId: file.id });
+  expect(target.keys).toEqual(expect.arrayContaining(['new-original', 'markdown1']));
+});
+
+it('retires the previous version once a replacement succeeds', async () => {
+  const t = setup(); const a = await account(t, 'a@example.com'); const file = await upload(t, a.ownerId);
+  const original = (await a.client.query(api.artifacts.get, { artifactId: file.id })).fileKey;
+  await t.mutation(api.artifacts.registerUpload, { secret, ownerId: a.ownerId, artifactId: file.id, expectedRevision: 1, name: 'new.txt', mimeType: 'text/plain', size: 50, fileKey: 'new-original' });
+  await t.mutation(api.artifacts.conversionResult, { secret, ownerId: a.ownerId, artifactId: file.id, revision: 2, markdownKey: 'markdown2' });
+  const saved = await t.query(api.artifacts.forServer, { secret, ownerId: a.ownerId, artifactId: file.id });
+  expect(saved).toMatchObject({ status: 'ready', markdownKey: 'markdown2', name: 'new.txt' });
+  expect(saved.fallback).toBeUndefined();
+  expect(saved.retiredKeys).toEqual(expect.arrayContaining([original, 'markdown1']));
+});
+
+it('treats malformed artifact ids as not found and budgets uploads separately from chats', async () => {
+  const t = setup(); const a = await account(t, 'a@example.com');
+  await expect(a.client.query(api.artifacts.get, { artifactId: 'not-an-id' })).rejects.toThrow(/not found/);
+  await expect(a.client.mutation(api.artifacts.beginDelete, { artifactId: '../x' })).rejects.toThrow(/not found/);
+  for (let i = 0; i < 7; i++) await a.client.mutation(api.artifacts.reserveUploads, { files: [{ name: `f${i}.txt`, mimeType: 'text/plain', size: 10 }] });
+  await expect(a.client.mutation(api.conversations.create, {})).resolves.toBeTruthy();
+});

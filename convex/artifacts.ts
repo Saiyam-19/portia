@@ -1,7 +1,7 @@
 import { paginationOptsValidator } from 'convex/server';
 import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
-import { artifactView, ownedArtifact, requireArtifactServer } from './lib/artifacts';
+import { artifactIdFrom, artifactView, ownedArtifact, requireArtifactServer } from './lib/artifacts';
 import { consumeBudget, currentOwner, fail, requireOwner } from './lib/chat';
 import { uploadError } from '../src/lib/artifacts/shared';
 
@@ -37,7 +37,7 @@ export const reserveUploads = mutation({
     const ownerId = await requireOwner(ctx);
     if (!args.files.length || args.files.length > 4) fail('INVALID_INPUT', 'Upload between one and four files.');
     for (const file of args.files) { const error = uploadError(file); if (error) fail('INVALID_INPUT', error); }
-    await consumeBudget(ctx, ownerId, 'create');
+    await consumeBudget(ctx, ownerId, 'upload');
     const now = Date.now();
     return await Promise.all(args.files.map(async file => ({
       artifactId: await ctx.db.insert('artifacts', { ...file, sourceName: file.name, ownerId, fileKey: '', revision: 0, status: 'uploading', createdAt: now, updatedAt: now }),
@@ -47,9 +47,9 @@ export const reserveUploads = mutation({
 });
 
 export const get = query({
-  args: { artifactId: v.id('artifacts') },
+  args: { artifactId: v.string() },
   handler: async (ctx, args) => {
-    const file = await ownedArtifact(ctx, args.artifactId, await requireOwner(ctx));
+    const file = await ownedArtifact(ctx, artifactIdFrom(ctx, args.artifactId), await requireOwner(ctx));
     return { ...artifactView(file), fileKey: file.fileKey, markdownKey: file.markdownKey ?? null };
   },
 });
@@ -79,8 +79,13 @@ export const registerUpload = mutation({
     if (args.artifactId) {
       const file = await ctx.db.get(args.artifactId);
       if (!file || file.ownerId !== args.ownerId || file.revision !== args.expectedRevision || file.status === 'deleting') return null;
-      const retiredKeys = [...(file.retiredKeys ?? []), file.fileKey, ...(file.markdownKey ? [file.markdownKey] : [])].filter(Boolean);
-      await ctx.db.patch(file._id, { ...fields, revision: file.revision + 1, retiredKeys });
+      // Keep a ready version to fall back on; anything else is superseded now.
+      const fallback = file.status === 'ready' && file.markdownKey && file.fileKey
+        ? { fileKey: file.fileKey, markdownKey: file.markdownKey, name: file.name, sourceName: file.sourceName, mimeType: file.mimeType, size: file.size }
+        : undefined;
+      const superseded = fallback ? [] : [file.fileKey, ...(file.markdownKey ? [file.markdownKey] : [])];
+      const retiredKeys = [...(file.retiredKeys ?? []), ...(file.fallback ? [file.fallback.fileKey, file.fallback.markdownKey] : []), ...superseded].filter(Boolean);
+      await ctx.db.patch(file._id, { ...fields, revision: file.revision + 1, retiredKeys, fallback });
       return { id: file._id, revision: file.revision + 1, started: true };
     }
     const id = await ctx.db.insert('artifacts', { ...fields, ownerId: args.ownerId, revision: 1, createdAt: now });
@@ -102,30 +107,45 @@ export const conversionResult = mutation({
     requireArtifactServer(args.secret);
     const file = await ctx.db.get(args.artifactId);
     if (!file || file.ownerId !== args.ownerId || file.revision !== args.revision || file.status !== 'processing') return false;
-    await ctx.db.patch(file._id, { status: args.markdownKey ? 'ready' : 'error', markdownKey: args.markdownKey, error: args.error?.slice(0, 500), updatedAt: Date.now() });
+    const now = Date.now();
+    const fallback = file.fallback;
+    if (args.markdownKey) {
+      const retiredKeys = [...(file.retiredKeys ?? []), ...(fallback ? [fallback.fileKey, fallback.markdownKey] : [])];
+      await ctx.db.patch(file._id, { status: 'ready', markdownKey: args.markdownKey, error: undefined, fallback: undefined, retiredKeys, updatedAt: now });
+    } else if (fallback) {
+      // A failed replacement must not take the working version away from chats that use it.
+      const message = `The replacement could not be converted: ${args.error ?? 'unknown error'} The previous version is still in use.`;
+      await ctx.db.patch(file._id, {
+        status: 'ready', fileKey: fallback.fileKey, markdownKey: fallback.markdownKey, name: fallback.name, sourceName: fallback.sourceName,
+        mimeType: fallback.mimeType, size: fallback.size, error: message.slice(0, 500), fallback: undefined,
+        retiredKeys: [...(file.retiredKeys ?? []), file.fileKey].filter(Boolean), updatedAt: now,
+      });
+    } else {
+      await ctx.db.patch(file._id, { status: 'error', markdownKey: undefined, error: args.error?.slice(0, 500), updatedAt: now });
+    }
     return true;
   },
 });
 
 export const retry = mutation({
-  args: { artifactId: v.id('artifacts') },
+  args: { artifactId: v.string() },
   handler: async (ctx, args) => {
-    const file = await ownedArtifact(ctx, args.artifactId, await requireOwner(ctx));
+    const file = await ownedArtifact(ctx, artifactIdFrom(ctx, args.artifactId), await requireOwner(ctx));
     if (!file.fileKey) fail('INVALID_INPUT', 'The upload did not finish. Replace this file to upload it again.');
     // A timed-out callback can be retried after five minutes; its late result is fenced by the revision.
     if (file.status !== 'error' && !(file.status === 'processing' && file.updatedAt < Date.now() - 300_000)) fail('BUSY', 'This file is not ready to retry.');
     await ctx.db.patch(file._id, { status: 'processing', revision: file.revision + 1, error: undefined, updatedAt: Date.now() });
-    return { ownerId: file.ownerId, revision: file.revision + 1 };
+    return { artifactId: file._id, ownerId: file.ownerId, revision: file.revision + 1 };
   },
 });
 
 export const beginDelete = mutation({
-  args: { artifactId: v.id('artifacts') },
+  args: { artifactId: v.string() },
   handler: async (ctx, args) => {
-    const file = await ownedArtifact(ctx, args.artifactId, await requireOwner(ctx));
+    const file = await ownedArtifact(ctx, artifactIdFrom(ctx, args.artifactId), await requireOwner(ctx));
     const revision = file.status === 'deleting' ? file.revision : file.revision + 1;
     await ctx.db.patch(file._id, { status: 'deleting', revision, updatedAt: Date.now() });
-    return { ownerId: file.ownerId, revision, keys: [...(file.retiredKeys ?? []), file.fileKey, ...(file.markdownKey ? [file.markdownKey] : [])].filter(Boolean) };
+    return { artifactId: file._id, ownerId: file.ownerId, revision, keys: [...(file.retiredKeys ?? []), file.fileKey, ...(file.markdownKey ? [file.markdownKey] : []), ...(file.fallback ? [file.fallback.fileKey, file.fallback.markdownKey] : [])].filter(Boolean) };
   },
 });
 

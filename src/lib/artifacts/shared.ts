@@ -3,6 +3,9 @@ export const MAX_FILE_BYTES = 16 * 1024 * 1024;
 export const MAX_MARKDOWN_BYTES = 256 * 1024;
 export const MAX_TURN_ATTACHMENTS = 4;
 export const MAX_CONVERSATION_FILES = 20;
+export const MAX_PDF_PAGES = 100;
+/** Scans go through one model call capped at 8,192 output tokens, which fits only a few dense pages. */
+export const MAX_SCANNED_PDF_PAGES = 10;
 export const ARTIFACT_ACCEPT = '.md,.txt,.csv,.json,.pdf,.docx,.xlsx,.png,.jpg,.jpeg,.webp,.gif,.mp3,.wav,.m4a,.ogg';
 
 export type ArtifactRef = { id: string; name: string; mimeType: string; size: number; revision: number };

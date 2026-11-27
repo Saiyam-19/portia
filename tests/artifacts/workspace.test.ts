@@ -23,7 +23,7 @@ it('mounts only Markdown, protects it from writes and refreshes replacement/dele
   expect((await workspace.bash('echo kept > /memories/profile.md')).exitCode).toBe(0);
 });
 
-it('does not run a command against stale file contents when refresh fails', async () => {
+it('never serves stale file contents when refresh fails, and keeps the rest of the workspace usable', async () => {
   const store: AgentStore = new FakeStore();
   let key = 'md1';
   const state = store.workspaceState.bind(store);
@@ -32,8 +32,11 @@ it('does not run a command against stale file contents when refresh fails', asyn
   const workspace = await ConversationWorkspace.create({ store, conversationId: 'failure', ownerId: 'owner-1' });
   expect((await workspace.bash('cat /files/file2.md')).stdout).toContain('old');
   key = 'md2';
-  const failed = await workspace.bash('cat /files/file2.md; echo should-not-run');
-  expect(failed.exitCode).not.toBe(0);
+  const failed = await workspace.bash('cat /files/file2.md; echo still-runs');
   expect(failed.stdout).not.toContain('old');
-  expect(failed.stdout).not.toContain('should-not-run');
+  expect(failed.stdout).toContain('still-runs');
+  expect(failed.stderr).toMatch(/Unavailable right now.*\/files\/file2\.md \("x\.txt"\)/);
+  expect((await workspace.bash('ls /ports | head -1')).stdout).toBe('bpcl-cargo-jetty\n');
+  key = 'md1';
+  expect((await workspace.bash('cat /files/file2.md')).stdout).toContain('old');
 });

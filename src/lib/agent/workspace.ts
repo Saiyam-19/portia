@@ -42,6 +42,8 @@ export class ConversationWorkspace {
   private tail: Promise<unknown> = Promise.resolve();
   private synced: WorkspaceState | undefined;
   private mounted = new Map<string, string>();
+  /** Attachments the last refresh could not download, reported with that command's output. */
+  private unavailable: string[] = [];
 
   private constructor(private readonly options: { store: AgentStore; conversationId: string; ownerId: string }, documents: Array<{ path: string; contents: string }>) {
     const assetBytes = documents.reduce((total, document) => total + Buffer.byteLength(document.contents), 0);
@@ -66,7 +68,13 @@ export class ConversationWorkspace {
   }
 
   bash(command: string, signal?: AbortSignal): Promise<BashResult> {
-    const next = this.tail.then(() => this.execute(command, signal));
+    const next = this.tail.then(async () => {
+      this.unavailable = [];
+      const result = await this.execute(command, signal);
+      if (!this.unavailable.length) return result;
+      const note = `Unavailable right now (could not be downloaded; not mounted, so do not use it as a source): ${this.unavailable.join(', ')}.`;
+      return { ...result, stderr: `${result.stderr}${result.stderr && !result.stderr.endsWith('\n') ? '\n' : ''}${note}` };
+    });
     this.tail = next.catch(() => undefined);
     return next;
   }
@@ -111,11 +119,16 @@ export class ConversationWorkspace {
       // Invalidate first: failed downloads must never leave an older revision available.
       await this.fs.rm(artifactPath(file.id), { force: true });
       this.mounted.delete(file.id);
-      if (!this.options.store.artifactContent) throw new Error('File storage is unavailable.');
-      const content = await this.options.store.artifactContent(file.markdownKey);
-      if (Buffer.byteLength(content) > MAX_MARKDOWN_BYTES) throw new Error('The Markdown file exceeds the workspace limit.');
-      await this.fs.writeFile(artifactPath(file.id), content);
-      this.mounted.set(file.id, file.markdownKey);
+      try {
+        if (!this.options.store.artifactContent) throw new Error('File storage is unavailable.');
+        const content = await this.options.store.artifactContent(file.markdownKey);
+        if (Buffer.byteLength(content) > MAX_MARKDOWN_BYTES) throw new Error('The Markdown file exceeds the workspace limit.');
+        await this.fs.writeFile(artifactPath(file.id), content);
+        this.mounted.set(file.id, file.markdownKey);
+      } catch {
+        // One unreadable file must not block tariffs, memory or other attachments; it stays unmounted and is reported.
+        this.unavailable.push(`${artifactPath(file.id)} (${JSON.stringify(file.name)})`);
+      }
     }
   }
 
