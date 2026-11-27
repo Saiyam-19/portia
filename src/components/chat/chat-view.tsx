@@ -95,9 +95,13 @@ export default function ChatView({ conversationId, initialMessage, initialReques
   const turns = [...history.results].reverse()
   const ready = conversation !== undefined && history.status !== 'LoadingFirstPage'
   const streamedTurn = streamed ? turns.find(turn => turn.requestId === streamed.requestId) : undefined
-  // A finished stream hands its turn back to the stored projection once that has caught up.
-  const live = streamed?.ended && streamedTurn && streamedTurn.status !== 'running' ? null : streamed
+  // The stored projection takes over once it has recorded the turn's end, even if the stream
+  // never delivered its own end (a stalled connection would otherwise leave "Working on it…").
+  const storedFinished = Boolean(streamedTurn && streamedTurn.status !== 'running')
+  const live = storedFinished ? null : streamed
   const stored = live ? streamedTurn : undefined
+  // Release a stream that is still open after the saved turn has finished.
+  useEffect(() => { if (storedFinished && streamed && !streamed.ended) streamAbort.current?.abort() }, [storedFinished, streamed])
   const running = conversation?.state === 'running' || Boolean(live && !live.ended)
 
   /** Streams a turn's events into `live` until the server closes the stream. */

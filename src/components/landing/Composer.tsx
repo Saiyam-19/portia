@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { gsap, prefersReducedMotion } from "@/lib/landing/motion";
+import { saveDraft } from "@/lib/chat/draft";
 
 /** Illustrative asks; the Mumbai figures match the design's Portia mock estimate. */
 const PROMPTS = [
@@ -11,7 +12,7 @@ const PROMPTS = [
   "Estimate a call at Kandla for IMO 9321483",
   "Berth hire at Chennai, two days alongside",
 ];
-const THANKS = "Thanks. Your estimate is on its way.";
+const THANKS = "Opening Berthwise…";
 
 /**
  * beUI's text cascade (beui.dev/components/motion/text-animation), in GSAP: the old letters roll
@@ -86,9 +87,11 @@ export function Composer() {
           field.current?.focus();
           return;
         }
-        // No backend yet: acknowledge locally.
+        // Carry the question into the app; signing in returns to /dashboard, which picks it up.
+        saveDraft(value);
         setSent(true);
-        setValue("");
+        // The app has its own root layout, so this is a full page load.
+        window.location.assign(new URL("/dashboard", window.location.origin).href);
       }}
     >
       <label className="sr-only" htmlFor="composer-input">
