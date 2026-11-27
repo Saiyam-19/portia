@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useMutation } from 'convex/react'
 import { api } from '../../../../convex/_generated/api'
@@ -11,6 +11,7 @@ import Composer from '@/components/chat/composer'
 import WorkspaceHeader from '@/components/dashboard/workspace-header'
 import type { ChatModel } from '@/lib/chat-model'
 import type { ArtifactRef } from '@/lib/artifacts/shared'
+import { takeDraft } from '@/lib/chat/draft'
 
 const PROMPTS = [
   { label: 'Estimate a port call', detail: 'Charges for a vessel at Mumbai', text: 'Help me estimate port charges for my vessel at Mumbai.', icon: Calculator },
@@ -29,6 +30,12 @@ export default function DashboardPage() {
   const sendingRef = useRef(false)
   const router = useRouter()
   const createConversation = useMutation(api.conversations.create)
+
+  // A question typed on the landing page waits here, ready to send with the chosen model.
+  useEffect(() => {
+    const draft = takeDraft()
+    if (draft) queueMicrotask(() => { setMessage(draft); textareaRef.current?.focus() })
+  }, [])
 
   const handleSubmit = async () => {
     const text = message.trim() || (attachments.length ? 'Please review the attached files.' : '')
