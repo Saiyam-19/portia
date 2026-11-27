@@ -31,6 +31,7 @@ export async function POST(request: Request) {
       requestId: body.requestId,
       modelAlias: body.modelAlias,
       ...(body.message ? { message: body.message } : {}),
+      ...(body.attachmentIds?.length ? { attachmentIds: body.attachmentIds as Id<'artifacts'>[] } : {}),
       ...(body.formResponse ? { formResponse: body.formResponse } : {}),
     });
     const agent = await berthwiseAgent();
@@ -52,6 +53,7 @@ export async function POST(request: Request) {
       form: claim.form,
       formResponse: claim.formResponse,
       memoryContext: claim.memoryContext,
+      filesContext: claim.filesContext,
     }));
   } catch (error) {
     return errorResponse(error);

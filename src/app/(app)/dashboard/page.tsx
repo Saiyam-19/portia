@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import Composer from '@/components/chat/composer'
 import WorkspaceHeader from '@/components/dashboard/workspace-header'
 import type { ChatModel } from '@/lib/chat-model'
+import type { ArtifactRef } from '@/lib/artifacts/shared'
 
 const PROMPTS = [
   { label: 'Estimate a port call', detail: 'Charges for a vessel at Mumbai', text: 'Help me estimate port charges for my vessel at Mumbai.', icon: Calculator },
@@ -20,6 +21,7 @@ const PROMPTS = [
 
 export default function DashboardPage() {
   const [message, setMessage] = useState('')
+  const [attachments, setAttachments] = useState<ArtifactRef[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [model, setModel] = useState<ChatModel>('model-1')
@@ -29,7 +31,7 @@ export default function DashboardPage() {
   const createConversation = useMutation(api.conversations.create)
 
   const handleSubmit = async () => {
-    const text = message.trim()
+    const text = message.trim() || (attachments.length ? 'Please review the attached files.' : '')
     if (!text || sendingRef.current) return
     sendingRef.current = true
     setLoading(true)
@@ -37,7 +39,8 @@ export default function DashboardPage() {
     try {
       const id = await createConversation({ modelAlias: model })
       const requestId = crypto.randomUUID()
-      router.push(`/dashboard/chat/${id}?q=${encodeURIComponent(text)}&model=${model}&request=${requestId}`)
+      const fileQuery = attachments.length ? `&files=${encodeURIComponent(attachments.map(file => file.id).join(','))}` : ''
+      router.push(`/dashboard/chat/${id}?q=${encodeURIComponent(text)}&model=${model}&request=${requestId}${fileQuery}`)
     } catch {
       setError('Couldn’t start the conversation. Your message is saved here — please try again.')
       setLoading(false)
@@ -56,7 +59,7 @@ export default function DashboardPage() {
             <p className="text-[13px] text-ink-3">Your port intelligence workspace</p>
             <h1 className="mt-1 text-[26px] font-semibold tracking-[-0.03em] text-ink">Where are we berthing today?</h1>
           </div>
-          <Composer size="hero" value={message} onChange={setMessage} onSend={() => void handleSubmit()} model={model} onModelChange={setModel} loading={loading} textareaRef={textareaRef} />
+          <Composer size="hero" value={message} onChange={setMessage} onSend={() => void handleSubmit()} model={model} onModelChange={setModel} loading={loading} textareaRef={textareaRef} attachments={attachments} onAttachmentsChange={setAttachments} />
           {error && <Alert variant="destructive" className="mt-3"><AlertDescription>{error}</AlertDescription></Alert>}
           <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
             {PROMPTS.map(prompt => (

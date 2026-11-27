@@ -6,6 +6,8 @@ import { conversationNotes, memoryFiles, memoryHead, seenAfterWrite } from "./li
 import { hasServerSecret, portiaEnabled } from "./lib/gate";
 import { contentHash, memorySetError, notesError } from "./lib/memory";
 import { vForm, vMemoryFile, vSegment, vUsage } from "./validators";
+import { vArtifactRef } from './validators';
+import { artifactRef, conversationArtifacts } from './lib/artifacts';
 
 /**
  * Functions the agent runtime calls from the Next server: tool executions, hooks
@@ -103,7 +105,7 @@ export const runningTurn = query({
 
 export const workspaceState = query({
   args: { secret: v.string(), conversationId: v.id("conversations"), ownerId: v.string() },
-  returns: v.union(v.object({ version: v.number(), files: v.array(vMemoryFile), notes: v.string() }), v.null()),
+  returns: v.union(v.object({ version: v.number(), files: v.array(vMemoryFile), notes: v.string(), artifacts: v.array(v.object({ ...vArtifactRef.fields, markdownKey: v.string() })) }), v.null()),
   handler: async (ctx, args) => {
     requireServer(args.secret);
     const conversation = await ownedBy(ctx, args.conversationId, args.ownerId);
@@ -115,6 +117,7 @@ export const workspaceState = query({
       version: head?.version ?? 0,
       files: files.map(file => ({ path: file.path, content: file.content })),
       notes: notes?.content ?? "",
+      artifacts: (await conversationArtifacts(ctx, conversation)).map(file => ({ ...artifactRef(file), markdownKey: file.markdownKey! })),
     };
   },
 });

@@ -3,10 +3,11 @@ import type { PublicEvent } from "../chat/contracts";
 import { createMockFetch } from "./mock-model";
 import { customProvider, MODEL_IDS, modelMode, type ModelMode } from "./models";
 import { ndjsonLines, TurnFold, type StreamLine } from "./projection";
-import { buildTurnInput, INSTRUCTIONS, type FormReply, type MemoryContext } from "./prompt";
+import { buildTurnInput, INSTRUCTIONS, portDate, type FormReply, type MemoryContext } from "./prompt";
 import type { AgentStore, TurnUsage } from "./store";
 import { createTools, type ToolScope } from "./tools";
 import { createTransport, UsageLedger } from "./transport";
+import type { FilesContext } from '../artifacts/shared';
 
 type Fetch = (input: string | URL | Request, init?: RequestInit) => Promise<Response>;
 type Durability = NonNullable<Parameters<typeof createFxAgent>[0]>["durability"];
@@ -33,6 +34,7 @@ export type Claim = {
   form: FormReply["form"];
   formResponse: FormReply["response"] | null;
   memoryContext: MemoryContext | null;
+  filesContext?: FilesContext | null;
 };
 
 export type AgentDeps = {
@@ -189,8 +191,9 @@ export class BerthwiseAgent {
     const scope: ToolScope = { ownerId: claim.ownerId, conversationId: claim.conversationId };
     const session = this.fx.session(sessionId, { model: MODEL_IDS[claim.modelAlias], context: scope });
     const input = buildTurnInput({
-      today: new Date().toISOString().slice(0, 10),
+      today: portDate(),
       memory: claim.memoryContext,
+      files: claim.filesContext,
       message: claim.message,
       formReply: claim.formResponse ? { form: claim.form, response: claim.formResponse } : null,
     });

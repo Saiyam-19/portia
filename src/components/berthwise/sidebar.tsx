@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { PanelLeft, Search, SquarePen, X } from 'lucide-react'
+import { Files, PanelLeft, Search, SquarePen, X } from 'lucide-react'
 export type Conversation = { id: string; title: string; updatedAt: number; pinned?: boolean }
 import { cn } from '@/lib/utils'
 import { Button, Tooltip } from '@/components/berthwise/ui/button'
@@ -80,6 +80,8 @@ export function Sidebar({
   account,
   footer,
   loading,
+  onArtifacts,
+  artifactsActive,
 }: {
   account: React.ReactNode
   footer?: React.ReactNode
@@ -91,6 +93,8 @@ export function Sidebar({
   onNew: () => void
   onCollapse: () => void
   searchRef: React.RefObject<HTMLInputElement | null>
+  onArtifacts?: () => void
+  artifactsActive?: boolean
 }) {
   const [query, setQuery] = useState('')
   const [now] = useState(() => Date.now())
@@ -126,6 +130,7 @@ export function Sidebar({
             <span className="text-[11px] font-normal text-ink-3">Ctrl ⇧ O</span>
           </span>
         </Button>
+        {onArtifacts && <Button variant="ghost" size="md" className={`h-9 w-full justify-start ${artifactsActive ? 'bg-hover-2 text-ink' : ''}`} leading={<Files strokeWidth={1.9} />} onClick={onArtifacts} aria-current={artifactsActive ? 'page' : undefined}>Artifacts</Button>}
         <label className="flex h-8 items-center gap-2 rounded-[9px] px-2.5 text-ink-3 transition-[background-color,box-shadow] duration-150 hover:bg-hover-2/60 focus-within:bg-surface focus-within:shadow-[inset_0_0_0_1px_var(--line-strong)]">
           <Search className="size-3.5 shrink-0" strokeWidth={2} />
           <input

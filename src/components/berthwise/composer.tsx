@@ -106,8 +106,11 @@ export const Composer = forwardRef<
     onStop: () => void
     placeholder?: string
     size?: 'hero' | 'dock'
+    attachmentControl?: React.ReactNode
+    attachmentPreview?: React.ReactNode
+    hasAttachments?: boolean
   }
->(function Composer({ value, onChange: setValue, textareaRef, disabled, busy, model, onModelChange, onSend, onStop, placeholder, size = 'dock' }, ref) {
+>(function Composer({ value, onChange: setValue, textareaRef, disabled, busy, model, onModelChange, onSend, onStop, placeholder, size = 'dock', attachmentControl, attachmentPreview, hasAttachments }, ref) {
   const [caret, setCaret] = useState(0)
   const [active, setActive] = useState(0)
   const [menuClosed, setMenuClosed] = useState(false)
@@ -167,7 +170,7 @@ export const Composer = forwardRef<
     setMenuClosed(true)
   }
 
-  const canSend = value.trim().length > 0 && !busy && !disabled
+  const canSend = (value.trim().length > 0 || hasAttachments) && !busy && !disabled
 
   const submit = () => {
     if (!canSend) return
@@ -249,6 +252,7 @@ export const Composer = forwardRef<
           hero ? 'gap-3 p-3 pt-3.5' : 'gap-2 p-2.5 pt-3',
         )}
       >
+        {attachmentPreview}
         {/* textarea + mirrored highlight layer: identical metrics, so mentions
             get a pill without moving a single glyph or the caret */}
         <div className="relative">
@@ -327,6 +331,7 @@ export const Composer = forwardRef<
           />
         </div>
         <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+          {attachmentControl}
           <Tooltip label="Mention a port" kbd={['@']}>
             <Button
               variant="ghost"

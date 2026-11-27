@@ -9,9 +9,11 @@
  */
 
 import type * as agent from "../agent.js";
+import type * as artifacts from "../artifacts.js";
 import type * as auth from "../auth.js";
 import type * as conversations from "../conversations.js";
 import type * as http from "../http.js";
+import type * as lib_artifacts from "../lib/artifacts.js";
 import type * as lib_chat from "../lib/chat.js";
 import type * as lib_gate from "../lib/gate.js";
 import type * as lib_memory from "../lib/memory.js";
@@ -25,9 +27,11 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   agent: typeof agent;
+  artifacts: typeof artifacts;
   auth: typeof auth;
   conversations: typeof conversations;
   http: typeof http;
+  "lib/artifacts": typeof lib_artifacts;
   "lib/chat": typeof lib_chat;
   "lib/gate": typeof lib_gate;
   "lib/memory": typeof lib_memory;

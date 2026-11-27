@@ -87,6 +87,30 @@ describe("BerthwiseAgent with the mock model", () => {
     expect(finished?.usage?.modelCalls).toBe(2);
   });
 
+  it('reads an attached Markdown file through the libfx tool loop without changing memory', async () => {
+    const mock = createMockFetch();
+    const upstream: typeof mock = async (input, init) => {
+      const body = JSON.parse(String(init?.body));
+      if (body.messages.at(-1)?.role === 'tool') return mock(input, init);
+      expect(body.messages.at(-1)?.content).toContain('/files/attachedfile.md');
+      const events = [
+        { id: 'attachment-generation', choices: [{ index: 0, delta: { role: 'assistant', tool_calls: [{ index: 0, id: 'read-attached-file', type: 'function', function: { name: 'bash', arguments: JSON.stringify({ command: 'cat /files/attachedfile.md' }) } }] }, finish_reason: null }] },
+        { id: 'attachment-generation', choices: [{ index: 0, delta: {}, finish_reason: 'tool_calls' }] },
+      ];
+      return new Response(events.map(event => `data: ${JSON.stringify(event)}\n\n`).join('') + 'data: [DONE]\n\n', { headers: { 'content-type': 'text/event-stream' } });
+    };
+    const env = setup({}, upstream);
+    const file = { id: 'attachedfile', name: 'Contract.pdf', mimeType: 'application/pdf', size: 100, revision: 1 };
+    const state = env.store.workspaceState.bind(env.store);
+    env.store.workspaceState = async (...args) => ({ ...(await state(...args))!, artifacts: [{ ...file, markdownKey: 'private-markdown-key' }] });
+    Object.assign(env.store, { artifactContent: async () => '# Contract\nAgreed pilotage: 12.50 USD per GRT.' });
+    const { events, finished } = await turn(env, { conversationId: 'attachment-loop', message: 'Read my attachment', filesContext: { files: [file], removed: [] } });
+    expect(events).toContainEqual(expect.objectContaining({ type: 'tool', name: 'bash', status: 'done' }));
+    expect(finished?.status).toBe('completed');
+    expect(finished?.segments.filter(segment => segment.type === 'text').map(segment => segment.type === 'text' ? segment.text : '').join('')).toContain('12.50 USD per GRT');
+    expect(env.store.version).toBe(0);
+  });
+
   it("saves and forgets memory files through the workspace", async () => {
     const env = setup();
     const first = await turn(env, { conversationId: "c3", message: "Please remember that my fleet sails under the Indian flag." });
